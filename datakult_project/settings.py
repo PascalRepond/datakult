@@ -127,5 +127,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-
+# Custom user model
 AUTH_USER_MODEL = 'users.CustomUser'
+
+# Auth redirect urls
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
