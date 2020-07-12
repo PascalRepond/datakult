@@ -7,6 +7,11 @@ services:
     environment:
       - SECRET_KEY=j03%v0s6zu#nmf564)dva0)qg2vibb*8e#1!c%65ghx)(9ym^#
       - DEBUG=1
+      - EMAIL_HOST=smtp-relay.sendinblue.com
+      - EMAIL_HOST_USER=pascalr.92@gmail.com
+      - EMAIL_HOST_PASSWORD=GLrDNwHSOC7YRvxk
+      - EMAIL_PORT=587
+      - EMAIL_USE_TLS=1
     volumes:
       - .:/code
     ports:
