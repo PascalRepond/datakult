@@ -1,0 +1,65 @@
+{% extends '_base.html' %}
+{% load class_name %}
+{% load static %}
+
+
+{% block title %}List{% endblock title %}
+
+
+{% block content %}
+
+<ul class="list-group list-group-flush">
+{% for object in object_list %}
+  {% with object|class_name as klass %}
+    <li class="list-group-item d-flex p-2">
+      <div class="d-flex flex-column">
+        <img src="{% static 'images/djangoforprofessionals.jpg' %}" alt="{{ object.title }} miniature" class="p-2 rounded" style="max-height: 100px;">
+        <p class="text-center">{{ klass }}</p>
+      </div>
+      <div class="p-2">
+        <h5>{{ object.title }}</h5>
+        <!-- BOOK -->
+        {% if klass == "BookWork" %}
+        {{ object.author.first }}<br>
+        {% endif %}
+        <!-- GAME -->
+        {% if klass == "Game" %}
+        {{ object.dev.first }}<br>
+        {{ object.publisher.first }}
+        {% endif %}
+        <!-- MOVIE -->
+        {% if klass == "Movie" %}
+        {{ object.director.first }} <br>
+        {% endif %}
+        <!-- SERIES -->
+        {% if klass == "Series" %}
+        {{ object.production_company.first }}<br>
+        {% endif %}
+        {% if klass == "Series" or klass == "Movie" %}
+        <strong>With:</strong> {{ object.actor.first }}
+        {% endif %}
+      </div>
+    </li>
+  {% endwith %}
+{% endfor %}
+</ul>
+
+<div class="pagination">
+  <span class="step-links">
+      {% if page_obj.has_previous %}
+          <a href="?page=1">&laquo; first</a>
+          <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+      {% endif %}
+
+      <span class="current">
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+      </span>
+
+      {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}">next</a>
+          <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+      {% endif %}
+  </span>
+</div>
+
+{% endblock content %}
