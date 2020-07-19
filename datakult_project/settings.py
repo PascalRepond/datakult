@@ -45,10 +45,12 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'isbn_field',
 
     # Local
     'users.apps.UsersConfig',
     'pages.apps.PagesConfig',
+    'library.apps.LibraryConfig',
 ]
 
 # django-crispy-forms
@@ -143,6 +145,11 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
+
+# Media uploads
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Custom user model
 AUTH_USER_MODEL = 'users.CustomUser'
