@@ -1,0 +1,22 @@
+{% extends '_base.html' %}
+{% load static %}
+
+
+{% block content %}
+<div class="d-flex p-4">
+  
+  {% if object.cover %}
+  <img src="{{ object.cover.url }}" alt="{{ object.title }} miniature" class="rounded m-4" style="max-height: 500px;">
+  {% else %}
+  <img src="{% static 'images/cover_placeholder.jpg' %}" alt="{{ object.title }} miniature" class="rounded m-4" style="max-height: 500px;">
+  {% endif %}
+  
+  <div>
+    <h2>{{ object.title }}</h2>
+    <p>{{ object.date }}</p>
+    {% block content_type %}
+    {% endblock content_type %}
+  </div>
+    
+</div>
+{% endblock content %}

@@ -24,3 +24,19 @@ class WorkListView(ListView):
     reverse=True)
     self.count = len(qs)
     return qs
+
+class BookDetailView(DetailView):
+  model = BookWork
+  template_name = 'library/book_detail.html'
+
+class GameDetailView(DetailView):
+  model = Game
+  template_name = 'library/game_detail.html'
+
+class MovieDetailView(DetailView):
+  model = Movie
+  template_name = 'library/movie_detail.html'
+
+class SeriesDetailView(DetailView):
+  model = Series
+  template_name = 'library/series_detail.html'

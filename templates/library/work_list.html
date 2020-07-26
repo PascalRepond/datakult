@@ -13,26 +13,35 @@
   {% with object|class_name as klass %}
     <li class="list-group-item d-flex p-2">
       <div class="d-flex flex-column">
-        <img src="{% static 'images/djangoforprofessionals.jpg' %}" alt="{{ object.title }} miniature" class="p-2 rounded" style="max-height: 100px;">
+
+        {% if object.cover %}
+        <img src="{{ object.cover.url }}" alt="{{ object.title }} miniature" class="m-2 rounded" style="max-height: 100px;">
+        {% else %}
+        <img src="{% static 'images/cover_placeholder.jpg' %}" alt="{{ object.title }} miniature" class="m-2 rounded" style="max-height: 100px;">
+        {% endif %}
+
         <p class="text-center">{{ klass }}</p>
       </div>
       <div class="p-2">
-        <h5>{{ object.title }}</h5>
         <!-- BOOK -->
         {% if klass == "BookWork" %}
+        <h5><a href="{% url 'bookwork_detail' object.pk %}">{{ object.title }}</a></h5>
         {{ object.author.first }}<br>
         {% endif %}
         <!-- GAME -->
         {% if klass == "Game" %}
+        <h5><a href="{% url 'game_detail' object.pk %}">{{ object.title }}</a></h5>
         {{ object.dev.first }}<br>
         {{ object.publisher.first }}
         {% endif %}
         <!-- MOVIE -->
         {% if klass == "Movie" %}
+        <h5><a href="{% url 'movie_detail' object.pk %}">{{ object.title }}</a></h5>
         {{ object.director.first }} <br>
         {% endif %}
         <!-- SERIES -->
         {% if klass == "Series" %}
+        <h5><a href="{% url 'series_detail' object.pk %}">{{ object.title }}</a></h5>
         {{ object.production_company.first }}<br>
         {% endif %}
         {% if klass == "Series" or klass == "Movie" %}
