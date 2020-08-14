@@ -1,33 +1,36 @@
 from django.db import models
 from isbn_field import ISBNField
+from django.utils.translation import gettext as _
+from djrichtextfield.models import RichTextField
 
 # An agent is an entity responsible for a work (it can be either a person or a collectivity)
 
 class Agent(models.Model):
-    viaf_id = models.CharField('VIAF ID', blank=True, null=True, max_length=64)
+    viaf_id = models.CharField(_('VIAF ID'), max_length=64, blank=True, null=True)
     wikidata_uri = models.CharField(
-        'Wikidata URI', max_length=64, blank=True, null=True)
+        _('Wikidata URI'), max_length=64, blank=True, null=True)
 
     class Meta:
         abstract = True
 
 
 class Person(Agent):
-    last_name = models.CharField('Last name', max_length=124)
-    first_name = models.CharField('First name', max_length=124)
+    name = models.CharField('Name', max_length=124, db_index=True, default="NOM")
     birth_date = models.DateField('Date of birth', blank=True, null=True)
     death_date = models.DateField('Date of death', blank=True, null=True)
     image = models.ImageField(
         upload_to='persons/', blank=True, null=True)
+    biography = RichTextField('Biography', blank=True, null=True)
 
     def __str__(self):
-        return self.first_name+" "+self.last_name
+        return self.name
 
 
 class Collectivity(Agent):
-    name = models.CharField('Name', max_length=124, blank=True, null=True)
+    name = models.CharField('Name', max_length=124, null=True, db_index=True)
     logo = models.ImageField(
         upload_to='collectivities/', blank=True, null=True)
+    summary = RichTextField('Summary', blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -40,9 +43,10 @@ class Collectivity(Agent):
 
 class Work(models.Model):
 
-    title = models.CharField('Original title', max_length=255)
+    title = models.CharField('Original title', max_length=255, help_text=_("Provide the title in its original language."))
     date = models.DateField('First publication date', blank=True, null=True)
     cover = models.ImageField(upload_to='covers/', blank=True, null=True)
+    summary = RichTextField('Summary', blank=True, null=True)
     viaf_id = models.CharField('VIAF ID', blank=True, null=True, max_length=64)
     wikidata_uri = models.CharField(
         'Wikidata URI', max_length=64, blank=True, null=True)
@@ -188,7 +192,7 @@ class Movie(Work):
         blank=True,
         related_name='movies_of_producer'
     )
-    actor = models.ManyToManyField(
+    cast = models.ManyToManyField(
         Person,
         blank=True,
         related_name='movies_of_actor'

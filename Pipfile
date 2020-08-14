@@ -12,6 +12,7 @@ django-crispy-forms = "==1.9.1"
 django-allauth = "*"
 django-isbn-field = "*"
 pillow = "*"
+django-richtextfield = "*"
 
 [requires]
 python_version = "3.8"
