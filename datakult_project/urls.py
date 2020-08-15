@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 
 urlpatterns = [
     # Django admin
@@ -28,6 +28,7 @@ urlpatterns = [
     # Local apps
     path('', include('pages.urls')),
     path('', include('library.urls')),
+    re_path(r'^reviews/', include('reviews.urls')),
 
     # Third-party
     path('djrichtextfield/', include('djrichtextfield.urls')),

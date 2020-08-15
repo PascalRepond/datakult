@@ -95,6 +95,9 @@ class BookWork(Work):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return "/books/%i/" % self.id
+
 
 class BookEdition(Work):
 
@@ -169,6 +172,9 @@ class Game(Work):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return "/games/%i/" % self.id
+
 
 # MOVIES
 
@@ -212,6 +218,9 @@ class Movie(Work):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return "/movies/%i/" % self.id
+
 
 # SERIES
 
@@ -235,3 +244,9 @@ class Series(Work):
     origin_lang = models.CharField(
         'Original language', max_length=2, blank=True, null=True)
     tmdb_id = models.CharField('TMDB ID', max_length=24, blank=True, null=True)
+
+    def __str__(self):
+        return self.title
+
+    def get_absolute_url(self):
+        return "/series/%i/" % self.id

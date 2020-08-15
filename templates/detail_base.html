@@ -1,8 +1,12 @@
 {% extends '_base.html' %}
 {% load static %}
+{% load reviews %}
 
 
 {% block content %}
+
+<div>{% render_review_form for object %}</div>
+
 <div class="d-flex p-4">
   
   {% if object.cover %}

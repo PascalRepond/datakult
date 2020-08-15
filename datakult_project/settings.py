@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'pages.apps.PagesConfig',
     'library.apps.LibraryConfig',
+    'reviews.apps.ReviewsAppConfig',
 ]
 
 # django-crispy-forms
@@ -217,3 +219,18 @@ DJRICHTEXTFIELD_CONFIG = {
         'width': 700
     }
 }
+
+# Reviews
+
+REVIEW_RATING_CHOICES = (
+    ('1', _('Detested')),
+    ('2', _('Hated')),
+    ('3', _('Did not like')),
+    ('4', _('Did not really like')),
+    ('5', _('Moderately enjoyed')),
+    ('6', _('Enjoyed')),
+    ('7', _('Liked')),
+    ('8', _('Very much liked')),
+    ('9', _('Loved')),
+    ('10', _('Adored')),
+)
