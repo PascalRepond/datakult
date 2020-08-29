@@ -1,6 +1,10 @@
 {% extends 'detail_base.html' %}
 
 {% block content_type %}
-<p>{{ object.author.first }}</p>
+<p>
+{% for author in object.author.all %}
+  <a href='#' class="bagde badge-primary">{{ author.name }}</a>
+{% endfor %}
+</p>
 <p>{{ object.book_type }}</p>
 {% endblock content_type %}

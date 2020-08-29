@@ -5,7 +5,7 @@ services:
     build: .
     command: python /code/manage.py runserver 0.0.0.0:8000
     environment:
-      - SECRET_KEY=j03%v0s6zu#nmf564)dva0)qg2vibb*8e#1!c%65ghx)(9ym^#
+      - SECRET_KEY=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
       - DEBUG=1
       - EMAIL_HOST=smtp-relay.sendinblue.com
       - EMAIL_HOST_USER=pascalr.92@gmail.com

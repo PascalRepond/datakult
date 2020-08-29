@@ -28,7 +28,6 @@ urlpatterns = [
     # Local apps
     path('', include('pages.urls')),
     path('', include('library.urls')),
-    re_path(r'^reviews/', include('reviews.urls')),
 
     # Third-party
     path('djrichtextfield/', include('djrichtextfield.urls')),
