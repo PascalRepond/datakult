@@ -13,6 +13,7 @@ django-allauth = "*"
 django-isbn-field = "*"
 pillow = "*"
 django-richtextfield = "*"
+django-anymail = {extras = ["mailjet"], version = "*"}
 
 [requires]
 python_version = "3.8"

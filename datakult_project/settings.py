@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'isbn_field',
     'djrichtextfield',
+    'anymail',
 
     # Local
     'users.apps.UsersConfig',
@@ -173,13 +174,16 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
 
-EMAIL_HOST = os.environ.get('EMAIL_HOST')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = os.environ.get('EMAIL_PORT')
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS')
+SENDGRID_API_URL = "https://api.sendgrid.com/v3/"
+
+ANYMAIL = {
+    "SENDGRID_API_KEY": os.environ.get('SENDGRIDKEY')
+}
+
+DEFAULT_FROM_EMAIL = "pascalr.92@gmail.com"
+SERVER_EMAIL = "pascalr.92@gmail.com"
 
 ACCOUNT_SESSION_REMEMBER = True
 
@@ -203,8 +207,6 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
-
-DEFAULT_FROM_EMAIL = 'admin@datakult.com'
 
 # Rich text field module 
 
