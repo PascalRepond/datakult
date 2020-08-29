@@ -12,6 +12,8 @@ class Agent(models.Model):
 
     class Meta:
         abstract = True
+        verbose_name = "agent"
+        verbose_name_plural = "agents"
 
 
 class Person(Agent):
@@ -31,6 +33,10 @@ class Collectivity(Agent):
     logo = models.ImageField(
         upload_to='collectivities/', blank=True, null=True)
     summary = RichTextField('Summary', blank=True, null=True)
+
+    class Meta:
+        verbose_name = "collectivity"
+        verbose_name_plural = "collectivities"
 
     def __str__(self):
         return self.name
@@ -63,6 +69,10 @@ class Work(models.Model):
 class BookSeries(Work):
     author = models.ManyToManyField(
         Person, blank=True, verbose_name='Author', related_name='bookseries_of_author')
+
+    class Meta:
+        verbose_name = "book series"
+        verbose_name_plural = "book series"
 
     def __str__(self):
         return self.title
@@ -136,6 +146,10 @@ class Platform(models.Model):
 
 class GameSeries(Work):
     igdb_id = models.CharField('IGDB ID', max_length=64, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "game series"
+        verbose_name_plural = "game series"
 
     def __str__(self):
         return self.title
@@ -244,6 +258,10 @@ class Series(Work):
     origin_lang = models.CharField(
         'Original language', max_length=2, blank=True, null=True)
     tmdb_id = models.CharField('TMDB ID', max_length=24, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "series"
+        verbose_name_plural = "series"
 
     def __str__(self):
         return self.title

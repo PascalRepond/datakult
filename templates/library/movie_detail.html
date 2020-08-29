@@ -1,6 +1,10 @@
 {% extends 'detail_base.html' %}
 
 {% block content_type %}
-<p>{{ object.director.first }}</p>
-<p>{{ object.actor.first }}</p>
+<p>{% for director in object.director.all %}
+  <a href='#' class="badge badge-primary">{{ director.name }}</a>
+{% endfor %}</p>
+<p>{% for actor in object.actor.all %}
+  <a href='#' class="badge badge-primary">{{ actor.name }}</a>
+{% endfor %}</p>
 {% endblock content_type %}

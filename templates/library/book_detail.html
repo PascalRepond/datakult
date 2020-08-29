@@ -3,7 +3,7 @@
 {% block content_type %}
 <p>
 {% for author in object.author.all %}
-  <a href='#' class="bagde badge-primary">{{ author.name }}</a>
+<a href='#' class="badge badge-primary">{{ author.name }}</a>
 {% endfor %}
 </p>
 <p>{{ object.book_type }}</p>

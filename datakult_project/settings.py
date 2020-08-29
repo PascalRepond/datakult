@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'pages.apps.PagesConfig',
     'library.apps.LibraryConfig',
+    'tracking.apps.TrackingConfig',
 ]
 
 # django-crispy-forms

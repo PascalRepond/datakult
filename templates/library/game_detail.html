@@ -1,7 +1,13 @@
 {% extends 'detail_base.html' %}
 
 {% block content_type %}
-<p>{{ object.dev.first }}</p>
-<p>{{ object.publisher.first }}</p>
-<p>{{ object.platform.first }}</p>
+<p>{% for dev in object.dev.all %}
+  <a href='#' class="badge badge-primary">{{ dev.name }}</a>
+{% endfor %}</p>
+<p>{% for publisher in object.publisher.all %}
+  <a href='#' class="badge badge-primary">{{ publisher.name }}</a>
+{% endfor %}</p>
+<p>{% for platform in object.platform.all %}
+  <a href='#' class="badge badge-warning">{{ platform.name }}</a>
+{% endfor %}</p>
 {% endblock content_type %}
