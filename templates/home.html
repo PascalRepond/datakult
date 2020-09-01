@@ -8,7 +8,7 @@
 <img class="bookcover" src="{% static 'images/djangoforprofessionals.jpg' %}" alt="">
 {% if user.is_authenticated %}
   Hi {{ user.email }}!
-  <p><a href="{% url 'account_logout' %}">Log out</a></p>
+  <p><a href="{% url 'account_logout' %}"><button class="btn btn-outline-danger">Log out</button></a></p>
 {% else %}
   <p>You are not logged in</p>
   <a href="{% url 'account_login' %}">Log in</a>

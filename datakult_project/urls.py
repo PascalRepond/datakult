@@ -28,6 +28,7 @@ urlpatterns = [
     # Local apps
     path('', include('pages.urls')),
     path('', include('library.urls')),
+    path('', include('tracking.urls')),
 
     # Third-party
     path('djrichtextfield/', include('djrichtextfield.urls')),

@@ -21,10 +21,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
+''' UNCOMMENT FOR PRODUCTION '''
+# SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = '2vz58NjHop$d^L8JhD$!*bZU'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get('DEBUG', default=0))
+''' UNCOMMENT FOR PRODUCTION '''
+# DEBUG = int(os.environ.get('DEBUG', default=0))
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -97,12 +101,15 @@ WSGI_APPLICATION = 'datakult_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'db',
-        'PORT': 5432
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db.sqlite3',
+        # UNCOMMENT FOR PRODUCTION
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': 'postgres',
+        # 'USER': 'postgres',
+        # 'PASSWORD': 'postgres',
+        # 'HOST': 'db',
+        # 'PORT': 5432
     }
 }
 

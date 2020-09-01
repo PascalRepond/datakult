@@ -49,11 +49,11 @@ class Collectivity(Agent):
 
 class Work(models.Model):
 
-    title = models.CharField('Original title', max_length=255, help_text=_("Provide the title in its original language."))
-    date = models.DateField('First publication date', blank=True, null=True)
+    title = models.CharField(_('Original title'), max_length=255, help_text=_("Provide the title in its original language."))
+    date = models.DateField(_('First publication date'), blank=True, null=True)
     cover = models.ImageField(upload_to='covers/', blank=True, null=True)
-    summary = RichTextField('Summary', blank=True, null=True)
-    viaf_id = models.CharField('VIAF ID', blank=True, null=True, max_length=64)
+    summary = RichTextField(_('Summary'), blank=True, null=True)
+    viaf_id = models.CharField(_('VIAF ID'), blank=True, null=True, max_length=64)
     wikidata_uri = models.CharField(
         'Wikidata URI', max_length=64, blank=True, null=True)
 
