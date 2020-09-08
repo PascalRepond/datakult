@@ -58,7 +58,6 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'pages.apps.PagesConfig',
     'library.apps.LibraryConfig',
-    'tracking.apps.TrackingConfig',
 ]
 
 # django-crispy-forms
@@ -186,6 +185,7 @@ EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
 
 SENDGRID_API_URL = "https://api.sendgrid.com/v3/"
 
+# SET ENV VARIABLE FOR THIS TO WORK
 ANYMAIL = {
     "SENDGRID_API_KEY": os.environ.get('SENDGRIDKEY')
 }
