@@ -1,0 +1,48 @@
+[project]
+name = "datakult"
+version = "0.1.0"
+description = "Review and analyse the media and culture that you consume."
+readme = "README.md"
+license = {text = "GPL-3.0-or-later"}
+
+requires-python = ">=3.12"
+dependencies = [
+    "django (>=5.0.0)"
+]
+
+[dependency-groups]
+dev = [
+    "ipython>=9.3.0",
+    "ruff>=0.12.4",
+]
+
+[tool.ruff]
+line-length = 88
+src = [
+    "src",
+]
+respect-gitignore = true
+# https://docs.astral.sh/ruff/settings/
+fix = true
+show-fixes = true
+
+extend-exclude = ["*/**/migrations/**", "./src/datakult/settings.py"]
+
+output-format = "grouped"
+
+# https://docs.astral.sh/ruff/rules/
+lint.select = ["ALL"]
+lint.ignore = [
+    "D",
+    "PGH004",
+]
+
+[build-system]
+requires = ["setuptools"]
+
+[tool.setuptools.packages.find]
+where = ["./src"]
+
+[tool.uv]
+required-version = ">=0.7.9"
+package = false
