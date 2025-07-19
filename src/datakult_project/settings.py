@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "accounts",
     "core",
     # External apps
+    "rest_framework",
     "partial_date",
     "markdownfield",
 ]
@@ -108,6 +109,13 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 

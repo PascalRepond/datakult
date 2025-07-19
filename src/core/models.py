@@ -29,9 +29,10 @@ class Media(models.Model):
         blank=False,
         max_length=255,
     )
-    contributor = models.ManyToManyField(
+    contributors = models.ManyToManyField(
         Agent,
-        verbose_name=_("Contributor"),
+        verbose_name=_("Contributor(s)"),
+        related_name="media",
         blank=True,
     )
     media_type = models.CharField(
