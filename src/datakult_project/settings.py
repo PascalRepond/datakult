@@ -31,13 +31,19 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Datakult
     "accounts",
+    "core",
+    # External apps
+    "partial_date",
+    "markdownfield",
 ]
 
 AUTH_USER_MODEL = "accounts.CustomUser"
@@ -52,7 +58,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "datakult.urls"
+ROOT_URLCONF = "datakult_project.urls"
 
 TEMPLATES = [
     {
@@ -69,7 +75,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "datakult.wsgi.application"
+WSGI_APPLICATION = "datakult_project.wsgi.application"
 
 
 # Database
