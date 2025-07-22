@@ -5,7 +5,8 @@ from core import views
 
 router = DefaultRouter()
 router.register(r"media", views.MediaViewset, basename="media")
-router.register(r"agents", views.MediaViewset, basename="agent")
+router.register(r"agents", views.AgentViewset, basename="agent")
 
-
-urlpatterns = [path("", include(router.urls))]
+urlpatterns = [
+    path("", include(router.urls)),
+]
