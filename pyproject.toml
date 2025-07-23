@@ -3,7 +3,7 @@ name = "datakult"
 version = "0.1.0"
 description = "Review and analyse the media and culture that you consume."
 readme = "README.md"
-license = {text = "GPL-3.0-or-later"}
+license = "AGPL-3.0"
 
 requires-python = ">=3.12"
 dependencies = [
@@ -15,8 +15,15 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ipython>=9.3.0",
+    "poethepoet>=0.36.0",
     "ruff>=0.12.4",
 ]
+
+[tool.poe.tasks]
+server = "./src/manage.py runserver"
+makemigrations = "./src/manage.py makemigrations"
+migrate = "./src/manage.py migrate"
+shell = "./src/manage.py shell"
 
 [tool.ruff]
 line-length = 88
@@ -28,7 +35,7 @@ respect-gitignore = true
 fix = true
 show-fixes = true
 
-extend-exclude = ["*/**/migrations/**", "./src/datakult_project/settings.py"]
+extend-exclude = ["*/**/migrations/**", "./src/config/settings.py"]
 
 output-format = "grouped"
 
