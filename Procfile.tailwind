@@ -1,0 +1,2 @@
+django: uv run ./src/manage.py runserver
+tailwind: uv run ./src/manage.py tailwind start
