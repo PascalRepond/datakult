@@ -2,27 +2,47 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Django Tailwind</title>
+    <title>{% block title %}Datakult{% endblock title %}</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    {% tailwind_css %} {% htmx_script %}
+    {% tailwind_css %}
+    {% htmx_script %}
   </head>
 
-  <body
-    class="bg-gray-50 text-black font-serif leading-normal tracking-normal"
-    hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'
-  >
-    <div class="toast toast-top toast-end">
-      <div class="alert alert-info">
-        <span>Hello from daisyUi 👋</span>
+  <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}' class="mx-auto">
+    <div class="">
+      {% block navbar %}
+      <div class="navbar bg-base-100 shadow-sm">
+        <div class="flex-1">
+          <a href="{% url 'home' %}" class="btn btn-ghost text-xl text-primary">Datakult</a>
+        </div>
+        <div class="flex-none">
+          <ul class="menu menu-horizontal px-1">
+            {% if not user.is_authenticated %}
+            <li><a href="{% url 'login' %}">Log in</a></li>
+            {% else %}
+            <li>
+              <div class="avatar">
+                <div class="bg-neutral text-neutral-content w-8 rounded-full">
+                  <span class="text-xs">{{ user.username }}</span>
+                </div>
+              </div>
+            </li>
+            <li>
+              <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit">Log Out</button>
+              </form>
+            </li>
+            {% endif %}
+            
+          </ul>
+        </div>
       </div>
-    </div>
-
-    <div class="container mx-auto">
-      <section class="flex items-center justify-center h-screen">
-        <h1 class="text-5xl">Django + Tailwind = ❤️</h1>
-      </section>
+      {% endblock navbar %}
+      
+      {% block content %}{% endblock content %}
     </div>
   </body>
 </html>
