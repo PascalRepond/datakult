@@ -1,17 +1,24 @@
-{% load static tailwind_tags %} {% load django_htmx %}
+{% load static tailwind_tags %}
+{% load django_htmx %}
+{% load i18n %}
+
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>{% block title %}Datakult{% endblock title %}</title>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    {% tailwind_css %}
-    {% htmx_script %}
-  </head>
+
+<head>
+  <title>{% block title %}Datakult{% endblock title %}</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  {% tailwind_css %}
+  {% htmx_script %}
+</head>
 
   <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}' class="mx-auto">
-    <div class="">
+    <div>
       {% block navbar %}
       <div class="navbar bg-base-100 shadow-sm">
         <div class="flex-1">
@@ -36,13 +43,17 @@
               </form>
             </li>
             {% endif %}
-            
+
           </ul>
         </div>
       </div>
       {% endblock navbar %}
-      
-      {% block content %}{% endblock content %}
-    </div>
+
+      <div class="m-12">
+        {% block content %}{% endblock content %}
+      </div>
+
+      <script src="{% static 'js/base.js' %}"></script>
   </body>
+
 </html>

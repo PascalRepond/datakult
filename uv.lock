@@ -164,7 +164,7 @@ dependencies = [
     { name = "django-htmx" },
     { name = "django-markdownfield" },
     { name = "django-partial-date" },
-    { name = "django-tailwind" },
+    { name = "django-tailwind", extra = ["reload"] },
 ]
 
 [package.dev-dependencies]
@@ -183,7 +183,7 @@ requires-dist = [
     { name = "django-htmx", specifier = ">=1.23.2" },
     { name = "django-markdownfield", specifier = ">=0.11.0" },
     { name = "django-partial-date", specifier = ">=1.3.2" },
-    { name = "django-tailwind", specifier = ">=4.2.0" },
+    { name = "django-tailwind", extras = ["reload"], specifier = ">=4.2.0" },
 ]
 
 [package.metadata.requires-dev]
@@ -283,6 +283,11 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/1e/75/f244c147c6fe04a565f36721cf04d8b36c8bae8bdd17ec1656603d71ce05/django_tailwind-4.2.0.tar.gz", hash = "sha256:60bae45a9981bdf3ebaaa4a8e588533327c90e5857a64f57c26a39b7f234ac0e", size = 11734, upload-time = "2025-07-08T20:56:45.185Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b8/f5/f91497da51098d7a25ee7409a49d24c880e3af3664da0872dbe238a7174b/django_tailwind-4.2.0-py3-none-any.whl", hash = "sha256:ff40ccb263faefac555fbaa340d6014f2b07fee6be2c8d5659f2cd63dbce02e9", size = 19225, upload-time = "2025-07-08T20:56:43.908Z" },
+]
+
+[package.optional-dependencies]
+reload = [
+    { name = "django-browser-reload" },
 ]
 
 [[package]]
