@@ -1,13 +1,11 @@
 {% extends "base.html" %}
-
 {% load i18n %}
-
-{% block title %}Media{% endblock title %}
-
+{% block title %}
+  Media
+{% endblock title %}
 {% block content %}
-<div>
-  <h1 class="text-4xl my-4">{% translate "My media" %}</h1>
-
-  {% include "partials/media-list.html" %}
-</div>
+  <div>
+    <h1 class="text-4xl my-4">{% translate "My media" %}</h1>
+    {% include "partials/media-list.html" %}
+  </div>
 {% endblock content %}

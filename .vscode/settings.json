@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "**/templates/**/*.html": "django-html",
+        "*.tpl": "django-html"
+    },
+    "[html][django-html][handlebars][hbs][mustache][jinja][jinja-html][nj][njk][nunjucks][twig]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "monosans.djlint"
+    },
+}

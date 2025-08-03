@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-
-{% block title %}Log In{% endblock title %}
-
+{% block title %}
+  Log In
+{% endblock title %}
 {% block content %}
-<div class="relative flex flex-col justify-center h-screen overflow-hidden">
-  <div class="w-full p-6 m-auto bg-white rounded-md shadow-md lg:max-w-lg">
-    <h2 class="text-3xl font-semibold text-center text-primary">Log In</h2>
-    <form method="post" class="space-y-4">
-      {% csrf_token %}
-      {{ form.as_div }}
-      <div>
-        <button type="submit" class="btn btn-primary">Log In</button>
-      </div>
-    </form>
+  <div class="relative flex flex-col justify-center h-screen overflow-hidden">
+    <div class="w-full p-6 m-auto bg-white rounded-md shadow-md lg:max-w-lg">
+      <h2 class="text-3xl font-semibold text-center text-primary">Log In</h2>
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {{ form.as_div }}
+        <div>
+          <button type="submit" class="btn btn-primary">Log In</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
 {% endblock content %}
