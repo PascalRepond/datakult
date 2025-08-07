@@ -6,4 +6,5 @@ urlpatterns = [
     path("home/", views.index, name="home"),
     path("", views.media, name="media_list"),
     path("agents/<int:pk>/", views.agent, name="agent_detail"),
+    path("search/", views.search_media, name="search"),
 ]

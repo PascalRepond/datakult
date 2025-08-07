@@ -1,11 +1,26 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% translate "Search" %}
 {% block title %}
   Media
 {% endblock title %}
 {% block content %}
-  <div>
-    <h1 class="text-4xl my-4">{% translate "My media" %}</h1>
-    {% include "partials/media-list.html" %}
+  <h1 class="text-4xl my-4">{% translate "My media" %}</h1>
+  <div class="flex">
+    <label class="input mb-2">
+      {% heroicon_mini "magnifying-glass" %}
+      <input type="search"
+             class="grow"
+             placeholder="{% translate "Search" %}"
+             name="search"
+             hx-get="{% url 'search' %}"
+             hx-trigger="keyup delay:500ms"
+             hx-target="#media-list"
+             hx-indicator="#spinner"
+             hx-on::before-request="document.getElementById('media-list').style.opacity = 0.4"
+             hx-on::after-request="document.getElementById('media-list').style.opacity = 1" />
+      {% include "partials/spinner.html" %}
+    </label>
   </div>
+  {% include "partials/media-list.html" %}
 {% endblock content %}
