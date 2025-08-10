@@ -1,0 +1,40 @@
+{% load i18n %}
+<div class="text-xs">
+       {% if media.score %}
+              {{ media.score }} - {{ media.get_score_display }}
+       {% else %}
+              {% translate "Not rated" %}
+       {% endif %}
+</div>
+<div class="rating rating-sm">
+       <div class="mask mask-star bg-primary"
+            aria-label="1 star"
+            {% if media.score == 1 %}aria-current="true"{% endif %}></div>
+       <div class="mask mask-star bg-primary"
+            aria-label="2 star"
+            {% if media.score == 2 %}aria-current="true"{% endif %}></div>
+       <div class="mask mask-star bg-primary"
+            aria-label="3 star"
+            {% if media.score == 3 %}aria-current="true"{% endif %}></div>
+       <div class="mask mask-star bg-primary"
+            aria-label="4 star"
+            {% if media.score == 4 %}aria-current="true"{% endif %}></div>
+       <div class="mask mask-star bg-primary"
+            aria-label="5 star"
+            {% if media.score == 5 %}aria-current="true"{% endif %}></div>
+       <div class="mask mask-star bg-primary"
+            aria-label="6 star"
+            {% if media.score == 6 %}aria-current="true"{% endif %}></div>
+       <div class="mask mask-star bg-primary"
+            aria-label="7 star"
+            {% if media.score == 7 %}aria-current="true"{% endif %}></div>
+       <div class="mask mask-star bg-primary"
+            aria-label="8 star"
+            {% if media.score == 8 %}aria-current="true"{% endif %}></div>
+       <div class="mask mask-star bg-primary"
+            aria-label="9 star"
+            {% if media.score == 9 %}aria-current="true"{% endif %}></div>
+       <div class="mask mask-star bg-primary"
+            aria-label="10 star"
+            {% if media.score == 10 %}aria-current="true"{% endif %}></div>
+</div>

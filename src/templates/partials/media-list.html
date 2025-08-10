@@ -28,7 +28,7 @@
                 <div class="badge badge-soft badge-primary">{{ media.get_status_display }}</div>
               </td>
               <td>{{ media.pub_year | default:"" }}</td>
-              <td>{% include "partials/score.html" %}</td>
+              <td>{% include "partials/score-readonly.html" %}</td>
               <td>{{ media.created_at | date:"Y-m-d" }}</td>
             </tr>
           {% endfor %}
