@@ -1,18 +1,28 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block title %}
-  Log In
+  {% translate "Log in" %}
 {% endblock title %}
 {% block content %}
-  <div class="relative flex flex-col justify-center h-screen overflow-hidden">
-    <div class="w-full p-6 m-auto bg-white rounded-md shadow-md lg:max-w-lg">
-      <h2 class="text-3xl font-semibold text-center text-primary">Log In</h2>
-      <form method="post" class="space-y-4">
-        {% csrf_token %}
-        {{ form.as_div }}
-        <div>
-          <button type="submit" class="btn btn-primary">Log In</button>
-        </div>
-      </form>
-    </div>
+  <div class="relative flex justify-center items-center h-[80vh] overflow-hidden">
+    <form method="post">
+      {% csrf_token %}
+      <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-sm border p-8 gap-4">
+        <legend class="fieldset-legend text-xl">{% translate "Log in" %}</legend>
+        <input type="username"
+               class="input w-sm"
+               placeholder="{% translate "Username" %}"
+               id="inputUsername"
+               name="username"
+               required />
+        <input type="password"
+               class="input w-sm"
+               id="inputPassword"
+               placeholder="{% translate "Password" %}"
+               name="password"
+               required />
+        <button type="submit" class="btn btn-primary mt-4">{% translate "Log in" %}</button>
+      </fieldset>
+    </form>
   </div>
 {% endblock content %}
