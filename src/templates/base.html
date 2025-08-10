@@ -28,24 +28,54 @@
             <a href="{% url 'home' %}" class="btn btn-ghost text-xl text-primary">Datakult</a>
           </div>
           <div class="flex-none">
-            <ul class="menu menu-horizontal px-1">
+            <ul class="menu menu-horizontal">
+              <li class="dropdown">
+                <div tabindex="0" role="button" class="btn mx-1">
+                  {% translate "Theme" %}
+                  {% heroicon_mini "chevron-down" %}
+                </div>
+                <ul tabindex="0"
+                    class="dropdown-content bg-base-200 rounded-box z-1 w-42 shadow-2xl">
+                  <li>
+                    <input type="radio"
+                           name="theme-dropdown"
+                           class="theme-controller btn justify-start"
+                           aria-label="{% translate "System" %}"
+                           value="default" />
+                  </li>
+                  <li>
+                    <input type="radio"
+                           name="theme-dropdown"
+                           class="theme-controller btn justify-start"
+                           aria-label="{% translate "Light" %}"
+                           value="emerald" />
+                  </li>
+                  <li>
+                    <input type="radio"
+                           name="theme-dropdown"
+                           class="theme-controller btn justify-start"
+                           aria-label="{% translate "Dark" %}"
+                           value="forest" />
+                  </li>
+                </ul>
+              </li>
               {% if not user.is_authenticated %}
                 <li>
-                  <a href="{% url 'login' %}">Log in</a>
+                  <a href="{% url 'login' %}" class="btn">Log in</a>
                 </li>
               {% else %}
                 <li>
+                  <form action="{% url 'logout' %}" method="post" class="btn">
+                    {% csrf_token %}
+                    <button type="submit" class="cursor-pointer">Log Out</button>
+                  </form>
+                </li>
+                <li>
                   <div class="avatar">
-                    <div class="bg-neutral text-neutral-content w-8 rounded-full">
+                    <div class="bg-neutral text-neutral-content w-8 rounded-full shrink">
                       <span class="text-xs">{{ user.username }}</span>
                     </div>
                   </div>
-                </li>
-                <li>
-                  <form action="{% url 'logout' %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit">Log Out</button>
-                  </form>
                 </li>
               {% endif %}
             </ul>

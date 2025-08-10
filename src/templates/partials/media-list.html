@@ -5,13 +5,13 @@
       <table class="table table-zebra table-pin-rows">
         <thead>
           <tr>
-            <th>Title</th>
-            <th>Contrib</th>
-            <th>Type</th>
-            <th>Status</th>
-            <th>Year</th>
-            <th>Score</th>
-            <th>Created at</th>
+            <th>{% translate "Title" %}</th>
+            <th>{% translate "Contributor" %}</th>
+            <th>{% translate "Type" %}</th>
+            <th>{% translate "Status" %}</th>
+            <th>{% translate "Year" %}</th>
+            <th>{% translate "Score" %}</th>
+            <th>{% translate "Created at" %}</th>
           </tr>
         </thead>
         <tbody>
@@ -20,7 +20,8 @@
               <td>{{ media.title }}</td>
               <td>
                 {% for contributor in media.contributors.all %}
-                  <a href="{% url 'agent_detail' contributor.id %}">{{ contributor.name }}</a>
+                  <a href="{% url 'agent_detail' contributor.id %}"
+                     class="link link-secondary">{{ contributor.name }}</a>
                 {% endfor %}
               </td>
               <td>{{ media.get_media_type_display }}</td>
@@ -36,7 +37,7 @@
       </table>
     </div>
   {% else %}
-    <div role="alert" class="alert">
+    <div role="alert" class="alert mt-3">
       {% heroicon_outline "exclamation-circle" class="text-info" %}
       <span>{% translate "No media found." %}</span>
     </div>
