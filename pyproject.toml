@@ -53,6 +53,7 @@ lint.ignore = [
     "ANN",
     "D",
     "PGH004",
+    "RUF012",
 ]
 
 [build-system]

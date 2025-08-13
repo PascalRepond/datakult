@@ -5,6 +5,10 @@
     },
     "[html][django-html][handlebars][hbs][mustache][jinja][jinja-html][nj][njk][nunjucks][twig]": {
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "monosans.djlint"
+        "editor.defaultFormatter": "monosans.djlint",
+        "editor.rulers": [120],
+        "editor.wordWrap": "false",
+        "prettier.tabWidth": 2,
+        "editor.tabSize": 2
     },
 }

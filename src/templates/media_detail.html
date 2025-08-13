@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}
+  {{ media.title }}
+{% endblock title %}
+{% block content %}
+  <div>
+    <h1 class="text-4xl my-4">{{ media.title }}</h1>
+  </div>
+  {{ form.title }}
+  <select class="select">
+    {% for choice in form.media_type %}
+      {% if forloop.first %}
+        <option disabled selected>{% translate "Media type" %}</option>
+      {% else %}
+        {{ choice }}
+      {% endif %}
+    {% endfor %}
+  </select>
+  <select class="select">
+    {% for choice in form.status %}
+      {% if forloop.first %}
+        <option disabled selected>{% translate "Status" %}</option>
+      {% else %}
+        {{ choice }}
+      {% endif %}
+    {% endfor %}
+  </select>
+  {{ form.pub_year }}
+  <select class="select">
+    {% for choice in form.score %}
+      {% if forloop.first %}
+        <option disabled selected>{% translate "Score" %}</option>
+      {% else %}
+        {{ choice }}
+      {% endif %}
+    {% endfor %}
+  </select>
+  {{ form.review }}
+  {{ form.review_date }}
+{% endblock content %}
