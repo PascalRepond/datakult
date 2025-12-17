@@ -21,6 +21,6 @@ class MediaForm(forms.ModelForm):
         widgets = {
             "title": forms.TextInput(attrs={"class": "input validator w-full", "placeholder": _("Title")}),
             "pub_year": forms.NumberInput(attrs={"class": "input validator", "placeholder": _("Release year")}),
-            "review": forms.Textarea(attrs={"class": "textarea", "placeholder": _("Review")}),
-            "review_date": forms.TextInput(attrs={"class": "input validator", "placeholder": _("Review date")}),
+            "review": forms.Textarea(attrs={"class": "textarea w-full", "placeholder": _("Review")}),
+            "review_date": forms.TextInput(attrs={"class": "input validator w-full", "placeholder": _("Review date")}),
         }

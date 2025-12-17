@@ -4,75 +4,124 @@
   {% translate "Edit" %} {{ media.title }}
 {% endblock title %}
 {% block content %}
-  <div>
-    <h1 class="text-4xl my-4">{% translate "Edit" %} {{ media.title }}</h1>
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-primary mb-2">{% translate "Edit" %} {{ media.title }}</h1>
+    </div>
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+      <div class="bg-base-100 p-6 rounded-lg shadow-md">
+        <h2 class="text-lg font-semibold mb-4 flex items-center">
+          {% heroicon_outline "photo" class="w-5 h-5 mr-2" %}
+          {% translate "Cover Image" %}
+        </h2>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-medium">{% translate "Upload new cover" %}</span>
+          </label>
+          {{ form.cover }}
+          {% if form.cover.errors %}<span class="text-error text-sm mt-1">{{ form.cover.errors.0 }}</span>{% endif %}
+        </div>
+        {% if media.cover %}
+          <div class="mt-4 p-4 bg-base-200 rounded-lg">
+            <p class="text-sm font-medium mb-2">{% translate "Current cover:" %}</p>
+            <img src="{{ media.cover.url }}"
+                 alt="{% translate "Cover" %}"
+                 width="192"
+                 height="256"
+                 class="w-32 h-40 object-cover rounded-lg shadow-md mx-auto block">
+          </div>
+        {% endif %}
+      </div>
+      <div class="bg-base-100 p-6 rounded-lg shadow-md">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">{% translate "Title" %}</span>
+            </label>
+            {{ form.title }}
+            {% if form.title.errors %}<span class="text-error text-sm mt-1">{{ form.title.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">{% translate "Contributors" %}</span>
+            </label>
+            <div>{{ form.contributors }}</div>
+            {% if form.contributors.errors %}
+              <span class="text-error text-sm mt-1">{{ form.contributors.errors.0 }}</span>
+            {% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">
+                {% heroicon_outline "tag" class="w-4 h-4 inline mr-1" %}
+                {% translate "Media type" %}
+              </span>
+            </label>
+            <div>{{ form.media_type }}</div>
+            {% if form.media_type.errors %}<span class="text-error text-sm mt-1">{{ form.media_type.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">{% translate "Status" %}</span>
+            </label>
+            <div>{{ form.status }}</div>
+            {% if form.status.errors %}<span class="text-error text-sm mt-1">{{ form.status.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">
+                {% heroicon_outline "calendar" class="w-4 h-4 inline mr-1" %}
+                {% translate "Release year" %}
+              </span>
+            </label>
+            {{ form.pub_year }}
+            {% if form.pub_year.errors %}<span class="text-error text-sm mt-1">{{ form.pub_year.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">{% translate "Score" %}</span>
+            </label>
+            <div>{{ form.score }}</div>
+            {% if form.score.errors %}<span class="text-error text-sm mt-1">{{ form.score.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-control md:col-span-1">
+            <label class="label">
+              <span class="label-text font-medium">
+                {% heroicon_outline "pencil" class="w-4 h-4 inline mr-1" %}
+                {% translate "Review" %}
+              </span>
+            </label>
+            <div>{{ form.review }}</div>
+            {% if form.review.errors %}<span class="text-error text-sm mt-1">{{ form.review.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text font-medium">
+                {% heroicon_outline "calendar-days" class="w-4 h-4 inline mr-1" %}
+                {% translate "Review date" %}
+              </span>
+            </label>
+            {{ form.review_date }}
+            {% if form.review_date.errors %}
+              <span class="text-error text-sm mt-1">{{ form.review_date.errors.0 }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <!-- Actions -->
+      <div class="bg-base-100 p-6 rounded-lg shadow-md">
+        <div class="flex flex-col sm:flex-row gap-4 justify-end">
+          <a href="{% url 'home' %}" class="btn btn-ghost">
+            {% heroicon_outline "x-circle" class="w-5 h-5 mr-2" %}
+            {% translate "Cancel" %}
+          </a>
+          <button type="submit" class="btn btn-primary">
+            {% heroicon_outline "check-circle" class="w-5 h-5 mr-2" %}
+            {% translate "Save Changes" %}
+          </button>
+        </div>
+      </div>
+    </form>
   </div>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="form-control">
-      <label class="label">
-        <span class="label-text">{% translate "Title" %}</span>
-      </label>
-      {{ form.title }}
-    </div>
-    <div class="form-control">
-      <label class="label">
-        <span class="label-text">{% translate "Contributors" %}</span>
-      </label>
-      {{ form.contributors }}
-    </div>
-    <div class="form-control">
-      <label class="label">
-        <span class="label-text">{% translate "Media type" %}</span>
-      </label>
-      {{ form.media_type }}
-    </div>
-    <div class="form-control">
-      <label class="label">
-        <span class="label-text">{% translate "Status" %}</span>
-      </label>
-      {{ form.status }}
-    </div>
-    <div class="form-control">
-      <label class="label">
-        <span class="label-text">{% translate "Release year" %}</span>
-      </label>
-      {{ form.pub_year }}
-    </div>
-    <div class="form-control">
-      <label class="label">
-        <span class="label-text">{% translate "Score" %}</span>
-      </label>
-      {{ form.score }}
-    </div>
-    <div class="form-control">
-      <label class="label">
-        <span class="label-text">{% translate "Review" %}</span>
-      </label>
-      {{ form.review }}
-    </div>
-    <div class="form-control">
-      <label class="label">
-        <span class="label-text">{% translate "Review date" %}</span>
-      </label>
-      {{ form.review_date }}
-    </div>
-    <div class="form-control">
-      <label class="label">
-        <span class="label-text">{% translate "Cover image" %}</span>
-      </label>
-      {{ form.cover }}
-      {% if media.cover %}
-        <img src="{{ media.cover.url }}"
-             alt="{% translate "Cover" %}"
-             width="128"
-             height="192"
-             class="w-32 h-48 object-cover mt-2">
-      {% endif %}
-    </div>
-    <div class="form-control mt-4">
-      <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
-      <a href="{% url 'media_edit' media.pk %}" class="btn btn-ghost">{% translate "Cancel" %}</a>
-    </div>
-  </form>
 {% endblock content %}
