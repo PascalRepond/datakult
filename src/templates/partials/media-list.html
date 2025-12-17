@@ -5,6 +5,7 @@
       <table class="table table-zebra table-pin-rows">
         <thead>
           <tr>
+            <th>{% translate "Cover" %}</th>
             <th>{% translate "Title" %}</th>
             <th>{% translate "Contributor" %}</th>
             <th>{% translate "Type" %}</th>
@@ -17,6 +18,15 @@
         <tbody>
           {% for media in media_list %}
             <tr>
+              <td>
+                {% if media.cover %}
+                  <img src="{{ media.cover.url }}"
+                       alt="Cover"
+                       class="w-16 h-24 object-cover">
+                {% else %}
+                  <div class="w-16 h-24 bg-gray-200 flex items-center justify-center text-xs">No cover</div>
+                {% endif %}
+              </td>
               <td>
                 <a href="{% url 'media_detail' media.id %}" class="link link-secondary">{{ media.title }}</a>
               </td>

@@ -7,7 +7,17 @@ from .models import Media
 class MediaForm(forms.ModelForm):
     class Meta:
         model = Media
-        fields = ("title", "contributors", "media_type", "status", "pub_year", "score", "review", "review_date")
+        fields = (
+            "title",
+            "contributors",
+            "media_type",
+            "status",
+            "pub_year",
+            "score",
+            "review",
+            "review_date",
+            "cover",
+        )
         widgets = {
             "title": forms.TextInput(attrs={"class": "input validator w-full", "placeholder": _("Title")}),
             "pub_year": forms.NumberInput(attrs={"class": "input validator", "placeholder": _("Release year")}),

@@ -99,6 +99,12 @@ class Media(models.Model):
         null=True,
         blank=True,
     )
+    cover = models.ImageField(
+        verbose_name=_("Cover image"),
+        upload_to="covers/",
+        blank=True,
+        null=True,
+    )
 
     def __str__(self):
         return self.title

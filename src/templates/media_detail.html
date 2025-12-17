@@ -6,7 +6,17 @@
 {% block content %}
   <div>
     <h1 class="text-4xl my-4">{{ media.title }}</h1>
+    <a href="{% url 'media_edit' media.pk %}" class="btn btn-primary">{% translate "Edit" %}</a>
   </div>
+  {% if media.cover %}
+    <div class="my-4">
+      <img src="{{ media.cover.url }}"
+           alt="Cover"
+           width="128"
+           height="192"
+           class="w-32 h-48 object-cover">
+    </div>
+  {% endif %}
   {{ form.title }}
   <select class="select">
     {% for choice in form.media_type %}

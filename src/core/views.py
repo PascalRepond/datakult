@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import MediaForm
 from .models import Agent, Media
@@ -22,6 +22,20 @@ def media_detail(request, pk=None):
     media = get_object_or_404(Media, pk=pk)
     context = {"media": media, "form": MediaForm()}
     return render(request, "media_detail.html", context)
+
+
+@login_required
+def media_edit(request, pk=None):
+    media = get_object_or_404(Media, pk=pk)
+    if request.method == "POST":
+        form = MediaForm(request.POST, request.FILES, instance=media)
+        if form.is_valid():
+            form.save()
+            return redirect("media_detail", pk=media.pk)
+    else:
+        form = MediaForm(instance=media)
+    context = {"media": media, "form": form}
+    return render(request, "media_edit.html", context)
 
 
 @login_required

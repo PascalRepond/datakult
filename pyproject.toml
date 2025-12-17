@@ -13,6 +13,7 @@ dependencies = [
     "django-partial-date>=1.3.2",
     "django-tailwind[reload]>=4.2.0",
     "heroicons[django]>=2.11.0",
+    "pillow>=12.0.0",
 ]
 
 [dependency-groups]
@@ -27,6 +28,8 @@ dev = [
 ]
 
 [tool.poe.tasks]
+format = "ruff format ./src"
+lint = "ruff check ./src"
 server = "./src/manage.py tailwind dev"
 runserver = "./src/manage.py runserver"
 makemigrations = "./src/manage.py makemigrations"
@@ -54,6 +57,7 @@ lint.ignore = [
     "D",
     "PGH004",
     "RUF012",
+    "COM812",
 ]
 
 [build-system]
