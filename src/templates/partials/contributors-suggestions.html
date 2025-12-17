@@ -1,0 +1,19 @@
+{% load i18n %}
+{% if agents %}
+  <div class="mt-1 bg-base-100 shadow-xl rounded-lg border border-base-300 max-h-60 overflow-y-auto">
+    {% for agent in agents %}
+      <a class="block px-4 py-3 hover:bg-primary hover:text-primary-content cursor-pointer transition-colors"
+         hx-post="{% url 'agent_select_htmx' %}"
+         hx-vals='{"id": "{{ agent.pk }}"}'
+         hx-target="#contributors-chips"
+         hx-swap="beforeend"
+         hx-on::after-request="document.getElementById('contributor-suggestions').innerHTML = ''; document.getElementById('contributor-suggestions').classList.add('hidden'); document.getElementById('contributor_search').value = '';"
+         href="#"
+         onclick="return false;">{{ agent.name }}</a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="mt-1 bg-base-100 shadow-xl rounded-lg border border-base-300 px-4 py-2 text-sm text-base-content/70">
+    {% translate "No result, press Enter to add" %}
+  </div>
+{% endif %}

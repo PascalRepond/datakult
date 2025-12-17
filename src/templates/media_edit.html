@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 {% block title %}
   {% translate "Edit" %} {{ media.title }}
 {% endblock title %}
@@ -46,11 +47,33 @@
             <label class="label">
               <span class="label-text font-medium">{% translate "Contributors" %}</span>
             </label>
-            <div>{{ form.contributors }}</div>
+            <!-- Selected contributors chips -->
+            <div id="contributors-chips" class="flex flex-wrap gap-2 mb-2">
+              {% for contributor in media.contributors.all %}
+                {% include "partials/contributor-chip.html" with agent=contributor %}
+              {% endfor %}
+            </div>
+            <!-- Autocomplete input wrapper with relative positioning -->
+            <div class="relative">
+              <input type="text"
+                     id="contributor_search"
+                     name="contributor_search"
+                     class="input input-bordered w-full"
+                     placeholder="{% translate "Type name to search" %}"
+                     autocomplete="off"
+                     hx-get="{% url 'agent_search_htmx' %}"
+                     hx-trigger="keyup changed delay:300ms"
+                     hx-target="#contributor-suggestions"
+                     hx-vals='js:{q: document.getElementById("contributor_search").value}' />
+              <!-- Suggestions dropdown with absolute positioning -->
+              <div id="contributor-suggestions"
+                   class="absolute top-full left-0 right-0 z-50 hidden"></div>
+            </div>
             {% if form.contributors.errors %}
               <span class="text-error text-sm mt-1">{{ form.contributors.errors.0 }}</span>
             {% endif %}
           </div>
+          <script src="{% static 'js/contributors.js' %}"></script>
           <div class="form-control">
             <label class="label">
               <span class="label-text font-medium">
@@ -58,14 +81,14 @@
                 {% translate "Media type" %}
               </span>
             </label>
-            <div>{{ form.media_type }}</div>
+            {{ form.media_type }}
             {% if form.media_type.errors %}<span class="text-error text-sm mt-1">{{ form.media_type.errors.0 }}</span>{% endif %}
           </div>
           <div class="form-control">
             <label class="label">
               <span class="label-text font-medium">{% translate "Status" %}</span>
             </label>
-            <div>{{ form.status }}</div>
+            {{ form.status }}
             {% if form.status.errors %}<span class="text-error text-sm mt-1">{{ form.status.errors.0 }}</span>{% endif %}
           </div>
           <div class="form-control">
@@ -82,7 +105,7 @@
             <label class="label">
               <span class="label-text font-medium">{% translate "Score" %}</span>
             </label>
-            <div>{{ form.score }}</div>
+            {{ form.score }}
             {% if form.score.errors %}<span class="text-error text-sm mt-1">{{ form.score.errors.0 }}</span>{% endif %}
           </div>
           <div class="form-control md:col-span-1">
@@ -92,7 +115,7 @@
                 {% translate "Review" %}
               </span>
             </label>
-            <div>{{ form.review }}</div>
+            {{ form.review }}
             {% if form.review.errors %}<span class="text-error text-sm mt-1">{{ form.review.errors.0 }}</span>{% endif %}
           </div>
           <div class="form-control">

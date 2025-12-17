@@ -20,7 +20,13 @@ class MediaForm(forms.ModelForm):
         )
         widgets = {
             "title": forms.TextInput(attrs={"class": "input validator w-full", "placeholder": _("Title")}),
-            "pub_year": forms.NumberInput(attrs={"class": "input validator", "placeholder": _("Release year")}),
+            "media_type": forms.Select(attrs={"class": "select w-full"}),
+            "status": forms.Select(attrs={"class": "select w-full"}),
+            "pub_year": forms.NumberInput(
+                attrs={"class": "input input-bordered w-full", "placeholder": _("Release year")}
+            ),
+            "score": forms.Select(attrs={"class": "select w-full"}),
             "review": forms.Textarea(attrs={"class": "textarea w-full", "placeholder": _("Review")}),
             "review_date": forms.TextInput(attrs={"class": "input validator w-full", "placeholder": _("Review date")}),
+            "cover": forms.FileInput(attrs={"class": "file-input w-full"}),
         }
