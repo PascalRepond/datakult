@@ -21,14 +21,16 @@
               <td>
                 {% if media.cover %}
                   <img src="{{ media.cover.url }}"
-                       alt="Cover"
+                       alt="{% translate "Cover" %}"
+                       width="64"
+                       height="96"
                        class="w-16 h-24 object-cover">
                 {% else %}
                   <div class="w-16 h-24 bg-gray-200 flex items-center justify-center text-xs">No cover</div>
                 {% endif %}
               </td>
               <td>
-                <a href="{% url 'media_detail' media.id %}" class="link link-secondary">{{ media.title }}</a>
+                <a href="{% url 'media_edit' media.id %}" class="link link-secondary">{{ media.title }}</a>
               </td>
               <td>
                 {% for contributor in media.contributors.all %}

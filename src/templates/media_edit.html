@@ -64,13 +64,15 @@
       {{ form.cover }}
       {% if media.cover %}
         <img src="{{ media.cover.url }}"
-             alt="Cover"
+             alt="{% translate "Cover" %}"
+             width="128"
+             height="192"
              class="w-32 h-48 object-cover mt-2">
       {% endif %}
     </div>
     <div class="form-control mt-4">
       <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
-      <a href="{% url 'media_detail' media.pk %}" class="btn btn-ghost">{% translate "Cancel" %}</a>
+      <a href="{% url 'media_edit' media.pk %}" class="btn btn-ghost">{% translate "Cancel" %}</a>
     </div>
   </form>
 {% endblock content %}

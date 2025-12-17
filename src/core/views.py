@@ -6,8 +6,11 @@ from .forms import MediaForm
 from .models import Agent, Media
 
 
+@login_required
 def index(request):
-    return render(request, "home.html")
+    media_list = Media.objects.all().order_by("-created_at")
+    context = {"media_list": media_list}
+    return render(request, "media.html", context)
 
 
 @login_required
@@ -18,20 +21,13 @@ def media(request):
 
 
 @login_required
-def media_detail(request, pk=None):
-    media = get_object_or_404(Media, pk=pk)
-    context = {"media": media, "form": MediaForm()}
-    return render(request, "media_detail.html", context)
-
-
-@login_required
 def media_edit(request, pk=None):
     media = get_object_or_404(Media, pk=pk)
     if request.method == "POST":
         form = MediaForm(request.POST, request.FILES, instance=media)
         if form.is_valid():
             form.save()
-            return redirect("media_detail", pk=media.pk)
+            return redirect("home")
     else:
         form = MediaForm(instance=media)
     context = {"media": media, "form": form}
@@ -56,4 +52,4 @@ def search_media(request):
         | Q(review__icontains=query),
     )
 
-    return render(render, "partials/media-list.html", {"media_list": media})
+    return render(request, "partials/media-list.html", {"media_list": media})
