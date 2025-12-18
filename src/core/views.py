@@ -22,7 +22,7 @@ def media(request):
 
 @login_required
 def media_edit(request, pk=None):
-    media = get_object_or_404(Media, pk=pk)
+    media = get_object_or_404(Media, pk=pk) if pk else None
     if request.method == "POST":
         # Handle new contributors first
         new_contributor_names = request.POST.getlist("new_contributors")
@@ -52,6 +52,15 @@ def media_edit(request, pk=None):
 
 
 @login_required
+def media_delete(request, pk):
+    media = get_object_or_404(Media, pk=pk)
+    if request.method == "POST":
+        media.delete()
+        return redirect("home")
+    return redirect("media_edit", pk=pk)
+
+
+@login_required
 def agent(request, pk=None):
     agent = get_object_or_404(Agent, pk=pk)
     context = {"agent": agent}
@@ -67,7 +76,7 @@ def search_media(request):
         | Q(contributors__name__icontains=query)
         | Q(pub_year__icontains=query)
         | Q(review__icontains=query),
-    )
+    ).distinct()
 
     return render(request, "partials/media-list.html", {"media_list": media})
 

@@ -6,8 +6,8 @@
 {% endblock title %}
 {% block content %}
   <h1 class="text-4xl my-4">{% translate "My media" %}</h1>
-  <div class="flex">
-    <label class="input mb-2">
+  <div class="flex justify-between gap-4 mb-2">
+    <label class="input flex-1">
       {% heroicon_mini "magnifying-glass" %}
       <input type="search"
              class="grow"
@@ -21,6 +21,7 @@
              hx-on::after-request="document.getElementById('media-list').style.opacity = 1" />
       {% include "partials/spinner.html" %}
     </label>
+    <a href="{% url 'media_add' %}" class="btn btn-primary">{% heroicon_mini "plus" %}{% translate "Add" %}</a>
   </div>
   {% include "partials/media-list.html" %}
 {% endblock content %}
