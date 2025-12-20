@@ -35,6 +35,7 @@ runserver = "./src/manage.py runserver"
 makemigrations = "./src/manage.py makemigrations"
 migrate = "./src/manage.py migrate"
 shell = "./src/manage.py shell"
+setup = "./scripts/setup_dev.sh"
 
 [tool.ruff]
 line-length = 120

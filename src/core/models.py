@@ -1,5 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from markdownfield.models import MarkdownField
 from partial_date import PartialDateField
@@ -8,7 +9,7 @@ from partial_date import PartialDateField
 class Agent(models.Model):
     """Model for an agent entity that can be contributor for a media."""
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
     name = models.CharField(
         verbose_name=_("Name"),
         blank=False,
@@ -22,7 +23,7 @@ class Agent(models.Model):
 class Media(models.Model):
     """Model for a piece of media or work of art (book, game, tv series, film, etc.)"""
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
     title = models.CharField(
         verbose_name=_("Title"),
         null=False,

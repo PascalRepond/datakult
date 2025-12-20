@@ -1,0 +1,439 @@
+[
+    {
+        "model": "core.agent",
+        "pk": 1,
+        "fields": {
+            "name": "Christopher Nolan"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 2,
+        "fields": {
+            "name": "Denis Villeneuve"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 3,
+        "fields": {
+            "name": "Frank Herbert"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 4,
+        "fields": {
+            "name": "Hayao Miyazaki"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 5,
+        "fields": {
+            "name": "Hideo Kojima"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 6,
+        "fields": {
+            "name": "Radiohead"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 7,
+        "fields": {
+            "name": "Fumito Ueda"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 8,
+        "fields": {
+            "name": "Isaac Asimov"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 9,
+        "fields": {
+            "name": "Quentin Tarantino"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 10,
+        "fields": {
+            "name": "Bong Joon-ho"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 11,
+        "fields": {
+            "name": "Daft Punk"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 12,
+        "fields": {
+            "name": "Hidetaka Miyazaki"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 13,
+        "fields": {
+            "name": "Neil Gaiman"
+        }
+    },
+    {
+        "model": "core.agent",
+        "pk": 14,
+        "fields": {
+            "name": "Wes Anderson"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 1,
+        "fields": {
+            "title": "Dune",
+            "media_type": "FILM",
+            "status": "COMPLETED",
+            "pub_year": 2021,
+            "review": "Une adaptation magistrale du roman de Frank Herbert. La photographie et la bande sonore sont exceptionnelles.",
+            "score": 9,
+            "review_date": "2021-10",
+            "contributors": [2],
+            "cover": "covers/cover_01.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 2,
+        "fields": {
+            "title": "Dune (roman)",
+            "media_type": "BOOK",
+            "status": "COMPLETED",
+            "pub_year": 1965,
+            "review": "Un chef-d'œuvre de la science-fiction. L'univers créé par Herbert est d'une richesse incroyable.",
+            "score": 10,
+            "review_date": "2020",
+            "contributors": [3],
+            "cover": "covers/cover_02.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 3,
+        "fields": {
+            "title": "Interstellar",
+            "media_type": "FILM",
+            "status": "COMPLETED",
+            "pub_year": 2014,
+            "review": "Un voyage émotionnel à travers l'espace et le temps.",
+            "score": 8,
+            "review_date": "2014-11-15",
+            "contributors": [1],
+            "cover": "covers/cover_03.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 4,
+        "fields": {
+            "title": "Le Voyage de Chihiro",
+            "media_type": "FILM",
+            "status": "COMPLETED",
+            "pub_year": 2001,
+            "review": "Un conte féerique magnifique.",
+            "score": 10,
+            "review_date": "2015",
+            "contributors": [4],
+            "cover": "covers/cover_04.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 5,
+        "fields": {
+            "title": "Death Stranding",
+            "media_type": "GAME",
+            "status": "IN_PROGRESS",
+            "pub_year": 2019,
+            "review": "",
+            "score": null,
+            "review_date": null,
+            "contributors": [5]
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 6,
+        "fields": {
+            "title": "OK Computer",
+            "media_type": "MUSIC",
+            "status": "COMPLETED",
+            "pub_year": 1997,
+            "review": "Un album révolutionnaire qui a redéfini le rock alternatif.",
+            "score": 9,
+            "review_date": "2018",
+            "contributors": [6],
+            "cover": "covers/cover_06.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 7,
+        "fields": {
+            "title": "Breaking Bad",
+            "media_type": "TV",
+            "status": "COMPLETED",
+            "pub_year": 2008,
+            "review": "Une série parfaitement maîtrisée du début à la fin.",
+            "score": 10,
+            "review_date": "2020",
+            "contributors": [],
+            "cover": "covers/cover_07.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 8,
+        "fields": {
+            "title": "Dune: Part Two",
+            "media_type": "FILM",
+            "status": "COMPLETED",
+            "pub_year": 2024,
+            "review": "Une suite encore plus épique que le premier volet.",
+            "score": 9,
+            "review_date": "2024-03",
+            "contributors": [2]
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 9,
+        "fields": {
+            "title": "Shadow of the Colossus",
+            "media_type": "GAME",
+            "status": "COMPLETED",
+            "pub_year": 2005,
+            "review": "Une expérience unique, mélancolique et poétique.",
+            "score": 9,
+            "review_date": "2018",
+            "contributors": [7],
+            "cover": "covers/cover_09.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 10,
+        "fields": {
+            "title": "Fondation",
+            "media_type": "BOOK",
+            "status": "COMPLETED",
+            "pub_year": 1951,
+            "review": "Le pilier de la science-fiction moderne. Une saga épique sur la chute et la renaissance des civilisations.",
+            "score": 9,
+            "review_date": "2019",
+            "contributors": [8],
+            "cover": "covers/cover_10.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 11,
+        "fields": {
+            "title": "Pulp Fiction",
+            "media_type": "FILM",
+            "status": "COMPLETED",
+            "pub_year": 1994,
+            "review": "Un classique intemporel avec une structure narrative innovante.",
+            "score": 9,
+            "review_date": "2016",
+            "contributors": [9],
+            "cover": "covers/cover_11.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 12,
+        "fields": {
+            "title": "Parasite",
+            "media_type": "FILM",
+            "status": "COMPLETED",
+            "pub_year": 2019,
+            "review": "Un thriller social brillant qui mélange les genres avec brio.",
+            "score": 10,
+            "review_date": "2020-02",
+            "contributors": [10]
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 13,
+        "fields": {
+            "title": "Random Access Memories",
+            "media_type": "MUSIC",
+            "status": "COMPLETED",
+            "pub_year": 2013,
+            "review": "Un album ambitieux qui célèbre la musique analogique.",
+            "score": 8,
+            "review_date": "2013",
+            "contributors": [11]
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 14,
+        "fields": {
+            "title": "Elden Ring",
+            "media_type": "GAME",
+            "status": "IN_PROGRESS",
+            "pub_year": 2022,
+            "review": "",
+            "score": null,
+            "review_date": null,
+            "contributors": [12],
+            "cover": "covers/cover_14.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 15,
+        "fields": {
+            "title": "Sandman",
+            "media_type": "COMIC",
+            "status": "COMPLETED",
+            "pub_year": 1989,
+            "review": "Une œuvre magistrale qui transcende le medium des comics.",
+            "score": 10,
+            "review_date": "2021",
+            "contributors": [13],
+            "cover": "covers/cover_15.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 16,
+        "fields": {
+            "title": "The Grand Budapest Hotel",
+            "media_type": "FILM",
+            "status": "COMPLETED",
+            "pub_year": 2014,
+            "review": "Un bijou visuel avec une esthétique unique.",
+            "score": 8,
+            "review_date": "2015",
+            "contributors": [14]
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 17,
+        "fields": {
+            "title": "Dark Souls",
+            "media_type": "GAME",
+            "status": "COMPLETED",
+            "pub_year": 2011,
+            "review": "Difficile mais incroyablement satisfaisant. Un level design exemplaire.",
+            "score": 9,
+            "review_date": "2017",
+            "contributors": [12],
+            "cover": "covers/cover_17.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 18,
+        "fields": {
+            "title": "Princesse Mononoké",
+            "media_type": "FILM",
+            "status": "COMPLETED",
+            "pub_year": 1997,
+            "review": "Une réflexion profonde sur la relation entre l'homme et la nature.",
+            "score": 9,
+            "review_date": "2014",
+            "contributors": [4],
+            "cover": "covers/cover_18.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 19,
+        "fields": {
+            "title": "The Leftovers",
+            "media_type": "TV",
+            "status": "COMPLETED",
+            "pub_year": 2014,
+            "review": "Une série profondément émouvante sur le deuil et l'espoir.",
+            "score": 10,
+            "review_date": "2022",
+            "contributors": [],
+            "cover": "covers/cover_19.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 20,
+        "fields": {
+            "title": "Kid A",
+            "media_type": "MUSIC",
+            "status": "COMPLETED",
+            "pub_year": 2000,
+            "review": "Une expérimentation audacieuse qui a divisé les fans mais reste un chef-d'œuvre.",
+            "score": 9,
+            "review_date": "2019",
+            "contributors": [6],
+            "cover": "covers/cover_20.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 21,
+        "fields": {
+            "title": "American Gods",
+            "media_type": "BOOK",
+            "status": "PAUSED",
+            "pub_year": 2001,
+            "review": "",
+            "score": null,
+            "review_date": null,
+            "contributors": [13],
+            "cover": "covers/cover_21.jpg"
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 22,
+        "fields": {
+            "title": "Memories of Murder",
+            "media_type": "FILM",
+            "status": "PLANNED",
+            "pub_year": 2003,
+            "review": "",
+            "score": null,
+            "review_date": null,
+            "contributors": [10]
+        }
+    },
+    {
+        "model": "core.media",
+        "pk": 23,
+        "fields": {
+            "title": "Metal Gear Solid V",
+            "media_type": "GAME",
+            "status": "DNF",
+            "pub_year": 2015,
+            "review": "Gameplay excellent mais l'histoire est décevante et incomplète.",
+            "score": 6,
+            "review_date": "2016",
+            "contributors": [5],
+            "cover": "covers/cover_23.jpg"
+        }
+    }
+]
