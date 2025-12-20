@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import MediaForm
 from .models import Agent, Media
+from .utils import delete_orphan_agents_by_ids
 
 
 @login_required
@@ -24,6 +25,9 @@ def media(request):
 def media_edit(request, pk=None):
     media = get_object_or_404(Media, pk=pk) if pk else None
     if request.method == "POST":
+        before_contributor_ids = set()
+        if media is not None:
+            before_contributor_ids = set(media.contributors.values_list("pk", flat=True))
         # Handle new contributors first
         new_contributor_names = request.POST.getlist("new_contributors")
         new_contributor_ids = []
@@ -43,7 +47,12 @@ def media_edit(request, pk=None):
 
         form = MediaForm(post_data, request.FILES, instance=media)
         if form.is_valid():
-            form.save()
+            instance = form.save()
+            # Cleanup agents removed from this media that became orphans
+            after_contributor_ids = set(instance.contributors.values_list("pk", flat=True))
+            removed_ids = before_contributor_ids - after_contributor_ids
+            if removed_ids:
+                delete_orphan_agents_by_ids(removed_ids)
             return redirect("home")
     else:
         form = MediaForm(instance=media)
@@ -55,7 +64,10 @@ def media_edit(request, pk=None):
 def media_delete(request, pk):
     media = get_object_or_404(Media, pk=pk)
     if request.method == "POST":
+        # Memorize contributors to cleanup after deletion
+        contributor_ids = list(media.contributors.values_list("pk", flat=True))
         media.delete()
+        delete_orphan_agents_by_ids(contributor_ids)
         return redirect("home")
     return redirect("media_edit", pk=pk)
 
