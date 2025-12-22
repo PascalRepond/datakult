@@ -22,9 +22,7 @@ class MediaForm(forms.ModelForm):
             "title": forms.TextInput(attrs={"class": "input validator w-full", "placeholder": _("Title")}),
             "media_type": forms.Select(attrs={"class": "select w-full"}),
             "status": forms.Select(attrs={"class": "select w-full"}),
-            "pub_year": forms.NumberInput(
-                attrs={"class": "input input-bordered w-full", "placeholder": _("Release year")}
-            ),
+            "pub_year": forms.NumberInput(attrs={"class": "input w-full", "placeholder": _("Release year")}),
             "score": forms.Select(attrs={"class": "select w-full"}),
             "review": forms.Textarea(attrs={"class": "textarea w-full", "placeholder": _("Review")}),
             "review_date": forms.TextInput(attrs={"class": "input validator w-full", "placeholder": _("Review date")}),

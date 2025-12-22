@@ -1,0 +1,83 @@
+{% load i18n %}
+{# This partial renders only the media items without the container #}
+{% if view_mode == 'grid' %}
+  {# Grid items #}
+  {% for media in media_list %}
+    <div class="card bg-base-200 shadow-md hover:shadow-lg transition-shadow">
+      <figure class="aspect-2/3 bg-base-300">
+        {% if media.cover %}
+          <img src="{{ media.cover.url }}"
+               alt="{{ media.title }}"
+               width="300"
+               height="450"
+               class="w-full h-full object-cover">
+        {% else %}
+          <div class="w-full h-full flex items-center justify-center text-base-content/30">
+            {% heroicon_outline "photo" class="w-16 h-16" %}
+          </div>
+        {% endif %}
+      </figure>
+      <div class="card-body p-3">
+        <h3 class="card-title text-sm line-clamp-2">
+          <a href="{% url 'media_edit' media.id %}" class="link link-hover">{{ media.title }}</a>
+        </h3>
+        <div class="text-xs space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="badge badge-sm">{{ media.get_media_type_display }}</span>
+            {% if media.score %}<span class="font-bold">{{ media.score }}/10</span>{% endif %}
+          </div>
+          {% if media.contributors.all %}
+            <p class="text-base-content/70 truncate">
+              {% for contributor in media.contributors.all %}
+                {{ contributor.name }}
+                {% if not forloop.last %},{% endif %}
+              {% endfor %}
+            </p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+{% else %}
+  {# Table rows #}
+  {% for media in media_list %}
+    <tr>
+      <td>
+        {% if media.cover %}
+          <img src="{{ media.cover.url }}"
+               alt="{% translate "Cover" %}"
+               width="64"
+               height="96"
+               class="w-16 h-24 object-cover">
+        {% else %}
+          <div class="w-16 h-24 bg-gray-200 flex items-center justify-center text-xs">No cover</div>
+        {% endif %}
+      </td>
+      <td>
+        <a href="{% url 'media_edit' media.id %}" class="link link-secondary">{{ media.title }}</a>
+      </td>
+      <td>
+        {% for contributor in media.contributors.all %}
+          <a href="{% url 'agent_detail' contributor.id %}"
+             class="link link-secondary">{{ contributor.name }}</a>
+        {% endfor %}
+      </td>
+      <td>{{ media.get_media_type_display }}</td>
+      <td>
+        <div class="badge badge-soft badge-primary">{{ media.get_status_display }}</div>
+      </td>
+      <td>{{ media.pub_year | default:"" }}</td>
+      <td>{% include "partials/score-readonly.html" %}</td>
+      <td>{{ media.created_at | date:"Y-m-d" }}</td>
+    </tr>
+  {% endfor %}
+{% endif %}
+{# Load more button - replaces itself when clicked #}
+{% if media_list.has_next %}
+  <div id="load-more-trigger" class="col-span-full">
+    <button class="btn btn-outline btn-block mt-4"
+            hx-get="?page={{ media_list.next_page_number }}&view_mode={{ view_mode }}&filter_type={{ filter_type }}&order_by={{ order_by }}"
+            hx-target="#load-more-trigger"
+            hx-swap="outerHTML">{% translate "Load more" %}</button>
+  </div>
+{% endif %}

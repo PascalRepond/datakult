@@ -1,5 +1,4 @@
 // THEME SWITCHER
-
 document.addEventListener("DOMContentLoaded", () => {
     const htmlElement = document.documentElement;
     const themeRadios = document.querySelectorAll('input[name="theme-dropdown"]');
@@ -31,3 +30,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+
+// VIEW MODE TOGGLE
+// Dynamically update active button state on click
+const viewModeToggle = document.getElementById('view-mode');
+if (viewModeToggle) {
+    viewModeToggle.addEventListener('click', function(e) {
+        if (e.target.closest('button')) {
+            document.querySelectorAll('#view-mode button').forEach(btn => btn.classList.remove('btn-active'));
+            e.target.closest('button').classList.add('btn-active');
+        }
+    });
+}

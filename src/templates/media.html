@@ -6,22 +6,64 @@
 {% endblock title %}
 {% block content %}
   <h1 class="text-4xl my-4">{% translate "My media" %}</h1>
-  <div class="flex justify-between gap-4 mb-2">
-    <label class="input flex-1">
-      {% heroicon_mini "magnifying-glass" %}
-      <input type="search"
-             class="grow"
-             placeholder="{% translate "Search" %}"
-             name="search"
-             hx-get="{% url 'search' %}"
-             hx-trigger="keyup delay:500ms"
-             hx-target="#media-list"
-             hx-indicator="#spinner"
-             hx-on::before-request="document.getElementById('media-list').style.opacity = 0.4"
-             hx-on::after-request="document.getElementById('media-list').style.opacity = 1" />
-      {% include "partials/spinner.html" %}
-    </label>
-    <a href="{% url 'media_add' %}" class="btn btn-primary">{% heroicon_mini "plus" %}{% translate "Add" %}</a>
+  <div class="flex flex-col gap-4">
+    <div class="flex justify-between mb-4 gap-4">
+      {# View mode toggle #}
+      {% include "partials/view-mode-toggle.html" %}
+      {# Sort selector #}
+      <div class="flex join items-center">
+        <button type="button"
+                id="sort-direction-toggle"
+                class="btn btn-square join-item"
+                hx-get="{% url 'home' %}"
+                hx-target="#media-list"
+                hx-include="#sort, #view-mode-input"
+                hx-push-url="true"
+                hx-on:click="const sortInput = document.getElementById('sort'); const value = sortInput.value || '-created_at'; const isDesc = value.startsWith('-'); const field = isDesc ? value.slice(1) : value; const next = isDesc ? field : '-' + field; sortInput.value = next; const icon = this.querySelector('svg'); if (icon) { icon.classList.toggle('rotate-180'); }">
+          {% with "transition-transform" as icon_base_class %}
+            {% if sort|slice:":1" == '-' %}
+              {% heroicon_outline "arrow-up" class=icon_base_class|add:" rotate-180" %}
+            {% else %}
+              {% heroicon_outline "arrow-up" class=icon_base_class %}
+            {% endif %}
+          {% endwith %}
+        </button>
+        <input type="hidden"
+               id="sort"
+               name="sort"
+               value="{{ sort|default:'-created_at' }}"
+               hx-get="{% url 'home' %}"
+               hx-target="#media-list"
+               hx-include="#view-mode-input"
+               hx-trigger="change"
+               hx-push-url="true" />
+        <select class="select select-md join-item"
+                id="sort-field"
+                hx-on:change="const sortInput = document.getElementById('sort'); const current = sortInput.value || '-created_at'; const isDesc = current.startsWith('-'); const prefix = isDesc ? '-' : ''; sortInput.value = prefix + this.value; sortInput.dispatchEvent(new Event('change', { bubbles: true }));">
+          <option value="created_at"
+                  {% if sort_field == 'created_at' %}selected{% endif %}>{% translate "Creation date" %}</option>
+          <option value="review_date"
+                  {% if sort_field == 'review_date' %}selected{% endif %}>{% translate "Review date" %}</option>
+          <option value="score" {% if sort_field == 'score' %}selected{% endif %}>{% translate "Score" %}</option>
+        </select>
+      </div>
+      <label class="input flex-1">
+        {% heroicon_mini "magnifying-glass" %}
+        <input type="search"
+               class="grow"
+               placeholder="{% translate "Search" %}"
+               name="search"
+               hx-get="{% url 'search' %}"
+               hx-trigger="keyup delay:500ms"
+               hx-target="#media-list"
+               hx-include="#view-mode-input, #sort"
+               hx-indicator="#spinner"
+               hx-on::before-request="document.getElementById('media-list').style.opacity = 0.4"
+               hx-on::after-request="document.getElementById('media-list').style.opacity = 1" />
+        {% include "partials/spinner.html" %}
+      </label>
+      <a href="{% url 'media_add' %}" class="btn btn-primary">{% heroicon_outline "plus" %}{% translate "Add" %}</a>
+    </div>
   </div>
   {% include "partials/media-list.html" %}
 {% endblock content %}

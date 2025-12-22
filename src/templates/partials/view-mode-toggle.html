@@ -1,0 +1,20 @@
+{% load i18n %}
+{# Reusable view mode toggle. #}
+<div class="join" id="view-mode">
+  <button class="join-item btn btn-md {% if view_mode == 'list' %}btn-active{% endif %}"
+          hx-get="{% url 'home' %}?view_mode=list"
+          hx-target="#media-list"
+          hx-include="#sort"
+          hx-push-url="true">
+    {% heroicon_mini "list-bullet" class="w-4 h-4" %}
+    {% translate "List" %}
+  </button>
+  <button class="join-item btn btn-md {% if view_mode == 'grid' %}btn-active{% endif %}"
+          hx-get="{% url 'home' %}?view_mode=grid"
+          hx-target="#media-list"
+          hx-include="#sort"
+          hx-push-url="true">
+    {% heroicon_mini "squares-2x2" class="w-4 h-4" %}
+    {% translate "Grid" %}
+  </button>
+</div>

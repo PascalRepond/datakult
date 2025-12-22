@@ -1,55 +1,32 @@
 {% load i18n %}
 <div id="media-list">
   {% if media_list %}
-    <div class="overflow-x-auto">
-      <table class="table table-zebra table-pin-rows">
-        <thead>
-          <tr>
-            <th>{% translate "Cover" %}</th>
-            <th>{% translate "Title" %}</th>
-            <th>{% translate "Contributor" %}</th>
-            <th>{% translate "Type" %}</th>
-            <th>{% translate "Status" %}</th>
-            <th>{% translate "Year" %}</th>
-            <th>{% translate "Score" %}</th>
-            <th>{% translate "Created at" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for media in media_list %}
+    {% if view_mode == 'grid' %}
+      {# Grid view - Cards layout #}
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+           id="media-container">{% include "partials/media-items.html" %}</div>
+    {% else %}
+      {# List view - Table layout #}
+      <div class="overflow-x-auto">
+        <table class="table table-zebra table-pin-rows" id="media-container">
+          <thead>
             <tr>
-              <td>
-                {% if media.cover %}
-                  <img src="{{ media.cover.url }}"
-                       alt="{% translate "Cover" %}"
-                       width="64"
-                       height="96"
-                       class="w-16 h-24 object-cover">
-                {% else %}
-                  <div class="w-16 h-24 bg-gray-200 flex items-center justify-center text-xs">No cover</div>
-                {% endif %}
-              </td>
-              <td>
-                <a href="{% url 'media_edit' media.id %}" class="link link-secondary">{{ media.title }}</a>
-              </td>
-              <td>
-                {% for contributor in media.contributors.all %}
-                  <a href="{% url 'agent_detail' contributor.id %}"
-                     class="link link-secondary">{{ contributor.name }}</a>
-                {% endfor %}
-              </td>
-              <td>{{ media.get_media_type_display }}</td>
-              <td>
-                <div class="badge badge-soft badge-primary">{{ media.get_status_display }}</div>
-              </td>
-              <td>{{ media.pub_year | default:"" }}</td>
-              <td>{% include "partials/score-readonly.html" %}</td>
-              <td>{{ media.created_at | date:"Y-m-d" }}</td>
+              <th>{% translate "Cover" %}</th>
+              <th>{% translate "Title" %}</th>
+              <th>{% translate "Contributor" %}</th>
+              <th>{% translate "Type" %}</th>
+              <th>{% translate "Status" %}</th>
+              <th>{% translate "Year" %}</th>
+              <th>{% translate "Score" %}</th>
+              <th>{% translate "Created at" %}</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {% include "partials/media-items.html" %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
   {% else %}
     <div role="alert" class="alert mt-3">
       {% heroicon_outline "exclamation-circle" class="text-info" %}

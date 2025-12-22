@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -7,17 +8,42 @@ from .models import Agent, Media
 from .utils import delete_orphan_agents_by_ids
 
 
+def _resolve_sorting(request):
+    """Return validated sorting info: selected field, sort string (with sign), and ordering."""
+    default_field = "created_at"
+    sort = request.GET.get("sort") or request.GET.get("order_by") or f"-{default_field}"
+
+    raw_field = sort.lstrip("-")
+    valid_fields = {"created_at", "review_date", "score"}
+    sort_field = raw_field if raw_field in valid_fields else default_field
+
+    is_desc = sort.startswith("-")
+    ordering = f"-{sort_field}" if is_desc else sort_field
+    normalized_sort = ordering  # ensure field is validated
+    return sort_field, normalized_sort, ordering
+
+
 @login_required
 def index(request):
-    media_list = Media.objects.all().order_by("-created_at")
-    context = {"media_list": media_list}
-    return render(request, "media.html", context)
+    """Main view for displaying media list."""
+    # Get query parameters
+    view_mode = request.GET.get("view_mode", "list")  # 'list' or 'grid'
+    sort_field, sort, ordering = _resolve_sorting(request)
 
+    queryset = Media.objects.order_by(ordering)
 
-@login_required
-def media(request):
-    media_list = Media.objects.all().order_by("-created_at")
-    context = {"media_list": media_list}
+    context = {
+        "media_list": queryset,
+        "view_mode": view_mode,
+        "order_by": ordering,
+        "sort_field": sort_field,
+        "sort": sort,
+    }
+
+    # If it's an HTMX request (filters/sorting), return the full list
+    if request.headers.get("HX-Request"):
+        return render(request, "partials/media-list.html", context)
+
     return render(request, "media.html", context)
 
 
@@ -82,6 +108,8 @@ def agent(request, pk=None):
 @login_required
 def search_media(request):
     query = request.GET.get("search", "")
+    view_mode = request.GET.get("view_mode", "list")
+    sort_field, sort, ordering = _resolve_sorting(request)
 
     media = Media.objects.filter(
         Q(title__icontains=query)
@@ -89,8 +117,16 @@ def search_media(request):
         | Q(pub_year__icontains=query)
         | Q(review__icontains=query),
     ).distinct()
+    media = media.order_by(ordering)
 
-    return render(request, "partials/media-list.html", {"media_list": media})
+    context = {
+        "media_list": media,
+        "view_mode": view_mode,
+        "order_by": ordering,
+        "sort_field": sort_field,
+        "sort": sort,
+    }
+    return render(request, "partials/media-list.html", context)
 
 
 @login_required
