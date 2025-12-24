@@ -1,0 +1,5 @@
+{# Displays a field label with an asterisk if required #}
+<span class="label-text">
+  {{ label }}
+  {% if field.field.required %}<span class="text-error">*</span>{% endif %}
+</span>
