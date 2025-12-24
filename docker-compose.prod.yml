@@ -9,7 +9,7 @@
 
 services:
   datakult:
-    image: ghcr.io/donpascualino/datakult:latest
+    image: ghcr.io/pascalrepond/datakult:latest
     ports:
       - "8000:8000"
     volumes:
