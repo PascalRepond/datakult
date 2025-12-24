@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -23,22 +22,70 @@ def _resolve_sorting(request):
     return sort_field, normalized_sort, ordering
 
 
+def _extract_filters(request):
+    """Extract filter parameters from request and return filters dict."""
+    filters = {
+        "contributor": request.GET.get("contributor", ""),
+        "type": request.GET.get("type", ""),
+        "status": request.GET.get("status", ""),
+        "score": request.GET.get("score", ""),
+        "review_from": request.GET.get("review_from", ""),
+        "review_to": request.GET.get("review_to", ""),
+    }
+    filters["has_any"] = any(
+        [
+            filters["type"],
+            filters["status"],
+            filters["score"],
+            filters["review_from"],
+            filters["review_to"],
+        ]
+    )
+    return filters
+
+
+def _get_field_choices():
+    """Return choices for filter fields from the Media model."""
+    return {
+        "media_type_choices": Media.media_type.field.choices,
+        "status_choices": Media.status.field.choices,
+        "score_choices": Media.score.field.choices,
+    }
+
+
+def _apply_filters(queryset, filters):
+    """Apply filters to a queryset and return (queryset, contributor)."""
+    contributor = None
+    if filters["contributor"]:
+        contributor = Agent.objects.filter(pk=filters["contributor"]).first()
+        if contributor:
+            queryset = queryset.filter(contributors=contributor)
+    if filters["type"]:
+        queryset = queryset.filter(media_type=filters["type"])
+    if filters["status"]:
+        queryset = queryset.filter(status=filters["status"])
+    if filters["score"]:
+        if filters["score"] == "none":
+            queryset = queryset.filter(score__isnull=True)
+        else:
+            queryset = queryset.filter(score=int(filters["score"]))
+    if filters["review_from"]:
+        queryset = queryset.filter(review_date__gte=filters["review_from"])
+    if filters["review_to"]:
+        queryset = queryset.filter(review_date__lte=filters["review_to"])
+    return queryset, contributor
+
+
 @login_required
 def index(request):
     """Main view for displaying media list."""
     # Get query parameters
     view_mode = request.GET.get("view_mode", "list")  # 'list' or 'grid'
     sort_field, sort, ordering = _resolve_sorting(request)
-    contributor_id = request.GET.get("contributor")
+    filters = _extract_filters(request)
 
     queryset = Media.objects.order_by(ordering)
-
-    # Filter by contributor if specified
-    contributor = None
-    if contributor_id:
-        contributor = Agent.objects.filter(pk=contributor_id).first()
-        if contributor:
-            queryset = queryset.filter(contributors=contributor)
+    queryset, contributor = _apply_filters(queryset, filters)
 
     context = {
         "media_list": queryset,
@@ -47,6 +94,8 @@ def index(request):
         "sort_field": sort_field,
         "sort": sort,
         "contributor": contributor,
+        "filters": filters,
+        **_get_field_choices(),
     }
 
     # If it's an HTMX request (filters/sorting), return the full list
@@ -112,7 +161,7 @@ def search_media(request):
     query = request.GET.get("search", "")
     view_mode = request.GET.get("view_mode", "list")
     sort_field, sort, ordering = _resolve_sorting(request)
-    contributor_id = request.GET.get("contributor")
+    filters = _extract_filters(request)
 
     media = Media.objects.filter(
         Q(title__icontains=query)
@@ -121,13 +170,7 @@ def search_media(request):
         | Q(review__icontains=query),
     ).distinct()
 
-    # Filter by contributor if specified
-    contributor = None
-    if contributor_id:
-        contributor = Agent.objects.filter(pk=contributor_id).first()
-        if contributor:
-            media = media.filter(contributors=contributor)
-
+    media, contributor = _apply_filters(media, filters)
     media = media.order_by(ordering)
 
     context = {
@@ -137,6 +180,7 @@ def search_media(request):
         "sort_field": sort_field,
         "sort": sort,
         "contributor": contributor,
+        "filters": filters,
     }
     return render(request, "partials/media-list.html", context)
 

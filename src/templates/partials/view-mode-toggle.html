@@ -8,7 +8,7 @@
   <button class="join-item btn btn-md {% if view_mode == 'list' %}btn-active{% endif %}"
           hx-get="{% url 'home' %}?view_mode=list"
           hx-target="#media-list"
-          hx-include="#sort, #contributor-input"
+          hx-include="#sort, #contributor, #type, #status, #score, #review-from, #review-to"
           hx-push-url="true"
           hx-on::after-request="document.getElementById('view-mode-input').value = 'list';">
     {% heroicon_mini "list-bullet" class="w-4 h-4" %}
@@ -17,7 +17,7 @@
   <button class="join-item btn btn-md {% if view_mode == 'grid' %}btn-active{% endif %}"
           hx-get="{% url 'home' %}?view_mode=grid"
           hx-target="#media-list"
-          hx-include="#sort, #contributor-input"
+          hx-include="#sort, #contributor, #type, #status, #score, #review-from, #review-to"
           hx-push-url="true"
           hx-on::after-request="document.getElementById('view-mode-input').value = 'grid';">
     {% heroicon_mini "squares-2x2" class="w-4 h-4" %}

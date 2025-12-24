@@ -58,8 +58,14 @@
       </td>
       <td>
         {% for contributor in media.contributors.all %}
-          <a href="{% url 'home' %}?contributor={{ contributor.id }}"
-             class="link link-secondary">{{ contributor.name }}</a>
+          <a href="#"
+             class="link link-secondary contributor-link"
+             data-contributor-id="{{ contributor.id }}"
+             data-contributor-name="{{ contributor.name }}"
+             hx-get="{% url 'home' %}?contributor={{ contributor.id }}"
+             hx-target="#media-list"
+             hx-include="#view-mode-input, #sort, #type, #status, #score, #review-from, #review-to"
+             hx-push-url="true">{{ contributor.name }}</a>
           {% if not forloop.last %},{% endif %}
         {% endfor %}
       </td>
