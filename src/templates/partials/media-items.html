@@ -58,8 +58,9 @@
       </td>
       <td>
         {% for contributor in media.contributors.all %}
-          <a href="{% url 'agent_detail' contributor.id %}"
+          <a href="{% url 'home' %}?contributor={{ contributor.id }}"
              class="link link-secondary">{{ contributor.name }}</a>
+          {% if not forloop.last %},{% endif %}
         {% endfor %}
       </td>
       <td>{{ media.get_media_type_display }}</td>

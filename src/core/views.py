@@ -29,8 +29,16 @@ def index(request):
     # Get query parameters
     view_mode = request.GET.get("view_mode", "list")  # 'list' or 'grid'
     sort_field, sort, ordering = _resolve_sorting(request)
+    contributor_id = request.GET.get("contributor")
 
     queryset = Media.objects.order_by(ordering)
+
+    # Filter by contributor if specified
+    contributor = None
+    if contributor_id:
+        contributor = Agent.objects.filter(pk=contributor_id).first()
+        if contributor:
+            queryset = queryset.filter(contributors=contributor)
 
     context = {
         "media_list": queryset,
@@ -38,6 +46,7 @@ def index(request):
         "order_by": ordering,
         "sort_field": sort_field,
         "sort": sort,
+        "contributor": contributor,
     }
 
     # If it's an HTMX request (filters/sorting), return the full list
@@ -99,17 +108,11 @@ def media_delete(request, pk):
 
 
 @login_required
-def agent(request, pk=None):
-    agent = get_object_or_404(Agent, pk=pk)
-    context = {"agent": agent}
-    return render(request, "agent.html", context)
-
-
-@login_required
 def search_media(request):
     query = request.GET.get("search", "")
     view_mode = request.GET.get("view_mode", "list")
     sort_field, sort, ordering = _resolve_sorting(request)
+    contributor_id = request.GET.get("contributor")
 
     media = Media.objects.filter(
         Q(title__icontains=query)
@@ -117,6 +120,14 @@ def search_media(request):
         | Q(pub_year__icontains=query)
         | Q(review__icontains=query),
     ).distinct()
+
+    # Filter by contributor if specified
+    contributor = None
+    if contributor_id:
+        contributor = Agent.objects.filter(pk=contributor_id).first()
+        if contributor:
+            media = media.filter(contributors=contributor)
+
     media = media.order_by(ordering)
 
     context = {
@@ -125,6 +136,7 @@ def search_media(request):
         "order_by": ordering,
         "sort_field": sort_field,
         "sort": sort,
+        "contributor": contributor,
     }
     return render(request, "partials/media-list.html", context)
 

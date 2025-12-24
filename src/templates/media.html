@@ -7,7 +7,7 @@
 {% block content %}
   <h1 class="text-4xl my-4">{% translate "My media" %}</h1>
   <div class="flex flex-col gap-4">
-    <div class="flex justify-between mb-4 gap-4">
+    <div class="flex justify-between gap-4">
       {# View mode toggle #}
       {% include "partials/view-mode-toggle.html" %}
       {# Sort selector #}
@@ -17,7 +17,7 @@
                 class="btn btn-square join-item"
                 hx-get="{% url 'home' %}"
                 hx-target="#media-list"
-                hx-include="#sort, #view-mode-input"
+                hx-include="#sort, #view-mode-input, #contributor-input"
                 hx-push-url="true"
                 hx-on:click="const sortInput = document.getElementById('sort'); const value = sortInput.value || '-created_at'; const isDesc = value.startsWith('-'); const field = isDesc ? value.slice(1) : value; const next = isDesc ? field : '-' + field; sortInput.value = next; const icon = this.querySelector('svg'); if (icon) { icon.classList.toggle('rotate-180'); }">
           {% with "transition-transform" as icon_base_class %}
@@ -34,7 +34,7 @@
                value="{{ sort|default:'-created_at' }}"
                hx-get="{% url 'home' %}"
                hx-target="#media-list"
-               hx-include="#view-mode-input"
+               hx-include="#view-mode-input, #contributor-input"
                hx-trigger="change"
                hx-push-url="true" />
         <select class="select select-md join-item"
@@ -56,7 +56,7 @@
                hx-get="{% url 'search' %}"
                hx-trigger="keyup delay:500ms"
                hx-target="#media-list"
-               hx-include="#view-mode-input, #sort"
+               hx-include="#view-mode-input, #sort, #contributor-input"
                hx-indicator="#spinner"
                hx-on::before-request="document.getElementById('media-list').style.opacity = 0.4"
                hx-on::after-request="document.getElementById('media-list').style.opacity = 1" />
@@ -64,6 +64,27 @@
       </label>
       <a href="{% url 'media_add' %}" class="btn btn-primary">{% heroicon_outline "plus" %}{% translate "Add" %}</a>
     </div>
+    {% if contributor %}
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-base-content/70">{% translate "Filtered by contributor:" %}</span>
+        <div class="badge badge-primary gap-1">
+          {{ contributor.name }}
+          <button type="button"
+                  class="hover:text-primary-content/70"
+                  hx-get="{% url 'home' %}"
+                  hx-target="#media-list"
+                  hx-include="#sort, #view-mode-input"
+                  hx-push-url="true"
+                  hx-on::after-request="document.getElementById('contributor-input').value = ''; this.closest('.flex.items-center').remove();">
+            {% heroicon_mini "x-mark" class="w-4 h-4" %}
+          </button>
+        </div>
+      </div>
+    {% endif %}
+    <input type="hidden"
+           id="contributor-input"
+           name="contributor"
+           value="{{ contributor.id|default:'' }}" />
   </div>
   {% include "partials/media-list.html" %}
 {% endblock content %}
