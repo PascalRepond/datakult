@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+*.egg
+.venv/
+venv/
+.uv/
+
+# Node
+node_modules/
+npm-debug.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Build artifacts
+*.log
+.ruff_cache/
+
+# SQLite database (we want a fresh one in container)
+*.sqlite3
+
+# Local env files
+.env
+.env.local
+
+# Static files (rebuilt in container)
+src/staticfiles/
+src/theme/static/css/dist/

@@ -1,0 +1,34 @@
+# Datakult - Ready to use
+# 
+# Usage:
+#   1. Copy this file to your server
+#   2. Edit the environment variables below
+#   3. Run: docker compose up -d
+#
+# Default credentials: admin / admin (change DJANGO_SUPERUSER_PASSWORD!)
+
+services:
+  datakult:
+    image: ghcr.io/donpascualino/datakult:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - datakult_data:/app/data
+    environment:
+      # Security - CHANGE THESE IN PRODUCTION
+      - SECRET_KEY=generate-a-real-secret-key-here
+      - DEBUG=false
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+
+      # Default superuser (created on first run)
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+      - DJANGO_SUPERUSER_PASSWORD=admin
+
+      # Data paths (no need to change)
+      - DATABASE_PATH=/app/data/db.sqlite3
+      - MEDIA_ROOT=/app/data/media
+    restart: unless-stopped
+
+volumes:
+  datakult_data:
