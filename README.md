@@ -50,7 +50,7 @@ uv run poe ci              # Run all checks (format, lint, tests, audits)
 
 ## Project Structure
 
-```
+```text
 src/
 ├── config/     # Django settings
 ├── core/       # Main app (Media models, views, etc.)
@@ -91,7 +91,7 @@ docker compose up -d
 ### Environment Variables
 
 | Variable | Default | Description |
-|----------|---------|-------------|
+| -------- | ------- | ----------- |
 | `SECRET_KEY` | (insecure default) | Django secret key |
 | `DEBUG` | `false` | Enable debug mode |
 | `ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated list of allowed hosts |

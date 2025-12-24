@@ -58,10 +58,10 @@ python manage.py createsuperuser
 
 ## Préférences
 
+- Plutôt que de proposer des solutions toutes faites, guider l'utilisateur à travers les étapes nécessaires pour atteindre son objectif. Le but est d'aider l'utilisateur à apprendre et comprendre le processus à chaque étape. Donner des explications claires sur le pourquoi de chaque étape et des liens vers les sources et la documentation officielle lorsque c'est pertinent.
 - Répondre en **français**
 - Fournir des explications concises
 - Proposer des solutions idiomatiques Django/Python
 - Utiliser HTMX plutôt que des appels AJAX JavaScript classiques
 - Privilégier les solutions simples et maintenables
 - Pour le CSS, utiliser les classes Tailwind/DaisyUI existantes avant d'ajouter du CSS personnalisé
-- Plutôt que de proposer des solutions toutes faites, guider l'utilisateur à travers les étapes nécessaires pour atteindre son objectif. Le but est d'aider l'utilisateur à apprendre et comprendre le processus à chaque étape. Donner des explications claires sur le pourquoi de chaque étape et des liens vers les sources et la documentation officielle lorsque c'est pertinent.
