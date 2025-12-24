@@ -41,6 +41,7 @@ makemigrations = "./src/manage.py makemigrations"
 migrate = "./src/manage.py migrate"
 shell = "./src/manage.py shell"
 setup = "./scripts/setup_dev.sh"
+bootstrap = "./scripts/bootstrap.sh"
 
 # Tests
 test = "pytest ./src --cov=src --cov-report=term-missing"
