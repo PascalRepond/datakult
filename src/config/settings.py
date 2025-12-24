@@ -186,3 +186,26 @@ LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
 
 TAILWIND_APP_NAME = "theme"
+
+# =============================================================================
+# Security Settings for Production (behind reverse proxy like Cloudflare Tunnel)
+# =============================================================================
+if not DEBUG:
+    # Trust the X-Forwarded-Proto header from the reverse proxy
+    # This tells Django the original request was HTTPS even though
+    # the internal connection (proxy -> Django) is HTTP
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+    # Don't redirect to HTTPS at Django level - the reverse proxy handles this
+    SECURE_SSL_REDIRECT = False
+
+    # Secure cookies - works because the browser sees HTTPS
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    # Prevent JavaScript access to cookies
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = True
+
+    # Additional security headers
+    SECURE_CONTENT_TYPE_NOSNIFF = True

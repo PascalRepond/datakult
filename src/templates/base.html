@@ -29,13 +29,13 @@
           </div>
           <div class="flex-none">
             <ul class="menu menu-horizontal">
-              <li class="dropdown">
+              <li class="dropdown dropdown-end">
                 <div tabindex="0" role="button" class="btn mx-1">
                   {% translate "Theme" %}
                   {% heroicon_mini "chevron-down" %}
                 </div>
                 <ul tabindex="0"
-                    class="dropdown-content bg-base-200 rounded-box z-1 w-42 shadow-2xl">
+                    class="dropdown-content bg-base-200 rounded-box z-10 w-42 shadow-2xl">
                   <li>
                     <input type="radio"
                            name="theme-dropdown"
@@ -64,18 +64,34 @@
                   <a href="{% url 'login' %}" class="btn">Log in</a>
                 </li>
               {% else %}
-                <li>
-                  <form action="{% url 'logout' %}" method="post" class="btn">
-                    {% csrf_token %}
-                    <button type="submit" class="cursor-pointer">Log Out</button>
-                  </form>
-                </li>
-                <li>
-                  <div class="avatar">
-                    <div class="bg-neutral text-neutral-content w-8 rounded-full shrink">
-                      <span class="text-xs">{{ user.username }}</span>
+                <li class="dropdown dropdown-end">
+                  <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                    <div class="bg-neutral text-neutral-content w-10 rounded-full">
+                      <span class="text-xs flex items-center justify-center h-full">{{ user.username|slice:":2"|upper }}</span>
                     </div>
                   </div>
+                  <ul tabindex="0"
+                      class="dropdown-content menu bg-base-200 rounded-box z-10 w-52 p-2 shadow-2xl">
+                    <li class="menu-title">
+                      <span>{{ user.username }}</span>
+                    </li>
+                    <li>
+                      <a href="{% url 'accounts:profile_edit' %}">
+                        {% heroicon_mini "user-circle" %}
+                        {% translate "Edit Profile" %}
+                      </a>
+                    </li>
+                    <li>
+                      <form action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="flex items-center gap-2 w-full text-left cursor-pointer">
+                          {% heroicon_mini "arrow-right-on-rectangle" %}
+                          {% translate "Log Out" %}
+                        </button>
+                      </form>
+                    </li>
+                  </ul>
                 </li>
               {% endif %}
             </ul>

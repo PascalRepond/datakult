@@ -192,3 +192,22 @@ if (viewModeToggle) {
         }
     });
 }
+
+// FORM VALIDATION STYLING
+// Toggle input-error class based on HTMX validation response
+// (complements DaisyUI's validator class for server-side validation)
+document.body.addEventListener('htmx:afterSwap', function(event) {
+    const target = event.detail.target;
+
+    // Check if target is an error label (id starts with 'error-')
+    if (target && target.id && target.id.startsWith('error-')) {
+        const fieldName = target.id.replace('error-', '');
+        const input = document.getElementById('id_' + fieldName);
+
+        if (input) {
+            // Check if the response contains an error message
+            const hasError = target.querySelector('.text-error') !== null;
+            input.classList.toggle('input-error', hasError);
+        }
+    }
+});

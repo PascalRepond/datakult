@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}
+  {% translate "Edit Profile" %} - Datakult
+{% endblock title %}
+{% block content %}
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">{% translate "Edit Profile" %}</h1>
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-success mb-4">
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    {% endif %}
+    <!-- Profile Information -->
+    <div class="card bg-base-200 shadow-xl mb-8">
+      <div class="card-body">
+        <h2 class="card-title">{% translate "Profile Information" %}</h2>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="update_profile" value="1">
+          <div class="form-control mb-4">
+            <label class="label" for="id_username">
+              {% include "partials/field_label.html" with label=_("Username") field=profile_form.username %}
+            </label>
+            {{ profile_form.username }}
+            <label class="label" id="error-username">
+              {% if profile_form.username.errors %}
+                <span class="validator-hint">{{ profile_form.username.errors.0 }}</span>
+              {% endif %}
+            </label>
+          </div>
+          <div class="form-control mb-4">
+            <label class="label" for="id_email">
+              {% include "partials/field_label.html" with label=_("Email") field=profile_form.email %}
+            </label>
+            {{ profile_form.email }}
+            <label class="label" id="error-email">
+              {% if profile_form.email.errors %}<span class="validator-hint">{{ profile_form.email.errors.0 }}</span>{% endif %}
+            </label>
+          </div>
+          <div class="form-control mb-4">
+            <label class="label" for="id_first_name">
+              {% include "partials/field_label.html" with label=_("First name") field=profile_form.first_name %}
+            </label>
+            {{ profile_form.first_name }}
+            <label class="label" id="error-first_name">
+              {% if profile_form.first_name.errors %}
+                <span class="validator-hint">{{ profile_form.first_name.errors.0 }}</span>
+              {% endif %}
+            </label>
+          </div>
+          <div class="form-control mb-4">
+            <label class="label" for="id_last_name">
+              {% include "partials/field_label.html" with label=_("Last name") field=profile_form.last_name %}
+            </label>
+            {{ profile_form.last_name }}
+            <label class="label" id="error-last_name">
+              {% if profile_form.last_name.errors %}
+                <span class="validator-hint">{{ profile_form.last_name.errors.0 }}</span>
+              {% endif %}
+            </label>
+          </div>
+          <div class="card-actions justify-end">
+            <button type="submit" class="btn btn-primary">{% translate "Update Profile" %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Change Password -->
+    <div class="card bg-base-200 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">{% translate "Change Password" %}</h2>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="change_password" value="1">
+          {% if password_form.non_field_errors %}
+            <div class="alert alert-error mb-4">
+              {% for error in password_form.non_field_errors %}<span>{{ error }}</span>{% endfor %}
+            </div>
+          {% endif %}
+          <div class="form-control mb-4">
+            <label class="label" for="id_old_password">
+              <span class="label-text">{% translate "Current password" %}</span>
+            </label>
+            {{ password_form.old_password }}
+            <label class="label" id="error-old_password">
+              {% if password_form.old_password.errors %}
+                <span class="validator-hint">{{ password_form.old_password.errors.0 }}</span>
+              {% endif %}
+            </label>
+          </div>
+          <div class="form-control mb-4">
+            <label class="label" for="id_new_password1">
+              <span class="label-text">{% translate "New password" %}</span>
+            </label>
+            {{ password_form.new_password1 }}
+            <label class="label" id="error-new_password1">
+              {% if password_form.new_password1.errors %}
+                <span class="validator-hint">{{ password_form.new_password1.errors.0 }}</span>
+              {% endif %}
+            </label>
+          </div>
+          <div class="form-control mb-4">
+            <label class="label" for="id_new_password2">
+              <span class="label-text">{% translate "Confirm new password" %}</span>
+            </label>
+            {{ password_form.new_password2 }}
+            <label class="label" id="error-new_password2">
+              {% if password_form.new_password2.errors %}
+                <span class="validator-hint">{{ password_form.new_password2.errors.0 }}</span>
+              {% endif %}
+            </label>
+          </div>
+          <div class="card-actions justify-end">
+            <button type="submit" class="btn btn-primary">{% translate "Change Password" %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="mt-8">
+      <a href="{% url 'home' %}" class="btn btn-ghost">← {% translate "Back to Home" %}</a>
+    </div>
+  </div>
+{% endblock content %}

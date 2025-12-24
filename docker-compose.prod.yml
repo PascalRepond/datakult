@@ -24,10 +24,6 @@ services:
       - DJANGO_SUPERUSER_USERNAME=admin
       - DJANGO_SUPERUSER_EMAIL=admin@example.com
       - DJANGO_SUPERUSER_PASSWORD=admin
-
-      # Data paths (no need to change)
-      - DATABASE_PATH=/app/data/db.sqlite3
-      - MEDIA_ROOT=/app/data/media
     restart: unless-stopped
 
 volumes:

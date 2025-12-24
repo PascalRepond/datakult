@@ -23,6 +23,10 @@ FROM python:3.14-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
+# Production defaults for data persistence (can be overridden)
+ENV DATABASE_PATH=/app/data/db.sqlite3
+ENV MEDIA_ROOT=/app/data/media
+
 WORKDIR /app
 
 # Install uv
