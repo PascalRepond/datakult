@@ -1,7 +1,7 @@
 """
-Fixtures for core app tests.
+Fixtures for Datakult tests.
 
-This file contains fixtures specific to the core application.
+This file contains shared fixtures available to all test modules.
 See https://docs.pytest.org/en/stable/reference/fixtures.html
 """
 
@@ -47,3 +47,22 @@ def media_factory(db):
         return Media.objects.create(**defaults)
 
     return create_media
+
+
+@pytest.fixture
+def user(db, django_user_model):
+    """Create and return a test user."""
+    return django_user_model.objects.create_user(
+        username="testuser",
+        email="test@example.com",
+        password="testpass123",
+        first_name="Test",
+        last_name="User",
+    )
+
+
+@pytest.fixture
+def logged_in_client(client, user):
+    """Return a client with an authenticated user."""
+    client.force_login(user)
+    return client
