@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from .htmx_validation import validate_media_field
 
 urlpatterns = [
     path("", views.index, name="home"),
@@ -10,4 +11,5 @@ urlpatterns = [
     path("search/", views.search_media, name="search"),
     path("agents/search-htmx/", views.agent_search_htmx, name="agent_search_htmx"),
     path("agents/select-htmx/", views.agent_select_htmx, name="agent_select_htmx"),
+    path("media/validate_field/", validate_media_field, name="media_validate_field"),
 ]

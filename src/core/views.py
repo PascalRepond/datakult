@@ -148,7 +148,7 @@ def media_edit(request, pk=None):
 def media_delete(request, pk):
     media = get_object_or_404(Media, pk=pk)
     if request.method == "POST":
-        # Memorize contributors to cleanup after deletion
+        # Memorise contributors to cleanup after deletion
         contributor_ids = list(media.contributors.values_list("pk", flat=True))
         media.delete()
         delete_orphan_agents_by_ids(contributor_ids)

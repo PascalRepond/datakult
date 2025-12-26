@@ -4,21 +4,9 @@ Tests for core.views module.
 These tests verify the behavior of views using pytest-django.
 """
 
-import pytest
 from django.urls import reverse
 
 from core.models import Agent, Media
-
-
-@pytest.fixture
-def logged_in_client(client, django_user_model):
-    """Return a client with an authenticated user."""
-    user = django_user_model.objects.create_user(
-        username="testuser",
-        password="testpass123",
-    )
-    client.force_login(user)
-    return client
 
 
 class TestIndexView:
