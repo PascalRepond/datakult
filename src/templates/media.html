@@ -72,7 +72,7 @@
         <div class="badge badge-secondary gap-1" data-filter="type">
           <span>{{ filters.type }}</span>
           <button type="button"
-                  class="hover:text-secondary-content/70 filter-badge-remove"
+                  class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
                   data-filter="type">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>
         </div>
       {% endif %}
@@ -80,7 +80,7 @@
         <div class="badge badge-secondary gap-1" data-filter="status">
           <span>{{ filters.status }}</span>
           <button type="button"
-                  class="hover:text-secondary-content/70 filter-badge-remove"
+                  class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
                   data-filter="status">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>
         </div>
       {% endif %}
@@ -90,7 +90,7 @@
             {% if filters.score != 'none' %}⭐{% endif %}
           </span>
           <button type="button"
-                  class="hover:text-secondary-content/70 filter-badge-remove"
+                  class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
                   data-filter="score">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>
         </div>
       {% endif %}
@@ -100,7 +100,7 @@
             {% if filters.review_from and filters.review_to %}→{% endif %}
           {{ filters.review_to }}</span>
           <button type="button"
-                  class="hover:text-secondary-content/70 filter-badge-remove"
+                  class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
                   data-filter="review">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>
         </div>
       {% endif %}
@@ -110,7 +110,7 @@
              id="contributor-badge">
           <span id="contributor-badge-name">{{ contributor.name }}</span>
           <button type="button"
-                  class="hover:text-primary-content/70 filter-badge-remove"
+                  class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
                   data-filter="contributor">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>
         </div>
       {% endif %}

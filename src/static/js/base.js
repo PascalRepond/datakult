@@ -74,7 +74,7 @@ function createFilterBadge(filterName, displayText, badgeClass = 'badge-secondar
     badge.dataset.filter = filterName;
     badge.innerHTML = `
         <span>${displayText}</span>
-        <button type="button" class="hover:opacity-70 filter-badge-remove" data-filter="${filterName}">
+        <button type="button" class="btn btn-ghost btn-xs btn-circle filter-badge-remove" data-filter="${filterName}">
             ✕
         </button>
     `;
