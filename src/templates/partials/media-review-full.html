@@ -1,0 +1,7 @@
+{# Displays the full review for a media item (HTMX) #}
+{% load i18n %}
+<div class="whitespace-pre-line">{{ media.review }}</div>
+<button class="btn btn-xs btn-ghost mt-1"
+        hx-get="{% url 'media_review_clamped_htmx' media.id %}"
+        hx-target="#review-cell-{{ media.id }}"
+        hx-swap="innerHTML">{% translate "See less" %}</button>

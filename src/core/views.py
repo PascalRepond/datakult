@@ -201,3 +201,17 @@ def agent_select_htmx(request):
         return render(request, "partials/contributor-chip.html", {"agent": agent})
     except Agent.DoesNotExist:
         return render(request, "partials/contributor-chip.html", {"agent": None, "error": "Agent not found"})
+
+
+@login_required
+def media_review_clamped_htmx(request, pk):
+    """HTMX view: return clamped review for a media item (for table cell collapse)."""
+    media = get_object_or_404(Media, pk=pk)
+    return render(request, "partials/media-review-clamped.html", {"media": media})
+
+
+@login_required
+def media_review_full_htmx(request, pk):
+    """HTMX view: return full review for a media item (for table cell expansion)."""
+    media = get_object_or_404(Media, pk=pk)
+    return render(request, "partials/media-review-full.html", {"media": media})

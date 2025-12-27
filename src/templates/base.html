@@ -20,7 +20,7 @@
     {% tailwind_css %}
     {% htmx_script %}
   </head>
-  <body hx-headers="{'x-csrftoken': '{ csrf_token }}'}" class="mx-auto">
+  <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="mx-auto">
     <div>
       {% block navbar %}
         <div class="navbar bg-base-100 shadow-sm">

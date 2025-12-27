@@ -3,12 +3,12 @@
   {% if media_list %}
     {% if view_mode == 'grid' %}
       {# Grid view - Cards layout #}
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-4"
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4"
            id="media-container">{% include "partials/media-items.html" %}</div>
     {% else %}
       {# List view - Table layout #}
       <div class="overflow-x-auto">
-        <table class="table table-zebra table-pin-rows" id="media-container">
+        <table class="table table-zebra" id="media-container">
           <thead>
             <tr>
               <th>{% translate "Cover" %}</th>
@@ -17,8 +17,8 @@
               <th>{% translate "Type" %}</th>
               <th>{% translate "Status" %}</th>
               <th>{% translate "Year" %}</th>
-              <th>{% translate "Score" %}</th>
-              <th>{% translate "Created at" %}</th>
+              <th>{% translate "Review" %}</th>
+              <th>{% translate "Reviewed on" %}</th>
             </tr>
           </thead>
           <tbody>
