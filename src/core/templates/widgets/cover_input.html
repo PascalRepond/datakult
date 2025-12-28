@@ -1,0 +1,165 @@
+{% load i18n %}
+<div id="cover-widget-{{ widget.name }}"
+     class="p-4 bg-base-200 rounded-lg">
+  <div class="flex items-start gap-4">
+    {# Preview area (existing or new cover) #}
+    <div class="shrink-0 relative" id="preview-container-{{ widget.name }}">
+      {% if widget.is_initial %}
+        {# Existing cover with delete button #}
+        <div id="existing-preview-{{ widget.name }}" class="relative group">
+          <img src="{{ widget.value.url }}"
+               alt="{% translate "Current cover" %}"
+               class="w-24 h-32 object-cover rounded-lg shadow-md"
+               width="96"
+               height="128">
+          {# Delete button (X) overlay - top right #}
+          {% if not widget.required %}
+            <button type="button"
+                    onclick="deleteCover('{{ widget.name }}')"
+                    class="absolute -top-2 -right-2 btn btn-circle btn-xs btn-error shadow-lg"
+                    title="{% translate "Delete cover" %}">
+              <svg xmlns="http://www.w3.org/2000/svg"
+                   class="h-3 w-3"
+                   fill="none"
+                   viewBox="0 0 24 24"
+                   stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          {% endif %}
+        </div>
+      {% endif %}
+      {# New cover preview (hidden by default, replaces existing when shown) #}
+      <div id="new-preview-{{ widget.name }}" class="hidden relative group">
+        <img alt="{% translate "New cover preview" %}"
+             class="w-24 h-32 object-cover rounded-lg shadow-md"
+             width="96"
+             height="128">
+        {# Remove button (X) - top right, same as existing #}
+        <button type="button"
+                onclick="removeNewCover('{{ widget.name }}')"
+                class="absolute -top-2 -right-2 btn btn-circle btn-xs btn-error shadow-lg"
+                title="{% translate "Remove" %}">
+          <svg xmlns="http://www.w3.org/2000/svg"
+               class="h-3 w-3"
+               fill="none"
+               viewBox="0 0 24 24"
+               stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      {# Placeholder when no cover (existing or new) #}
+      <div id="no-preview-{{ widget.name }}"
+           class="{% if widget.is_initial %}hidden{% endif %} w-24 h-32 bg-base-300 rounded-lg flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="h-8 w-8 text-base-content opacity-30"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+    </div>
+    {# Controls #}
+    <div class="grow space-y-3">
+      {# Hidden checkbox for Django's clear mechanism #}
+      {% if widget.is_initial and not widget.required %}
+        <input type="checkbox"
+               name="{{ widget.checkbox_name }}"
+               id="{{ widget.checkbox_id }}"
+               class="hidden">
+      {% endif %}
+      {# File input #}
+      <div>
+        <label class="label-text text-sm mb-1 block">
+          {% if widget.is_initial %}
+            {% translate "Replace cover:" %}
+          {% else %}
+            {% translate "Upload cover:" %}
+          {% endif %}
+        </label>
+        <input type="{{ widget.type }}"
+               name="{{ widget.name }}"
+               id="input-{{ widget.name }}"
+               onchange="previewCoverImage(this, '{{ widget.name }}')"
+               {% include "django/forms/widgets/attrs.html" %}>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function previewCoverImage(input, widgetName) {
+  const newPreview = document.getElementById(`new-preview-${widgetName}`);
+  const newPreviewImg = newPreview.querySelector('img');
+  const existingPreview = document.getElementById(`existing-preview-${widgetName}`);
+  const noPreview = document.getElementById(`no-preview-${widgetName}`);
+  // Construct checkbox ID dynamically from widgetName
+  const clearCheckbox = document.getElementById(`${widgetName}-clear_id`);
+
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      newPreviewImg.src = e.target.result;
+
+      // Show new preview, hide everything else
+      newPreview.classList.remove('hidden');
+      if (existingPreview) existingPreview.classList.add('hidden');
+      noPreview.classList.add('hidden');
+
+      // Uncheck the clear checkbox if it exists (we're uploading a new file)
+      if (clearCheckbox) clearCheckbox.checked = false;
+    };
+
+    reader.readAsDataURL(input.files[0]);
+  } else {
+    // No file selected, restore original state
+    newPreview.classList.add('hidden');
+    if (existingPreview) {
+      existingPreview.classList.remove('hidden');
+      noPreview.classList.add('hidden');
+    } else {
+      noPreview.classList.remove('hidden');
+    }
+  }
+}
+
+function deleteCover(widgetName) {
+  const existingPreview = document.getElementById(`existing-preview-${widgetName}`);
+  const noPreview = document.getElementById(`no-preview-${widgetName}`);
+  // Construct checkbox ID dynamically from widgetName
+  const clearCheckbox = document.getElementById(`${widgetName}-clear_id`);
+  const fileInput = document.getElementById(`input-${widgetName}`);
+
+  // Hide existing preview, show placeholder
+  if (existingPreview) existingPreview.classList.add('hidden');
+  if (noPreview) noPreview.classList.remove('hidden');
+
+  // Check the hidden clear checkbox if it exists
+  if (clearCheckbox) clearCheckbox.checked = true;
+
+  // Clear file input
+  if (fileInput) fileInput.value = '';
+}
+
+function removeNewCover(widgetName) {
+  const newPreview = document.getElementById(`new-preview-${widgetName}`);
+  const existingPreview = document.getElementById(`existing-preview-${widgetName}`);
+  const noPreview = document.getElementById(`no-preview-${widgetName}`);
+  const fileInput = document.getElementById(`input-${widgetName}`);
+
+  // Hide new preview
+  newPreview.classList.add('hidden');
+
+  // Clear file input
+  fileInput.value = '';
+
+  // Show existing or placeholder
+  if (existingPreview) {
+    existingPreview.classList.remove('hidden');
+  } else {
+    noPreview.classList.remove('hidden');
+  }
+}
+</script>
