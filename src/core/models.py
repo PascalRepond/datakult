@@ -1,9 +1,93 @@
+from io import BytesIO
+
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from markdownfield.models import MarkdownField
 from partial_date import PartialDateField
+from PIL import Image, ImageOps
+
+# Security limits for image processing
+MAX_IMAGE_PIXELS = 89_478_485  # ~8000x11000 pixels, default PIL limit
+MAX_FILE_SIZE_MB = 10  # Maximum file size in megabytes
+ALLOWED_IMAGE_TYPES = {"JPEG", "PNG", "GIF", "BMP", "WEBP"}
+
+
+def compress_image(image, max_size=(800, 800), quality=85):
+    """
+    Compress and resize an image to optimize storage with security validations.
+
+    Args:
+        image: The image file to compress
+        max_size: Maximum dimensions (width, height) - default 800x800
+        quality: JPEG quality (1-100) - default 85
+
+    Returns:
+        ContentFile with compressed image data
+
+    Raises:
+        ValidationError: If the image is invalid, too large, or in an unsupported format
+    """
+    output = None
+    img = None
+
+    try:
+        # Step 1: Validate file size (in bytes)
+        max_size_bytes = MAX_FILE_SIZE_MB * 1024 * 1024
+        if hasattr(image, "size") and image.size > max_size_bytes:
+            raise ValidationError(_("Image file size exceeds %sMB limit.") % MAX_FILE_SIZE_MB)
+
+        # Step 2: Set decompression bomb protection
+        Image.MAX_IMAGE_PIXELS = MAX_IMAGE_PIXELS
+
+        # Step 3: Open and verify the image
+        img = Image.open(image)
+        img.verify()  # Verify it's a valid image file
+
+        # Re-open after verify (verify closes the file)
+        image.seek(0)
+        img = Image.open(image)
+
+        # Step 4: Validate image format
+        if img.format not in ALLOWED_IMAGE_TYPES:
+            raise ValidationError(
+                _("Unsupported image format: %s. Allowed: %s") % (img.format, ", ".join(ALLOWED_IMAGE_TYPES))
+            )
+
+        # Step 5: Preserve EXIF orientation
+        img = ImageOps.exif_transpose(img)
+
+        # Step 6: Convert to RGB if necessary (for PNG with transparency)
+        if img.mode in ("RGBA", "LA", "P"):
+            background = Image.new("RGB", img.size, (255, 255, 255))
+            if img.mode == "P":
+                img = img.convert("RGBA")
+            background.paste(img, mask=img.split()[-1] if img.mode == "RGBA" else None)
+            img = background
+
+        # Step 7: Resize while preserving aspect ratio
+        img.thumbnail(max_size, Image.Resampling.LANCZOS)
+
+        # Step 8: Save to buffer
+        output = BytesIO()
+        img.save(output, format="JPEG", quality=quality, optimize=True)
+        output.seek(0)
+
+        return ContentFile(output.read())
+
+    except Image.DecompressionBombError as e:
+        raise ValidationError(_("Image is too large (possible decompression bomb attack).")) from e
+    except (OSError, Image.UnidentifiedImageError) as e:
+        raise ValidationError(_("Invalid or corrupted image file.")) from e
+    finally:
+        # Clean up resources
+        if img:
+            img.close()
+        if output:
+            output.close()
 
 
 class Agent(models.Model):
@@ -109,3 +193,18 @@ class Media(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        """
+        Override save to compress cover image before saving.
+
+        This method detects new file uploads by checking for the _file attribute
+        set by Django's file handling. This avoids unnecessary compression on
+        saves that don't involve new file uploads.
+        """
+        # Only compress if a new file was uploaded (has _file attribute)
+        if self.cover and hasattr(self.cover, "_file") and self.cover._file:  # noqa: SLF001
+            compressed = compress_image(self.cover)
+            self.cover.save(self.cover.name, compressed, save=False)
+
+        super().save(*args, **kwargs)

@@ -171,3 +171,6 @@ yarn-error.log*
 
 */staticfiles/**
 .ruff_cache/
+
+# LLMs
+.claude/
