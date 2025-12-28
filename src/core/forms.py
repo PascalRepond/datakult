@@ -11,6 +11,25 @@ class CoverImageWidget(forms.ClearableFileInput):
     template_name = "widgets/cover_input.html"
 
 
+class StarRatingWidget(forms.Widget):
+    """Custom widget for star rating input (1-10 scale)."""
+
+    template_name = "widgets/star_rating.html"
+
+    def get_context(self, name, value, attrs):
+        """
+        Add score choices with their verbose names to the template context.
+
+        This allows the template to display the descriptive labels
+        (e.g., "Adored", "Loved") when hovering over stars.
+        """
+        context = super().get_context(name, value, attrs)
+        # Get the choices from the Media model's score field
+        score_field = Media._meta.get_field("score")  # noqa: SLF001
+        context["score_choices"] = score_field.choices
+        return context
+
+
 class MediaForm(forms.ModelForm):
     """Form for creating and editing Media objects with dynamic HTMX validation."""
 
@@ -32,7 +51,7 @@ class MediaForm(forms.ModelForm):
             "media_type": forms.Select(attrs={"class": "select validator w-full"}),
             "status": forms.Select(attrs={"class": "select validator w-full"}),
             "pub_year": forms.NumberInput(attrs={"class": "input validator w-full", "placeholder": _("YYYY")}),
-            "score": forms.Select(attrs={"class": "select validator w-full"}),
+            "score": StarRatingWidget(attrs={"class": "validator"}),
             "review": forms.Textarea(attrs={"class": "textarea validator w-full"}),
             "review_date": forms.TextInput(
                 attrs={

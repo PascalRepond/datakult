@@ -33,9 +33,13 @@
                hx-push-url="true">{{ contributor.name }}</a>
             {% if not forloop.last %};{% endif %}
           {% endfor %}
-          <span class="badge badge-sm block mt-1">{{ media.get_media_type_display }}</span>
-          {% include "partials/score-readonly.html" %}
-          <div id="review-cell-{{ media.id }}">{% include "partials/media-review-clamped.html" %}</div>
+          <div class="flex items-center gap-2 mt-1">
+            <span class="badge badge-sm">{{ media.get_media_type_display }}</span>
+            {% include "partials/status-editable.html" with status_choices=status_choices %}
+          </div>
+          {% include "partials/score-editable.html" %}
+          {% include "partials/review-editable.html" %}
+          <div class="mt-1">{% include "partials/review-date-editable.html" %}</div>
         </div>
       </div>
     </div>
@@ -73,14 +77,14 @@
       </td>
       <td>{{ media.get_media_type_display }}</td>
       <td>
-        <div class="badge badge-soft badge-primary">{{ media.get_status_display }}</div>
+        {% include "partials/status-editable.html" with status_choices=status_choices %}
       </td>
       <td>{{ media.pub_year | default:"" }}</td>
       <td class="max-w-md">
-        {% include "partials/score-readonly.html" %}
-        <div id="review-cell-{{ media.id }}">{% include "partials/media-review-clamped.html" %}</div>
+        {% include "partials/score-editable.html" %}
+        {% include "partials/review-editable.html" %}
       </td>
-      <td>{{ media.review_date | default:"" }}</td>
+      <td>{% include "partials/review-date-editable.html" %}</td>
     </tr>
   {% endfor %}
 {% endif %}

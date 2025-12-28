@@ -1,0 +1,136 @@
+{% load i18n %}
+<div class="star-rating-widget">
+  {# Hidden input to store the actual score value #}
+  <input type="hidden"
+         name="{{ widget.name }}"
+         id="id_{{ widget.name }}"
+         value="{{ widget.value|default:'' }}"
+         {% include "django/forms/widgets/attrs.html" %}>
+  {# Star rating controls #}
+  <div class="flex items-center gap-3">
+    {# Star rating container #}
+    <div class="rating rating-lg" data-widget-name="{{ widget.name }}">
+      {% for score, label in score_choices %}
+        <button type="button"
+                class="mask mask-star-2 star-btn bg-orange-400"
+                data-score="{{ score }}"
+                data-label="{{ label }}"
+                aria-label="{{ label }}"
+                {% if widget.value and score <= widget.value|add:0 %}aria-current="true"{% endif %}></button>
+      {% endfor %}
+    </div>
+    {# Clear button #}
+    <button type="button"
+            class="star-clear-btn opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
+            data-widget-name="{{ widget.name }}"
+            title="{% translate "Clear rating" %}">
+      <svg xmlns="http://www.w3.org/2000/svg"
+           class="h-5 w-5"
+           fill="none"
+           viewBox="0 0 24 24"
+           stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  {# Label display for hover/selected score - fixed height to prevent layout shift #}
+  <div class="star-label text-sm font-medium mt-1 h-5"
+       data-widget-name="{{ widget.name }}">
+    {% if widget.value %}
+      {% for score, label in score_choices %}
+        {% if widget.value == score %}{{ label }}{% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>
+<script>
+(function() {
+  // Initialize star rating for this widget instance
+  const widgetName = "{{ widget.name }}";
+  const ratingContainer = document.querySelector(`.rating[data-widget-name="${widgetName}"]`);
+  if (!ratingContainer) return;
+  const hiddenInput = document.getElementById(`id_${widgetName}`);
+  const labelDisplay = document.querySelector(`.star-label[data-widget-name="${widgetName}"]`);
+  const clearBtn = document.querySelector(`.star-clear-btn[data-widget-name="${widgetName}"]`);
+  if (!hiddenInput || !labelDisplay || !clearBtn) return;
+  const stars = ratingContainer.querySelectorAll('.star-btn');
+
+  // Update stars visual state based on score
+  function updateStars(score) {
+    stars.forEach((star, index) => {
+      const starScore = parseInt(star.dataset.score);
+      if (score && starScore <= score) {
+        star.setAttribute('aria-current', 'true');
+      } else {
+        star.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  // Handle star click
+  stars.forEach(star => {
+    star.addEventListener('click', function(e) {
+      e.preventDefault();
+      const score = this.dataset.score;
+      const label = this.dataset.label;
+
+      // Update hidden input
+      hiddenInput.value = score;
+
+      // Update visual state
+      updateStars(parseInt(score));
+
+      // Update label
+      labelDisplay.textContent = label;
+
+      // Trigger change event for HTMX validation
+      hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    // Handle hover
+    star.addEventListener('mouseenter', function() {
+      const score = parseInt(this.dataset.score);
+      const label = this.dataset.label;
+
+      // Temporarily update stars appearance
+      updateStars(score);
+
+      // Show label
+      labelDisplay.textContent = label;
+    });
+  });
+
+  // Restore original state on mouse leave
+  ratingContainer.addEventListener('mouseleave', function() {
+    const currentScore = hiddenInput.value ? parseInt(hiddenInput.value) : null;
+    updateStars(currentScore);
+
+    // Restore label to selected value
+    if (currentScore) {
+      const selectedStar = ratingContainer.querySelector(`[data-score="${currentScore}"]`);
+      if (selectedStar) {
+        labelDisplay.textContent = selectedStar.dataset.label;
+      }
+    } else {
+      labelDisplay.textContent = '';
+    }
+  });
+
+  // Handle clear button
+  clearBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    // Clear hidden input
+    hiddenInput.value = '';
+
+    // Clear visual state
+    updateStars(null);
+
+    // Clear label
+    labelDisplay.textContent = '';
+
+    // Trigger change event for HTMX validation
+    hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+})();
+</script>

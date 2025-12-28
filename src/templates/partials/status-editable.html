@@ -1,0 +1,55 @@
+{% load i18n %}
+<div id="status-widget-{{ media.id }}" class="inline-block">
+  <div class="status-display cursor-pointer hover:opacity-80 transition-opacity">
+    <div class="badge badge-soft badge-primary">{{ media.get_status_display }}</div>
+  </div>
+
+  <div class="status-edit hidden">
+    <select class="select select-xs select-bordered"
+            name="status"
+            hx-post="{% url 'media_update_status_htmx' media.id %}"
+            hx-target="#status-widget-{{ media.id }}"
+            hx-swap="outerHTML"
+            hx-trigger="change">
+      {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if media.status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
+<script>
+(function() {
+  const widget = document.querySelector('#status-widget-{{ media.id }}');
+  if (!widget) return;
+
+  const display = widget.querySelector('.status-display');
+  const edit = widget.querySelector('.status-edit');
+  const select = widget.querySelector('select[name="status"]');
+
+  // Show edit mode on click
+  display.addEventListener('click', function() {
+    display.classList.add('hidden');
+    edit.classList.remove('hidden');
+    select.focus();
+  });
+
+  // Handle escape key to cancel editing
+  select.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      edit.classList.add('hidden');
+      display.classList.remove('hidden');
+    }
+  });
+
+  // Cancel editing on blur (with delay to allow HTMX change to process)
+  select.addEventListener('blur', function() {
+    setTimeout(() => {
+      if (edit && !edit.classList.contains('hidden')) {
+        edit.classList.add('hidden');
+        display.classList.remove('hidden');
+      }
+    }, 300);
+  });
+})();
+</script>

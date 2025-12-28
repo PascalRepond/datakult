@@ -12,3 +12,17 @@
   * the scope of this path.
   */
 @source "../../../**/*.{html,py,js}";
+
+/* Star rating widget custom styles */
+.star-rating-widget .star-btn {
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.star-rating-widget .star-btn:hover {
+  transform: scale(1.1);
+}
+
+.star-rating-widget .star-btn:active {
+  transform: scale(0.95);
+}
