@@ -1,0 +1,103 @@
+{% load i18n %}
+<div id="score-widget-{{ media.id }}">
+  <div class="flex items-center gap-2">
+    {# Star rating container #}
+    <div class="rating rating-xs" data-media-id="{{ media.id }}">
+      <button type="button" class="mask mask-star-2 bg-orange-400 cursor-pointer transition-transform hover:scale-110 star-btn" data-score="1" data-label="{% translate "Detested" %}" aria-label="1 star" {% if media.score and 1 <= media.score %}aria-current="true"{% endif %} hx-post="{% url 'media_update_score_htmx' media.id %}" hx-vals='{"score": "1"}' hx-target="#score-widget-{{ media.id }}" hx-swap="outerHTML"></button>
+      <button type="button" class="mask mask-star-2 bg-orange-400 cursor-pointer transition-transform hover:scale-110 star-btn" data-score="2" data-label="{% translate "Hated" %}" aria-label="2 stars" {% if media.score and 2 <= media.score %}aria-current="true"{% endif %} hx-post="{% url 'media_update_score_htmx' media.id %}" hx-vals='{"score": "2"}' hx-target="#score-widget-{{ media.id }}" hx-swap="outerHTML"></button>
+      <button type="button" class="mask mask-star-2 bg-orange-400 cursor-pointer transition-transform hover:scale-110 star-btn" data-score="3" data-label="{% translate "Disliked" %}" aria-label="3 stars" {% if media.score and 3 <= media.score %}aria-current="true"{% endif %} hx-post="{% url 'media_update_score_htmx' media.id %}" hx-vals='{"score": "3"}' hx-target="#score-widget-{{ media.id }}" hx-swap="outerHTML"></button>
+      <button type="button" class="mask mask-star-2 bg-orange-400 cursor-pointer transition-transform hover:scale-110 star-btn" data-score="4" data-label="{% translate "Not appreciated" %}" aria-label="4 stars" {% if media.score and 4 <= media.score %}aria-current="true"{% endif %} hx-post="{% url 'media_update_score_htmx' media.id %}" hx-vals='{"score": "4"}' hx-target="#score-widget-{{ media.id }}" hx-swap="outerHTML"></button>
+      <button type="button" class="mask mask-star-2 bg-orange-400 cursor-pointer transition-transform hover:scale-110 star-btn" data-score="5" data-label="{% translate "Moderately appreciated" %}" aria-label="5 stars" {% if media.score and 5 <= media.score %}aria-current="true"{% endif %} hx-post="{% url 'media_update_score_htmx' media.id %}" hx-vals='{"score": "5"}' hx-target="#score-widget-{{ media.id }}" hx-swap="outerHTML"></button>
+      <button type="button" class="mask mask-star-2 bg-orange-400 cursor-pointer transition-transform hover:scale-110 star-btn" data-score="6" data-label="{% translate "Appreciated" %}" aria-label="6 stars" {% if media.score and 6 <= media.score %}aria-current="true"{% endif %} hx-post="{% url 'media_update_score_htmx' media.id %}" hx-vals='{"score": "6"}' hx-target="#score-widget-{{ media.id }}" hx-swap="outerHTML"></button>
+      <button type="button" class="mask mask-star-2 bg-orange-400 cursor-pointer transition-transform hover:scale-110 star-btn" data-score="7" data-label="{% translate "Enjoyed" %}" aria-label="7 stars" {% if media.score and 7 <= media.score %}aria-current="true"{% endif %} hx-post="{% url 'media_update_score_htmx' media.id %}" hx-vals='{"score": "7"}' hx-target="#score-widget-{{ media.id }}" hx-swap="outerHTML"></button>
+      <button type="button" class="mask mask-star-2 bg-orange-400 cursor-pointer transition-transform hover:scale-110 star-btn" data-score="8" data-label="{% translate "Really enjoyed" %}" aria-label="8 stars" {% if media.score and 8 <= media.score %}aria-current="true"{% endif %} hx-post="{% url 'media_update_score_htmx' media.id %}" hx-vals='{"score": "8"}' hx-target="#score-widget-{{ media.id }}" hx-swap="outerHTML"></button>
+      <button type="button" class="mask mask-star-2 bg-orange-400 cursor-pointer transition-transform hover:scale-110 star-btn" data-score="9" data-label="{% translate "Loved" %}" aria-label="9 stars" {% if media.score and 9 <= media.score %}aria-current="true"{% endif %} hx-post="{% url 'media_update_score_htmx' media.id %}" hx-vals='{"score": "9"}' hx-target="#score-widget-{{ media.id }}" hx-swap="outerHTML"></button>
+      <button type="button" class="mask mask-star-2 bg-orange-400 cursor-pointer transition-transform hover:scale-110 star-btn" data-score="10" data-label="{% translate "Adored" %}" aria-label="10 stars" {% if media.score and 10 <= media.score %}aria-current="true"{% endif %} hx-post="{% url 'media_update_score_htmx' media.id %}" hx-vals='{"score": "10"}' hx-target="#score-widget-{{ media.id }}" hx-swap="outerHTML"></button>
+    </div>
+
+    {# Clear button #}
+    {% if media.score %}
+      <button type="button"
+              class="opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
+              title="{% translate "Clear rating" %}"
+              hx-post="{% url 'media_update_score_htmx' media.id %}"
+              hx-vals='{"score": ""}'
+              hx-target="#score-widget-{{ media.id }}"
+              hx-swap="outerHTML">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    {% endif %}
+  </div>
+
+  {# Score label with fixed height #}
+  <div class="star-label-{{ media.id }} text-xs mt-1 h-4" data-media-id="{{ media.id }}">
+    {% if media.score %}
+      <span class="badge badge-neutral badge-xs">{{ media.get_score_display }}</span>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+(function() {
+  const mediaId = "{{ media.id }}";
+  const ratingContainer = document.querySelector(`.rating[data-media-id="${mediaId}"]`);
+  const labelDisplay = document.querySelector(`.star-label-${mediaId}`);
+  const stars = ratingContainer.querySelectorAll('.star-btn');
+
+  // Store original state
+  let originalLabel = labelDisplay.innerHTML;
+  let isHovering = false;
+
+  // Update stars visual state based on score
+  function updateStars(score) {
+    stars.forEach((star) => {
+      const starScore = parseInt(star.dataset.score);
+      if (score && starScore <= score) {
+        star.setAttribute('aria-current', 'true');
+      } else {
+        star.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  // Restore original state
+  function restoreOriginalState() {
+    if (!isHovering) {
+      const currentScore = {{ media.score|default:"null" }};
+      updateStars(currentScore);
+      labelDisplay.innerHTML = originalLabel;
+    }
+  }
+
+  // Handle star hover
+  stars.forEach(star => {
+    star.addEventListener('mouseenter', function() {
+      isHovering = true;
+      const score = parseInt(this.dataset.score);
+      const label = this.dataset.label;
+
+      // Update stars appearance
+      updateStars(score);
+
+      // Show label as badge
+      labelDisplay.innerHTML = `<span class="badge badge-neutral badge-xs">${label}</span>`;
+    });
+  });
+
+  // Restore original state on mouse leave
+  ratingContainer.addEventListener('mouseleave', function() {
+    isHovering = false;
+    restoreOriginalState();
+  });
+
+  // Handle escape key to cancel hover/preview
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      isHovering = false;
+      restoreOriginalState();
+    }
+  });
+})();
+</script>

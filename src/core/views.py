@@ -181,6 +181,7 @@ def search_media(request):
         "sort": sort,
         "contributor": contributor,
         "filters": filters,
+        **_get_field_choices(),
     }
     return render(request, "partials/media-list.html", context)
 
@@ -215,3 +216,89 @@ def media_review_full_htmx(request, pk):
     """HTMX view: return full review for a media item (for table cell expansion)."""
     media = get_object_or_404(Media, pk=pk)
     return render(request, "partials/media-review-full.html", {"media": media})
+
+
+@login_required
+def media_update_score_htmx(request, pk):
+    """HTMX view: update media score and return updated score widget."""
+    media = get_object_or_404(Media, pk=pk)
+
+    if request.method == "POST":
+        score_value = request.POST.get("score", "").strip()
+
+        # Handle empty score (clear)
+        if score_value == "":
+            media.score = None
+            media.save()
+        else:
+            try:
+                score = int(score_value)
+                # Validate that score is one of the valid choices
+                valid_scores = dict(Media.score.field.choices).keys()
+                if score in valid_scores:
+                    media.score = score
+                    media.save()
+            except ValueError:
+                # Invalid score format, don't update
+                pass
+
+    return render(request, "partials/score-editable.html", {"media": media})
+
+
+@login_required
+def media_update_status_htmx(request, pk):
+    """HTMX view: update media status and return updated status widget."""
+    media = get_object_or_404(Media, pk=pk)
+
+    if request.method == "POST":
+        status_value = request.POST.get("status", "").strip()
+
+        # Validate that status is one of the valid choices
+        valid_statuses = dict(Media.status.field.choices).keys()
+        if status_value in valid_statuses:
+            media.status = status_value
+            media.save()
+
+    context = {
+        "media": media,
+        "status_choices": Media.status.field.choices,
+    }
+    return render(request, "partials/status-editable.html", context)
+
+
+@login_required
+def media_update_review_htmx(request, pk):
+    """HTMX view: update media review and return updated review widget."""
+    media = get_object_or_404(Media, pk=pk)
+
+    if request.method == "POST":
+        review_value = request.POST.get("review", "").strip()
+        media.review = review_value
+        media.save()
+
+    return render(request, "partials/review-editable.html", {"media": media})
+
+
+@login_required
+def media_update_review_date_htmx(request, pk):
+    """HTMX view: update media review_date and return updated review_date widget."""
+    media = get_object_or_404(Media, pk=pk)
+
+    if request.method == "POST":
+        review_date_value = request.POST.get("review_date", "").strip()
+
+        # Handle empty date (clear)
+        if review_date_value == "":
+            media.review_date = None
+            media.save()
+        else:
+            # PartialDateField accepts strings in format: YYYY, YYYY-MM, or YYYY-MM-DD
+            # The field will handle conversion automatically
+            try:
+                media.review_date = review_date_value
+                media.save()
+            except (ValueError, TypeError):
+                # Invalid date format, don't update
+                pass
+
+    return render(request, "partials/review-date-editable.html", {"media": media})
