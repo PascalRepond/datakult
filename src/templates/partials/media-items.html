@@ -38,8 +38,14 @@
             {% include "partials/status-editable.html" with status_choices=status_choices %}
           </div>
           {% include "partials/score-editable.html" %}
-          {% include "partials/review-editable.html" %}
-          <div class="mt-1">{% include "partials/review-date-editable.html" %}</div>
+          {% if media.review %}
+            <div id="review-cell-{{ media.id }}" class="text-sm review-text mt-2">
+              {% include "partials/media-review-clamped.html" %}
+            </div>
+          {% endif %}
+          {% if media.review_date %}
+            <div class="text-xs opacity-70 mt-1">{{ media.review_date }}</div>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -82,9 +88,17 @@
       <td>{{ media.pub_year | default:"" }}</td>
       <td class="max-w-md">
         {% include "partials/score-editable.html" %}
-        {% include "partials/review-editable.html" %}
+        {% if media.review %}
+          <div id="review-cell-{{ media.id }}" class="text-sm review-text mt-2">
+            {% include "partials/media-review-clamped.html" %}
+          </div>
+        {% endif %}
       </td>
-      <td>{% include "partials/review-date-editable.html" %}</td>
+      <td>
+        {% if media.review_date %}
+          <div class="text-xs opacity-70">{{ media.review_date }}</div>
+        {% endif %}
+      </td>
     </tr>
   {% endfor %}
 {% endif %}

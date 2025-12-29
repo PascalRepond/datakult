@@ -16,7 +16,6 @@
     <meta name="keywords" content="Media tracker, reviews, metacritic">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
     {% tailwind_css %}
     {% htmx_script %}
   </head>
@@ -30,10 +29,7 @@
           <div class="flex-none">
             <ul class="menu menu-horizontal">
               <li class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="btn mx-1">
-                  {% translate "Theme" %}
-                  {% heroicon_mini "chevron-down" %}
-                </div>
+                <div tabindex="0" role="button" aria-label="Theme" class="btn mx-1">{% heroicon_outline "sun" %}</div>
                 <ul tabindex="0"
                     class="dropdown-content bg-base-200 rounded-box z-10 w-42 shadow-2xl">
                   <li>

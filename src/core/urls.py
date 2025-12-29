@@ -16,8 +16,4 @@ urlpatterns = [
     path("media/<int:pk>/review-clamped/", views.media_review_clamped_htmx, name="media_review_clamped_htmx"),
     path("media/<int:pk>/update-score/", views.media_update_score_htmx, name="media_update_score_htmx"),
     path("media/<int:pk>/update-status/", views.media_update_status_htmx, name="media_update_status_htmx"),
-    path("media/<int:pk>/update-review/", views.media_update_review_htmx, name="media_update_review_htmx"),
-    path(
-        "media/<int:pk>/update-review-date/", views.media_update_review_date_htmx, name="media_update_review_date_htmx"
-    ),
 ]

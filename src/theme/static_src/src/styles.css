@@ -26,3 +26,78 @@
 .star-rating-widget .star-btn:active {
   transform: scale(0.95);
 }
+
+/* Markdown content styles */
+/* Uses DaisyUI/Tailwind utilities for theme consistency */
+.review-text {
+  @apply text-base-content;
+}
+
+.review-text h1,
+.review-text h2,
+.review-text h3,
+.review-text h4,
+.review-text h5,
+.review-text h6 {
+  @apply font-bold mt-4 mb-2 leading-tight;
+}
+
+.review-text h1 { @apply text-xl; }
+.review-text h2 { @apply text-lg; }
+.review-text h3 { @apply text-base; }
+.review-text h4 { @apply text-sm font-semibold; }
+.review-text h5 { @apply text-sm; }
+.review-text h6 { @apply text-xs; }
+
+.review-text p {
+  @apply mb-4;
+}
+
+.review-text ul,
+.review-text ol {
+  @apply ml-6 mb-4;
+}
+
+.review-text ul {
+  @apply list-disc;
+}
+
+.review-text ol {
+  @apply list-decimal;
+}
+
+.review-text li {
+  @apply mb-1;
+}
+
+.review-text strong {
+  @apply font-bold;
+}
+
+.review-text em {
+  @apply italic;
+}
+
+.review-text code {
+  @apply bg-base-300 px-1 py-0.5 rounded text-sm font-mono;
+}
+
+.review-text pre {
+  @apply bg-base-300 p-4 rounded-lg overflow-x-auto mb-4;
+}
+
+.review-text pre code {
+  @apply bg-transparent p-0;
+}
+
+.review-text blockquote {
+  @apply border-l-4 border-base-content/20 pl-4 ml-0 mb-4 opacity-80;
+}
+
+.review-text hr {
+  @apply border-0 border-t border-base-content/20 my-6;
+}
+
+.review-text a {
+  @apply link link-hover;
+}
