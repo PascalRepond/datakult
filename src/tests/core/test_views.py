@@ -358,3 +358,98 @@ class TestFilteringHelper:
         titles = [m.title for m in response.context["media_list"]]
         assert "Unrated" in titles
         assert "Rated" not in titles
+
+
+class TestMediaReviewHtmxViews:
+    """Tests for HTMX views that display media reviews."""
+
+    def test_media_review_clamped_returns_partial(self, logged_in_client, db):
+        """Clamped review view returns the clamped partial template."""
+        media = Media.objects.create(
+            title="Test Media",
+            media_type="BOOK",
+            review="This is a test review with some content that could be truncated.",
+        )
+        response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
+
+        assert response.status_code == 200
+        assert "partials/media-review-clamped.html" in [t.name for t in response.templates]
+        assert "media" in response.context
+        assert response.context["media"] == media
+
+    def test_media_review_clamped_with_short_review(self, logged_in_client, db):
+        """Clamped review with short text doesn't show 'See more' button."""
+        media = Media.objects.create(
+            title="Test Media",
+            media_type="BOOK",
+            review="Short review",
+        )
+        response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
+
+        content = response.content.decode("utf-8")
+        # With less than 20 words, the 'See more' button should not appear
+        assert "See more" not in content
+
+    def test_media_review_clamped_with_long_review(self, logged_in_client, db):
+        """Clamped review with long text shows 'See more' button."""
+        long_review = " ".join(["word"] * 30)  # 30 words
+        media = Media.objects.create(
+            title="Test Media",
+            media_type="BOOK",
+            review=long_review,
+        )
+        response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
+
+        content = response.content.decode("utf-8")
+        # With more than 20 words, the 'See more' button should appear
+        assert "See more" in content
+
+    def test_media_review_full_returns_partial(self, logged_in_client, db):
+        """Full review view returns the full partial template."""
+        media = Media.objects.create(
+            title="Test Media",
+            media_type="BOOK",
+            review="This is a test review.",
+        )
+        response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
+
+        assert response.status_code == 200
+        assert "partials/media-review-full.html" in [t.name for t in response.templates]
+        assert "media" in response.context
+        assert response.context["media"] == media
+
+    def test_media_review_full_shows_see_less_button(self, logged_in_client, db):
+        """Full review view shows 'See less' button."""
+        media = Media.objects.create(
+            title="Test Media",
+            media_type="BOOK",
+            review="Some review content",
+        )
+        response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
+
+        content = response.content.decode("utf-8")
+        assert "See less" in content
+
+    def test_media_review_renders_html_safely(self, logged_in_client, db):
+        """Review views render HTML content from review_rendered field."""
+        media = Media.objects.create(
+            title="Test Media",
+            media_type="BOOK",
+            review="**Bold text**",
+        )
+        # After save, review_rendered should contain HTML
+        media.refresh_from_db()
+
+        response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
+        content = response.content.decode("utf-8")
+
+        # The rendered HTML should be present in the response
+        assert "<strong>Bold text</strong>" in content
+
+    def test_media_review_nonexistent_media_returns_404(self, logged_in_client):
+        """Accessing review views with nonexistent media returns 404."""
+        response_clamped = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": 99999}))
+        response_full = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": 99999}))
+
+        assert response_clamped.status_code == 404
+        assert response_full.status_code == 404

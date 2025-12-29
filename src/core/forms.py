@@ -1,6 +1,7 @@
 from django import forms
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from markdownfield.widgets import MDEWidget
 
 from .models import Media
 
@@ -52,7 +53,7 @@ class MediaForm(forms.ModelForm):
             "status": forms.Select(attrs={"class": "select validator w-full"}),
             "pub_year": forms.NumberInput(attrs={"class": "input validator w-full", "placeholder": _("YYYY")}),
             "score": StarRatingWidget(attrs={"class": "validator"}),
-            "review": forms.Textarea(attrs={"class": "textarea validator w-full"}),
+            "review": MDEWidget(),
             "review_date": forms.TextInput(
                 attrs={
                     "class": "input validator w-full",

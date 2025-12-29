@@ -6,7 +6,8 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from markdownfield.models import MarkdownField
+from markdownfield.models import MarkdownField, RenderedMarkdownField
+from markdownfield.validators import VALIDATOR_STANDARD
 from partial_date import PartialDateField
 from PIL import Image, ImageOps
 
@@ -159,6 +160,12 @@ class Media(models.Model):
     )
     review = MarkdownField(
         verbose_name=_("Review"),
+        null=False,
+        blank=True,
+        rendered_field="review_rendered",
+        validator=VALIDATOR_STANDARD,
+    )
+    review_rendered = RenderedMarkdownField(
         null=False,
         blank=True,
     )
