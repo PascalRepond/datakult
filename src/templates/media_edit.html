@@ -87,6 +87,15 @@
               </label>
             </div>
             <div class="form-control">
+              <label class="label" for="id_external_uri">
+                {% include "partials/field_label.html" with label=_("External URI") field=form.external_uri %}
+              </label>
+              {{ form.external_uri }}
+              <label class="label" id="error-external_uri">
+                {% if form.external_uri.errors %}<span class="validator-hint">{{ form.external_uri.errors.0 }}</span>{% endif %}
+              </label>
+            </div>
+            <div class="form-control">
               <label class="label" for="id_status">
                 {% include "partials/field_label.html" with label=_("Status") field=form.status %}
               </label>
