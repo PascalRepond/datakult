@@ -29,6 +29,11 @@ ENV MEDIA_ROOT=/app/data/media
 
 WORKDIR /app
 
+# Install cron and other system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cron \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
@@ -44,8 +49,18 @@ COPY src/ ./src/
 # Copy built CSS from tailwind stage
 COPY --from=tailwind-builder /app/src/theme/static/css/dist/ ./src/theme/static/css/dist/
 
-# Create data directory for persistent storage (SQLite + media)
-RUN mkdir -p /app/data/media
+# Create data directory for persistent storage (SQLite + media + backups)
+RUN mkdir -p /app/data/media /app/data/backups
+
+# Copy backup script
+COPY scripts/daily_backup.sh /app/daily_backup.sh
+RUN chmod +x /app/daily_backup.sh
+
+# Setup cron job for daily backups at 1 AM
+RUN echo "0 1 * * * /app/daily_backup.sh >> /var/log/cron.log 2>&1" > /etc/cron.d/datakult-backup && \
+    chmod 0644 /etc/cron.d/datakult-backup && \
+    crontab /etc/cron.d/datakult-backup && \
+    touch /var/log/cron.log
 
 # Copy entrypoint script
 COPY scripts/entrypoint.sh /app/entrypoint.sh

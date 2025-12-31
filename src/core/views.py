@@ -1,10 +1,19 @@
+import tarfile
+import tempfile
+from pathlib import Path
+
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.db.models import Q
+from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 
 from .forms import MediaForm
 from .models import Agent, Media
-from .utils import delete_orphan_agents_by_ids
+from .utils import create_backup, delete_orphan_agents_by_ids
 
 
 def _resolve_sorting(request):
@@ -264,3 +273,69 @@ def media_update_status_htmx(request, pk):
         "status_choices": Media.status.field.choices,
     }
     return render(request, "partials/status-editable.html", context)
+
+
+@login_required
+def backup_export(request):
+    """Export backup and download it."""
+    try:
+        backup_path = create_backup()
+
+        # Return the file as a download
+        # FileResponse accepts a file object and handles closing it
+        return FileResponse(
+            backup_path.open("rb"),
+            as_attachment=True,
+            filename=backup_path.name,
+        )
+
+    except (OSError, tarfile.TarError, PermissionError) as e:
+        messages.error(request, _("Backup creation failed: %(error)s") % {"error": str(e)})
+        return redirect("backup_manage")
+
+
+@login_required
+def backup_import(request):
+    """Import a backup file (with warning)."""
+    if request.method == "POST":
+        backup_file = request.FILES.get("backup_file")
+
+        if not backup_file:
+            messages.error(request, _("No file selected"))
+            return redirect("backup_manage")
+
+        if not backup_file.name.endswith(".tar.gz"):
+            messages.error(request, _("Invalid file format. Use a .tar.gz file"))
+            return redirect("backup_manage")
+
+        tmp_path = None
+        try:
+            # Save the uploaded file temporarily
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".tar.gz") as tmp_file:
+                for chunk in backup_file.chunks():
+                    tmp_file.write(chunk)
+                tmp_path = tmp_file.name
+
+            try:
+                # Import the backup with --flush (delete existing data)
+                call_command("import_backup", tmp_path, "--flush", verbosity=1)
+
+                messages.success(request, _("Backup imported successfully! All data has been restored."))
+                return redirect("home")
+
+            finally:
+                # Clean up temp file (always executed, even on exception)
+                if tmp_path:
+                    Path(tmp_path).unlink(missing_ok=True)
+
+        except (OSError, CommandError, tarfile.TarError) as e:
+            messages.error(request, _("Backup import failed: %(error)s") % {"error": str(e)})
+            return redirect("backup_manage")
+
+    return redirect("backup_manage")
+
+
+@login_required
+def backup_manage(request):
+    """Display backup management page."""
+    return render(request, "backup_manage.html")

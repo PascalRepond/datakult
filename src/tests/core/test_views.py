@@ -4,9 +4,14 @@ Tests for core.views module.
 These tests verify the behavior of views using pytest-django.
 """
 
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
 from core.models import Agent, Media
+from core.utils import create_backup
 
 
 class TestIndexView:
@@ -453,3 +458,116 @@ class TestMediaReviewHtmxViews:
 
         assert response_clamped.status_code == 404
         assert response_full.status_code == 404
+
+
+class TestBackupManageView:
+    """Tests for the backup_manage view."""
+
+    def test_backup_manage_displays_page(self, logged_in_client):
+        """The backup manage view displays the backup management page."""
+        response = logged_in_client.get(reverse("backup_manage"))
+
+        assert response.status_code == 200
+        assert "backup_manage.html" in [t.name for t in response.templates]
+
+
+class TestBackupExportView:
+    """Tests for the backup_export view."""
+
+    def test_backup_export_creates_and_downloads_backup(self, logged_in_client, db):
+        """The backup export view creates and returns a backup file."""
+        # Create some test data
+        Media.objects.create(title="Test Media", media_type="BOOK")
+
+        response = logged_in_client.get(reverse("backup_export"))
+
+        # Should return a file download
+        assert response.status_code == 200
+        # Django's FileResponse detects .tar.gz as gzip
+        assert response["Content-Type"] == "application/gzip"
+        assert "attachment" in response["Content-Disposition"]
+        assert "datakult_backup_" in response["Content-Disposition"]
+
+    def test_backup_export_handles_errors_gracefully(self, logged_in_client, monkeypatch):
+        """The backup export view handles errors and redirects with message."""
+
+        # Mock create_backup to raise an exception
+        def mock_create_backup(*args, **kwargs):
+            msg = "Test error"
+            raise OSError(msg)
+
+        monkeypatch.setattr("core.views.create_backup", mock_create_backup)
+
+        response = logged_in_client.get(reverse("backup_export"))
+
+        # Should redirect back to backup manage with error message
+        assert response.status_code == 302
+        assert response.url == reverse("backup_manage")
+
+
+class TestBackupImportView:
+    """Tests for the backup_import view."""
+
+    def test_backup_import_get_redirects(self, logged_in_client):
+        """GET requests to backup import redirect to backup manage."""
+        response = logged_in_client.get(reverse("backup_import"))
+
+        assert response.status_code == 302
+        assert response.url == reverse("backup_manage")
+
+    def test_backup_import_requires_file(self, logged_in_client):
+        """The backup import view requires a file to be uploaded."""
+        response = logged_in_client.post(reverse("backup_import"))
+
+        assert response.status_code == 302
+        # Should redirect back with error message
+
+    def test_backup_import_rejects_invalid_format(self, logged_in_client):
+        """The backup import view rejects files with invalid format."""
+        invalid_file = SimpleUploadedFile("backup.txt", b"not a backup", content_type="text/plain")
+
+        response = logged_in_client.post(reverse("backup_import"), {"backup_file": invalid_file})
+
+        assert response.status_code == 302
+        assert response.url == reverse("backup_manage")
+
+    def test_backup_import_restores_data(self, logged_in_client, db):
+        """The backup import view successfully restores data from a backup."""
+        # Create test data and backup
+        original_media = Media.objects.create(title="Original Media", media_type="BOOK", status="COMPLETED")
+
+        with TemporaryDirectory() as tmpdir:
+            # Create a backup
+            backup_path = create_backup(output_dir=Path(tmpdir))
+
+            # Clear the database
+            Media.objects.all().delete()
+            assert Media.objects.count() == 0
+
+            # Import the backup via the view
+            with backup_path.open("rb") as backup_file:
+                uploaded_file = SimpleUploadedFile(
+                    backup_path.name, backup_file.read(), content_type="application/x-tar"
+                )
+                response = logged_in_client.post(reverse("backup_import"), {"backup_file": uploaded_file})
+
+            # Should redirect to home
+            assert response.status_code == 302
+            assert response.url == reverse("home")
+
+            # Data should be restored
+            assert Media.objects.count() == 1
+            restored_media = Media.objects.first()
+            assert restored_media.title == original_media.title
+            assert restored_media.status == original_media.status
+
+    def test_backup_import_handles_errors(self, logged_in_client):
+        """The backup import view handles errors gracefully."""
+        # Create a valid tar.gz file with invalid content
+        invalid_file = SimpleUploadedFile("backup.tar.gz", b"invalid content", content_type="application/x-tar")
+
+        response = logged_in_client.post(reverse("backup_import"), {"backup_file": invalid_file})
+
+        # Should redirect back to backup manage with error message
+        assert response.status_code == 302
+        assert response.url == reverse("backup_manage")
