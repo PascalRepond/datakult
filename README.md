@@ -48,6 +48,15 @@ uv run poe format          # Format code
 uv run poe ci              # Run all checks (format, lint, tests, audits)
 ```
 
+### Backup Commands
+
+```bash
+# Quick commands (via poe)
+uv run poe backup                    # Export a backup
+uv run poe restore backup.tar.gz     # Import a backup (requires file path)
+uv run poe auto-backup               # Auto backup with rotation
+```
+
 ## Project Structure
 
 ```text

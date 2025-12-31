@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% load static %}
+{% load heroicons %}
+{% load i18n %}
+{% block title %}
+  {% translate "Backup Management" %} - Datakult
+{% endblock title %}
+{% block content %}
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">{% translate "Backup Management" %}</h1>
+    <!-- Messages -->
+    {% if messages %}
+      <div class="mb-6">
+        {% for message in messages %}
+          <div role="alert"
+               class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} mb-2">
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Export Backup Card -->
+      <div class="card bg-base-200 shadow-xl">
+        <div class="card-body">
+          <h2 class="card-title">
+            {% heroicon_outline "arrow-down-tray" class="w-6 h-6" %}
+            {% translate "Export Backup" %}
+          </h2>
+          <p class="text-sm opacity-70">
+            {% translate "Create a complete archive of all your data (database + media files)." %}
+          </p>
+          <div class="divider"></div>
+          <div class="space-y-2 text-sm">
+            <p>
+              <strong>{% translate "Backup contents:" %}</strong>
+            </p>
+            <ul class="list-disc list-inside ml-2 opacity-70">
+              <li>{% translate "All database data" %}</li>
+              <li>{% translate "All media files (cover images)" %}</li>
+              <li>{% translate "Metadata (version, creation date)" %}</li>
+            </ul>
+          </div>
+          <div class="card-actions justify-end mt-4">
+            <button id="export-backup-btn"
+                    class="btn btn-primary"
+                    onclick="downloadBackup(this)">
+              {% heroicon_outline "arrow-down-tray" class="w-5 h-5" %}
+              {% translate "Download Backup" %}
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Import Backup Card -->
+      <div class="card bg-base-200 shadow-xl border-2 border-warning">
+        <div class="card-body">
+          <h2 class="card-title text-warning">
+            {% heroicon_outline "arrow-up-tray" class="w-6 h-6" %}
+            {% translate "Import Backup" %}
+          </h2>
+          <p class="text-sm opacity-70">{% translate "Restore your data from a backup archive." %}</p>
+          <div class="divider"></div>
+          <!-- Warning Alert -->
+          <div role="alert" class="alert alert-warning">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="h-6 w-6 shrink-0 stroke-current"
+                 fill="none"
+                 viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div class="text-sm">
+              <strong>{% translate "WARNING:" %}</strong>
+              {% translate "Importing a backup will" %}
+              <strong class="text-error">{% translate "DELETE ALL your current data" %}</strong>
+              {% translate "and replace it with the backup data." %}
+            </div>
+          </div>
+          <form method="post"
+                action="{% url 'backup_import' %}"
+                enctype="multipart/form-data"
+                onsubmit="return confirm('{% translate "⚠️ WARNING: This action will DELETE ALL your current data and replace it with the backup data.\n\nAre you absolutely sure you want to continue?" %}');">
+            {% csrf_token %}
+            <div class="form-control w-full">
+              <label class="label">
+                <span class="label-text">{% translate "Select a backup file (.tar.gz)" %}</span>
+              </label>
+              <input type="file"
+                     name="backup_file"
+                     accept=".tar.gz,.gz"
+                     class="file-input file-input-bordered w-full"
+                     required />
+            </div>
+            <div class="card-actions justify-end mt-4">
+              <button type="submit" class="btn btn-warning">
+                {% heroicon_outline "arrow-up-tray" class="w-5 h-5" %}
+                {% translate "Import Backup" %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Info Section -->
+    <div class="mt-8 card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h3 class="card-title text-lg">
+          {% heroicon_outline "information-circle" class="w-6 h-6" %}
+          {% translate "Backup Information" %}
+        </h3>
+        <div class="divider"></div>
+        <div class="space-y-4 text-sm">
+          <div>
+            <h4 class="font-semibold mb-1">📦 {% translate "Backup Format" %}</h4>
+            <p class="opacity-70">
+              {% translate "Backups are compressed archives in" %}
+              <code class="bg-base-300 px-2 py-1 rounded">.tar.gz</code>
+              {% translate "format containing all your data and files." %}
+            </p>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-1">🔄 {% translate "Automatic Backups" %}</h4>
+            <p class="opacity-70">
+              {% translate "An automatic backup is created daily at 1:00 AM. The 7 most recent backups are kept, older ones are automatically deleted." %}
+            </p>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-1">💾 {% translate "Automatic Backup Location" %}</h4>
+            <p class="opacity-70">
+              {% translate "In production (Docker):" %} <code class="bg-base-300 px-2 py-1 rounded">/app/data/backups</code>
+              <br>
+              {% translate "In development:" %} <code class="bg-base-300 px-2 py-1 rounded">./backups</code>
+            </p>
+          </div>
+          <div>
+            <h4 class="font-semibold mb-1">💡 {% translate "Best Practices" %}</h4>
+            <ul class="list-disc list-inside ml-2 opacity-70 space-y-1">
+              <li>{% translate "Regularly download your backups to external storage" %}</li>
+              <li>{% translate "Test your backups periodically in a test instance" %}</li>
+              <li>{% translate "Keep multiple backups to be able to restore from different points in time" %}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Back Button -->
+    <div class="mt-6">
+      <a href="{% url 'home' %}" class="btn btn-ghost">
+        {% heroicon_outline "arrow-left" class="w-5 h-5" %}
+        {% translate "Back to Home" %}
+      </a>
+    </div>
+  </div>
+  <script>
+    async function downloadBackup(btn) {
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      try {
+        const response = await fetch("{% url 'backup_export' %}");
+        if (!response.ok) {
+          throw new Error('Backup failed');
+        }
+        const blob = await response.blob();
+        const filename = response.headers.get('Content-Disposition')?.match(/filename="?(.+?)"?$/)?.[1] || 'backup.tar.gz';
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        console.error('Backup failed:', error);
+        alert("{% translate 'Backup creation failed. Please try again.' %}\n\n" + (error.message || "{% translate 'Unknown error' %}"));
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+  </script>
+{% endblock content %}

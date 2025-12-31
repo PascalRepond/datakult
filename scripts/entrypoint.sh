@@ -22,6 +22,12 @@ else:
     print(f'Superuser {username} already exists.')
 "
 
+# Start cron in the background for daily backups
+echo "Starting cron for daily backups..."
+if ! cron; then
+    echo "Warning: Failed to start cron service"
+fi
+
 # Start the server
 echo "Starting server..."
 exec "$@"
