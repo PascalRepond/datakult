@@ -136,6 +136,14 @@ class Media(models.Model):
             "BROADCAST": _("Broadcast (podcast, web series, etc.)"),
         },
     )
+    external_uri = models.URLField(
+        verbose_name=_("External URI"),
+        max_length=500,
+        null=False,
+        blank=True,
+        default="",
+        help_text=_("Link to an external page about this media (e.g., official site, IMDb, Goodreads, etc.)"),
+    )
     status = models.CharField(
         verbose_name=_("Status"),
         null=False,
@@ -190,6 +198,7 @@ class Media(models.Model):
         verbose_name=_("Review date"),
         null=True,
         blank=True,
+        help_text=_("Either a full date or just year and month, or only year."),
     )
     cover = models.ImageField(
         verbose_name=_("Cover image"),

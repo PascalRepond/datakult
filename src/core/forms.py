@@ -40,6 +40,7 @@ class MediaForm(forms.ModelForm):
             "title",
             "contributors",
             "media_type",
+            "external_uri",
             "status",
             "pub_year",
             "score",
@@ -50,6 +51,7 @@ class MediaForm(forms.ModelForm):
         widgets = {
             "title": forms.TextInput(attrs={"class": "input validator w-full"}),
             "media_type": forms.Select(attrs={"class": "select validator w-full"}),
+            "external_uri": forms.URLInput(attrs={"class": "input validator w-full"}),
             "status": forms.Select(attrs={"class": "select validator w-full"}),
             "pub_year": forms.NumberInput(attrs={"class": "input validator w-full", "placeholder": _("YYYY")}),
             "score": StarRatingWidget(attrs={"class": "validator"}),
