@@ -1,0 +1,24 @@
+{% load i18n %}
+{# This partial creates a "Load more" trigger that uses HTMX infinite scroll #}
+{% if page_obj.has_next %}
+  {% if view_mode == 'grid' %}
+    <div id="load-more-trigger"
+         hx-get="{% url 'load_more_media' %}?page={{ page_obj.next_page_number }}"
+         hx-trigger="revealed"
+         hx-swap="outerHTML"
+         hx-include="#view-mode-input, #sort, #type, #status, #score, #review-from, #review-to, [name='search']"
+         class="col-span-full flex justify-center py-4">
+      {% include "partials/spinner.html" with size="lg" show_text=True text=_("Loading more...") inline=True %}
+    </div>
+  {% else %}
+    <tr id="load-more-trigger"
+        hx-get="{% url 'load_more_media' %}?page={{ page_obj.next_page_number }}"
+        hx-trigger="revealed"
+        hx-swap="outerHTML"
+        hx-include="#view-mode-input, #sort, #type, #status, #score, #review-from, #review-to, [name='search']">
+      <td colspan="8" class="text-center py-4">
+        {% include "partials/spinner.html" with size="lg" show_text=True text=_("Loading more...") inline=True %}
+      </td>
+    </tr>
+  {% endif %}
+{% endif %}

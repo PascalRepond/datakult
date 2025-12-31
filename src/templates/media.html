@@ -60,7 +60,7 @@
                hx-indicator="#spinner"
                hx-on::before-request="document.getElementById('media-list').style.opacity = 0.4"
                hx-on::after-request="document.getElementById('media-list').style.opacity = 1" />
-        {% include "partials/spinner.html" %}
+        {% include "partials/spinner.html" with id="spinner" size="xl" htmx_indicator=True %}
       </label>
       <a href="{% url 'media_add' %}" class="btn btn-primary">{% heroicon_outline "plus" %}{% translate "Add" %}</a>
     </div>

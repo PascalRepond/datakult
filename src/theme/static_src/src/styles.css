@@ -12,6 +12,7 @@
   * the scope of this path.
   */
 @source "../../../**/*.{html,py,js}";
+@source "!../node_modules/**";
 
 /* Star rating widget custom styles */
 .star-rating-widget .star-btn {

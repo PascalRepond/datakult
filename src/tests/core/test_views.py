@@ -571,3 +571,150 @@ class TestBackupImportView:
         # Should redirect back to backup manage with error message
         assert response.status_code == 302
         assert response.url == reverse("backup_manage")
+
+
+class TestPaginationBehavior:
+    """Tests for pagination behavior across views."""
+
+    def test_index_paginates_results(self, logged_in_client, media_factory):
+        """Index view paginates results with 20 items per page."""
+        # Create 25 media items
+        for i in range(25):
+            media_factory(title=f"Media {i}")
+
+        response = logged_in_client.get(reverse("home"))
+
+        assert response.status_code == 200
+        assert "page_obj" in response.context
+        assert len(response.context["media_list"]) == 20
+        assert response.context["page_obj"].has_next()
+
+    def test_index_second_page_shows_remaining_items(self, logged_in_client, media_factory):
+        """Index view shows remaining items on second page."""
+        # Create 25 media items
+        for i in range(25):
+            media_factory(title=f"Media {i}")
+
+        response = logged_in_client.get(reverse("home"), {"page": 2})
+
+        assert response.status_code == 200
+        assert len(response.context["media_list"]) == 5
+        assert response.context["page_obj"].has_previous()
+        assert not response.context["page_obj"].has_next()
+
+    def test_search_paginates_results(self, logged_in_client, media_factory):
+        """Search view paginates results."""
+        # Create 25 media items with searchable title
+        for i in range(25):
+            media_factory(title=f"Searchable {i}")
+
+        response = logged_in_client.get(reverse("search"), {"search": "Searchable"})
+
+        assert response.status_code == 200
+        assert len(response.context["media_list"]) == 20
+        assert response.context["page_obj"].has_next()
+
+
+class TestLoadMoreMediaView:
+    """Tests for the load_more_media view (infinite scroll / lazy-loading)."""
+
+    def test_load_more_requires_login(self, client):
+        """The load_more_media view requires authentication."""
+        response = client.get(reverse("load_more_media"))
+
+        assert response.status_code == 302
+        assert "/login/" in response.url
+
+    def test_load_more_returns_partial_template(self, logged_in_client, media_factory):
+        """Load more view returns the media-items-page partial template."""
+        for i in range(25):
+            media_factory(title=f"Media {i}")
+
+        response = logged_in_client.get(reverse("load_more_media"), {"page": 2})
+
+        assert response.status_code == 200
+        assert "partials/media-items-page.html" in [t.name for t in response.templates]
+
+    def test_load_more_returns_next_page_items(self, logged_in_client, media_factory):
+        """Load more view returns items for the requested page."""
+        # Create 25 items
+        for i in range(25):
+            media_factory(title=f"Media {i:02d}")
+
+        # Request page 2 (items 21-25)
+        response = logged_in_client.get(reverse("load_more_media"), {"page": 2})
+
+        assert response.status_code == 200
+        assert len(response.context["media_list"]) == 5
+
+    def test_load_more_preserves_sorting(self, logged_in_client, media_factory):
+        """Load more view preserves sort order from initial request."""
+        media_factory(title="A", score=5)
+        media_factory(title="B", score=8)
+        media_factory(title="C", score=3)
+
+        response = logged_in_client.get(reverse("load_more_media"), {"page": 1, "sort": "score"})
+
+        assert response.status_code == 200
+        scores = [m.score for m in response.context["media_list"] if m.score is not None]
+        # Should be sorted ascending by score
+        assert scores == sorted(scores)
+
+    def test_load_more_preserves_filters(self, logged_in_client, media_factory):
+        """Load more view preserves filters from initial request."""
+        media_factory(title="Book 1", media_type="BOOK")
+        media_factory(title="Film 1", media_type="FILM")
+        media_factory(title="Book 2", media_type="BOOK")
+
+        response = logged_in_client.get(reverse("load_more_media"), {"page": 1, "type": "BOOK"})
+
+        assert response.status_code == 200
+        media_types = [m.media_type for m in response.context["media_list"]]
+        assert all(mt == "BOOK" for mt in media_types)
+
+    def test_load_more_with_search_query(self, logged_in_client, media_factory):
+        """Load more view applies search query when provided."""
+        media_factory(title="Python Guide")
+        media_factory(title="JavaScript Guide")
+        media_factory(title="Python Cookbook")
+
+        response = logged_in_client.get(reverse("load_more_media"), {"page": 1, "search": "Python"})
+
+        assert response.status_code == 200
+        assert len(response.context["media_list"]) == 2
+        titles = [m.title for m in response.context["media_list"]]
+        assert all("Python" in title for title in titles)
+
+    def test_load_more_page_obj_has_next_when_more_pages(self, logged_in_client, media_factory):
+        """Load more view sets has_next correctly when more pages exist."""
+        # Create 45 items (3 pages)
+        for i in range(45):
+            media_factory(title=f"Media {i}")
+
+        response = logged_in_client.get(reverse("load_more_media"), {"page": 2})
+
+        assert response.status_code == 200
+        assert response.context["page_obj"].has_next()
+        assert response.context["page_obj"].number == 2
+
+    def test_load_more_page_obj_no_next_on_last_page(self, logged_in_client, media_factory):
+        """Load more view sets has_next to False on last page."""
+        # Create 25 items (2 pages)
+        for i in range(25):
+            media_factory(title=f"Media {i}")
+
+        response = logged_in_client.get(reverse("load_more_media"), {"page": 2})
+
+        assert response.status_code == 200
+        assert not response.context["page_obj"].has_next()
+        assert response.context["page_obj"].number == 2
+
+    def test_load_more_includes_view_mode_in_context(self, logged_in_client, media_factory):
+        """Load more view includes view_mode in context for template rendering."""
+        media_factory(title="Test")
+
+        response_list = logged_in_client.get(reverse("load_more_media"), {"page": 1, "view_mode": "list"})
+        response_grid = logged_in_client.get(reverse("load_more_media"), {"page": 1, "view_mode": "grid"})
+
+        assert response_list.context["view_mode"] == "list"
+        assert response_grid.context["view_mode"] == "grid"

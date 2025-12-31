@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -62,6 +63,16 @@ def _get_field_choices():
     }
 
 
+def _build_search_queryset(query):
+    """Build a filtered queryset based on search query."""
+    return Media.objects.filter(
+        Q(title__icontains=query)
+        | Q(contributors__name__icontains=query)
+        | Q(pub_year__icontains=query)
+        | Q(review__icontains=query),
+    ).distinct()
+
+
 def _apply_filters(queryset, filters):
     """Apply filters to a queryset and return (queryset, contributor)."""
     contributor = None
@@ -96,8 +107,14 @@ def index(request):
     queryset = Media.objects.order_by(ordering)
     queryset, contributor = _apply_filters(queryset, filters)
 
+    # Pagination: 20 items per page
+    page_number = request.GET.get("page", 1)
+    paginator = Paginator(queryset, 20)
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        "media_list": queryset,
+        "media_list": page_obj.object_list,
+        "page_obj": page_obj,
         "view_mode": view_mode,
         "order_by": ordering,
         "sort_field": sort_field,
@@ -166,24 +183,60 @@ def media_delete(request, pk):
 
 
 @login_required
+def load_more_media(request):
+    """HTMX view: load next page of media items for infinite scrolling."""
+    view_mode = request.GET.get("view_mode", "list")
+    sort_field, sort, ordering = _resolve_sorting(request)
+    filters = _extract_filters(request)
+    query = request.GET.get("search", "")
+
+    # Build queryset based on whether it's a search or not
+    queryset = _build_search_queryset(query) if query else Media.objects.all()
+
+    queryset = queryset.order_by(ordering)
+    queryset, contributor = _apply_filters(queryset, filters)
+
+    # Pagination
+    page_number = request.GET.get("page", 1)
+    paginator = Paginator(queryset, 20)
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "media_list": page_obj.object_list,
+        "page_obj": page_obj,
+        "view_mode": view_mode,
+        "order_by": ordering,
+        "sort_field": sort_field,
+        "sort": sort,
+        "contributor": contributor,
+        "filters": filters,
+        **_get_field_choices(),
+    }
+
+    # Return only the items + load more button
+    return render(request, "partials/media-items-page.html", context)
+
+
+@login_required
 def search_media(request):
     query = request.GET.get("search", "")
     view_mode = request.GET.get("view_mode", "list")
     sort_field, sort, ordering = _resolve_sorting(request)
     filters = _extract_filters(request)
 
-    media = Media.objects.filter(
-        Q(title__icontains=query)
-        | Q(contributors__name__icontains=query)
-        | Q(pub_year__icontains=query)
-        | Q(review__icontains=query),
-    ).distinct()
+    media = _build_search_queryset(query)
 
     media, contributor = _apply_filters(media, filters)
     media = media.order_by(ordering)
 
+    # Pagination: 20 items per page
+    page_number = request.GET.get("page", 1)
+    paginator = Paginator(media, 20)
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        "media_list": media,
+        "media_list": page_obj.object_list,
+        "page_obj": page_obj,
         "view_mode": view_mode,
         "order_by": ordering,
         "sort_field": sort_field,

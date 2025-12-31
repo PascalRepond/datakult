@@ -12,9 +12,17 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from .env file if it exists
+load_dotenv(BASE_DIR.parent / ".env")
+
+# Add NVM node path to system PATH if configured (for django-tailwind)
+if nvm_node_path := os.environ.get("NVM_NODE_PATH"):
+    os.environ["PATH"] = f"{nvm_node_path}:{os.environ.get('PATH', '')}"
 
 
 # Quick-start development settings - unsuitable for production
@@ -186,6 +194,14 @@ LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
 
 TAILWIND_APP_NAME = "theme"
+
+# Configure path to npm (can be overridden via environment variable)
+# This is useful when using nvm or other node version managers
+# If NVM_NODE_PATH is set, use it; otherwise fallback to NPM_BIN_PATH or default "npm"
+if nvm_node_path := os.environ.get("NVM_NODE_PATH"):
+    NPM_BIN_PATH = f"{nvm_node_path}/npm"
+else:
+    NPM_BIN_PATH = os.environ.get("NPM_BIN_PATH", "npm")
 
 # =============================================================================
 # Security Settings for Production (behind reverse proxy like Cloudflare Tunnel)
