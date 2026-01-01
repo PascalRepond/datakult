@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.0.1 (2026-01-01)
+
+### Bug Fixes
+
+- Resolve production deployment issues
+  ([`1579838`](https://github.com/PascalRepond/datakult/commit/1579838f504f1f3df5fdea528a6df710527e8283))
+
+### Continuous Integration
+
+- Correct incorrect commit message template
+  ([`cdb16e9`](https://github.com/PascalRepond/datakult/commit/cdb16e9df0e2a0274d0543f4213e27f70f30c03b))
+
+
 ## v1.0.0 (2026-01-01)
 
 ### Bug Fixes
