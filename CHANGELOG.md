@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.0.2 (2026-01-01)
+
+### Bug Fixes
+
+- Correct collectstatic for Docker
+  ([`223d569`](https://github.com/PascalRepond/datakult/commit/223d569865a49885f983720f6f95698b26c3c80a))
+
+
 ## v1.0.1 (2026-01-01)
 
 ### Bug Fixes
