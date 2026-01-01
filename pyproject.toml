@@ -31,6 +31,7 @@ dev = [
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "pytest-django>=4.11.1",
+    "python-semantic-release>=10.5.3",
     "ruff>=0.12.4",
 ]
 
@@ -69,6 +70,19 @@ help = "Run all quality checks (format, lint, security audits, tests)"
 sequence = ["audit-python", "audit-js"]
 help = "Run security audits on Python and JavaScript dependencies"
 
+# Release management
+[tool.poe.tasks.changelog]
+cmd = "semantic-release changelog"
+help = "Preview the next changelog without making changes"
+
+[tool.poe.tasks.version]
+cmd = "semantic-release version --print"
+help = "Print the next version number without making changes"
+
+[tool.poe.tasks.release]
+cmd = "semantic-release version --no-push --no-tag --no-commit"
+help = "Generate changelog and bump version locally (does not push, tag, or commit - for local testing only)"
+
 [tool.ruff]
 line-length = 120
 src = [
@@ -106,14 +120,7 @@ lint.ignore = [
     "PLC0415", # imports not at top level allowed (fixtures)
 ]
 
-[build-system]
-requires = ["setuptools"]
-
-[tool.setuptools.packages.find]
-where = ["./src"]
-
 [tool.uv]
-required-version = ">=0.7.9"
 package = false
 
 [tool.pytest.ini_options]
@@ -148,3 +155,27 @@ exclude_lines = [
     "raise NotImplementedError",
     "if TYPE_CHECKING:",
 ]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+branch = "main"
+major_on_zero = true
+tag_format = "v{version}"
+
+[tool.semantic_release.commit_parser_options]
+allowed_tags = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore"]
+minor_tags = ["feat"]
+patch_tags = ["fix", "perf"]
+
+[tool.semantic_release.changelog]
+exclude_commit_patterns = []
+
+[tool.semantic_release.changelog.environment]
+block_start_string = "{%"
+block_end_string = "%}"
+variable_start_string = "{{"
+variable_end_string = "}}"
+
+[tool.semantic_release.branches.main]
+match = "(main|master)"
+prerelease = false
