@@ -66,8 +66,10 @@ RUN echo "0 1 * * * /app/daily_backup.sh >> /var/log/cron.log 2>&1" > /etc/cron.
 COPY scripts/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-# Collect static files
-RUN uv run ./src/manage.py collectstatic --noinput
+# Collect static files with production settings
+# Set DEBUG=false to use CompressedManifestStaticFilesStorage during collectstatic
+# This ensures the manifest file is created for production use
+RUN DEBUG=false SECRET_KEY=build-time-only ALLOWED_HOSTS=localhost uv run ./src/manage.py collectstatic --noinput
 
 # Expose port
 EXPOSE 8000
