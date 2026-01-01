@@ -154,7 +154,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+    BASE_DIR / "theme" / "static",  # Include Tailwind CSS built files
+]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Use CompressedManifestStaticFilesStorage only in production
@@ -206,22 +209,77 @@ else:
 # =============================================================================
 # Security Settings for Production (behind reverse proxy like Cloudflare Tunnel)
 # =============================================================================
+
 if not DEBUG:
-    # Trust the X-Forwarded-Proto header from the reverse proxy
-    # This tells Django the original request was HTTPS even though
-    # the internal connection (proxy -> Django) is HTTP
+    # Trust the X-Forwarded-Proto header from reverse proxies (Cloudflare Tunnel, nginx, etc.)
+    # This allows Django to detect HTTPS even when the backend connection is HTTP
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
-    # Don't redirect to HTTPS at Django level - the reverse proxy handles this
+    # Don't redirect to HTTPS at Django level - let the reverse proxy handle it
     SECURE_SSL_REDIRECT = False
 
-    # Secure cookies - works because the browser sees HTTPS
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    # Cookie settings for mixed HTTP/HTTPS environments
+    # Cookies work on both local HTTP and proxied HTTPS
+    SESSION_COOKIE_SECURE = False  # Allow cookies over HTTP for local access
+    CSRF_COOKIE_SECURE = False  # Allow CSRF over HTTP for local access
 
-    # Prevent JavaScript access to cookies
+    # Use SameSite=Lax for better compatibility with reverse proxies
+    SESSION_COOKIE_SAMESITE = "Lax"
+    CSRF_COOKIE_SAMESITE = "Lax"
+
+    # Prevent JavaScript access to cookies (security best practice)
     SESSION_COOKIE_HTTPONLY = True
     CSRF_COOKIE_HTTPONLY = True
 
     # Additional security headers
     SECURE_CONTENT_TYPE_NOSNIFF = True
+
+    # Trust proxies for client IP detection
+    USE_X_FORWARDED_HOST = True
+    USE_X_FORWARDED_PORT = False  # Don't trust port header to avoid conflicts
+
+# =============================================================================
+# Logging Configuration
+# =============================================================================
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": os.environ.get("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": False,
+        },
+        "django.request": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+    },
+}

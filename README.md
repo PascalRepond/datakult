@@ -73,21 +73,35 @@ src/
 
 ### Quick Start (using pre-built image)
 
-Download [docker-compose.prod.yml](docker-compose.prod.yml) and run:
+1. Download the compose file:
+   ```bash
+   curl -O https://raw.githubusercontent.com/PascalRepond/datakult/main/docker-compose.prod.yml
+   ```
 
-```bash
-# Download the compose file
-curl -O https://raw.githubusercontent.com/PascalRepond/datakult/main/docker-compose.prod.yml
+2. Create a `.env` file with your secrets:
+   ```bash
+   cat > .env << EOF
+   SECRET_KEY=your-very-long-secret-key-here-change-this
+   ALLOWED_HOSTS=datakult.example.com,192.168.1.100,localhost
+   DJANGO_SUPERUSER_USERNAME=admin
+   DJANGO_SUPERUSER_EMAIL=admin@example.com
+   DJANGO_SUPERUSER_PASSWORD=change-this-password
+   EOF
+   ```
 
-# Edit environment variables (especially SECRET_KEY and passwords)
-nano docker-compose.prod.yml
+3. Edit the `.env` file and replace:
+   - `SECRET_KEY` with a long random string
+   - `ALLOWED_HOSTS` with your actual domain and IP
+   - Passwords with secure values
 
-# Start
-docker compose -f docker-compose.prod.yml up -d
-```
+4. Start the application:
+   ```bash
+   docker compose -f docker-compose.prod.yml up -d
+   ```
 
-The application will be available at `http://localhost:8000`.  
-Default credentials: `admin` / `admin`
+The application will be available at `http://localhost:8000`.
+
+**Important**: Change the `SECRET_KEY` and passwords in your `.env` file before deploying to production!
 
 Migrations and superuser creation are handled automatically on first start.
 

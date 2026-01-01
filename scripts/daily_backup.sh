@@ -19,6 +19,11 @@ else
 fi
 
 # Run the auto_backup command which creates a backup and rotates old ones
-uv run poe auto_backup --keep 7
+# Use manage.py directly instead of poe to avoid requiring dev dependencies in production
+if [ -f "/app/src/manage.py" ]; then
+    uv run /app/src/manage.py auto_backup --keep 7
+else
+    uv run "$PROJECT_DIR/src/manage.py" auto_backup --keep 7
+fi
 
 echo "Daily backup completed at $(date)"
