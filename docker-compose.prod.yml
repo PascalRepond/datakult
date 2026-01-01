@@ -1,11 +1,15 @@
-# Datakult - Ready to use
-# 
+# Datakult - Production Ready
+#
 # Usage:
 #   1. Copy this file to your server
-#   2. Edit the environment variables below
-#   3. Run: docker compose up -d
+#   2. Create a .env file with your secrets (see below)
+#   3. Run: docker compose -f docker-compose.prod.yml up -d
 #
-# Default credentials: admin / admin (change DJANGO_SUPERUSER_PASSWORD!)
+# Example .env file:
+#   SECRET_KEY=your-very-long-secret-key-here
+#   DJANGO_SUPERUSER_USERNAME=admin
+#   DJANGO_SUPERUSER_EMAIL=admin@example.com
+#   DJANGO_SUPERUSER_PASSWORD=change-this-password
 
 services:
   datakult:
@@ -15,15 +19,19 @@ services:
     volumes:
       - datakult_data:/app/data
     environment:
-      # Security - CHANGE THESE IN PRODUCTION
-      - SECRET_KEY=generate-a-real-secret-key-here
+      # Security - Load from .env file
+      - SECRET_KEY=${SECRET_KEY:?SECRET_KEY is required}
       - DEBUG=false
-      - ALLOWED_HOSTS=localhost,127.0.0.1
 
-      # Default superuser (created on first run)
-      - DJANGO_SUPERUSER_USERNAME=admin
-      - DJANGO_SUPERUSER_EMAIL=admin@example.com
-      - DJANGO_SUPERUSER_PASSWORD=admin
+      # Allowed hosts - Add your domain and local IP
+      # IMPORTANT: Update this with your actual domain and IP
+      # Example: ALLOWED_HOSTS=datakult.example.com,192.168.1.100,localhost
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
+
+      # Default superuser (created on first run) - Load from .env file
+      - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME:-admin}
+      - DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL:-admin@example.com}
+      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD:-admin}
     restart: unless-stopped
 
 volumes:

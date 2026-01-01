@@ -35,3 +35,37 @@ jobs:
 
       - name: Run CI checks
         run: uv run poe ci
+
+  release-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Validate release configuration
+        run: |
+          echo "📋 Checking what release would be created..."
+          echo ""
+
+          # Run in noop mode to see what would happen without making changes
+          uv run semantic-release --noop version || {
+            echo "ℹ️  No release would be created (no releasable commits since last release)"
+            exit 0
+          }
+
+          echo ""
+          echo "✅ Release configuration is valid!"

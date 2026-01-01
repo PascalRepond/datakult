@@ -11,7 +11,7 @@ dependencies = [
     "django-htmx>=1.23.2",
     "django-markdownfield>=0.11.0",
     "django-partial-date>=1.3.2",
-    "django-tailwind[reload]>=4.2.0",
+    "django-tailwind>=4.2.0",
     "gunicorn>=23.0.0",
     "heroicons[django]>=2.11.0",
     "pillow>=12.0.0",
@@ -161,7 +161,11 @@ version_toml = ["pyproject.toml:project.version"]
 branch = "main"
 major_on_zero = true
 tag_format = "v{version}"
-commit_message = "chore(release): {version}\n\n{changelog}"
+commit_message = "chore(release): {version}"
+build_command = """
+    uv lock --upgrade-package datakult
+    git add uv.lock
+"""
 
 [tool.semantic_release.commit_author]
 env = "GIT_COMMIT_AUTHOR"
@@ -176,7 +180,6 @@ patch_tags = ["fix", "perf", "chore", "docs", "style", "refactor", "test", "buil
 exclude_commit_patterns = [
     "chore\\(release\\):.*",
 ]
-template_dir = "templates"
 mode = "update"
 
 [tool.semantic_release.changelog.environment]
