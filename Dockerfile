@@ -57,9 +57,11 @@ COPY scripts/daily_backup.sh /app/daily_backup.sh
 RUN chmod +x /app/daily_backup.sh
 
 # Setup cron job for daily backups at 1 AM
-RUN echo "0 1 * * * /app/daily_backup.sh >> /var/log/cron.log 2>&1" > /etc/cron.d/datakult-backup && \
+# Include PATH to ensure uv and other binaries are available
+# Output goes to both log file and stdout (for docker logs visibility)
+RUN echo "PATH=/usr/local/bin:/usr/bin:/bin" > /etc/cron.d/datakult-backup && \
+    echo "0 1 * * * /app/daily_backup.sh 2>&1 | tee -a /var/log/cron.log" >> /etc/cron.d/datakult-backup && \
     chmod 0644 /etc/cron.d/datakult-backup && \
-    crontab /etc/cron.d/datakult-backup && \
     touch /var/log/cron.log
 
 # Copy entrypoint script

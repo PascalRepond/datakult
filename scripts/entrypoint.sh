@@ -22,10 +22,28 @@ else:
     print(f'Superuser {username} already exists.')
 "
 
+# Reload crontab to ensure it's active at runtime
+echo "Reloading crontab..."
+if [ -f /etc/cron.d/datakult-backup ]; then
+    crontab /etc/cron.d/datakult-backup
+    echo "✓ Crontab loaded"
+else
+    echo "✗ Warning: Crontab file not found"
+fi
+
 # Start cron in the background for daily backups
 echo "Starting cron for daily backups..."
-if ! cron; then
-    echo "Warning: Failed to start cron service"
+if cron; then
+    echo "✓ Cron service started"
+    # Verify cron is running
+    sleep 1
+    if pgrep cron > /dev/null; then
+        echo "✓ Cron process confirmed running"
+    else
+        echo "✗ Warning: Cron process not found"
+    fi
+else
+    echo "✗ Warning: Failed to start cron service"
 fi
 
 # Start the server

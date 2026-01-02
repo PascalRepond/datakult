@@ -75,7 +75,7 @@ src/
 
 1. Download the compose file:
    ```bash
-   curl -O https://raw.githubusercontent.com/PascalRepond/datakult/main/docker-compose.prod.yml
+   curl -O https://raw.githubusercontent.com/PascalRepond/datakult/main/docker-compose.yml
    ```
 
 2. Create a `.env` file with your secrets:
@@ -96,7 +96,7 @@ src/
 
 4. Start the application:
    ```bash
-   docker compose -f docker-compose.prod.yml up -d
+   docker compose -f docker-compose.yml up -d
    ```
 
 The application will be available at `http://localhost:8000`.
