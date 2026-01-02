@@ -3,7 +3,7 @@
 # Usage:
 #   1. Copy this file to your server
 #   2. Create a .env file with your secrets (see below)
-#   3. Run: docker compose -f docker-compose.prod.yml up -d
+#   3. Run: docker compose -f docker-compose.yml up -d
 #
 # Example .env file:
 #   SECRET_KEY=your-very-long-secret-key-here
