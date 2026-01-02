@@ -127,6 +127,15 @@ uv run ./src/manage.py loaddata sample_data
 print_success "Fixtures loaded"
 
 # -----------------------------------------------------------------------------
+# 7. Regenerate rendered reviews
+# -----------------------------------------------------------------------------
+print_step "Regenerating rendered reviews..."
+
+uv run ./src/manage.py regenerate_reviews
+
+print_success "Rendered reviews regenerated"
+
+# -----------------------------------------------------------------------------
 # Done!
 # -----------------------------------------------------------------------------
 echo ""
