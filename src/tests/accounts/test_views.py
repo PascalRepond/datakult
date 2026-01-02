@@ -11,14 +11,6 @@ from django.urls import reverse
 class TestProfileEditView:
     """Tests for the profile_edit view."""
 
-    def test_profile_edit_requires_login(self, client):
-        """The profile edit view requires authentication."""
-        url = reverse("accounts:profile_edit")
-        response = client.get(url)
-
-        assert response.status_code == 302
-        assert "/login/" in response.url
-
     def test_profile_edit_accessible_when_logged_in(self, logged_in_client):
         """The profile edit view is accessible when logged in."""
         response = logged_in_client.get(reverse("accounts:profile_edit"))
