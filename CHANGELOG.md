@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.1.0 (2026-01-02)
+
+### Bug Fixes
+
+- Fix media serving in production
+  ([`a67549e`](https://github.com/PascalRepond/datakult/commit/a67549edc14ad2a2cdba1993f8199023e7b76cdd))
+
+### Features
+
+- Enhance backup cron job
+  ([`391b59a`](https://github.com/PascalRepond/datakult/commit/391b59a680318813bae06fecf9ff0511c32f76e0))
+
+
 ## v1.0.2 (2026-01-01)
 
 ### Bug Fixes
