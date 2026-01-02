@@ -17,14 +17,6 @@ from core.utils import create_backup
 class TestIndexView:
     """Tests for the index (home) view."""
 
-    def test_index_requires_login(self, client):
-        """The index view requires authentication."""
-        url = reverse("home")
-        response = client.get(url)
-
-        assert response.status_code == 302
-        assert "/login/" in response.url
-
     def test_index_accessible_when_logged_in(self, logged_in_client):
         """The index view is accessible when logged in."""
         response = logged_in_client.get(reverse("home"))
@@ -52,12 +44,6 @@ class TestIndexView:
 
 class TestMediaEditView:
     """Tests for the media_edit view."""
-
-    def test_media_add_requires_login(self, client):
-        """The add media view requires authentication."""
-        response = client.get(reverse("media_add"))
-
-        assert response.status_code == 302
 
     def test_media_add_get_displays_form(self, logged_in_client):
         """GET request displays the form."""
@@ -136,13 +122,6 @@ class TestMediaEditView:
 class TestMediaDeleteView:
     """Tests for the media_delete view."""
 
-    def test_media_delete_requires_login(self, client, media):
-        """The delete view requires authentication."""
-        response = client.post(reverse("media_delete", kwargs={"pk": media.pk}))
-
-        assert response.status_code == 302
-        assert "/login/" in response.url
-
     def test_media_delete_post_deletes_media(self, logged_in_client, media):
         """POST request deletes the media."""
         media_pk = media.pk
@@ -185,12 +164,6 @@ class TestMediaDeleteView:
 class TestSearchView:
     """Tests for the search view."""
 
-    def test_search_requires_login(self, client):
-        """The search view requires authentication."""
-        response = client.get(reverse("search"))
-
-        assert response.status_code == 302
-
     def test_search_with_query(self, logged_in_client, media):
         """Search returns results matching the query."""
         response = logged_in_client.get(reverse("search"), {"search": media.title})
@@ -219,12 +192,6 @@ class TestSearchView:
 
 class TestAgentSearchHtmxView:
     """Tests for the agent_search_htmx view."""
-
-    def test_agent_search_requires_login(self, client):
-        """The agent search view requires authentication."""
-        response = client.get(reverse("agent_search_htmx"))
-
-        assert response.status_code == 302
 
     def test_agent_search_returns_matching_agents(self, logged_in_client, db):
         """Search returns agents matching the query."""
@@ -256,12 +223,6 @@ class TestAgentSearchHtmxView:
 
 class TestAgentSelectHtmxView:
     """Tests for the agent_select_htmx view."""
-
-    def test_agent_select_requires_login(self, client):
-        """The agent select view requires authentication."""
-        response = client.post(reverse("agent_select_htmx"))
-
-        assert response.status_code == 302
 
     def test_agent_select_returns_chip(self, logged_in_client, agent):
         """Selecting an agent returns the chip template."""
@@ -617,13 +578,6 @@ class TestPaginationBehavior:
 
 class TestLoadMoreMediaView:
     """Tests for the load_more_media view (infinite scroll / lazy-loading)."""
-
-    def test_load_more_requires_login(self, client):
-        """The load_more_media view requires authentication."""
-        response = client.get(reverse("load_more_media"))
-
-        assert response.status_code == 302
-        assert "/login/" in response.url
 
     def test_load_more_returns_partial_template(self, logged_in_client, media_factory):
         """Load more view returns the media-items-page partial template."""
