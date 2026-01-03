@@ -6,9 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const applyTheme = (theme) => {
         if (theme === "default") {
             localStorage.removeItem("theme");
+            htmlElement.removeAttribute("data-theme");
         } else {
             localStorage.setItem("theme", theme);
-            htmlElement.setAttribute("value", theme);
+            htmlElement.setAttribute("data-theme", theme);
         }
     };
 

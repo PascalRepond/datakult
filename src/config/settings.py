@@ -156,7 +156,7 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
-    BASE_DIR / "theme" / "static",  # Include Tailwind CSS built files
+    # theme/static is automatically discovered because 'theme' is in INSTALLED_APPS
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
