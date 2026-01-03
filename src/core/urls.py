@@ -15,8 +15,6 @@ urlpatterns = [
     path("media/validate_field/", validate_media_field, name="media_validate_field"),
     path("media/<int:pk>/review-full/", views.media_review_full_htmx, name="media_review_full_htmx"),
     path("media/<int:pk>/review-clamped/", views.media_review_clamped_htmx, name="media_review_clamped_htmx"),
-    path("media/<int:pk>/update-score/", views.media_update_score_htmx, name="media_update_score_htmx"),
-    path("media/<int:pk>/update-status/", views.media_update_status_htmx, name="media_update_status_htmx"),
     # Backup management
     path("backup/", views.backup_manage, name="backup_manage"),
     path("backup/export/", views.backup_export, name="backup_export"),

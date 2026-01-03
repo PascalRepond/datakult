@@ -11,4 +11,5 @@
         "prettier.tabWidth": 2,
         "editor.tabSize": 2
     },
+    "djlint.ignore": "H006"
 }

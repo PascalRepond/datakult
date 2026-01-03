@@ -59,7 +59,7 @@ class MediaForm(forms.ModelForm):
             "review_date": forms.TextInput(
                 attrs={
                     "class": "input validator w-full",
-                    "placeholder": _("YYYY, MM-YYYY, or DD-MM-YYYY"),
+                    "placeholder": _("YYYY, MM-YYYY, or YYYY-MM-DD"),
                 }
             ),
             "cover": CoverImageWidget(attrs={"class": "file-input file-input-ghost w-full max-w-xs"}),

@@ -281,54 +281,6 @@ def media_review_full_htmx(request, pk):
 
 
 @login_required
-def media_update_score_htmx(request, pk):
-    """HTMX view: update media score and return updated score widget."""
-    media = get_object_or_404(Media, pk=pk)
-
-    if request.method == "POST":
-        score_value = request.POST.get("score", "").strip()
-
-        # Handle empty score (clear)
-        if score_value == "":
-            media.score = None
-            media.save()
-        else:
-            try:
-                score = int(score_value)
-                # Validate that score is one of the valid choices
-                valid_scores = dict(Media.score.field.choices).keys()
-                if score in valid_scores:
-                    media.score = score
-                    media.save()
-            except ValueError:
-                # Invalid score format, don't update
-                pass
-
-    return render(request, "partials/score-editable.html", {"media": media})
-
-
-@login_required
-def media_update_status_htmx(request, pk):
-    """HTMX view: update media status and return updated status widget."""
-    media = get_object_or_404(Media, pk=pk)
-
-    if request.method == "POST":
-        status_value = request.POST.get("status", "").strip()
-
-        # Validate that status is one of the valid choices
-        valid_statuses = dict(Media.status.field.choices).keys()
-        if status_value in valid_statuses:
-            media.status = status_value
-            media.save()
-
-    context = {
-        "media": media,
-        "status_choices": Media.status.field.choices,
-    }
-    return render(request, "partials/status-editable.html", context)
-
-
-@login_required
 def backup_export(request):
     """Export backup and download it."""
     try:

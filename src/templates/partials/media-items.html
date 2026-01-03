@@ -1,104 +1,85 @@
 {% load i18n %}
+{% load media_tags %}
 {# This partial renders only the media items without the container #}
 {% if view_mode == 'grid' %}
-  {# Grid items #}
+  {# Grid view - Cards #}
   {% for media in media_list %}
-    <div class="card lg:card-side bg-base-200 shadow-md hover:shadow-lg transition-shadow">
-      <figure class="basis-1/4 shrink-0 grow-0 h-full bg-base-300">
+    <div class="card bg-base-200 shadow-sm">
+      <figure class="relative w-full h-64 bg-base-300">
         {% if media.cover %}
           <img src="{{ media.cover.url }}"
-               alt="{{ media.title }}"
-               width="200"
-               height="300"
-               class="w-full h-full object-cover">
+               alt="{% translate "Cover of" %} {{ media.title }}"
+               class="w-full h-full object-contain">
         {% else %}
           <div class="w-full h-full flex items-center justify-center text-base-content/30">
-            {% heroicon_outline "photo" class="w-16 h-16" %}
+            {% heroicon_outline "photo" class="w-24 h-24" %}
           </div>
         {% endif %}
-      </figure>
-      <div class="card-body basis-3/4 p-3 h-full">
-        <h3 class="card-title text-sm line-clamp-2">
-          <a href="{% url 'media_edit' media.id %}" class="link link-hover">{{ media.title }}</a>
-        </h3>
-        <div class="text-xs space-y-1">
-          {% for contributor in media.contributors.all %}
-            <a href="#"
-               class="link link-secondary contributor-link"
-               data-contributor-id="{{ contributor.id }}"
-               data-contributor-name="{{ contributor.name }}"
-               hx-get="{% url 'home' %}?contributor={{ contributor.id }}"
-               hx-target="#media-list"
-               hx-include="#view-mode-input, #sort, #type, #status, #score, #review-from, #review-to"
-               hx-push-url="true">{{ contributor.name }}</a>
-            {% if not forloop.last %};{% endif %}
-          {% endfor %}
-          <div class="flex items-center gap-2 mt-1">
-            <span class="badge badge-sm">{{ media.get_media_type_display }}</span>
-            {% include "partials/status-editable.html" with status_choices=status_choices %}
-          </div>
-          {% include "partials/score-editable.html" %}
-          {% if media.review %}
-            <div id="review-cell-{{ media.id }}" class="text-sm review-text mt-2">
-              {% include "partials/media-review-clamped.html" %}
-            </div>
-          {% endif %}
-          {% if media.review_date %}
-            <div class="text-xs opacity-70 mt-1">{{ media.review_date }}</div>
-          {% endif %}
+        <div class="absolute top-2 left-2">
+          <span class="badge badge-neutral badge-lg"
+                aria-label="{{ media.get_media_type_display }}">{% media_icon media.media_type size="md" %}</span>
         </div>
+        {% if media.score %}
+          <div class="absolute top-2 right-2">{% include "partials/media-score-badge.html" %}</div>
+        {% endif %}
+      </figure>
+      <div class="card-body p-3">
+        <div class="flex justify-between gap-2">
+          <div>
+            <h3 class="card-title inline">{{ media.title }}</h3>
+            {% if media.pub_year %}<span class="opacity-70">({{ media.pub_year }})</span>{% endif %}
+            <div>{% include "partials/media-contributors.html" %}</div>
+          </div>
+          {% include "partials/media-edit-button.html" %}
+        </div>
+        {% include "partials/media-status-badge.html" %}
+        {% if media.review %}
+          <div id="review-cell-{{ media.id }}" class="text-sm review-text">
+            {% include "partials/media-review-clamped.html" %}
+          </div>
+        {% endif %}
       </div>
     </div>
   {% endfor %}
 {% else %}
-  {# Table rows #}
+  {# List view - Table rows #}
   {% for media in media_list %}
     <tr>
-      <td>
-        {% if media.cover %}
-          <img src="{{ media.cover.url }}"
-               alt="{% translate "Cover" %}"
-               width="64"
-               height="96"
-               class="w-16 h-24 object-cover">
-        {% else %}
-          <div class="w-16 h-24 bg-gray-200 flex items-center justify-center text-xs">No cover</div>
-        {% endif %}
+      {# Cover with media type badge #}
+      <td class="align-top p-2">{% include "partials/media-cover.html" %}</td>
+      {# Title, contributors #}
+      <td class="align-top p-2">
+        <div class="flex flex-col gap-1">
+          <h3 class="font-bold text-base">
+            {{ media.title }}
+            {% if media.pub_year %}<span class="opacity-70 text-sm font-normal">({{ media.pub_year }})</span>{% endif %}
+          </h3>
+          {% if media.contributors.all %}
+            <div class="text-sm opacity-70">{% include "partials/media-contributors.html" %}</div>
+          {% endif %}
+        </div>
       </td>
-      <td>
-        <a href="{% url 'media_edit' media.id %}" class="link link-secondary">{{ media.title }}</a>
-      </td>
-      <td class="max-w-xs">
-        {% for contributor in media.contributors.all %}
-          <a href="#"
-             class="link link-secondary contributor-link"
-             data-contributor-id="{{ contributor.id }}"
-             data-contributor-name="{{ contributor.name }}"
-             hx-get="{% url 'home' %}?contributor={{ contributor.id }}"
-             hx-target="#media-list"
-             hx-include="#view-mode-input, #sort, #type, #status, #score, #review-from, #review-to"
-             hx-push-url="true">{{ contributor.name }}</a>
-          {% if not forloop.last %};{% endif %}
-        {% endfor %}
-      </td>
-      <td>{{ media.get_media_type_display }}</td>
-      <td>
-        {% include "partials/status-editable.html" with status_choices=status_choices %}
-      </td>
-      <td>{{ media.pub_year | default:"" }}</td>
-      <td class="max-w-md">
-        {% include "partials/score-editable.html" %}
+      {# Review #}
+      <td class="align-top p-2 hidden md:table-cell">
+        {% include "partials/media-score-badge.html" with size="sm" extra_class="mb-2" %}
         {% if media.review %}
-          <div id="review-cell-{{ media.id }}" class="text-sm review-text mt-2">
+          <div id="review-cell-{{ media.id }}" class="text-sm max-w-200 review-text">
             {% include "partials/media-review-clamped.html" %}
           </div>
         {% endif %}
       </td>
-      <td>
+      {# Status #}
+      <td class="align-top p-2 hidden sm:table-cell">{% include "partials/media-status-badge.html" %}</td>
+      {# Review date #}
+      <td class="align-top p-2 hidden lg:table-cell">
         {% if media.review_date %}
-          <div class="text-xs opacity-70">{{ media.review_date }}</div>
+          <span class="text-sm">{{ media.review_date }}</span>
+        {% else %}
+          <span class="text-sm opacity-50">—</span>
         {% endif %}
       </td>
+      {# Actions #}
+      <td class="align-top p-2">{% include "partials/media-edit-button.html" %}</td>
     </tr>
   {% endfor %}
 {% endif %}

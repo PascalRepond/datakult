@@ -1,0 +1,14 @@
+{# Renders the list of contributors with HTMX links #}
+{# Parameters: media #}
+{% if media.contributors.all %}
+  {% for contributor in media.contributors.all %}
+    <a href="#"
+       class="link link-hover contributor-link"
+       data-contributor-id="{{ contributor.id }}"
+       data-contributor-name="{{ contributor.name }}"
+       hx-get="{% url 'home' %}?contributor={{ contributor.id }}"
+       hx-target="#media-list"
+       hx-include="#view-mode-input, #sort, #type, #status, #score, #review-from, #review-to"
+       hx-push-url="true">{{ contributor.name }}</a>{% if not forloop.last %};{% endif %}
+  {% endfor %}
+{% endif %}
