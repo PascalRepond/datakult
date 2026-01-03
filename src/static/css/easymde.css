@@ -1,0 +1,64 @@
+/* EasyMDE styling - Compatible with DaisyUI themes */
+
+.EasyMDEContainer .CodeMirror {
+    background-color: var(--color-base-100);
+    color: var(--color-base-content);
+    border-color: color-mix(in oklch, var(--color-base-content) 30%, transparent);
+}
+
+.cm-s-easymde .cm-quote {
+    color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
+}
+
+.cm-s-easymde .cm-link {
+    color: var(--color-secondary);
+}
+
+.cm-s-easymde .cm-url {
+    color: color-mix(in oklch, var(--color-secondary) 70%, transparent);
+}
+
+.cm-s-easymde .cm-string {
+    color: var(--color-accent);
+}
+
+/* Apply dark styles when forest theme is active */
+/* Text selection */
+[data-theme="forest"] .EasyMDEContainer .CodeMirror-selected {
+    background-color: var(--color-neutral) !important;
+}
+
+[data-theme="forest"] .EasyMDEContainer .CodeMirror-cursor {
+    border-left-color: var(--color-base-content);
+}
+
+/* Editor toolbar dark mode */
+[data-theme="forest"] .editor-toolbar {
+    background-color: var(--color-base-300);
+    border-color: color-mix(in oklch, var(--color-base-content) 30%, transparent);
+
+}
+
+[data-theme="forest"] .editor-toolbar button {
+    color: var(--color-base-content);
+}
+
+[data-theme="forest"] .editor-toolbar button:hover,
+[data-theme="forest"] .editor-toolbar button.active {
+    background-color: var(--color-base-200);
+    border-color: color-mix(in oklch, var(--color-base-content) 30%, transparent);
+}
+
+[data-theme="forest"] .editor-toolbar i.separator {
+    border-left-color: var(--color-base-300);
+    border-right-color: var(--color-base-100);
+}
+
+/* Fullscreen mode dark */
+[data-theme="forest"] .CodeMirror-fullscreen {
+    background-color: var(--color-base-100);
+}
+
+[data-theme="forest"] .editor-toolbar.fullscreen {
+    background-color: var(--color-base-300);
+}
