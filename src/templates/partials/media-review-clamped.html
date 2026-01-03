@@ -1,8 +1,8 @@
 {# Display the review truncated with a 'See more' button (HTMX) #}
 {% load i18n %}
-{{ media.review_rendered | truncatewords_html:20 | safe }}
-{% if media.review|wordcount > 20 %}
-  <button class="btn btn-xs btn-ghost mt-1"
+{{ media.review_rendered | truncatewords_html:50 | safe }}
+{% if media.review|wordcount > 50 %}
+  <button class="btn btn-xs btn-outline -mt-3"
           hx-get="{% url 'media_review_full_htmx' media.id %}"
           hx-target="#review-cell-{{ media.id }}"
           hx-swap="innerHTML">{% translate "See more" %}</button>

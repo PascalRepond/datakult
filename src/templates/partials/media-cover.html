@@ -1,0 +1,16 @@
+{% load i18n %}
+{% load media_tags %}
+<div class="relative w-24 h-32 bg-base-300 rounded">
+  {% if media.cover %}
+    <img src="{{ media.cover.url }}"
+         alt="{% translate "Cover of" %} {{ media.title }}"
+         class="w-full h-full object-contain rounded">
+  {% else %}
+    <div class="w-full h-full flex items-center justify-center text-base-content/30">
+      {% heroicon_outline "photo" class="w-12 h-12" %}
+    </div>
+  {% endif %}
+  <div class="absolute top-1 left-1">
+    <span class="badge badge-neutral badge-sm" aria-label="{{ media.get_media_type_display }}">{% media_icon media.media_type size="sm" %}</span>
+  </div>
+</div>

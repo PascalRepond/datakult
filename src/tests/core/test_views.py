@@ -353,12 +353,12 @@ class TestMediaReviewHtmxViews:
         response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
 
         content = response.content.decode("utf-8")
-        # With less than 20 words, the 'See more' button should not appear
+        # With less than 50 words, the 'See more' button should not appear
         assert "See more" not in content
 
     def test_media_review_clamped_with_long_review(self, logged_in_client, db):
         """Clamped review with long text shows 'See more' button."""
-        long_review = " ".join(["word"] * 30)  # 30 words
+        long_review = " ".join(["word"] * 55)
         media = Media.objects.create(
             title="Test Media",
             media_type="BOOK",
@@ -367,7 +367,7 @@ class TestMediaReviewHtmxViews:
         response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
 
         content = response.content.decode("utf-8")
-        # With more than 20 words, the 'See more' button should appear
+        # With more than 50 words, the 'See more' button should appear
         assert "See more" in content
 
     def test_media_review_full_returns_partial(self, logged_in_client, db):
