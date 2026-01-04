@@ -28,6 +28,11 @@
   transform: scale(0.95);
 }
 
+/* Form validation error styles */
+.label-text-alt {
+  @apply inline-block max-w-full break-words whitespace-normal;
+}
+
 /* Markdown content styles */
 /* Uses DaisyUI/Tailwind utilities for theme consistency */
 .review-text {

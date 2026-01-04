@@ -1,14 +1,21 @@
-{# Renders the list of contributors with HTMX links #}
-{# Parameters: media #}
+{# Renders the list of contributors with links #}
+{# Parameters: media, use_htmx (optional, default True if not set) #}
 {% if media.contributors.all %}
   {% for contributor in media.contributors.all %}
-    <a href="#"
-       class="link link-hover contributor-link"
-       data-contributor-id="{{ contributor.id }}"
-       data-contributor-name="{{ contributor.name }}"
-       hx-get="{% url 'home' %}?contributor={{ contributor.id }}"
-       hx-target="#media-list"
-       hx-include="#view-mode-input, #sort, #type, #status, #score, #review-from, #review-to"
-       hx-push-url="true">{{ contributor.name }}</a>{% if not forloop.last %};{% endif %}
+    {% if use_htmx == False %}
+      {# Normal link to home page with contributor filter #}
+      <a href="{% url 'home' %}?contributor={{ contributor.id }}"
+         class="link link-hover contributor-link">{{ contributor.name }}</a>{% if not forloop.last %};{% endif %}
+    {% else %}
+      {# HTMX link for in-page filtering (default) #}
+      <a href="#"
+         class="link link-hover contributor-link"
+         data-contributor-id="{{ contributor.id }}"
+         data-contributor-name="{{ contributor.name }}"
+         hx-get="{% url 'home' %}?contributor={{ contributor.id }}"
+         hx-target="#media-list"
+         hx-include="#view-mode-input, #sort, #type, #status, #score, #review-from, #review-to"
+         hx-push-url="true">{{ contributor.name }}</a>{% if not forloop.last %};{% endif %}
+    {% endif %}
   {% endfor %}
 {% endif %}

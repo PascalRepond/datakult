@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-04 10:28+0100\n"
+"POT-Creation-Date: 2026-01-04 14:32+0100\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,7 +62,7 @@ msgstr "Fichier image invalide ou corrompu."
 msgid "Name"
 msgstr "Nom"
 
-#: src/core/models.py:113 src/templates/media_edit.html:46
+#: src/core/models.py:113 src/templates/media_edit.html:77
 #: src/templates/partials/media-list.html:15
 msgid "Title"
 msgstr "Titre"
@@ -71,7 +71,7 @@ msgstr "Titre"
 msgid "Contributor"
 msgstr "Contributeur"
 
-#: src/core/models.py:125 src/templates/media_edit.html:85
+#: src/core/models.py:125 src/templates/media_edit.html:115
 msgid "Media type"
 msgstr "Type de média"
 
@@ -107,7 +107,7 @@ msgstr "Spectacle/Performance"
 msgid "Broadcast (podcast, web series, etc.)"
 msgstr "Diffusion (podcast, série web, etc.)"
 
-#: src/core/models.py:140 src/templates/media_edit.html:94
+#: src/core/models.py:140 src/templates/media_edit.html:135
 msgid "External URI"
 msgstr "URI externe"
 
@@ -115,9 +115,11 @@ msgstr "URI externe"
 msgid ""
 "Link to an external page about this media (e.g., official site, IMDb, "
 "Goodreads, etc.)"
-msgstr "Lien vers une page externe à propos de ce média (par exemple, site officiel, IMDb, Goodreads, etc.)"
+msgstr ""
+"Lien vers une page externe à propos de ce média (par exemple, site officiel, "
+"IMDb, Goodreads, etc.)"
 
-#: src/core/models.py:148 src/templates/media_edit.html:103
+#: src/core/models.py:148 src/templates/media_edit.html:164
 #: src/templates/partials/media-list.html:17
 msgid "Status"
 msgstr "Statut"
@@ -142,7 +144,7 @@ msgstr "En pause"
 msgid "Did not finish"
 msgstr "Pas fini"
 
-#: src/core/models.py:161 src/templates/media_edit.html:112
+#: src/core/models.py:161 src/templates/media_edit.html:126
 msgid "Release year"
 msgstr "Année de sortie"
 
@@ -150,7 +152,7 @@ msgstr "Année de sortie"
 msgid "Year must be between -4000 and 2100."
 msgstr "L'année doit être comprise entre -4000 et 2100."
 
-#: src/core/models.py:170 src/templates/media_edit.html:130
+#: src/core/models.py:170 src/templates/media_edit.html:197
 #: src/templates/partials/media-list.html:16
 msgid "Review"
 msgstr "Critique"
@@ -200,15 +202,17 @@ msgid "Adored"
 msgstr "Coup de cœur"
 
 #: src/core/models.py:198 src/templates/media.html:46
-#: src/templates/media_edit.html:139 src/templates/partials/media-list.html:18
+#: src/templates/media_edit.html:173 src/templates/partials/media-list.html:18
 msgid "Review date"
 msgstr "Date de la critique"
 
 #: src/core/models.py:201
 msgid "Either a full date or just year and month, or only year."
-msgstr "Soit une date complète, soit seulement l'année et le mois, ou uniquement l'année."
+msgstr ""
+"Soit une date complète, soit seulement l'année et le mois, ou uniquement "
+"l'année."
 
-#: src/core/models.py:204 src/templates/media_edit.html:36
+#: src/core/models.py:204 src/templates/media_edit.html:63
 msgid "Cover image"
 msgstr "Image de couverture"
 
@@ -240,24 +244,24 @@ msgstr "Télécharger la couverture :"
 msgid "Clear rating"
 msgstr "Retirer la note"
 
-#: src/core/views.py:298
+#: src/core/views.py:306
 #, python-format
 msgid "Backup creation failed: %(error)s"
 msgstr "Échec de la création du backup : %(error)s"
 
-#: src/core/views.py:309
+#: src/core/views.py:317
 msgid "No file selected"
 msgstr "Aucun fichier sélectionné"
 
-#: src/core/views.py:313
+#: src/core/views.py:321
 msgid "Invalid file format. Use a .tar.gz file"
 msgstr "Format de fichier invalide. Utilisez un fichier .tar.gz"
 
-#: src/core/views.py:328
+#: src/core/views.py:336
 msgid "Backup imported successfully! All data has been restored."
 msgstr "Backup importé avec succès ! Toutes les données ont été restaurées."
 
-#: src/core/views.py:337
+#: src/core/views.py:345
 #, python-format
 msgid "Backup import failed: %(error)s"
 msgstr "Échec de l'importation du backup : %(error)s"
@@ -322,7 +326,7 @@ msgid "Confirm new password"
 msgstr "Confirmer le nouveau mot de passe"
 
 #: src/templates/accounts/profile_edit.html:147
-#: src/templates/backup_manage.html:148
+#: src/templates/backup_manage.html:150
 msgid "Back to Home"
 msgstr "Retour à l'accueil"
 
@@ -336,7 +340,9 @@ msgstr "Exporter la sauvegarde"
 
 #: src/templates/backup_manage.html:30
 msgid "Create a complete archive of all your data (database + media files)."
-msgstr "Créer une archive complète de toutes vos données (base de données + fichiers médias)."
+msgstr ""
+"Créer une archive complète de toutes vos données (base de données + fichiers "
+"médias)."
 
 #: src/templates/backup_manage.html:35
 msgid "Backup contents:"
@@ -358,7 +364,7 @@ msgstr "Métadonnées (version, date de création)"
 msgid "Download Backup"
 msgstr "Télécharger la sauvegarde"
 
-#: src/templates/backup_manage.html:58 src/templates/backup_manage.html:95
+#: src/templates/backup_manage.html:58 src/templates/backup_manage.html:97
 msgid "Import Backup"
 msgstr "Importer la sauvegarde"
 
@@ -382,76 +388,92 @@ msgstr "SUPPRIMER TOUTES vos données actuelles"
 msgid "and replace it with the backup data."
 msgstr "et les remplacer par les données de la sauvegarde."
 
-#: src/templates/backup_manage.html:80
-msgid ""
-"⚠️ WARNING: This action will DELETE ALL your current data and replace it with "
-"the backup data.\\n\\nAre you absolutely sure you want to continue?"
-msgstr "⚠️ ATTENTION : Cette action va SUPPRIMER TOUTES vos données actuelles et les remplacer par les données de la sauvegarde.\\n\\nÊtes-vous absolument sûr de vouloir continuer ?"
-
 #: src/templates/backup_manage.html:84
 msgid "Select a backup file (.tar.gz)"
 msgstr "Sélectionnez un fichier de sauvegarde (.tar.gz)"
 
-#: src/templates/backup_manage.html:107
+#: src/templates/backup_manage.html:109
 msgid "Backup Information"
 msgstr "Informations sur la sauvegarde"
 
-#: src/templates/backup_manage.html:112
+#: src/templates/backup_manage.html:114
 msgid "Backup Format"
 msgstr "Format de la sauvegarde"
 
-#: src/templates/backup_manage.html:114
+#: src/templates/backup_manage.html:116
 msgid "Backups are compressed archives in"
 msgstr "Les sauvegardes sont des archives compressées au format"
 
-#: src/templates/backup_manage.html:116
+#: src/templates/backup_manage.html:118
 msgid "format containing all your data and files."
 msgstr "contenant toutes vos données et fichiers."
 
-#: src/templates/backup_manage.html:120
+#: src/templates/backup_manage.html:122
 msgid "Automatic Backups"
 msgstr "Sauvegardes automatiques"
 
-#: src/templates/backup_manage.html:122
+#: src/templates/backup_manage.html:124
 msgid ""
 "An automatic backup is created daily at 1:00 AM. The 7 most recent backups "
 "are kept, older ones are automatically deleted."
-msgstr "Une sauvegarde automatique est créée quotidiennement à 1h00. Les 7 sauvegardes les plus récentes sont conservées, les plus anciennes sont automatiquement supprimées."
+msgstr ""
+"Une sauvegarde automatique est créée quotidiennement à 1h00. Les 7 "
+"sauvegardes les plus récentes sont conservées, les plus anciennes sont "
+"automatiquement supprimées."
 
-#: src/templates/backup_manage.html:126
+#: src/templates/backup_manage.html:128
 msgid "Automatic Backup Location"
 msgstr "Emplacement de la sauvegarde automatique"
 
-#: src/templates/backup_manage.html:128
+#: src/templates/backup_manage.html:130
 msgid "In production (Docker):"
 msgstr "En production (Docker) :"
 
-#: src/templates/backup_manage.html:130
+#: src/templates/backup_manage.html:132
 msgid "In development:"
 msgstr "En développement :"
 
-#: src/templates/backup_manage.html:134
+#: src/templates/backup_manage.html:136
 msgid "Best Practices"
 msgstr "Bonnes pratiques"
 
-#: src/templates/backup_manage.html:136
+#: src/templates/backup_manage.html:138
 msgid "Regularly download your backups to external storage"
 msgstr "Téléchargez régulièrement vos sauvegardes sur un stockage externe"
 
-#: src/templates/backup_manage.html:137
+#: src/templates/backup_manage.html:139
 msgid "Test your backups periodically in a test instance"
 msgstr "Testez périodiquement vos sauvegardes dans une instance de test"
 
-#: src/templates/backup_manage.html:138
+#: src/templates/backup_manage.html:140
 msgid ""
 "Keep multiple backups to be able to restore from different points in time"
-msgstr "Conservez plusieurs sauvegardes pour pouvoir restaurer à partir de différents points dans le temps"
+msgstr ""
+"Conservez plusieurs sauvegardes pour pouvoir restaurer à partir de "
+"différents points dans le temps"
 
-#: src/templates/backup_manage.html:172
+#: src/templates/backup_manage.html:155
+msgid "⚠️ WARNING: Destructive Action"
+msgstr "⚠️ ATTENTION : Action destructive"
+
+#: src/templates/backup_manage.html:155
+msgid ""
+"This action will DELETE ALL your current data and replace it with the backup "
+"data. Are you absolutely sure you want to continue?"
+msgstr ""
+"Cette action va SUPPRIMER TOUTES vos données actuelles et les "
+"remplacer par les données de la sauvegarde. Êtes-vous absolument sûr de "
+"vouloir continuer ?"
+
+#: src/templates/backup_manage.html:155
+msgid "Yes, import backup"
+msgstr "Oui, importer la sauvegarde"
+
+#: src/templates/backup_manage.html:176
 msgid "Backup creation failed. Please try again."
 msgstr "Échec de la création de la sauvegarde. Veuillez réessayer."
 
-#: src/templates/backup_manage.html:172
+#: src/templates/backup_manage.html:176
 msgid "Unknown error"
 msgstr "Erreur inconnue"
 
@@ -479,7 +501,8 @@ msgstr "Se déconnecter"
 msgid "Search"
 msgstr "Recherche"
 
-#: src/templates/media.html:8
+#: src/templates/media.html:8 src/templates/media_detail.html:19
+#: src/templates/media_edit.html:29
 msgid "My media"
 msgstr "Mes médias"
 
@@ -487,7 +510,7 @@ msgstr "Mes médias"
 msgid "Creation date"
 msgstr "Date de création"
 
-#: src/templates/media.html:47 src/templates/media_edit.html:121
+#: src/templates/media.html:47 src/templates/media_edit.html:154
 msgid "Score"
 msgstr "Note"
 
@@ -495,40 +518,81 @@ msgstr "Note"
 msgid "Add"
 msgstr "Ajouter"
 
-#: src/templates/media_edit.html:6 src/templates/media_edit.html:29
+#: src/templates/media_detail.html:15 src/templates/media_edit.html:25
+msgid "Back to list"
+msgstr "Retour à la liste"
+
+#: src/templates/media_detail.html:30 src/templates/media_edit.html:6
+#: src/templates/media_edit.html:33 src/templates/media_edit.html:43
 #: src/templates/partials/media-edit-button.html:6
 #: src/templates/partials/media-edit-button.html:7
 msgid "Edit"
 msgstr "Modifier"
 
-#: src/templates/media_edit.html:8 src/templates/media_edit.html:31
+#: src/templates/media_detail.html:41 src/templates/partials/media-cover.html:6
+#: src/templates/partials/media-items.html:12
+msgid "Cover of"
+msgstr "Couverture de"
+
+#: src/templates/media_detail.html:73
+msgid "External metadata"
+msgstr "Métadonnées externes"
+
+#: src/templates/media_edit.html:8 src/templates/media_edit.html:35
+#: src/templates/media_edit.html:45
 msgid "Add media"
 msgstr "Ajouter un média"
 
-#: src/templates/media_edit.html:25
-msgid "Close"
-msgstr "Fermer"
+#: src/templates/media_edit.html:51
+msgid "Save"
+msgstr "Enregistrer"
 
-#: src/templates/media_edit.html:55
+#: src/templates/media_edit.html:86
 msgid "Contributors"
 msgstr "Contributeurs"
 
-#: src/templates/media_edit.html:69
+#: src/templates/media_edit.html:98
 msgid "Type name to search"
 msgstr "Tapez le nom à rechercher"
 
-#: src/templates/media_edit.html:153
-msgid ""
-"Are you sure you want to delete this media? This action cannot be undone."
-msgstr "Êtes-vous sûr de vouloir supprimer ce média ? Cette action est irréversible."
+#: src/templates/media_edit.html:177
+msgid "Set to today"
+msgstr "Définir à aujourd'hui"
 
-#: src/templates/media_edit.html:155
+#: src/templates/media_edit.html:179
+msgid "Today"
+msgstr "Aujourd'hui"
+
+#: src/templates/media_edit.html:212
 msgid "Delete"
 msgstr "Supprimer"
 
-#: src/templates/media_edit.html:160
-msgid "Save"
-msgstr "Enregistrer"
+#: src/templates/media_edit.html:228
+msgid "Delete Media"
+msgstr "Supprimer le média"
+
+#: src/templates/media_edit.html:228
+msgid ""
+"Are you sure you want to delete this media? This action cannot be undone."
+msgstr ""
+"Êtes-vous sûr de vouloir supprimer ce média ? Cette action est irréversible."
+
+#: src/templates/media_edit.html:228
+msgid "Yes, delete"
+msgstr "Oui, supprimer"
+
+#: src/templates/partials/confirm-modal.html:16
+msgid "Cancel"
+msgstr "Annuler"
+
+#: src/templates/partials/confirm-modal.html:20
+#: src/templates/partials/confirm-modal.html:23
+msgid "Confirm"
+msgstr "Confirmer"
+
+#: src/templates/partials/confirm-modal.html:27
+msgid "Close"
+msgstr "Fermer"
 
 #: src/templates/partials/contributors-suggestions.html:17
 msgid "No result, press Enter to add"
@@ -563,11 +627,6 @@ msgstr "à"
 msgid "Loading more..."
 msgstr "Chargement..."
 
-#: src/templates/partials/media-cover.html:6
-#: src/templates/partials/media-items.html:11
-msgid "Cover of"
-msgstr "Couverture de"
-
 #: src/templates/partials/media-list.html:14
 msgid "Cover"
 msgstr "Couverture"
@@ -587,6 +646,14 @@ msgstr "Voir plus"
 #: src/templates/partials/media-review-full.html:7
 msgid "See less"
 msgstr "Voir moins"
+
+#: src/templates/partials/media-score-stars.html:5
+msgid "Score:"
+msgstr "Note :"
+
+#: src/templates/partials/media-score-stars.html:5
+msgid "out of 10"
+msgstr "sur 10"
 
 #: src/templates/partials/spinner.html:17
 msgid "Loading..."

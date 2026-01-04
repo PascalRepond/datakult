@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load media_tags %}
-<div class="relative w-24 h-32 bg-base-300 rounded">
+<div class="relative w-24 h-32 bg-base-300 rounded hover:opacity-90 transition-opacity">
   {% if media.cover %}
     <img src="{{ media.cover.url }}"
          alt="{% translate "Cover of" %} {{ media.title }}"

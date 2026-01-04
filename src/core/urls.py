@@ -6,6 +6,7 @@ from .htmx_validation import validate_media_field
 urlpatterns = [
     path("", views.index, name="home"),
     path("media/add/", views.media_edit, name="media_add"),
+    path("media/<int:pk>/", views.media_detail, name="media_detail"),
     path("media/<int:pk>/edit/", views.media_edit, name="media_edit"),
     path("media/<int:pk>/delete/", views.media_delete, name="media_delete"),
     path("search/", views.search_media, name="search"),

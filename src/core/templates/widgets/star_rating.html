@@ -34,11 +34,18 @@
     </button>
   </div>
   {# Label display for hover/selected score - fixed height to prevent layout shift #}
-  <div class="star-label text-sm font-medium mt-1 h-5"
+  <div class="star-label mt-1 h-6 flex items-center"
        data-widget-name="{{ widget.name }}">
     {% if widget.value %}
       {% for score, label in score_choices %}
-        {% if widget.value == score %}{{ label }}{% endif %}
+        {% if widget.value|add:0 == score %}
+          <span class="badge badge-neutral gap-0">
+            <span class="score-number">{{ score }}</span>
+            {% load heroicons %}
+            {% heroicon_mini "star" class="fill-orange-400 h-4" %}
+            <span class="score-label">{{ label }}</span>
+          </span>
+        {% endif %}
       {% endfor %}
     {% endif %}
   </div>
@@ -67,6 +74,21 @@
     });
   }
 
+  // Update label badge display
+  function updateLabelBadge(score, label) {
+    if (score && label) {
+      labelDisplay.innerHTML = `<span class="badge badge-neutral gap-0">
+        <span class="score-number">${score}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="fill-orange-400 h-4" width="20" height="20">
+          <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+        </svg>
+        <span class="score-label">${label}</span>
+      </span>`;
+    } else {
+      labelDisplay.innerHTML = '';
+    }
+  }
+
   // Handle star click
   stars.forEach(star => {
     star.addEventListener('click', function(e) {
@@ -80,8 +102,8 @@
       // Update visual state
       updateStars(parseInt(score));
 
-      // Update label
-      labelDisplay.textContent = label;
+      // Update label badge
+      updateLabelBadge(score, label);
 
       // Trigger change event for HTMX validation
       hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -96,7 +118,7 @@
       updateStars(score);
 
       // Show label
-      labelDisplay.textContent = label;
+      updateLabelBadge(score, label);
     });
   });
 
@@ -109,10 +131,10 @@
     if (currentScore) {
       const selectedStar = ratingContainer.querySelector(`[data-score="${currentScore}"]`);
       if (selectedStar) {
-        labelDisplay.textContent = selectedStar.dataset.label;
+        updateLabelBadge(currentScore, selectedStar.dataset.label);
       }
     } else {
-      labelDisplay.textContent = '';
+      updateLabelBadge(null, null);
     }
   });
 
@@ -126,8 +148,8 @@
     // Clear visual state
     updateStars(null);
 
-    // Clear label
-    labelDisplay.textContent = '';
+    // Clear label badge
+    updateLabelBadge(null, null);
 
     // Trigger change event for HTMX validation
     hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));

@@ -74,10 +74,10 @@
               {% translate "and replace it with the backup data." %}
             </div>
           </div>
-          <form method="post"
+          <form id="import-backup-form"
+                method="post"
                 action="{% url 'backup_import' %}"
-                enctype="multipart/form-data"
-                onsubmit="return confirm('{% translate "⚠️ WARNING: This action will DELETE ALL your current data and replace it with the backup data.\n\nAre you absolutely sure you want to continue?" %}');">
+                enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-control w-full">
               <label class="label">
@@ -90,7 +90,9 @@
                      required />
             </div>
             <div class="card-actions justify-end mt-4">
-              <button type="submit" class="btn btn-warning">
+              <button type="button"
+                      onclick="this.form.checkValidity() && (document.getElementById('confirm-import-modal').checked = true) || this.form.reportValidity()"
+                      class="btn btn-warning">
                 {% heroicon_outline "arrow-up-tray" class="w-5 h-5" %}
                 {% translate "Import Backup" %}
               </button>
@@ -149,6 +151,8 @@
       </a>
     </div>
   </div>
+  {# Confirmation modal for backup import #}
+  {% include "partials/confirm-modal.html" with modal_id="confirm-import-modal" title=_("⚠️ WARNING: Destructive Action") message=_("This action will DELETE ALL your current data and replace it with the backup data. Are you absolutely sure you want to continue?") confirm_text=_("Yes, import backup") is_danger=True form_id="import-backup-form" %}
   <script>
     async function downloadBackup(btn) {
       btn.classList.add('loading');
