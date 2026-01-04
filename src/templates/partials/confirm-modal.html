@@ -15,12 +15,13 @@
     <div class="modal-action">
       <label for="{{ modal_id }}" class="btn">{% translate "Cancel" %}</label>
       {% if form_id %}
-        <button type="submit"
-                form="{{ form_id }}"
-                class="btn {% if is_danger %}btn-error{% else %}btn-primary{% endif %}">{{ confirm_text|default:_("Confirm") }}</button>
+        <button type="submit" form="{{ form_id }}" class="btn {% if is_danger %}btn-error{% else %}btn-primary{% endif %}">
+          {{ confirm_text|default:_("Confirm") }}
+        </button>
       {% else %}
-        <button id="{{ modal_id }}-confirm"
-                class="btn {% if is_danger %}btn-error{% else %}btn-primary{% endif %}">{{ confirm_text|default:_("Confirm") }}</button>
+        <button id="{{ modal_id }}-confirm" class="btn {% if is_danger %}btn-error{% else %}btn-primary{% endif %}">
+          {{ confirm_text|default:_("Confirm") }}
+        </button>
       {% endif %}
     </div>
   </div>

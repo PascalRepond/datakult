@@ -6,7 +6,8 @@
   {% for media in media_list %}
     <div class="card bg-base-200 shadow-sm">
       <figure class="relative w-full h-64 bg-base-300">
-        <a href="{% url 'media_detail' media.pk %}" class="w-full h-full flex items-center justify-center hover:opacity-90 transition-opacity">
+        <a href="{% url 'media_detail' media.pk %}"
+           class="w-full h-full flex items-center justify-center hover:opacity-90 transition-opacity">
           {% if media.cover %}
             <img src="{{ media.cover.url }}"
                  alt="{% translate "Cover of" %} {{ media.title }}"

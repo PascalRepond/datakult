@@ -1,7 +1,6 @@
 {% load static tailwind_tags %}
 {% load django_htmx %}
 {% load i18n %}
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -16,96 +15,58 @@
     <meta name="keywords" content="Media tracker, reviews, metacritic">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="icon"
+          type="image/png"
+          href="{% static 'images/bookshelf.png' %}" />
     {% tailwind_css %}
     {% htmx_script %}
-    {% block extra_css %}{% endblock extra_css %}
+    {% block extra_css %}
+    {% endblock extra_css %}
   </head>
-  <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="mx-auto">
-    <div>
-      {% block navbar %}
-        <div class="navbar bg-base-100 shadow-sm">
-          <div class="flex-1">
-            <a href="{% url 'home' %}" class="btn btn-ghost text-xl text-primary">Datakult</a>
-          </div>
+  <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <!-- Drawer layout: sidebar on desktop, hamburger menu on mobile -->
+    <div class="drawer lg:drawer-open">
+      <!-- Hidden checkbox to control drawer state -->
+      <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" />
+      <!-- Main content area -->
+      <div class="drawer-content flex flex-col">
+        <!-- Minimal top navbar (mobile hamburger only) -->
+        <div class="navbar bg-base-100 shadow-sm lg:hidden">
+          <!-- Hamburger button (mobile only) -->
           <div class="flex-none">
-            <ul class="menu menu-horizontal">
-              <li class="dropdown dropdown-end">
-                <div tabindex="0" role="button" aria-label="Theme" class="btn mx-1">{% heroicon_outline "sun" %}</div>
-                <ul tabindex="0"
-                    class="dropdown-content bg-base-200 rounded-box z-10 w-42 shadow-2xl">
-                  <li>
-                    <input type="radio"
-                           name="theme-dropdown"
-                           class="theme-controller btn justify-start"
-                           aria-label="{% translate "System" %}"
-                           value="default" />
-                  </li>
-                  <li>
-                    <input type="radio"
-                           name="theme-dropdown"
-                           class="theme-controller btn justify-start"
-                           aria-label="{% translate "Light" %}"
-                           value="emerald" />
-                  </li>
-                  <li>
-                    <input type="radio"
-                           name="theme-dropdown"
-                           class="theme-controller btn justify-start"
-                           aria-label="{% translate "Dark" %}"
-                           value="forest" />
-                  </li>
-                </ul>
-              </li>
-              {% if not user.is_authenticated %}
-                <li>
-                  <a href="{% url 'login' %}" class="btn">Log in</a>
-                </li>
-              {% else %}
-                <li class="dropdown dropdown-end">
-                  <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
-                    <div class="bg-neutral text-neutral-content w-10 rounded-full">
-                      <span class="text-xs flex items-center justify-center h-full">{{ user.username|slice:":2"|upper }}</span>
-                    </div>
-                  </div>
-                  <ul tabindex="0"
-                      class="dropdown-content menu bg-base-200 rounded-box z-10 w-52 p-2 shadow-2xl">
-                    <li class="menu-title">
-                      <span>{{ user.username }}</span>
-                    </li>
-                    <li>
-                      <a href="{% url 'accounts:profile_edit' %}">
-                        {% heroicon_mini "user-circle" %}
-                        {% translate "Edit Profile" %}
-                      </a>
-                    </li>
-                    <li>
-                      <a href="{% url 'backup_manage' %}">
-                        {% heroicon_mini "arrow-down-tray" %}
-                        {% translate "Backups" %}
-                      </a>
-                    </li>
-                    <li>
-                      <form action="{% url 'logout' %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit"
-                                class="flex items-center gap-2 w-full text-left cursor-pointer">
-                          {% heroicon_mini "arrow-right-on-rectangle" %}
-                          {% translate "Log Out" %}
-                        </button>
-                      </form>
-                    </li>
-                  </ul>
-                </li>
-              {% endif %}
-            </ul>
+            <label for="sidebar-drawer"
+                   aria-label="Open sidebar"
+                   class="btn btn-square btn-ghost">{% heroicon_outline "bars-3" class="w-6 h-6" %}</label>
+          </div>
+          <!-- Logo (mobile only) -->
+          <div class="flex-1">
+            <a href="{% url 'home' %}"
+               class="btn btn-ghost text-xl text-primary gap-2">
+              <div class="tooltip tooltip-bottom" data-tip="Icon by Freepik - Flaticon">
+                <img src="{% static 'images/bookshelf.png' %}"
+                     alt="Datakult logo"
+                     class="w-6 h-6">
+              </div>
+              Datakult
+            </a>
           </div>
         </div>
-      {% endblock navbar %}
-      <div class="m-12">
-        {% block content %}
-        {% endblock content %}
+        <!-- Page content -->
+        <div class="p-4 lg:p-12">
+          {% block content %}
+          {% endblock content %}
+        </div>
+      </div>
+      <!-- Sidebar drawer -->
+      <div class="drawer-side z-40">
+        <label for="sidebar-drawer"
+               aria-label="Close sidebar"
+               class="drawer-overlay"></label>
+        {% include 'partials/sidebar-nav.html' %}
       </div>
     </div>
     <script src="{% static 'js/base.js' %}"></script>
+    {% block extra_js %}
+    {% endblock extra_js %}
   </body>
 </html>

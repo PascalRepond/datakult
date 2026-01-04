@@ -5,7 +5,8 @@
     {% if use_htmx == False %}
       {# Normal link to home page with contributor filter #}
       <a href="{% url 'home' %}?contributor={{ contributor.id }}"
-         class="link link-hover contributor-link">{{ contributor.name }}</a>{% if not forloop.last %};{% endif %}
+         class="link link-hover contributor-link">{{ contributor.name }}</a>
+      {% if not forloop.last %};{% endif %}
     {% else %}
       {# HTMX link for in-page filtering (default) #}
       <a href="#"
@@ -15,7 +16,8 @@
          hx-get="{% url 'home' %}?contributor={{ contributor.id }}"
          hx-target="#media-list"
          hx-include="#view-mode-input, #sort, #type, #status, #score, #review-from, #review-to"
-         hx-push-url="true">{{ contributor.name }}</a>{% if not forloop.last %};{% endif %}
+         hx-push-url="true">{{ contributor.name }}</a>
+      {% if not forloop.last %};{% endif %}
     {% endif %}
   {% endfor %}
 {% endif %}

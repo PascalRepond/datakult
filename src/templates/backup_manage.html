@@ -12,7 +12,7 @@
       <div class="mb-6">
         {% for message in messages %}
           <div role="alert"
-               class="alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} mb-2">
+               class="alert {% if message.tags == 'error' %}alert-error {% elif message.tags == 'success' %}alert-success {% else %}alert-info {% endif %}mb-2">
             <span>{{ message }}</span>
           </div>
         {% endfor %}

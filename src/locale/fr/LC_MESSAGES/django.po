@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-04 14:32+0100\n"
+"POT-Creation-Date: 2026-01-04 15:45+0100\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -124,23 +124,23 @@ msgstr ""
 msgid "Status"
 msgstr "Statut"
 
-#: src/core/models.py:152
+#: src/core/models.py:152 src/templates/partials/sidebar-nav.html:23
 msgid "Planned"
 msgstr "Prévu"
 
-#: src/core/models.py:153
+#: src/core/models.py:153 src/templates/partials/sidebar-nav.html:31
 msgid "In progress"
 msgstr "En cours"
 
-#: src/core/models.py:154
+#: src/core/models.py:154 src/templates/partials/sidebar-nav.html:39
 msgid "Completed"
 msgstr "Terminé"
 
-#: src/core/models.py:155
+#: src/core/models.py:155 src/templates/partials/sidebar-nav.html:47
 msgid "Paused"
 msgstr "En pause"
 
-#: src/core/models.py:156
+#: src/core/models.py:156 src/templates/partials/sidebar-nav.html:55
 msgid "Did not finish"
 msgstr "Pas fini"
 
@@ -267,7 +267,7 @@ msgid "Backup import failed: %(error)s"
 msgstr "Échec de l'importation du backup : %(error)s"
 
 #: src/templates/accounts/profile_edit.html:4
-#: src/templates/accounts/profile_edit.html:8 src/templates/base.html:78
+#: src/templates/accounts/profile_edit.html:8
 msgid "Edit Profile"
 msgstr "Modifier le profil"
 
@@ -461,9 +461,8 @@ msgid ""
 "This action will DELETE ALL your current data and replace it with the backup "
 "data. Are you absolutely sure you want to continue?"
 msgstr ""
-"Cette action va SUPPRIMER TOUTES vos données actuelles et les "
-"remplacer par les données de la sauvegarde. Êtes-vous absolument sûr de "
-"vouloir continuer ?"
+"Cette action va SUPPRIMER TOUTES vos données actuelles et les remplacer par "
+"les données de la sauvegarde. Êtes-vous absolument sûr de vouloir continuer ?"
 
 #: src/templates/backup_manage.html:155
 msgid "Yes, import backup"
@@ -477,27 +476,7 @@ msgstr "Échec de la création de la sauvegarde. Veuillez réessayer."
 msgid "Unknown error"
 msgstr "Erreur inconnue"
 
-#: src/templates/base.html:40
-msgid "System"
-msgstr "Système"
-
-#: src/templates/base.html:47
-msgid "Light"
-msgstr "Clair"
-
-#: src/templates/base.html:54
-msgid "Dark"
-msgstr "Sombre"
-
-#: src/templates/base.html:84
-msgid "Backups"
-msgstr "Sauvegardes"
-
-#: src/templates/base.html:93
-msgid "Log Out"
-msgstr "Se déconnecter"
-
-#: src/templates/media.html:3 src/templates/media.html:54
+#: src/templates/media.html:3 src/templates/media.html:55
 msgid "Search"
 msgstr "Recherche"
 
@@ -514,7 +493,7 @@ msgstr "Date de création"
 msgid "Score"
 msgstr "Note"
 
-#: src/templates/media.html:65
+#: src/templates/media.html:66
 msgid "Add"
 msgstr "Ajouter"
 
@@ -655,17 +634,64 @@ msgstr "Note :"
 msgid "out of 10"
 msgstr "sur 10"
 
+#: src/templates/partials/sidebar-nav.html:11
+msgid "All"
+msgstr "Tout"
+
+#: src/templates/partials/sidebar-nav.html:16
+msgid "By status"
+msgstr "Par statut"
+
+#: src/templates/partials/sidebar-nav.html:60
+msgid "Settings"
+msgstr "Paramètres"
+
+#: src/templates/partials/sidebar-nav.html:66
+msgid "Profile"
+msgstr "Profil"
+
+#: src/templates/partials/sidebar-nav.html:72
+msgid "Backups"
+msgstr "Sauvegardes"
+
+#: src/templates/partials/sidebar-nav.html:80
+msgid "Theme"
+msgstr "Thème"
+
+#: src/templates/partials/sidebar-nav.html:89
+#: src/templates/partials/sidebar-nav.html:91
+msgid "System"
+msgstr "Système"
+
+#: src/templates/partials/sidebar-nav.html:99
+#: src/templates/partials/sidebar-nav.html:101
+msgid "Light"
+msgstr "Clair"
+
+#: src/templates/partials/sidebar-nav.html:109
+#: src/templates/partials/sidebar-nav.html:111
+msgid "Dark"
+msgstr "Sombre"
+
+#: src/templates/partials/sidebar-nav.html:123
+msgid "Logout"
+msgstr "Déconnexion"
+
+#: src/templates/partials/sidebar-nav.html:129
+msgid "Login"
+msgstr "Se connecter"
+
 #: src/templates/partials/spinner.html:17
 msgid "Loading..."
 msgstr "Chargement..."
 
-#: src/templates/partials/view-mode-toggle.html:15
-msgid "List"
-msgstr "Liste"
-
-#: src/templates/partials/view-mode-toggle.html:24
+#: src/templates/partials/view-mode-toggle.html:14
 msgid "Grid"
 msgstr "Grille"
+
+#: src/templates/partials/view-mode-toggle.html:21
+msgid "List"
+msgstr "Liste"
 
 #: src/templates/registration/login.html:4
 #: src/templates/registration/login.html:11
@@ -676,3 +702,6 @@ msgstr "Se connecter"
 #: src/templates/registration/login.html:21
 msgid "Password"
 msgstr "Mot de passe"
+
+#~ msgid "Log Out"
+#~ msgstr "Se déconnecter"

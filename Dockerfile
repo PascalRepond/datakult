@@ -29,9 +29,10 @@ ENV MEDIA_ROOT=/app/data/media
 
 WORKDIR /app
 
-# Install cron and other system dependencies
+# Install cron, gettext and other system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     cron \
+    gettext \
     && rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -67,6 +68,9 @@ RUN echo "PATH=/usr/local/bin:/usr/bin:/bin" > /etc/cron.d/datakult-backup && \
 # Copy entrypoint script
 COPY scripts/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
+
+# Compile translation messages
+RUN uv run ./src/manage.py compilemessages
 
 # Collect static files with production settings
 # Set DEBUG=false to use CompressedManifestStaticFilesStorage during collectstatic

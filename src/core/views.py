@@ -19,7 +19,7 @@ from .utils import create_backup, delete_orphan_agents_by_ids
 
 def _resolve_sorting(request):
     """Return validated sorting info: selected field, sort string (with sign), and ordering."""
-    default_field = "created_at"
+    default_field = "review_date"
     sort = request.GET.get("sort") or request.GET.get("order_by") or f"-{default_field}"
 
     raw_field = sort.lstrip("-")
@@ -51,6 +51,15 @@ def _extract_filters(request):
             filters["review_to"],
         ]
     )
+
+    # Add display names for active filters
+    if filters["type"]:
+        filters["type_display"] = dict(Media.media_type.field.choices).get(filters["type"], filters["type"])
+    if filters["status"]:
+        filters["status_display"] = dict(Media.status.field.choices).get(filters["status"], filters["status"])
+    if filters["score"] and filters["score"] != "none":
+        filters["score_display"] = dict(Media.score.field.choices).get(int(filters["score"]), filters["score"])
+
     return filters
 
 
@@ -100,7 +109,7 @@ def _apply_filters(queryset, filters):
 def index(request):
     """Main view for displaying media list."""
     # Get query parameters
-    view_mode = request.GET.get("view_mode", "list")  # 'list' or 'grid'
+    view_mode = request.GET.get("view_mode", "grid")  # 'list' or 'grid'
     sort_field, sort, ordering = _resolve_sorting(request)
     filters = _extract_filters(request)
 
@@ -193,7 +202,7 @@ def media_delete(request, pk):
 @login_required
 def load_more_media(request):
     """HTMX view: load next page of media items for infinite scrolling."""
-    view_mode = request.GET.get("view_mode", "list")
+    view_mode = request.GET.get("view_mode", "grid")
     sort_field, sort, ordering = _resolve_sorting(request)
     filters = _extract_filters(request)
     query = request.GET.get("search", "")
@@ -228,7 +237,7 @@ def load_more_media(request):
 @login_required
 def search_media(request):
     query = request.GET.get("search", "")
-    view_mode = request.GET.get("view_mode", "list")
+    view_mode = request.GET.get("view_mode", "grid")
     sort_field, sort, ordering = _resolve_sorting(request)
     filters = _extract_filters(request)
 

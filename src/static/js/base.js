@@ -1,7 +1,7 @@
 // THEME SWITCHER
 document.addEventListener("DOMContentLoaded", () => {
     const htmlElement = document.documentElement;
-    const themeRadios = document.querySelectorAll('input[name="theme-dropdown"]');
+    const themeRadios = document.querySelectorAll('input[name="theme-sidebar"]');
 
     const applyTheme = (theme) => {
         if (theme === "default") {
@@ -13,21 +13,21 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // initialise theme
+    // Initialize theme
     const currentTheme = localStorage.getItem("theme") || "default";
     applyTheme(currentTheme);
 
-    // activate the menu item of the current theme
-    const currentRadio = document.querySelector(`input[value="${currentTheme}"]`);
+    // Activate the radio button of the current theme
+    const currentRadio = document.querySelector(`input[name="theme-sidebar"][value="${currentTheme}"]`);
     if (currentRadio) {
         currentRadio.checked = true;
     }
 
-    // add an event listener to each menu item
+    // Add event listener to each radio button
     themeRadios.forEach((radio) => {
         radio.addEventListener("change", (event) => {
-        const selectedTheme = event.target.value;
-        applyTheme(selectedTheme);
+            const selectedTheme = event.target.value;
+            applyTheme(selectedTheme);
         });
     });
 });
@@ -35,8 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
 // CLEAN URL - Remove default/empty parameters from URL
 // Default values that should not appear in URL
 const DEFAULT_PARAMS = {
-    'view_mode': 'list',
-    'sort': '-created_at',
+    'view_mode': 'grid',
+    'sort': '-review_date',
 };
 
 // Remove empty and default parameters before HTMX sends the request
