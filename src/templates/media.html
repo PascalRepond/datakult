@@ -2,7 +2,7 @@
 {% load i18n %}
 {% translate "Search" %}
 {% block title %}
-  Media
+  Datakult
 {% endblock title %}
 {% block content %}
   <h1 class="text-4xl my-4">{% translate "My media" %}</h1>
@@ -14,32 +14,32 @@
       <div class="flex join items-center">
         <button type="button"
                 id="sort-direction-toggle"
-                class="btn btn-square join-item"
+                class="btn join-item"
                 hx-get="{% url 'home' %}"
                 hx-target="#media-list"
                 hx-include="#sort, #view-mode-input, #contributor, #type, #status, #score, #review-from, #review-to"
                 hx-push-url="true"
-                hx-on:click="const sortInput = document.getElementById('sort'); const value = sortInput.value || '-created_at'; const isDesc = value.startsWith('-'); const field = isDesc ? value.slice(1) : value; const next = isDesc ? field : '-' + field; sortInput.value = next; const icon = this.querySelector('svg'); if (icon) { icon.classList.toggle('rotate-180'); }">
+                hx-on:click="const sortInput = document.getElementById('sort'); const value = sortInput.value || '-review_date'; const isDesc = value.startsWith('-'); const field = isDesc ? value.slice(1) : value; const next = isDesc ? field : '-' + field; sortInput.value = next; const icon = this.querySelector('svg'); if (icon) { icon.classList.toggle('rotate-180'); }">
           {% with "transition-transform" as icon_base_class %}
             {% if sort|slice:":1" == '-' %}
-              {% heroicon_outline "arrow-up" class=icon_base_class|add:" rotate-180" %}
+              {% heroicon_mini "arrow-up" class=icon_base_class|add:" rotate-180" %}
             {% else %}
-              {% heroicon_outline "arrow-up" class=icon_base_class %}
+              {% heroicon_mini "arrow-up" class=icon_base_class %}
             {% endif %}
           {% endwith %}
         </button>
         <input type="hidden"
                id="sort"
                name="sort"
-               value="{{ sort|default:'-created_at' }}"
+               value="{{ sort|default:'-review_date' }}"
                hx-get="{% url 'home' %}"
                hx-target="#media-list"
                hx-include="#view-mode-input, #contributor, #type, #status, #score, #review-from, #review-to"
                hx-trigger="change"
                hx-push-url="true" />
-        <select class="select select-md join-item"
+        <select class="select join-item"
                 id="sort-field"
-                hx-on:change="const sortInput = document.getElementById('sort'); const current = sortInput.value || '-created_at'; const isDesc = current.startsWith('-'); const prefix = isDesc ? '-' : ''; sortInput.value = prefix + this.value; sortInput.dispatchEvent(new Event('change', { bubbles: true }));">
+                hx-on:change="const sortInput = document.getElementById('sort'); const current = sortInput.value || '-review_date'; const isDesc = current.startsWith('-'); const prefix = isDesc ? '-' : ''; sortInput.value = prefix + this.value; sortInput.dispatchEvent(new Event('change', { bubbles: true }));">
           <option value="created_at"
                   {% if sort_field == 'created_at' %}selected{% endif %}>{% translate "Creation date" %}</option>
           <option value="review_date"
@@ -47,6 +47,7 @@
           <option value="score" {% if sort_field == 'score' %}selected{% endif %}>{% translate "Score" %}</option>
         </select>
       </div>
+      {# Search and add button #}
       <label class="input flex-1">
         {% heroicon_mini "magnifying-glass" %}
         <input type="search"
@@ -70,7 +71,7 @@
     <div id="active-filters-badges" class="flex flex-wrap gap-2 items-center">
       {% if filters.type %}
         <div class="badge badge-secondary gap-1" data-filter="type">
-          <span>{{ filters.type }}</span>
+          <span>{{ filters.type_display|default:filters.type }}</span>
           <button type="button"
                   class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
                   data-filter="type">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>
@@ -78,7 +79,7 @@
       {% endif %}
       {% if filters.status %}
         <div class="badge badge-secondary gap-1" data-filter="status">
-          <span>{{ filters.status }}</span>
+          <span>{{ filters.status_display|default:filters.status }}</span>
           <button type="button"
                   class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
                   data-filter="status">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>
@@ -86,9 +87,7 @@
       {% endif %}
       {% if filters.score %}
         <div class="badge badge-secondary gap-1" data-filter="score">
-          <span>{{ filters.score }}
-            {% if filters.score != 'none' %}⭐{% endif %}
-          </span>
+          <span>{% if filters.score == 'none' %}{% translate "Not rated" %}{% else %}{{ filters.score }}⭐ - {{ filters.score_display|default:filters.score }}{% endif %}</span>
           <button type="button"
                   class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
                   data-filter="score">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>

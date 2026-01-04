@@ -3,24 +3,20 @@
 <input type="hidden"
        id="view-mode-input"
        name="view_mode"
-       value="{{ view_mode|default:'list' }}" />
+       value="{{ view_mode|default:'grid' }}" />
 <div class="join" id="view-mode">
-  <button class="join-item btn btn-md {% if view_mode == 'list' %}btn-active{% endif %}"
-          hx-get="{% url 'home' %}?view_mode=list"
-          hx-target="#media-list"
-          hx-include="#sort, #contributor, #type, #status, #score, #review-from, #review-to"
-          hx-push-url="true"
-          hx-on::after-request="document.getElementById('view-mode-input').value = 'list';">
-    {% heroicon_mini "list-bullet" class="w-4 h-4" %}
-    {% translate "List" %}
-  </button>
-  <button class="join-item btn btn-md {% if view_mode == 'grid' %}btn-active{% endif %}"
-          hx-get="{% url 'home' %}?view_mode=grid"
-          hx-target="#media-list"
-          hx-include="#sort, #contributor, #type, #status, #score, #review-from, #review-to"
-          hx-push-url="true"
-          hx-on::after-request="document.getElementById('view-mode-input').value = 'grid';">
-    {% heroicon_mini "squares-2x2" class="w-4 h-4" %}
-    {% translate "Grid" %}
-  </button>
+        <button class="join-item btn {% if view_mode == 'grid' %}btn-active{% endif %}"
+                hx-get="{% url 'home' %}?view_mode=grid"
+                hx-target="#media-list"
+                hx-include="#sort, #contributor, #type, #status, #score, #review-from, #review-to"
+                hx-push-url="true"
+                hx-on::after-request="document.getElementById('view-mode-input').value = 'grid';"
+                aria-label="{% translate "Grid" %}">{% heroicon_mini "squares-2x2" class="h-4 w-4" %}</button>
+        <button class="join-item btn {% if view_mode == 'list' %}btn-active{% endif %}"
+                hx-get="{% url 'home' %}?view_mode=list"
+                hx-target="#media-list"
+                hx-include="#sort, #contributor, #type, #status, #score, #review-from, #review-to"
+                hx-push-url="true"
+                hx-on::after-request="document.getElementById('view-mode-input').value = 'list';"
+                aria-label="{% translate "List" %}">{% heroicon_mini "list-bullet" class="h-4 w-4" %}</button>
 </div>

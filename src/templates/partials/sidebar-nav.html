@@ -1,0 +1,137 @@
+{% load i18n %}
+{% load static %}
+<ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+  <!-- Logo/Title at the top -->
+  <li class="menu-title">
+    <a href="{% url 'home' %}"
+       class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+      <div class="tooltip tooltip-right" data-tip="Icon by Freepik - Flaticon">
+        <img src="{% static 'images/bookshelf.png' %}"
+             alt="Datakult logo"
+             class="w-8 h-8">
+      </div>
+      <span class="text-xl font-bold text-primary">Datakult</span>
+    </a>
+  </li>
+  <!-- Main navigation -->
+  <li>
+    <a href="{% url 'home' %}">
+      {% heroicon_outline "rectangle-stack" class="w-5 h-5" %}
+      {% translate "All" %}
+    </a>
+  </li>
+  <!-- Separator -->
+  <li class="menu-title mt-4">
+    <span>{% translate "By status" %}</span>
+  </li>
+  <li>
+    <a href="{% url 'home' %}?status=PLANNED"
+       class="{% if request.GET.status == 'PLANNED' %} active {% endif %}">
+      {% heroicon_outline "clock" class="w-5 h-5" %}
+      {% translate "Planned" %}
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'home' %}?status=IN_PROGRESS"
+       class="{% if request.GET.status == 'IN_PROGRESS' %} active {% endif %}">
+      {% heroicon_outline "play" class="w-5 h-5" %}
+      {% translate "In progress" %}
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'home' %}?status=COMPLETED"
+       class="{% if request.GET.status == 'COMPLETED' %} active {% endif %}">
+      {% heroicon_outline "check-circle" class="w-5 h-5" %}
+      {% translate "Completed" %}
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'home' %}?status=PAUSED"
+       class="{% if request.GET.status == 'PAUSED' %} active {% endif %}">
+      {% heroicon_outline "pause" class="w-5 h-5" %}
+      {% translate "Paused" %}
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'home' %}?status=DNF"
+       class="{% if request.GET.status == 'DNF' %} active {% endif %}">
+      {% heroicon_outline "x-circle" class="w-5 h-5" %}
+      {% translate "Did not finish" %}
+    </a>
+  </li>
+  <!-- Separator for settings -->
+  <li class="menu-title mt-4">
+    <span>{% translate "Settings" %}</span>
+  </li>
+  {% if user.is_authenticated %}
+    <li>
+      <a href="{% url 'accounts:profile_edit' %}">
+        {% heroicon_outline "user-circle" class="w-5 h-5" %}
+        {% translate "Profile" %}
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'backup_manage' %}">
+        {% heroicon_outline "arrow-down-tray" class="w-5 h-5" %}
+        {% translate "Backups" %}
+      </a>
+    </li>
+  {% endif %}
+  <!-- Theme selector - compact dropdown -->
+  <li class="dropdown w-full">
+    <div tabindex="0" role="button" class="flex items-center gap-2 w-full">
+      {% heroicon_outline "sun" class="w-5 h-5" %}
+      <span>{% translate "Theme" %}</span>
+    </div>
+    <ul tabindex="0"
+        class="dropdown-content menu bg-base-100 rounded-box z-100 w-48 p-2 shadow-xl border border-base-300">
+      <li>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio"
+                 name="theme-sidebar"
+                 class="theme-controller radio radio-sm"
+                 aria-label="{% translate "System" %}"
+                 value="default" />
+          <span>{% translate "System" %}</span>
+        </label>
+      </li>
+      <li>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio"
+                 name="theme-sidebar"
+                 class="theme-controller radio radio-sm"
+                 aria-label="{% translate "Light" %}"
+                 value="emerald" />
+          <span>{% translate "Light" %}</span>
+        </label>
+      </li>
+      <li>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="radio"
+                 name="theme-sidebar"
+                 class="theme-controller radio radio-sm"
+                 aria-label="{% translate "Dark" %}"
+                 value="forest" />
+          <span>{% translate "Dark" %}</span>
+        </label>
+      </li>
+    </ul>
+  </li>
+  <!-- Authentication at the bottom -->
+  <li class="mt-auto">
+    {% if user.is_authenticated %}
+      <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="flex items-center gap-2 w-full text-left">
+          {% heroicon_outline "arrow-right-on-rectangle" class="w-5 h-5" %}
+          {% translate "Logout" %}
+        </button>
+      </form>
+    {% else %}
+      <a href="{% url 'login' %}">
+        {% heroicon_outline "arrow-right-on-rectangle" class="w-5 h-5" %}
+        {% translate "Login" %}
+      </a>
+    {% endif %}
+  </li>
+</ul>

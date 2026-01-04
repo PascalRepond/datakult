@@ -37,7 +37,9 @@
             </label>
             {{ profile_form.email }}
             <label class="label" id="error-email">
-              {% if profile_form.email.errors %}<span class="label-text-alt text-error">{{ profile_form.email.errors.0 }}</span>{% endif %}
+              {% if profile_form.email.errors %}
+                <span class="label-text-alt text-error">{{ profile_form.email.errors.0 }}</span>
+              {% endif %}
             </label>
           </div>
           <div class="form-control">
@@ -72,7 +74,9 @@
     <div class="card bg-base-200 shadow-xl mb-8">
       <div class="card-body">
         <h2 class="card-title">{% translate "Language Preference" %}</h2>
-        <form method="post" action="{% url 'accounts:set_language' %}" class="space-y-6">
+        <form method="post"
+              action="{% url 'accounts:set_language' %}"
+              class="space-y-6">
           {% csrf_token %}
           <div class="form-control">
             <label class="label" for="language">
@@ -80,9 +84,8 @@
             </label>
             <select name="language" id="language" class="select select-bordered w-full">
               {% for lang_code, lang_name in languages %}
-                <option value="{{ lang_code }}"{% if current_language == lang_code %} selected{% endif %}>
-                  {{ lang_name }}
-                </option>
+                <option value="{{ lang_code }}"
+                        {% if current_language == lang_code %}selected{% endif %}>{{ lang_name }}</option>
               {% endfor %}
             </select>
           </div>

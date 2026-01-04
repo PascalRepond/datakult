@@ -249,11 +249,11 @@ class TestSortingHelper:
     """Tests for the _resolve_sorting helper logic via index view."""
 
     def test_default_sorting(self, logged_in_client):
-        """Default sorting is by created_at descending."""
+        """Default sorting is by review_date descending."""
         response = logged_in_client.get(reverse("home"))
 
-        assert response.context["sort_field"] == "created_at"
-        assert response.context["order_by"] == "-created_at"
+        assert response.context["sort_field"] == "review_date"
+        assert response.context["order_by"] == "-review_date"
 
     def test_custom_sorting(self, logged_in_client):
         """Custom sorting is applied."""
@@ -273,7 +273,7 @@ class TestSortingHelper:
         """Invalid sort field falls back to default."""
         response = logged_in_client.get(reverse("home"), {"sort": "invalid_field"})
 
-        assert response.context["sort_field"] == "created_at"
+        assert response.context["sort_field"] == "review_date"
 
 
 class TestFilteringHelper:
@@ -667,9 +667,11 @@ class TestLoadMoreMediaView:
         """Load more view includes view_mode in context for template rendering."""
         media_factory(title="Test")
 
+        response_default = logged_in_client.get(reverse("load_more_media"), {"page": 1})
         response_list = logged_in_client.get(reverse("load_more_media"), {"page": 1, "view_mode": "list"})
         response_grid = logged_in_client.get(reverse("load_more_media"), {"page": 1, "view_mode": "grid"})
 
+        assert response_default.context["view_mode"] == "grid"
         assert response_list.context["view_mode"] == "list"
         assert response_grid.context["view_mode"] == "grid"
 
