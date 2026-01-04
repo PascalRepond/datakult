@@ -75,6 +75,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",  # Must be after SessionMiddleware
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -149,6 +150,18 @@ TIME_ZONE = "Europe/Zurich"
 USE_I18N = True
 
 USE_TZ = True
+
+# Supported languages
+# https://docs.djangoproject.com/en/6.0/topics/i18n/translation/#how-django-discovers-language-preference
+LANGUAGES = [
+    ("en", "English"),
+    ("fr", "Français"),
+]
+
+# Path where Django will look for translation files
+LOCALE_PATHS = [
+    BASE_DIR / "locale",
+]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/

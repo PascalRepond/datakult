@@ -39,7 +39,7 @@
     <option value="">{% translate "All scores" %}</option>
     {% for value, label in score_choices reversed %}
       <option value="{{ value }}"
-              {% if filters.score == value|stringformat:"d" %}selected{% endif %}>{{ label }}</option>
+              {% if filters.score == value|stringformat:"d" %}selected{% endif %}>{{ value }}⭐ - {{ label }}</option>
     {% endfor %}
     <option value="none" {% if filters.score == 'none' %}selected{% endif %}>{% translate "Not rated" %}</option>
   </select>
