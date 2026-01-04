@@ -1,0 +1,28 @@
+{% load i18n %}
+{# Reusable confirmation modal #}
+{# Expected parameters: #}
+{# - modal_id: Unique modal ID #}
+{# - title: Modal title #}
+{# - message: Confirmation message #}
+{# - confirm_text: Confirm button text (optional, default: "Confirm") #}
+{# - is_danger: Boolean for danger style (optional, default: False) #}
+{# - form_id: Form ID to submit (optional) #}
+<input type="checkbox" id="{{ modal_id }}" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg {% if is_danger %}text-error{% endif %}">{{ title }}</h3>
+    <div class="py-4">{{ message|safe }}</div>
+    <div class="modal-action">
+      <label for="{{ modal_id }}" class="btn">{% translate "Cancel" %}</label>
+      {% if form_id %}
+        <button type="submit"
+                form="{{ form_id }}"
+                class="btn {% if is_danger %}btn-error{% else %}btn-primary{% endif %}">{{ confirm_text|default:_("Confirm") }}</button>
+      {% else %}
+        <button id="{{ modal_id }}-confirm"
+                class="btn {% if is_danger %}btn-error{% else %}btn-primary{% endif %}">{{ confirm_text|default:_("Confirm") }}</button>
+      {% endif %}
+    </div>
+  </div>
+  <label class="modal-backdrop" for="{{ modal_id }}">{% translate "Close" %}</label>
+</div>

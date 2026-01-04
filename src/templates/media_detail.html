@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load media_tags %}
+{% block title %}
+  {{ media.title }} - Datakult
+{% endblock title %}
+{% block content %}
+  <div class="max-w-4xl mx-auto">
+    {# Header #}
+    <div class="flex justify-between items-start gap-4 mb-6">
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-2">
+          <a href="{% url 'home' %}"
+             class="btn btn-ghost btn-sm btn-circle"
+             aria-label="{% translate "Back to list" %}">{% heroicon_outline "arrow-left" class="w-5 h-5" %}</a>
+          <div class="breadcrumbs text-sm">
+            <ul>
+              <li>
+                <a href="{% url 'home' %}">{% translate "My media" %}</a>
+              </li>
+              <li>{{ media.title }}</li>
+            </ul>
+          </div>
+        </div>
+        <h1 class="text-4xl font-bold">
+          {{ media.title }}
+          {% if media.pub_year %}<span class="text-2xl opacity-70 font-normal">({{ media.pub_year }})</span>{% endif %}
+        </h1>
+      </div>
+      <a href="{% url 'media_edit' media.pk %}" class="btn btn-primary">{% heroicon_outline "pencil" %}{% translate "Edit" %}</a>
+    </div>
+    {# Main content #}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {# Left column - Cover and metadata #}
+      <div class="md:col-span-1 space-y-4">
+        {# Cover card #}
+        <div class="card bg-base-200 shadow-md">
+          <figure class="relative w-full aspect-2/3 bg-base-300">
+            {% if media.cover %}
+              <img src="{{ media.cover.url }}"
+                   alt="{% translate "Cover of" %} {{ media.title }}"
+                   class="w-full h-full object-contain">
+            {% else %}
+              <div class="w-full h-full flex items-center justify-center text-base-content/30">
+                {% heroicon_outline "photo" class="w-32 h-32" %}
+              </div>
+            {% endif %}
+          </figure>
+        </div>
+        {# Metadata card #}
+        <div class="card bg-base-200 shadow-md">
+          <div class="card-body p-4 space-y-3">
+            {# Media type #}
+            <div class="flex items-center gap-2">
+              <span class="badge badge-neutral badge-lg"
+                    aria-label="{{ media.get_media_type_display }}">{% media_icon media.media_type size="md" %}</span>
+              <span class="font-medium">{{ media.get_media_type_display }}</span>
+            </div>
+            {# Contributors #}
+            {% if media.contributors.all %}
+              <div class="flex items-center gap-2 flex-wrap">
+                {% heroicon_outline "user" class="w-5 h-5 opacity-50 shrink-0" %}
+                <div class="flex flex-wrap gap-1">{% include "partials/media-contributors.html" with use_htmx=False %}</div>
+              </div>
+            {% endif %}
+            {# External link #}
+            {% if media.external_uri %}
+              <a href="{{ media.external_uri }}"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="link link-primary text-sm flex items-center gap-2">
+                {% heroicon_outline "arrow-top-right-on-square" class="w-5 h-5 shrink-0" %}
+                <span class="truncate">{% translate "External metadata" %}</span>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {# Right column - Personal data and review #}
+      <div class="md:col-span-2 space-y-4">
+        {# Personal data card #}
+        <div class="card bg-base-200 shadow-md">
+          <div class="card-body p-4">
+            <div class="flex flex-col gap-4">
+              {# Score with stars #}
+              {% if media.score %}
+                <div>{% include "partials/media-score-stars.html" %}</div>
+              {% endif %}
+              {# Status and Review date #}
+              <div class="flex flex-wrap gap-4 items-center">
+                <div class="flex items-center gap-2">{% include "partials/media-status-badge.html" %}</div>
+                {% if media.review_date %}
+                  <div class="flex items-center gap-2 text-sm opacity-70">
+                    {% heroicon_outline "calendar" class="w-5 h-5" %}
+                    <span>{{ media.review_date }}</span>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {# Review card #}
+        {% if media.review %}
+          <div class="card bg-base-200 shadow-md">
+            <div class="card-body">
+              <div class="prose max-w-none">{{ media.review_rendered|safe }}</div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock content %}

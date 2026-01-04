@@ -132,6 +132,14 @@ def index(request):
 
 
 @login_required
+def media_detail(request, pk):
+    """Display detailed view of a single media item."""
+    media = get_object_or_404(Media, pk=pk)
+    context = {"media": media}
+    return render(request, "media_detail.html", context)
+
+
+@login_required
 def media_edit(request, pk=None):
     media = get_object_or_404(Media, pk=pk) if pk else None
     if request.method == "POST":
@@ -163,7 +171,7 @@ def media_edit(request, pk=None):
             removed_ids = before_contributor_ids - after_contributor_ids
             if removed_ids:
                 delete_orphan_agents_by_ids(removed_ids)
-            return redirect("home")
+            return redirect("media_detail", pk=instance.pk)
     else:
         form = MediaForm(instance=media)
     context = {"media": media, "form": form}

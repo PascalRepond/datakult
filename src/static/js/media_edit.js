@@ -1,5 +1,16 @@
-// Interactivity for contributor chips and autocomplete dropdown
+// Interactivity for media edit page: contributors, date picker, and delete confirmation
 document.addEventListener('DOMContentLoaded', () => {
+  // Set up "Set to today" button for review date
+  const setTodayBtn = document.getElementById('set-today-btn');
+  const reviewDateInput = document.getElementById('id_review_date');
+
+  if (setTodayBtn && reviewDateInput) {
+    setTodayBtn.addEventListener('click', () => {
+      reviewDateInput.value = new Date().toISOString().split('T')[0];
+    });
+  }
+
+  // Contributor chips and autocomplete dropdown
   const input = document.getElementById('contributor_search');
   const suggestions = document.getElementById('contributor-suggestions');
   const chips = document.getElementById('contributors-chips');
@@ -26,12 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const contributorAlreadyExists = (name) => {
     const lower = name.trim().toLowerCase();
     
-    // Cherche dans les chips existants (depuis la base de données)
+    // Check existing chips (from database)
     const existingChips = Array.from(chips?.querySelectorAll('span[data-id], span[data-name]') || []).some(
       (chip) => (chip.dataset.name || chip.textContent || '').trim().toLowerCase() === lower,
     );
     
-    // Cherche dans les nouveaux contributeurs (créés dynamiquement)
+    // Check new contributors (created dynamically)
     const newContributors = Array.from(document.querySelectorAll('input[name="new_contributors"]')).some(
       (inp) => inp.value.trim().toLowerCase() === lower,
     );
@@ -66,13 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   input.addEventListener('keydown', (evt) => {
     if (evt.key !== 'Enter') return;
-
-    const firstSuggestion = suggestions.querySelector('a');
-    if (firstSuggestion) {
-      evt.preventDefault();
-      firstSuggestion.click();
-      return;
-    }
 
     const name = input.value.trim();
     if (!name) return;

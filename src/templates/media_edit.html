@@ -13,164 +13,219 @@
 {% endblock extra_css %}
 {% block content %}
   {{ form.media }}
-  <div class="container mx-auto px-4 py-8 max-w-4xl">
+  <div class="max-w-4xl mx-auto">
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
-      <div class="card bg-base-200 shadow-xl relative">
-        <div class="card-body space-y-8">
-          {# Close button in top right corner #}
-          <div class="absolute top-4 right-4">
+      {# Header #}
+      <div class="flex justify-between items-start gap-4 mb-6">
+        <div class="flex-1">
+          <div class="flex items-center gap-2 mb-2">
             <a href="{% url 'home' %}"
-               class="btn btn-sm btn-circle btn-ghost"
-               aria-label="{% translate "Close" %}">{% heroicon_outline "x-mark" class="w-5 h-5" %}</a>
+               class="btn btn-ghost btn-sm btn-circle"
+               aria-label="{% translate "Back to list" %}">{% heroicon_outline "arrow-left" class="w-5 h-5" %}</a>
+            <div class="breadcrumbs text-sm">
+              <ul>
+                <li>
+                  <a href="{% url 'home' %}">{% translate "My media" %}</a>
+                </li>
+                <li>
+                  {% if media %}
+                    {% translate "Edit" %}
+                  {% else %}
+                    {% translate "Add media" %}
+                  {% endif %}
+                </li>
+              </ul>
+            </div>
           </div>
-          <h1 class="card-title mb-3">
+          <h1 class="text-4xl font-bold">
             {% if media %}
               {% translate "Edit" %} {{ media.title }}
             {% else %}
               {% translate "Add media" %}
             {% endif %}
           </h1>
-          <div class="form-control mb-0">
-            <label class="label" for="id_cover">
-              {% include "partials/field_label.html" with label=_("Cover image") field=form.cover %}
-            </label>
-            {{ form.cover }}
-            <label class="label" id="error-cover">
-              {% if form.cover.errors %}<span class="validator-hint">{{ form.cover.errors.0 }}</span>{% endif %}
-            </label>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="form-control">
-              <label class="label" for="id_title">
-                {% include "partials/field_label.html" with label=_("Title") field=form.title %}
-              </label>
-              {{ form.title }}
-              <label class="label" id="error-title">
-                {% if form.title.errors %}<span class="validator-hint">{{ form.title.errors.0 }}</span>{% endif %}
-              </label>
-            </div>
-            <div class="form-control">
-              <label class="label" for="id_contributors">
-                {% include "partials/field_label.html" with label=_("Contributors") field=form.contributors %}
-              </label>
-              <!-- Selected contributors chips -->
-              <div id="contributors-chips" class="flex flex-wrap gap-2 mb-2">
-                {% for contributor in media.contributors.all %}
-                  {% include "partials/contributor-chip.html" with agent=contributor %}
-                {% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">
+          {% heroicon_outline "check-circle" %}
+          {% translate "Save" %}
+        </button>
+      </div>
+      {# Main content #}
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {# Left column - Cover and metadata #}
+        <div class="md:col-span-1 space-y-4">
+          {# Cover card #}
+          <div class="card bg-base-200 shadow-md">
+            <div class="card-body p-4">
+              <div class="form-control">
+                <label class="label" for="id_cover">
+                  {% include "partials/field_label.html" with label=_("Cover image") field=form.cover %}
+                </label>
+                {{ form.cover }}
+                <label class="label" id="error-cover">
+                  {% if form.cover.errors %}<span class="label-text-alt text-error">{{ form.cover.errors.0 }}</span>{% endif %}
+                </label>
               </div>
-              <!-- Autocomplete input wrapper with relative positioning -->
-              <div class="relative">
-                <input type="text"
-                       id="contributor_search"
-                       name="contributor_search"
-                       class="input w-full"
-                       placeholder="{% translate "Type name to search" %}"
-                       autocomplete="off"
-                       hx-get="{% url 'agent_search_htmx' %}"
-                       hx-trigger="keyup changed delay:300ms"
-                       hx-target="#contributor-suggestions"
-                       hx-vals='js:{q: document.getElementById("contributor_search").value}' />
-                <!-- Suggestions dropdown with absolute positioning -->
-                <div id="contributor-suggestions"
-                     class="absolute top-full left-0 right-0 z-50 hidden"></div>
-              </div>
-              <label class="label" id="error-contributors">
-                {% if form.contributors.errors %}<span class="validator-hint">{{ form.contributors.errors.0 }}</span>{% endif %}
-              </label>
-            </div>
-            <div class="form-control">
-              <label class="label" for="id_media_type">
-                {% include "partials/field_label.html" with label=_("Media type") field=form.media_type %}
-              </label>
-              {{ form.media_type }}
-              <label class="label" id="error-media_type">
-                {% if form.media_type.errors %}<span class="validator-hint">{{ form.media_type.errors.0 }}</span>{% endif %}
-              </label>
-            </div>
-            <div class="form-control">
-              <label class="label" for="id_external_uri">
-                {% include "partials/field_label.html" with label=_("External URI") field=form.external_uri %}
-              </label>
-              {{ form.external_uri }}
-              <label class="label" id="error-external_uri">
-                {% if form.external_uri.errors %}<span class="validator-hint">{{ form.external_uri.errors.0 }}</span>{% endif %}
-              </label>
-            </div>
-            <div class="form-control">
-              <label class="label" for="id_status">
-                {% include "partials/field_label.html" with label=_("Status") field=form.status %}
-              </label>
-              {{ form.status }}
-              <label class="label" id="error-status">
-                {% if form.status.errors %}<span class="validator-hint">{{ form.status.errors.0 }}</span>{% endif %}
-              </label>
-            </div>
-            <div class="form-control">
-              <label class="label" for="id_pub_year">
-                {% include "partials/field_label.html" with label=_("Release year") field=form.pub_year %}
-              </label>
-              {{ form.pub_year }}
-              <label class="label" id="error-pub_year">
-                {% if form.pub_year.errors %}<span class="validator-hint">{{ form.pub_year.errors.0 }}</span>{% endif %}
-              </label>
-            </div>
-            <div class="form-control">
-              <label class="label" for="id_score">
-                {% include "partials/field_label.html" with label=_("Score") field=form.score %}
-              </label>
-              {{ form.score }}
-              <label class="label" id="error-score">
-                {% if form.score.errors %}<span class="validator-hint">{{ form.score.errors.0 }}</span>{% endif %}
-              </label>
-            </div>
-            <div class="form-control md:col-span-1">
-              <label class="label" for="id_review">
-                {% include "partials/field_label.html" with label=_("Review") field=form.review %}
-              </label>
-              {{ form.review }}
-              <label class="label" id="error-review">
-                {% if form.review.errors %}<span class="validator-hint">{{ form.review.errors.0 }}</span>{% endif %}
-              </label>
-            </div>
-            <div class="form-control">
-              <label class="label" for="id_review_date">
-                {% include "partials/field_label.html" with label=_("Review date") field=form.review_date %}
-              </label>
-              {{ form.review_date }}
-              <label class="label" id="error-review_date">
-                {% if form.review_date.errors %}<span class="validator-hint">{{ form.review_date.errors.0 }}</span>{% endif %}
-              </label>
             </div>
           </div>
-          {# Card actions at the bottom #}
-          <div class="card-actions {% if media %}justify-between{% else %}justify-end{% endif %}">
-            {% if media %}
-              <button type="submit"
-                      form="delete-form"
-                      class="btn btn-error"
-                      onclick="return confirm('{% translate "Are you sure you want to delete this media? This action cannot be undone." %}');">
-                {% heroicon_outline "trash" class="w-5 h-5 mr-2" %}
-                {% translate "Delete" %}
-              </button>
-            {% endif %}
-            <button type="submit" class="btn btn-primary">
-              {% heroicon_outline "check-circle" class="w-5 h-5 mr-2" %}
-              {% translate "Save" %}
-            </button>
+          {# Metadata card #}
+          <div class="card bg-base-200 shadow-md">
+            <div class="card-body p-4 space-y-2">
+              <div class="form-control">
+                <label class="label" for="id_title">
+                  {% include "partials/field_label.html" with label=_("Title") field=form.title %}
+                </label>
+                {{ form.title }}
+                <label class="label" id="error-title">
+                  {% if form.title.errors %}<span class="label-text-alt text-error">{{ form.title.errors.0 }}</span>{% endif %}
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="label" for="id_contributors">
+                  {% include "partials/field_label.html" with label=_("Contributors") field=form.contributors %}
+                </label>
+                <div id="contributors-chips" class="flex flex-wrap gap-2 mb-2">
+                  {% for contributor in media.contributors.all %}
+                    {% include "partials/contributor-chip.html" with agent=contributor %}
+                  {% endfor %}
+                </div>
+                <div class="relative">
+                  <input type="text"
+                         id="contributor_search"
+                         name="contributor_search"
+                         class="input w-full"
+                         placeholder="{% translate "Type name to search" %}"
+                         autocomplete="off"
+                         hx-get="{% url 'agent_search_htmx' %}"
+                         hx-trigger="keyup changed delay:300ms"
+                         hx-target="#contributor-suggestions"
+                         hx-vals='js:{q: document.getElementById("contributor_search").value}' />
+                  <div id="contributor-suggestions"
+                       class="absolute top-full left-0 right-0 z-50 hidden"></div>
+                </div>
+                <label class="label" id="error-contributors">
+                  {% if form.contributors.errors %}
+                    <span class="label-text-alt text-error">{{ form.contributors.errors.0 }}</span>
+                  {% endif %}
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="label" for="id_media_type">
+                  {% include "partials/field_label.html" with label=_("Media type") field=form.media_type %}
+                </label>
+                {{ form.media_type }}
+                <label class="label" id="error-media_type">
+                  {% if form.media_type.errors %}
+                    <span class="label-text-alt text-error">{{ form.media_type.errors.0 }}</span>
+                  {% endif %}
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="label" for="id_pub_year">
+                  {% include "partials/field_label.html" with label=_("Release year") field=form.pub_year %}
+                </label>
+                {{ form.pub_year }}
+                <label class="label" id="error-pub_year">
+                  {% if form.pub_year.errors %}<span class="label-text-alt text-error">{{ form.pub_year.errors.0 }}</span>{% endif %}
+                </label>
+              </div>
+              <div class="form-control">
+                <label class="label" for="id_external_uri">
+                  {% include "partials/field_label.html" with label=_("External URI") field=form.external_uri %}
+                </label>
+                {{ form.external_uri }}
+                <label class="label" id="error-external_uri">
+                  {% if form.external_uri.errors %}
+                    <span class="label-text-alt text-error">{{ form.external_uri.errors.0 }}</span>
+                  {% endif %}
+                </label>
+              </div>
+            </div>
           </div>
         </div>
+        {# Right column - Personal data and review #}
+        <div class="md:col-span-2 space-y-4">
+          {# Personal data card #}
+          <div class="card bg-base-200 shadow-md">
+            <div class="card-body p-4 space-y-2">
+              <div class="form-control">
+                <label class="label" for="id_score">
+                  {% include "partials/field_label.html" with label=_("Score") field=form.score %}
+                </label>
+                {{ form.score }}
+                <label class="label" id="error-score">
+                  {% if form.score.errors %}<span class="label-text-alt text-error">{{ form.score.errors.0 }}</span>{% endif %}
+                </label>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="form-control">
+                  <label class="label" for="id_status">
+                    {% include "partials/field_label.html" with label=_("Status") field=form.status %}
+                  </label>
+                  {{ form.status }}
+                  <label class="label" id="error-status">
+                    {% if form.status.errors %}<span class="label-text-alt text-error">{{ form.status.errors.0 }}</span>{% endif %}
+                  </label>
+                </div>
+                <div class="form-control">
+                  <label class="label" for="id_review_date">
+                    <span>{% include "partials/field_label.html" with label=_("Review date") field=form.review_date %}</span>
+                    <button type="button"
+                            id="set-today-btn"
+                            class="btn btn-xs btn-ghost gap-1"
+                            title="{% translate "Set to today" %}">
+                      {% heroicon_mini "calendar" class="w-4 h-4" %}
+                      {% translate "Today" %}
+                    </button>
+                  </label>
+                  {{ form.review_date }}
+                  <label class="label" id="error-review_date">
+                    {% if form.review_date.errors %}
+                      <span class="label-text-alt text-error">{{ form.review_date.errors.0 }}</span>
+                    {% endif %}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          {# Review card #}
+          <div class="card bg-base-200 shadow-md">
+            <div class="card-body p-4">
+              <div class="form-control">
+                <label class="label" for="id_review">
+                  {% include "partials/field_label.html" with label=_("Review") field=form.review %}
+                </label>
+                {{ form.review }}
+                <label class="label" id="error-review">
+                  {% if form.review.errors %}<span class="label-text-alt text-error">{{ form.review.errors.0 }}</span>{% endif %}
+                </label>
+              </div>
+            </div>
+          </div>
+          {# Actions card #}
+          {% if media %}
+            <div class="card bg-base-200 shadow-md">
+              <div class="card-body p-4">
+                <label for="confirm-delete-modal" class="btn btn-error w-full">
+                  {% heroicon_outline "trash" class="w-5 h-5" %}
+                  {% translate "Delete" %}
+                </label>
+              </div>
+            </div>
+          {% endif %}
+        </div>
       </div>
-    </div>
-  </form>
-  {% if media %}
-    <form id="delete-form"
-          class="hidden"
-          method="post"
-          action="{% url 'media_delete' media.pk %}">
-      {% csrf_token %}
     </form>
-  {% endif %}
-  <script src="{% static 'js/contributors.js' %}"></script>
-{% endblock content %}
+    {% if media %}
+      <form id="delete-form"
+            class="hidden"
+            method="post"
+            action="{% url 'media_delete' media.pk %}">
+        {% csrf_token %}
+      </form>
+      {# Confirmation modal for media deletion #}
+      {% include "partials/confirm-modal.html" with modal_id="confirm-delete-modal" title=_("Delete Media") message=_("Are you sure you want to delete this media? This action cannot be undone.") confirm_text=_("Yes, delete") is_danger=True form_id="delete-form" %}
+    {% endif %}
+    <script src="{% static 'js/media_edit.js' %}"></script>
+  {% endblock content %}

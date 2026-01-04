@@ -672,3 +672,67 @@ class TestLoadMoreMediaView:
 
         assert response_list.context["view_mode"] == "list"
         assert response_grid.context["view_mode"] == "grid"
+
+
+class TestMediaDetailView:
+    """Tests for the media_detail view."""
+
+    def test_media_detail_accessible_when_logged_in(self, logged_in_client, media):
+        """The detail view is accessible when logged in."""
+        response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
+
+        assert response.status_code == 200
+        assert response.context["media"] == media
+
+    def test_media_detail_displays_correct_template(self, logged_in_client, media):
+        """The detail view uses the media_detail template."""
+        response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
+
+        assert response.status_code == 200
+        assert "media_detail.html" in [t.name for t in response.templates]
+
+    def test_media_detail_nonexistent_returns_404(self, logged_in_client):
+        """Accessing detail view with nonexistent media returns 404."""
+        response = logged_in_client.get(reverse("media_detail", kwargs={"pk": 99999}))
+
+        assert response.status_code == 404
+
+    def test_media_detail_shows_all_fields(self, logged_in_client, db):
+        """The detail view displays all media fields."""
+        agent = Agent.objects.create(name="Test Author")
+        media = Media.objects.create(
+            title="Complete Media",
+            media_type="BOOK",
+            status="COMPLETED",
+            score=8,
+            review="This is a detailed review.",
+            pub_year=2023,
+            external_uri="https://example.com",
+        )
+        media.contributors.add(agent)
+
+        response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
+        content = response.content.decode("utf-8")
+
+        assert media.title in content
+        assert "2023" in content
+        assert agent.name in content
+        assert "https://example.com" in content
+
+    def test_media_detail_contributor_links_to_filtered_list(self, logged_in_client, db):
+        """Contributor links in detail view navigate to filtered home page."""
+        agent = Agent.objects.create(name="Test Contributor")
+        media = Media.objects.create(
+            title="Test Media",
+            media_type="BOOK",
+        )
+        media.contributors.add(agent)
+
+        response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
+        content = response.content.decode("utf-8")
+
+        # Should contain a normal link (not HTMX) to home with contributor filter
+        expected_url = f'href="/?contributor={agent.id}"'
+        assert expected_url in content
+        # Should NOT contain HTMX attributes for contributor links
+        assert "hx-target" not in content
