@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.2.1 (2026-01-04)
+
+### Bug Fixes
+
+- Display corrections
+  ([`d67f49e`](https://github.com/PascalRepond/datakult/commit/d67f49eeaee5d6fedd13621ecca57d1403640c51))
+
+
 ## v1.2.0 (2026-01-04)
 
 ### Code Style

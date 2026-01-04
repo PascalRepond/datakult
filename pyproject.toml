@@ -1,6 +1,6 @@
 [project]
 name = "datakult"
-version = "1.2.0"
+version = "1.2.1"
 description = "Review and analyse the media and culture that you consume."
 readme = "README.md"
 license = "AGPL-3.0"
