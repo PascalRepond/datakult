@@ -2,6 +2,33 @@
 
 <!-- version list -->
 
+## v1.2.0 (2026-01-04)
+
+### Code Style
+
+- **media_edit**: Improve markdown editor appearance
+  ([`63cbe4d`](https://github.com/PascalRepond/datakult/commit/63cbe4d0bd842ff27edea91af4e132a9ad3c0659))
+
+### Features
+
+- Add a navigation sidebar
+  ([`e6e7d08`](https://github.com/PascalRepond/datakult/commit/e6e7d085c5a819c3ef662a00d55f5556001b9a2f))
+
+- **locale**: Add language switching and French translation
+  ([`16d180a`](https://github.com/PascalRepond/datakult/commit/16d180aeaf3db670dc01d9908d49959740ba49d1))
+
+- **media**: Improve media detail and edit templates
+  ([`4c1026b`](https://github.com/PascalRepond/datakult/commit/4c1026b538ae0c76fa7786ee2fdc722d03ceade6))
+
+- **ui**: Enhance media list views display
+  ([`1af301d`](https://github.com/PascalRepond/datakult/commit/1af301d55f67a364e1c366a9f1fa07d78b94226c))
+
+### Testing
+
+- Fix setup script to render reviews
+  ([`b8a74dd`](https://github.com/PascalRepond/datakult/commit/b8a74ddb483b0af27ad7101f19c7ec587d5fd2dc))
+
+
 ## v1.1.0 (2026-01-02)
 
 ### Bug Fixes
