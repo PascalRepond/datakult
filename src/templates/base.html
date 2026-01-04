@@ -22,16 +22,18 @@
     {% htmx_script %}
     {% block extra_css %}
     {% endblock extra_css %}
+    {% block head_js %}
+    {% endblock head_js %}
   </head>
   <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     <!-- Drawer layout: sidebar on desktop, hamburger menu on mobile -->
-    <div class="drawer lg:drawer-open">
+    <div class="drawer xl:drawer-open">
       <!-- Hidden checkbox to control drawer state -->
       <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" />
       <!-- Main content area -->
       <div class="drawer-content flex flex-col">
         <!-- Minimal top navbar (mobile hamburger only) -->
-        <div class="navbar bg-base-100 shadow-sm lg:hidden">
+        <div class="navbar bg-base-100 shadow-sm xl:hidden">
           <!-- Hamburger button (mobile only) -->
           <div class="flex-none">
             <label for="sidebar-drawer"
@@ -52,7 +54,7 @@
           </div>
         </div>
         <!-- Page content -->
-        <div class="p-4 lg:p-12">
+        <div class="p-4 xl:p-12">
           {% block content %}
           {% endblock content %}
         </div>

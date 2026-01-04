@@ -26,7 +26,7 @@ STATUS_CLASSES = {
     "PLANNED": "badge-info",
     "IN_PROGRESS": "badge-accent",
     "COMPLETED": "badge-success",
-    "PAUSED": "badge-neutral",
+    "PAUSED": "badge-primary",
     "DNF": "badge-error",
 }
 
