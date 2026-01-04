@@ -3,7 +3,7 @@
   {% if page_obj %}
     {% if view_mode == 'grid' %}
       {# Grid view - Cards layout #}
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-4"
+      <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mt-4"
            id="media-container">{% include "partials/media-items-page.html" %}</div>
     {% else %}
       {# List view - Table layout #}

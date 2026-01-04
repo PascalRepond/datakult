@@ -9,10 +9,16 @@
   {% endif %}
 {% endblock title %}
 {% block extra_css %}
+  {{ form.media.css }}
   <link rel="stylesheet" href="{% static 'css/easymde.css' %}">
 {% endblock extra_css %}
+{% block head_js %}
+  {{ form.media.js }}
+{% endblock head_js %}
+{% block extra_js %}
+  <script src="{% static 'js/media_edit.js' %}"></script>
+{% endblock extra_js %}
 {% block content %}
-  {{ form.media }}
   <div class="max-w-4xl mx-auto">
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
@@ -227,5 +233,5 @@
       {# Confirmation modal for media deletion #}
       {% include "partials/confirm-modal.html" with modal_id="confirm-delete-modal" title=_("Delete Media") message=_("Are you sure you want to delete this media? This action cannot be undone.") confirm_text=_("Yes, delete") is_danger=True form_id="delete-form" %}
     {% endif %}
-    <script src="{% static 'js/media_edit.js' %}"></script>
-  {% endblock content %}
+  </div>
+{% endblock content %}

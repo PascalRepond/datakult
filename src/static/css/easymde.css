@@ -29,7 +29,7 @@
 }
 
 [data-theme="forest"] .EasyMDEContainer .CodeMirror-cursor {
-    border-left-color: var(--color-base-content);
+    border-left-color: var(--color-base-content) !important;
 }
 
 /* Editor toolbar dark mode */

@@ -1,15 +1,18 @@
 {% load i18n %}
 {# Display score with stars (read-only) #}
-<div class="flex items-center gap-3"
-     role="img"
-     aria-label="{% translate 'Score:' %} {{ media.score }} {% translate 'out of 10' %}">
-  {# Star rating display #}
-  <div class="rating rating-lg">
-    {% for i in "0123456789" %}
-      <span class="mask mask-star-2 bg-orange-400"
-            {% if forloop.counter <= media.score %}aria-current="true"{% endif %}></span>
-    {% endfor %}
-  </div>
-  {# Score badge with label #}
-  <div class="flex items-center gap-2">{% include "partials/media-score-badge.html" with size="lg" %}</div>
-</div>
+{# Parameters: size (optional) - 'sm', 'md' (default), or 'lg' #}
+{# Parameters: show_badge (optional) - show score badge, default True #}
+{% if size == 'sm' %}
+  {% with rating_size="rating-sm" badge_size="sm" gap_size="gap-2" %}
+    {% include "partials/media-score-stars-inner.html" %}
+  {% endwith %}
+{% elif size == 'lg' %}
+  {% with rating_size="rating-lg" badge_size="lg" gap_size="gap-3" %}
+    {% include "partials/media-score-stars-inner.html" %}
+  {% endwith %}
+{% else %}
+  {# Default: medium size #}
+  {% with rating_size="rating-md" badge_size="md" gap_size="gap-2" %}
+    {% include "partials/media-score-stars-inner.html" %}
+  {% endwith %}
+{% endif %}
