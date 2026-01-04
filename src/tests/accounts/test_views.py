@@ -120,3 +120,25 @@ class TestProfileEditView:
         # Check user is still authenticated by accessing a protected page
         response = logged_in_client.get(reverse("accounts:profile_edit"))
         assert response.status_code == 200
+
+
+class TestSetLanguageView:
+    """Tests for the set_language view."""
+
+    def test_set_valid_language(self, logged_in_client):
+        """Setting a valid language saves it in session."""
+        url = reverse("accounts:set_language")
+        response = logged_in_client.post(url, {"language": "fr"})
+
+        assert response.status_code == 302
+        assert logged_in_client.session["django_language"] == "fr"
+
+    def test_set_invalid_language(self, logged_in_client):
+        """Setting an invalid language is rejected."""
+        url = reverse("accounts:set_language")
+        logged_in_client.post(url, {"language": "invalid"})
+
+        assert (
+            "django_language" not in logged_in_client.session
+            or logged_in_client.session["django_language"] != "invalid"
+        )

@@ -1,8 +1,10 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.utils import translation
 from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
@@ -22,7 +24,7 @@ def profile_edit(request):
             profile_form = UserProfileForm(request.POST, instance=request.user)
             if profile_form.is_valid():
                 profile_form.save()
-                messages.success(request, _("Your profile has been updated."))
+                messages.success(request, _("Profile updated."))
                 return redirect("accounts:profile_edit")
         elif "change_password" in request.POST:
             password_form = CustomPasswordChangeForm(request.user, request.POST)
@@ -30,8 +32,11 @@ def profile_edit(request):
                 user = password_form.save()
                 # Keep the user logged in after password change
                 update_session_auth_hash(request, user)
-                messages.success(request, _("Your password has been changed."))
+                messages.success(request, _("Password changed."))
                 return redirect("accounts:profile_edit")
+
+    # Get current language and available languages
+    current_language = translation.get_language()
 
     return render(
         request,
@@ -39,6 +44,8 @@ def profile_edit(request):
         {
             "profile_form": profile_form,
             "password_form": password_form,
+            "languages": settings.LANGUAGES,
+            "current_language": current_language,
         },
     )
 
@@ -70,3 +77,21 @@ def validate_password_field(request):
     form = CustomPasswordChangeForm(request.user, request.POST)
     field_name = request.POST.get("field_name")
     return _validate_field_htmx(form, field_name)
+
+
+@require_POST
+@login_required
+def set_language(request):
+    """Set the user's preferred language in session."""
+    language = request.POST.get("language")
+
+    # Validate the language code
+    if language and language in dict(settings.LANGUAGES):
+        translation.activate(language)
+        # Store language preference in session using Django's standard key
+        request.session["django_language"] = language
+        messages.success(request, _("Language preference updated."))
+    else:
+        messages.error(request, _("Invalid language selection."))
+
+    return redirect("accounts:profile_edit")

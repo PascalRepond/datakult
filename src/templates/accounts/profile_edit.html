@@ -68,6 +68,30 @@
         </form>
       </div>
     </div>
+    <!-- Language Preference -->
+    <div class="card bg-base-200 shadow-xl mb-8">
+      <div class="card-body">
+        <h2 class="card-title">{% translate "Language Preference" %}</h2>
+        <form method="post" action="{% url 'accounts:set_language' %}" class="space-y-6">
+          {% csrf_token %}
+          <div class="form-control">
+            <label class="label" for="language">
+              <span class="label-text">{% translate "Choose your preferred language" %}</span>
+            </label>
+            <select name="language" id="language" class="select select-bordered w-full">
+              {% for lang_code, lang_name in languages %}
+                <option value="{{ lang_code }}"{% if current_language == lang_code %} selected{% endif %}>
+                  {{ lang_name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="card-actions justify-end">
+            <button type="submit" class="btn btn-primary">{% translate "Update Language" %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
     <!-- Change Password -->
     <div class="card bg-base-200 shadow-xl">
       <div class="card-body">

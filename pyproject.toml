@@ -52,6 +52,10 @@ backup = "./src/manage.py export_backup"
 restore = "./src/manage.py import_backup"
 auto-backup = "./src/manage.py auto_backup"
 
+# Translations
+makemessages = "./src/manage.py makemessages -l fr --ignore=theme/* --ignore=staticfiles/* --ignore=venv/*"
+compilemessages = "./src/manage.py compilemessages"
+
 # Tests
 test = "pytest ./src --cov=src --cov-report=term-missing"
 test-fast = "pytest ./src -x -q"
