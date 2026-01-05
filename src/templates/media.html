@@ -1,97 +1,127 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% translate "Search" %}
+{% load static %}
+{% load media_tags %}
 {% block title %}
   Datakult
 {% endblock title %}
 {% block content %}
-  <h1 class="text-4xl my-4">{% translate "My media" %}</h1>
+  <div class="flex items-baseline gap-4 my-4">
+    <h1 class="text-4xl">{% translate "My media" %}</h1>
+    <span class="text-sm text-base-content/70">
+      {{ page_obj.paginator.count }}
+      {% if page_obj.paginator.count > 1 %}
+        {% translate "items" %}
+      {% else %}
+        {% translate "item" %}
+      {% endif %}
+    </span>
+  </div>
   <div class="flex flex-col gap-4">
-    <div class="flex justify-between gap-4">
-      {# View mode toggle #}
-      {% include "partials/view-mode-toggle.html" %}
-      {# Sort selector #}
-      <div class="flex join items-center">
-        <button type="button"
-                id="sort-direction-toggle"
-                class="btn join-item"
-                hx-get="{% url 'home' %}"
-                hx-target="#media-list"
-                hx-include="#sort, #view-mode-input, #contributor, #type, #status, #score, #review-from, #review-to"
-                hx-push-url="true"
-                hx-on:click="const sortInput = document.getElementById('sort'); const value = sortInput.value || '-review_date'; const isDesc = value.startsWith('-'); const field = isDesc ? value.slice(1) : value; const next = isDesc ? field : '-' + field; sortInput.value = next; const icon = this.querySelector('svg'); if (icon) { icon.classList.toggle('rotate-180'); }">
-          {% with "transition-transform" as icon_base_class %}
-            {% if sort|slice:":1" == '-' %}
-              {% heroicon_mini "arrow-up" class=icon_base_class|add:" rotate-180" %}
-            {% else %}
-              {% heroicon_mini "arrow-up" class=icon_base_class %}
-            {% endif %}
-          {% endwith %}
-        </button>
+    {# Top bar with search and controls #}
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">
+      {# Search bar - takes remaining space #}
+      <form method="get" action="{% url 'home' %}" class="flex-1 order-1">
+        {# Hidden fields to preserve current state #}
+        <input type="hidden" name="view_mode" value="{{ view_mode }}" />
+        <input type="hidden" name="sort" value="{{ sort }}" />
         <input type="hidden"
-               id="sort"
-               name="sort"
-               value="{{ sort|default:'-review_date' }}"
-               hx-get="{% url 'home' %}"
-               hx-target="#media-list"
-               hx-include="#view-mode-input, #contributor, #type, #status, #score, #review-from, #review-to"
-               hx-trigger="change"
-               hx-push-url="true" />
-        <select class="select join-item"
-                id="sort-field"
-                hx-on:change="const sortInput = document.getElementById('sort'); const current = sortInput.value || '-review_date'; const isDesc = current.startsWith('-'); const prefix = isDesc ? '-' : ''; sortInput.value = prefix + this.value; sortInput.dispatchEvent(new Event('change', { bubbles: true }));">
-          <option value="created_at"
-                  {% if sort_field == 'created_at' %}selected{% endif %}>{% translate "Creation date" %}</option>
-          <option value="review_date"
-                  {% if sort_field == 'review_date' %}selected{% endif %}>{% translate "Review date" %}</option>
-          <option value="score" {% if sort_field == 'score' %}selected{% endif %}>{% translate "Score" %}</option>
-        </select>
+               name="contributor"
+               value="{{ contributor.id|default:'' }}" />
+        {% for type_val in filters.type %}<input type="hidden" name="type" value="{{ type_val }}" />{% endfor %}
+        {% for status_val in filters.status %}<input type="hidden" name="status" value="{{ status_val }}" />{% endfor %}
+        {% for score_val in filters.score %}<input type="hidden" name="score" value="{{ score_val }}" />{% endfor %}
+        {% if filters.review_from %}<input type="hidden" name="review_from" value="{{ filters.review_from }}" />{% endif %}
+        {% if filters.review_to %}<input type="hidden" name="review_to" value="{{ filters.review_to }}" />{% endif %}
+        {% if filters.has_review %}<input type="hidden" name="has_review" value="{{ filters.has_review }}" />{% endif %}
+        {% if filters.has_cover %}<input type="hidden" name="has_cover" value="{{ filters.has_cover }}" />{% endif %}
+        <label class="input flex items-center gap-2">
+          <input type="search"
+                 class="grow"
+                 placeholder="{% translate "Search" %}"
+                 name="search"
+                 value="{{ request.GET.search|default:'' }}"
+                 id="search-input" />
+          {% if request.GET.search %}
+            <a href="?{% query_string_exclude request 'search' %}"
+               class="btn btn-ghost btn-sm btn-circle"
+               title="{% translate "Clear search" %}">{% heroicon_mini "x-mark" %}</a>
+          {% endif %}
+          <button type="submit" class="btn btn-ghost btn-sm btn-circle">{% heroicon_mini "magnifying-glass" %}</button>
+        </label>
+      </form>
+      {# Right controls group #}
+      <div class="flex gap-2 order-2 flex-wrap sm:flex-nowrap">
+        {# View mode toggle #}
+        {% include "partials/view-mode-toggle.html" %}
+        {# Sort selector #}
+        <div class="flex join items-center">
+          <a href="?{% query_string request sort=sort|toggle_sort_direction %}"
+             class="btn join-item btn-sm sm:btn-md">
+            {% with "transition-transform" as icon_base_class %}
+              {% if sort|slice:":1" == '-' %}
+                {% heroicon_mini "arrow-up" class=icon_base_class|add:" rotate-180" %}
+              {% else %}
+                {% heroicon_mini "arrow-up" class=icon_base_class %}
+              {% endif %}
+            {% endwith %}
+          </a>
+          <select class="select join-item select-sm sm:select-md"
+                  id="sort-field-select"
+                  onchange="window.location.href = '?{% query_string_exclude request 'sort' 'sort_field' %}&sort=' + (this.value.startsWith('-') ? this.value : '{% if sort|slice:":1" == "-" %}-{% endif %}' + this.value)">
+            <option value="created_at"
+                    {% if sort_field == 'created_at' %}selected{% endif %}>{% translate "Creation date" %}</option>
+            <option value="review_date"
+                    {% if sort_field == 'review_date' %}selected{% endif %}>{% translate "Review date" %}</option>
+            <option value="score" {% if sort_field == 'score' %}selected{% endif %}>{% translate "Score" %}</option>
+          </select>
+        </div>
+        {# Filters button - opens drawer #}
+        <label for="filters-drawer" class="btn btn-sm sm:btn-md" type="button">
+          {% heroicon_mini "funnel" %}
+          <span class="hidden sm:inline">{% translate "Filters" %}</span>
+        </label>
+        {# Add button #}
+        <a href="{% url 'media_add' %}" class="btn btn-primary btn-sm sm:btn-md">
+          {% heroicon_outline "plus" %}
+          <span class="hidden sm:inline">{% translate "Add" %}</span>
+        </a>
       </div>
-      {# Search and add button #}
-      <label class="input flex-1">
-        {% heroicon_mini "magnifying-glass" %}
-        <input type="search"
-               class="grow"
-               placeholder="{% translate "Search" %}"
-               name="search"
-               hx-get="{% url 'search' %}"
-               hx-trigger="keyup delay:500ms"
-               hx-target="#media-list"
-               hx-include="#view-mode-input, #sort, #contributor, #type, #status, #score, #review-from, #review-to"
-               hx-indicator="#spinner"
-               hx-on::before-request="document.getElementById('media-list').style.opacity = 0.4"
-               hx-on::after-request="document.getElementById('media-list').style.opacity = 1" />
-        {% include "partials/spinner.html" with id="spinner" size="xl" htmx_indicator=True %}
-      </label>
-      <a href="{% url 'media_add' %}" class="btn btn-primary">{% heroicon_outline "plus" %}{% translate "Add" %}</a>
     </div>
-    {# Filters #}
-    {% include "partials/filters.html" %}
     {# Active filters badges #}
     <div id="active-filters-badges" class="flex flex-wrap gap-2 items-center">
       {% if filters.type %}
-        <div class="badge badge-secondary gap-1" data-filter="type">
-          <span>{{ filters.type_display|default:filters.type }}</span>
-          <button type="button"
-                  class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
-                  data-filter="type">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>
-        </div>
+        {% for type_val, type_label in filters.type_display %}
+          <div class="badge badge-secondary gap-1">
+            <span>{{ type_label }}</span>
+            <button type="button"
+                    class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
+                    data-filter="type"
+                    data-value="{{ type_val }}">{% heroicon_mini "x-mark" %}</button>
+          </div>
+        {% endfor %}
       {% endif %}
       {% if filters.status %}
-        <div class="badge badge-secondary gap-1" data-filter="status">
-          <span>{{ filters.status_display|default:filters.status }}</span>
-          <button type="button"
-                  class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
-                  data-filter="status">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>
-        </div>
+        {% for status_val, status_label in filters.status_display %}
+          <div class="badge badge-secondary gap-1">
+            <span>{{ status_label }}</span>
+            <button type="button"
+                    class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
+                    data-filter="status"
+                    data-value="{{ status_val }}">{% heroicon_mini "x-mark" %}</button>
+          </div>
+        {% endfor %}
       {% endif %}
       {% if filters.score %}
-        <div class="badge badge-secondary gap-1" data-filter="score">
-          <span>{% if filters.score == 'none' %}{% translate "Not rated" %}{% else %}{{ filters.score }}⭐ - {{ filters.score_display|default:filters.score }}{% endif %}</span>
-          <button type="button"
-                  class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
-                  data-filter="score">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>
-        </div>
+        {% for score_val, score_label in filters.score_display %}
+          <div class="badge badge-secondary gap-1">
+            <span>{{ score_label }}</span>
+            <button type="button"
+                    class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
+                    data-filter="score"
+                    data-value="{{ score_val }}">{% heroicon_mini "x-mark" %}</button>
+          </div>
+        {% endfor %}
       {% endif %}
       {% if filters.review_from or filters.review_to %}
         <div class="badge badge-secondary gap-1" data-filter="review">
@@ -99,8 +129,36 @@
             {% if filters.review_from and filters.review_to %}→{% endif %}
           {{ filters.review_to }}</span>
           <button type="button"
-                  class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
-                  data-filter="review">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>
+                  class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
+                  data-filter="review">{% heroicon_mini "x-mark" %}</button>
+        </div>
+      {% endif %}
+      {% if filters.has_review %}
+        <div class="badge badge-secondary gap-1" data-filter="has_review">
+          <span>
+            {% if filters.has_review == 'empty' %}
+              {% translate "No review" %}
+            {% else %}
+              {% translate "Has review" %}
+            {% endif %}
+          </span>
+          <button type="button"
+                  class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
+                  data-filter="has_review">{% heroicon_mini "x-mark" %}</button>
+        </div>
+      {% endif %}
+      {% if filters.has_cover %}
+        <div class="badge badge-secondary gap-1" data-filter="has_cover">
+          <span>
+            {% if filters.has_cover == 'empty' %}
+              {% translate "No cover" %}
+            {% else %}
+              {% translate "Has cover" %}
+            {% endif %}
+          </span>
+          <button type="button"
+                  class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
+                  data-filter="has_cover">{% heroicon_mini "x-mark" %}</button>
         </div>
       {% endif %}
       {% if contributor %}
@@ -109,15 +167,13 @@
              id="contributor-badge">
           <span id="contributor-badge-name">{{ contributor.name }}</span>
           <button type="button"
-                  class="btn btn-ghost btn-xs btn-circle filter-badge-remove"
-                  data-filter="contributor">{% heroicon_mini "x-mark" class="w-4 h-4" %}</button>
+                  class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
+                  data-filter="contributor">{% heroicon_mini "x-mark" %}</button>
         </div>
       {% endif %}
     </div>
-    <input type="hidden"
-           id="contributor"
-           name="contributor"
-           value="{{ contributor.id|default:'' }}" />
   </div>
+  {# Filters drawer #}
+  {% include "partials/filters-drawer.html" %}
   {% include "partials/media-list.html" %}
 {% endblock content %}

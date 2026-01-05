@@ -30,7 +30,12 @@
 
 /* Form validation error styles */
 .label-text-alt {
-  @apply inline-block max-w-full break-words whitespace-normal;
+  @apply inline-block max-w-full wrap-break-word whitespace-normal;
+}
+
+/* Force checkboxes to be square */
+.checkbox {
+  border-radius: 0.25rem;
 }
 
 /* Markdown content styles */

@@ -73,3 +73,86 @@ def status_badge_class(status):
     """
 
     return STATUS_CLASSES.get(status, "badge-ghost")
+
+
+@register.simple_tag
+def query_string(request, **kwargs):
+    """
+    Build a query string from current GET parameters, with updates from kwargs.
+
+    Args:
+        request: The current request object
+        **kwargs: Parameters to add/update/remove (None to remove)
+
+    Returns:
+        Query string with all parameters (including multi-value params)
+
+    Example usage:
+        <a href="?{% query_string request view_mode='grid' %}">Grid</a>
+        <a href="?{% query_string request sort=None %}">Clear sort</a>
+    """
+    if not hasattr(request, "GET"):
+        return ""
+
+    # Start with a copy of current GET parameters (handles multi-value)
+    params = request.GET.copy()
+
+    # Update with provided kwargs
+    for key, value in kwargs.items():
+        if value is None:
+            # Remove parameter
+            params.pop(key, None)
+        else:
+            # Set parameter (replaces all values)
+            params[key] = value
+
+    # Build query string
+    return params.urlencode() if params else ""
+
+
+@register.simple_tag
+def query_string_exclude(request, *exclude_keys):
+    """
+    Build a query string from current GET parameters, excluding specified keys.
+
+    Args:
+        request: The current request object
+        *exclude_keys: Parameter names to exclude
+
+    Returns:
+        Query string with all parameters except excluded ones
+
+    Example usage:
+        <a href="?{% query_string_exclude request 'page' %}">Without page</a>
+    """
+    if not hasattr(request, "GET"):
+        return ""
+
+    params = request.GET.copy()
+
+    for key in exclude_keys:
+        params.pop(key, None)
+
+    return params.urlencode() if params else ""
+
+
+@register.filter
+def toggle_sort_direction(sort_value):
+    """
+    Toggle the direction of a sort parameter.
+
+    Args:
+        sort_value: Current sort value (e.g., '-review_date' or 'review_date')
+
+    Returns:
+        Sort value with inverted direction
+
+    Example usage:
+        {{ sort|toggle_sort_direction }}
+    """
+    if not sort_value:
+        return "review_date"
+
+    if sort_value.startswith("-"):
+        return sort_value[1:]
+    return f"-{sort_value}"

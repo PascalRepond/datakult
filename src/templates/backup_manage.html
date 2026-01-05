@@ -23,7 +23,7 @@
       <div class="card bg-base-200 shadow-xl">
         <div class="card-body">
           <h2 class="card-title">
-            {% heroicon_outline "arrow-down-tray" class="w-6 h-6" %}
+            {% heroicon_mini "arrow-down-tray" %}
             {% translate "Export Backup" %}
           </h2>
           <p class="text-sm opacity-70">
@@ -44,7 +44,7 @@
             <button id="export-backup-btn"
                     class="btn btn-primary"
                     onclick="downloadBackup(this)">
-              {% heroicon_outline "arrow-down-tray" class="w-5 h-5" %}
+              {% heroicon_mini "arrow-down-tray" %}
               {% translate "Download Backup" %}
             </button>
           </div>
@@ -54,7 +54,7 @@
       <div class="card bg-base-200 shadow-xl border-2 border-warning">
         <div class="card-body">
           <h2 class="card-title text-warning">
-            {% heroicon_outline "arrow-up-tray" class="w-6 h-6" %}
+            {% heroicon_mini "arrow-up-tray" %}
             {% translate "Import Backup" %}
           </h2>
           <p class="text-sm opacity-70">{% translate "Restore your data from a backup archive." %}</p>
@@ -93,7 +93,7 @@
               <button type="button"
                       onclick="this.form.checkValidity() && (document.getElementById('confirm-import-modal').checked = true) || this.form.reportValidity()"
                       class="btn btn-warning">
-                {% heroicon_outline "arrow-up-tray" class="w-5 h-5" %}
+                {% heroicon_mini "arrow-up-tray" %}
                 {% translate "Import Backup" %}
               </button>
             </div>
@@ -105,7 +105,7 @@
     <div class="mt-8 card bg-base-100 shadow-xl">
       <div class="card-body">
         <h3 class="card-title text-lg">
-          {% heroicon_outline "information-circle" class="w-6 h-6" %}
+          {% heroicon_outline "information-circle" %}
           {% translate "Backup Information" %}
         </h3>
         <div class="divider"></div>
@@ -145,10 +145,12 @@
     </div>
     <!-- Back Button -->
     <div class="mt-6">
-      <a href="{% url 'home' %}" class="btn btn-ghost">
-        {% heroicon_outline "arrow-left" class="w-5 h-5" %}
+      <button type="button"
+              onclick="history.length> 1 ? history.back() : window.location.href='{% url 'home' %}'"
+              class="btn btn-ghost">
+        {% heroicon_outline "arrow-left" %}
         {% translate "Back to Home" %}
-      </a>
+      </button>
     </div>
   </div>
   {# Confirmation modal for backup import #}

@@ -9,7 +9,6 @@ urlpatterns = [
     path("media/<int:pk>/", views.media_detail, name="media_detail"),
     path("media/<int:pk>/edit/", views.media_edit, name="media_edit"),
     path("media/<int:pk>/delete/", views.media_delete, name="media_delete"),
-    path("search/", views.search_media, name="search"),
     path("load-more/", views.load_more_media, name="load_more_media"),
     path("agents/search-htmx/", views.agent_search_htmx, name="agent_search_htmx"),
     path("agents/select-htmx/", views.agent_select_htmx, name="agent_select_htmx"),
