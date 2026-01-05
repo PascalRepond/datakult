@@ -1,22 +1,11 @@
 {% load i18n %}
+{% load media_tags %}
 {# Reusable view mode toggle. #}
-<input type="hidden"
-       id="view-mode-input"
-       name="view_mode"
-       value="{{ view_mode|default:'grid' }}" />
 <div class="join" id="view-mode">
-        <button class="join-item btn {% if view_mode == 'grid' %}btn-active{% endif %}"
-                hx-get="{% url 'home' %}?view_mode=grid"
-                hx-target="#media-list"
-                hx-include="#sort, #contributor, #type, #status, #score, #review-from, #review-to"
-                hx-push-url="true"
-                hx-on::after-request="document.getElementById('view-mode-input').value = 'grid';"
-                aria-label="{% translate "Grid" %}">{% heroicon_mini "squares-2x2" class="h-4 w-4" %}</button>
-        <button class="join-item btn {% if view_mode == 'list' %}btn-active{% endif %}"
-                hx-get="{% url 'home' %}?view_mode=list"
-                hx-target="#media-list"
-                hx-include="#sort, #contributor, #type, #status, #score, #review-from, #review-to"
-                hx-push-url="true"
-                hx-on::after-request="document.getElementById('view-mode-input').value = 'list';"
-                aria-label="{% translate "List" %}">{% heroicon_mini "list-bullet" class="h-4 w-4" %}</button>
+   <a href="?{% query_string request view_mode='grid' %}"
+      class="join-item btn btn-sm sm:btn-md {% if view_mode == 'grid' %}btn-active{% endif %}"
+      aria-label="{% translate "Grid" %}">{% heroicon_mini "squares-2x2" %}</a>
+   <a href="?{% query_string request view_mode='list' %}"
+      class="join-item btn btn-sm sm:btn-md {% if view_mode == 'list' %}btn-active{% endif %}"
+      aria-label="{% translate "List" %}">{% heroicon_mini "list-bullet" %}</a>
 </div>

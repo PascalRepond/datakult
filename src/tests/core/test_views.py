@@ -162,11 +162,11 @@ class TestMediaDeleteView:
 
 
 class TestSearchView:
-    """Tests for the search view."""
+    """Tests for the search view (integrated into index view)."""
 
     def test_search_with_query(self, logged_in_client, media):
         """Search returns results matching the query."""
-        response = logged_in_client.get(reverse("search"), {"search": media.title})
+        response = logged_in_client.get(reverse("home"), {"search": media.title})
 
         assert response.status_code == 200
 
@@ -175,7 +175,7 @@ class TestSearchView:
         media_factory(title="Unique Title Here")
         media_factory(title="Other Book")
 
-        response = logged_in_client.get(reverse("search"), {"search": "Unique"})
+        response = logged_in_client.get(reverse("home"), {"search": "Unique"})
 
         assert len(response.context["media_list"]) == 1
 
@@ -185,7 +185,7 @@ class TestSearchView:
         media = Media.objects.create(title="Some Book", media_type="BOOK")
         media.contributors.add(agent)
 
-        response = logged_in_client.get(reverse("search"), {"search": "Famous"})
+        response = logged_in_client.get(reverse("home"), {"search": "Famous"})
 
         assert media in response.context["media_list"]
 
@@ -253,21 +253,21 @@ class TestSortingHelper:
         response = logged_in_client.get(reverse("home"))
 
         assert response.context["sort_field"] == "review_date"
-        assert response.context["order_by"] == "-review_date"
+        assert response.context["sort"] == "-review_date"
 
     def test_custom_sorting(self, logged_in_client):
         """Custom sorting is applied."""
         response = logged_in_client.get(reverse("home"), {"sort": "score"})
 
         assert response.context["sort_field"] == "score"
-        assert response.context["order_by"] == "score"
+        assert response.context["sort"] == "score"
 
     def test_descending_sorting(self, logged_in_client):
         """Descending sorting is applied."""
         response = logged_in_client.get(reverse("home"), {"sort": "-review_date"})
 
         assert response.context["sort_field"] == "review_date"
-        assert response.context["order_by"] == "-review_date"
+        assert response.context["sort"] == "-review_date"
 
     def test_invalid_sort_field_uses_default(self, logged_in_client):
         """Invalid sort field falls back to default."""
@@ -324,6 +324,20 @@ class TestFilteringHelper:
         titles = [m.title for m in response.context["media_list"]]
         assert "Unrated" in titles
         assert "Rated" not in titles
+
+    def test_filter_with_invalid_date_ignores_filter(self, logged_in_client, media_factory):
+        """Invalid date values in URL are silently ignored."""
+        media_factory(title="Recent", review_date="2025-01-01")
+        media_factory(title="Old", review_date="2020-01-01")
+
+        # Try with invalid date format - should not crash and return all results
+        response = logged_in_client.get(reverse("home"), {"review_from": "not-a-date"})
+
+        assert response.status_code == 200
+        titles = [m.title for m in response.context["media_list"]]
+        # Both should be present since the invalid filter was ignored
+        assert "Recent" in titles
+        assert "Old" in titles
 
 
 class TestMediaReviewHtmxViews:
@@ -569,7 +583,7 @@ class TestPaginationBehavior:
         for i in range(25):
             media_factory(title=f"Searchable {i}")
 
-        response = logged_in_client.get(reverse("search"), {"search": "Searchable"})
+        response = logged_in_client.get(reverse("home"), {"search": "Searchable"})
 
         assert response.status_code == 200
         assert len(response.context["media_list"]) == 20
@@ -733,8 +747,8 @@ class TestMediaDetailView:
         response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
         content = response.content.decode("utf-8")
 
-        # Should contain a normal link (not HTMX) to home with contributor filter
-        expected_url = f'href="/?contributor={agent.id}"'
-        assert expected_url in content
+        # Should contain a link to home with contributor filter
+        assert f"contributor={agent.id}" in content
+        assert 'class="link link-hover contributor-link"' in content
         # Should NOT contain HTMX attributes for contributor links
         assert "hx-target" not in content

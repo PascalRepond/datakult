@@ -18,7 +18,7 @@
           {% if media.pub_year %}<span class="text-2xl opacity-70 font-normal">({{ media.pub_year }})</span>{% endif %}
         </h1>
       </div>
-      <a href="{% url 'media_edit' media.pk %}" class="btn btn-primary">{% heroicon_outline "pencil" %}{% translate "Edit" %}</a>
+      <a href="{% url 'media_edit' media.pk %}" class="btn btn-primary">{% heroicon_mini "pencil-square" %}{% translate "Edit" %}</a>
     </div>
     {# Main content #}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -50,7 +50,7 @@
             {# Contributors #}
             {% if media.contributors.all %}
               <div class="flex items-center gap-2 flex-wrap">
-                {% heroicon_outline "user" class="w-5 h-5 opacity-50 shrink-0" %}
+                {% heroicon_mini "user" class="opacity-50 shrink-0" %}
                 <div class="flex flex-wrap gap-1">{% include "partials/media-contributors.html" with use_htmx=False %}</div>
               </div>
             {% endif %}
@@ -60,7 +60,7 @@
                  target="_blank"
                  rel="noopener noreferrer"
                  class="link link-primary text-sm flex items-center gap-2">
-                {% heroicon_outline "arrow-top-right-on-square" class="w-5 h-5 shrink-0" %}
+                {% heroicon_mini "arrow-top-right-on-square" class="shrink-0" %}
                 <span class="truncate">{% translate "External metadata" %}</span>
               </a>
             {% endif %}
@@ -82,7 +82,7 @@
                 <div class="flex items-center gap-2">{% include "partials/media-status-badge.html" %}</div>
                 {% if media.review_date %}
                   <div class="flex items-center gap-2 text-sm opacity-70">
-                    {% heroicon_outline "calendar" class="w-5 h-5" %}
+                    {% heroicon_mini "calendar" %}
                     <span>{{ media.review_date }}</span>
                   </div>
                 {% endif %}
