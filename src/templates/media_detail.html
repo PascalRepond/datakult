@@ -9,19 +9,10 @@
     {# Header #}
     <div class="flex justify-between items-start gap-4 mb-6">
       <div class="flex-1">
-        <div class="flex items-center gap-2 mb-2">
-          <a href="{% url 'home' %}"
-             class="btn btn-ghost btn-sm btn-circle"
-             aria-label="{% translate "Back to list" %}">{% heroicon_outline "arrow-left" class="w-5 h-5" %}</a>
-          <div class="breadcrumbs text-sm">
-            <ul>
-              <li>
-                <a href="{% url 'home' %}">{% translate "My media" %}</a>
-              </li>
-              <li>{{ media.title }}</li>
-            </ul>
-          </div>
-        </div>
+        <button type="button"
+                onclick="history.length > 1 ? history.back() : window.location.href='{% url 'home' %}'"
+                class="btn btn-ghost btn-sm btn-circle"
+                aria-label="{% translate "Back" %}">{% heroicon_outline "arrow-left" %}</button>
         <h1 class="text-4xl font-bold">
           {{ media.title }}
           {% if media.pub_year %}<span class="text-2xl opacity-70 font-normal">({{ media.pub_year }})</span>{% endif %}
@@ -103,7 +94,7 @@
         {% if media.review %}
           <div class="card bg-base-200 shadow-md">
             <div class="card-body">
-              <div class="prose max-w-none">{{ media.review_rendered|safe }}</div>
+              <div class="review-text">{{ media.review_rendered|safe }}</div>
             </div>
           </div>
         {% endif %}
