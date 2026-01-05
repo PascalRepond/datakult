@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.2.2 (2026-01-05)
+
+### Bug Fixes
+
+- Back button in media detail and edit views
+  ([`1b34afd`](https://github.com/PascalRepond/datakult/commit/1b34afda51305d81ca4fbb045189bdd12160f572))
+
+### Refactoring
+
+- Simplify filters with URL-based state and multi-select support
+  ([`0c9bce9`](https://github.com/PascalRepond/datakult/commit/0c9bce9e5dc967f80d3e8568a427f1d7d1eae157))
+
+
 ## v1.2.1 (2026-01-04)
 
 ### Bug Fixes
