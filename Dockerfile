@@ -29,9 +29,8 @@ ENV MEDIA_ROOT=/app/data/media
 
 WORKDIR /app
 
-# Install cron, gettext and other system dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    cron \
     gettext \
     && rm -rf /var/lib/apt/lists/*
 
@@ -56,14 +55,6 @@ RUN mkdir -p /app/data/media /app/data/backups
 # Copy backup script
 COPY scripts/daily_backup.sh /app/daily_backup.sh
 RUN chmod +x /app/daily_backup.sh
-
-# Setup cron job for daily backups at 1 AM
-# Include PATH to ensure uv and other binaries are available
-# Output goes to both log file and stdout (for docker logs visibility)
-RUN echo "PATH=/usr/local/bin:/usr/bin:/bin" > /etc/cron.d/datakult-backup && \
-    echo "0 1 * * * /app/daily_backup.sh 2>&1 | tee -a /var/log/cron.log" >> /etc/cron.d/datakult-backup && \
-    chmod 0644 /etc/cron.d/datakult-backup && \
-    touch /var/log/cron.log
 
 # Copy entrypoint script
 COPY scripts/entrypoint.sh /app/entrypoint.sh
