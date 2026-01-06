@@ -7,7 +7,7 @@ register = template.Library()
 
 MEDIA_TYPE_ICONS = {
     "BOOK": "book-open",
-    "GAME": "computer-desktop",
+    "GAME": "puzzle-piece",
     "MUSIC": "musical-note",
     "COMIC": "book-open",
     "FILM": "film",
