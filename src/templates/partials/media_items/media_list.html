@@ -4,7 +4,7 @@
     {% if view_mode == 'grid' %}
       {# Grid view - Cards layout #}
       <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mt-4"
-           id="media-container">{% include "partials/media-items-page.html" %}</div>
+           id="media-container">{% include "partials/media_items/media_list_page.html" %}</div>
     {% else %}
       {# List view - Table layout #}
       <div class="overflow-x-auto mt-4">
@@ -20,7 +20,7 @@
             </tr>
           </thead>
           <tbody>
-            {% include "partials/media-items-page.html" %}
+            {% include "partials/media_items/media_list_page.html" %}
           </tbody>
         </table>
       </div>

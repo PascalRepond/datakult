@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base/base.html" %}
 {% load i18n %}
 {% block title %}
   {% translate "Edit Profile" %} - Datakult
@@ -22,7 +22,7 @@
           <input type="hidden" name="update_profile" value="1">
           <div class="form-control">
             <label class="label" for="id_username">
-              {% include "partials/field_label.html" with label=_("Username") field=profile_form.username %}
+              {% include "partials/common/field_label.html" with label=_("Username") field=profile_form.username %}
             </label>
             {{ profile_form.username }}
             <label class="label" id="error-username">
@@ -33,7 +33,7 @@
           </div>
           <div class="form-control">
             <label class="label" for="id_email">
-              {% include "partials/field_label.html" with label=_("Email") field=profile_form.email %}
+              {% include "partials/common/field_label.html" with label=_("Email") field=profile_form.email %}
             </label>
             {{ profile_form.email }}
             <label class="label" id="error-email">
@@ -44,7 +44,7 @@
           </div>
           <div class="form-control">
             <label class="label" for="id_first_name">
-              {% include "partials/field_label.html" with label=_("First name") field=profile_form.first_name %}
+              {% include "partials/common/field_label.html" with label=_("First name") field=profile_form.first_name %}
             </label>
             {{ profile_form.first_name }}
             <label class="label" id="error-first_name">
@@ -55,7 +55,7 @@
           </div>
           <div class="form-control">
             <label class="label" for="id_last_name">
-              {% include "partials/field_label.html" with label=_("Last name") field=profile_form.last_name %}
+              {% include "partials/common/field_label.html" with label=_("Last name") field=profile_form.last_name %}
             </label>
             {{ profile_form.last_name }}
             <label class="label" id="error-last_name">

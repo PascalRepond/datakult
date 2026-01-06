@@ -30,18 +30,20 @@
               <h3 class="card-title inline">{{ media.title }}</h3>
             </a>
             {% if media.pub_year %}<span class="opacity-70">({{ media.pub_year }})</span>{% endif %}
-            <div>{% include "partials/media-contributors.html" %}</div>
+            <div>{% include "partials/media_items/media_contributors.html" %}</div>
           </div>
-          {% include "partials/media-edit-button.html" %}
+          {% include "partials/media_items/media_edit_button.html" %}
         </div>
-        {% include "partials/media-status-badge.html" %}
+        {% include "partials/media_items/media_status_badge.html" %}
         {% if media.score %}
-          <div class="mt-2">{% include "partials/media-score-stars.html" with size="sm" show_badge=False %}</div>
-          {% include "partials/media-score-badge.html" %}
+          <div class="mt-2">
+            {% include "partials/media_items/score/media_score_stars.html" with size="sm" show_badge=False %}
+          </div>
+          {% include "partials/media_items/score/media_score_badge.html" %}
         {% endif %}
         {% if media.review %}
           <div id="review-cell-{{ media.id }}" class="text-sm review-text">
-            {% include "partials/media-review-clamped.html" %}
+            {% include "partials/media_items/media_review_clamped.html" %}
           </div>
         {% endif %}
       </div>
@@ -53,7 +55,7 @@
     <tr>
       {# Cover with media type badge #}
       <td class="align-top p-2">
-        <a href="{% url 'media_detail' media.pk %}">{% include "partials/media-cover.html" %}</a>
+        <a href="{% url 'media_detail' media.pk %}">{% include "partials/media_items/media_cover.html" %}</a>
       </td>
       {# Title, contributors #}
       <td class="align-top p-2">
@@ -67,11 +69,11 @@
             </a>
           </div>
           {% if media.contributors.all %}
-            <div class="text-sm opacity-70">{% include "partials/media-contributors.html" %}</div>
+            <div class="text-sm opacity-70">{% include "partials/media_items/media_contributors.html" %}</div>
           {% endif %}
           {# Show badge on small screens only (hidden from md+) #}
           {% if media.score %}
-            <div class="md:hidden shrink-0">{% include "partials/media-score-badge.html" with size="sm" %}</div>
+            <div class="md:hidden shrink-0">{% include "partials/media_items/score/media_score_badge.html" with size="sm" %}</div>
           {% endif %}
         </div>
       </td>
@@ -79,17 +81,19 @@
       <td class="align-top p-2 hidden md:table-cell">
         {% if media.score %}
           {# Show only badge on medium screens, stars + badge on large screens #}
-          <div class="mb-2 hidden xl:block">{% include "partials/media-score-stars.html" with size="sm" %}</div>
-          <div class="mb-2 xl:hidden">{% include "partials/media-score-badge.html" with size="sm" %}</div>
+          <div class="mb-2 hidden xl:block">
+            {% include "partials/media_items/score/media_score_stars.html" with size="sm" %}
+          </div>
+          <div class="mb-2 xl:hidden">{% include "partials/media_items/score/media_score_badge.html" with size="sm" %}</div>
         {% endif %}
         {% if media.review %}
           <div id="review-cell-{{ media.id }}" class="text-sm max-w-200 review-text">
-            {% include "partials/media-review-clamped.html" %}
+            {% include "partials/media_items/media_review_clamped.html" %}
           </div>
         {% endif %}
       </td>
       {# Status #}
-      <td class="align-top p-2 hidden sm:table-cell">{% include "partials/media-status-badge.html" %}</td>
+      <td class="align-top p-2 hidden sm:table-cell">{% include "partials/media_items/media_status_badge.html" %}</td>
       {# Review date #}
       <td class="align-top p-2 hidden lg:table-cell">
         {% if media.review_date %}
@@ -99,7 +103,7 @@
         {% endif %}
       </td>
       {# Actions #}
-      <td class="align-top p-2">{% include "partials/media-edit-button.html" %}</td>
+      <td class="align-top p-2">{% include "partials/media_items/media_edit_button.html" %}</td>
     </tr>
   {% endfor %}
 {% endif %}

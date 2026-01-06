@@ -31,7 +31,7 @@ STATUS_CLASSES = {
 }
 
 
-@register.inclusion_tag("partials/media-icon.html")
+@register.inclusion_tag("partials/media_items/media_icon.html")
 def media_icon(media_type, size="sm"):
     """
     Render a heroicon based on media type.

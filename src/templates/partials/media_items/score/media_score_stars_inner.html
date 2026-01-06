@@ -12,6 +12,6 @@
   </div>
   {# Score badge with label (optional) #}
   {% if show_badge != False %}
-    <div class="flex items-center gap-2">{% include "partials/media-score-badge.html" with size=badge_size %}</div>
+    {% include "partials/media_items/score/media_score_badge.html" with size=badge_size %}
   {% endif %}
 </div>

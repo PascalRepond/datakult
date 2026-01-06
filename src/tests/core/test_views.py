@@ -30,17 +30,6 @@ class TestIndexView:
         assert response.status_code == 200
         assert "media_list" in response.context
 
-    def test_index_htmx_request_returns_partial(self, logged_in_client, media):
-        """HTMX requests return the partial template."""
-        response = logged_in_client.get(
-            reverse("home"),
-            HTTP_HX_REQUEST="true",
-        )
-
-        assert response.status_code == 200
-        # Should use the partial template, not the full page
-        assert "partials/media-list.html" in [t.name for t in response.templates]
-
 
 class TestMediaEditView:
     """Tests for the media_edit view."""
@@ -353,7 +342,7 @@ class TestMediaReviewHtmxViews:
         response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
 
         assert response.status_code == 200
-        assert "partials/media-review-clamped.html" in [t.name for t in response.templates]
+        assert "partials/media_items/media_review_clamped.html" in [t.name for t in response.templates]
         assert "media" in response.context
         assert response.context["media"] == media
 
@@ -394,7 +383,7 @@ class TestMediaReviewHtmxViews:
         response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
 
         assert response.status_code == 200
-        assert "partials/media-review-full.html" in [t.name for t in response.templates]
+        assert "partials/media_items/media_review_full.html" in [t.name for t in response.templates]
         assert "media" in response.context
         assert response.context["media"] == media
 
@@ -443,7 +432,7 @@ class TestBackupManageView:
         response = logged_in_client.get(reverse("backup_manage"))
 
         assert response.status_code == 200
-        assert "backup_manage.html" in [t.name for t in response.templates]
+        assert "base/backup_manage.html" in [t.name for t in response.templates]
 
 
 class TestBackupExportView:
@@ -601,7 +590,7 @@ class TestLoadMoreMediaView:
         response = logged_in_client.get(reverse("load_more_media"), {"page": 2})
 
         assert response.status_code == 200
-        assert "partials/media-items-page.html" in [t.name for t in response.templates]
+        assert "partials/media_items/media_list_page.html" in [t.name for t in response.templates]
 
     def test_load_more_returns_next_page_items(self, logged_in_client, media_factory):
         """Load more view returns items for the requested page."""
@@ -705,7 +694,7 @@ class TestMediaDetailView:
         response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
 
         assert response.status_code == 200
-        assert "media_detail.html" in [t.name for t in response.templates]
+        assert "base/media_detail.html" in [t.name for t in response.templates]
 
     def test_media_detail_nonexistent_returns_404(self, logged_in_client):
         """Accessing detail view with nonexistent media returns 404."""

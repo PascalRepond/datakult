@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base/base.html" %}
 {% load static %}
 {% load i18n %}
 {% block title %}
@@ -154,7 +154,7 @@
     </div>
   </div>
   {# Confirmation modal for backup import #}
-  {% include "partials/confirm-modal.html" with modal_id="confirm-import-modal" title=_("⚠️ WARNING: Destructive Action") message=_("This action will DELETE ALL your current data and replace it with the backup data. Are you absolutely sure you want to continue?") confirm_text=_("Yes, import backup") is_danger=True form_id="import-backup-form" %}
+  {% include "partials/common/confirm_modal.html" with modal_id="confirm-import-modal" title=_("⚠️ WARNING: Destructive Action") message=_("This action will DELETE ALL your current data and replace it with the backup data. Are you absolutely sure you want to continue?") confirm_text=_("Yes, import backup") is_danger=True form_id="import-backup-form" %}
   <script>
     async function downloadBackup(btn) {
       btn.classList.add('loading');
