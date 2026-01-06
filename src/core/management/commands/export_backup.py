@@ -30,7 +30,7 @@ class Command(BaseCommand):
         output_dir = Path(options["output"]) if options["output"] else None
         filename = options["filename"]
 
-        self.stdout.write("Creating backup...")
+        self.stdout.write("Creating backup…")
 
         try:
             backup_path = create_backup(output_dir=output_dir, filename=filename)

@@ -33,7 +33,7 @@ class Command(BaseCommand):
 
         try:
             # Create the backup
-            self.stdout.write("Creating backup...")
+            self.stdout.write("Creating backup…")
             backup_path = create_backup(output_dir=output_dir)
             self.stdout.write(self.style.SUCCESS(f"✓ Backup created: {backup_path}"))
 
@@ -51,7 +51,7 @@ class Command(BaseCommand):
             # Delete old backups if we have more than keep_count
             if len(backup_files) > keep_count:
                 files_to_delete = backup_files[keep_count:]
-                self.stdout.write(f"Found {len(backup_files)} backups, keeping {keep_count} most recent...")
+                self.stdout.write(f"Found {len(backup_files)} backups, keeping {keep_count} most recent…")
 
                 for old_backup in files_to_delete:
                     self.stdout.write(f"Deleting old backup: {old_backup.name}")

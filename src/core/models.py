@@ -39,7 +39,7 @@ def compress_image(image, max_size=(800, 800), quality=85):
         # Step 1: Validate file size (in bytes)
         max_size_bytes = MAX_FILE_SIZE_MB * 1024 * 1024
         if hasattr(image, "size") and image.size > max_size_bytes:
-            raise ValidationError(_("Image file size exceeds %sMB limit.") % MAX_FILE_SIZE_MB)
+            raise ValidationError(_("Image file size exceeds %(max_size)sMB limit.") % {"max_size": MAX_FILE_SIZE_MB})
 
         # Step 2: Set decompression bomb protection
         Image.MAX_IMAGE_PIXELS = MAX_IMAGE_PIXELS
@@ -55,7 +55,8 @@ def compress_image(image, max_size=(800, 800), quality=85):
         # Step 4: Validate image format
         if img.format not in ALLOWED_IMAGE_TYPES:
             raise ValidationError(
-                _("Unsupported image format: %s. Allowed: %s") % (img.format, ", ".join(ALLOWED_IMAGE_TYPES))
+                _("Unsupported image format: %(format)s. Allowed: %(allowed)s")
+                % {"format": img.format, "allowed": ", ".join(ALLOWED_IMAGE_TYPES)}
             )
 
         # Step 5: Preserve EXIF orientation

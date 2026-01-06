@@ -28,7 +28,7 @@ class Command(BaseCommand):
 
     def _extract_backup(self, backup_file: Path, temp_path: Path) -> None:
         """Extract the backup archive with security checks."""
-        self.stdout.write("Extracting backup archive...")
+        self.stdout.write("Extracting backup archive…")
         with tarfile.open(backup_file, "r:gz") as tar:
             # Security check: ensure all paths are safe
             for member in tar.getmembers():
@@ -42,7 +42,7 @@ class Command(BaseCommand):
     def _import_database(self, temp_path: Path, *, flush: bool) -> None:
         """Import the database from the backup."""
         if flush:
-            self.stdout.write("Flushing existing database...")
+            self.stdout.write("Flushing existing database…")
             call_command("flush", interactive=False, verbosity=0)
 
         database_file = temp_path / "database.json"
@@ -50,14 +50,14 @@ class Command(BaseCommand):
             msg = "database.json not found in backup archive"
             raise CommandError(msg)
 
-        self.stdout.write("Importing database...")
+        self.stdout.write("Importing database…")
         call_command("loaddata", str(database_file), verbosity=1)
 
     def _import_media(self, temp_path: Path) -> None:
         """Import media files from the backup."""
         media_backup = temp_path / "media"
         if media_backup.exists():
-            self.stdout.write("Importing media files...")
+            self.stdout.write("Importing media files…")
             media_root = Path(settings.MEDIA_ROOT)
             media_root.mkdir(parents=True, exist_ok=True)
 

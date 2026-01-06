@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, **options):  # noqa: ARG002
         """Execute the review regeneration."""
-        self.stdout.write("Regenerating rendered reviews...")
+        self.stdout.write("Regenerating rendered reviews…")
 
         # Get all Media objects that have a non-empty review
         media_with_reviews = Media.objects.exclude(review="")
@@ -22,7 +22,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING("No media with reviews found."))
             return
 
-        self.stdout.write(f"Found {total_count} media with reviews to process...")
+        self.stdout.write(f"Found {total_count} media with reviews to process…")
 
         # Process each media object
         updated_count = 0
@@ -34,6 +34,6 @@ class Command(BaseCommand):
 
             # Show progress every 10 items
             if updated_count % 10 == 0:
-                self.stdout.write(f"  Processed {updated_count}/{total_count}...")
+                self.stdout.write(f"  Processed {updated_count}/{total_count}…")
 
         self.stdout.write(self.style.SUCCESS(f"✓ Successfully regenerated {updated_count} rendered reviews"))

@@ -6,11 +6,11 @@ Parameters:
   - color: "primary", "secondary", "accent", "neutral" (default: "primary")
   - htmx_indicator: boolean - add htmx-indicator class (default: false)
   - show_text: boolean - show loading text (default: false)
-  - text: custom loading text (default: "Loading...")
+  - text: custom loading text (default: "Loading…")
   - inline: boolean - display inline with text (default: false)
 {% endcomment %}
 {% load i18n %}
 <div {% if id %}id="{{ id }}"{% endif %}
      class="loading loading-spinner loading-{{ size|default:'md' }} text-{{ color|default:'primary' }} {% if htmx_indicator %}htmx-indicator{% endif %} {% if inline %}inline-block{% endif %}">
 </div>
-{% if show_text %}<span class="ml-2">{{ text|default:_("Loading...") }}</span>{% endif %}
+{% if show_text %}<span class="ml-2">{{ text|default:_("Loading…") }}</span>{% endif %}
