@@ -4,15 +4,15 @@
 {# Parameters: show_badge (optional) - show score badge, default True #}
 {% if size == 'sm' %}
   {% with rating_size="rating-sm" badge_size="sm" gap_size="gap-2" %}
-    {% include "partials/media-score-stars-inner.html" %}
+    {% include "partials/media_items/score/media_score_stars_inner.html" %}
   {% endwith %}
 {% elif size == 'lg' %}
   {% with rating_size="rating-lg" badge_size="lg" gap_size="gap-3" %}
-    {% include "partials/media-score-stars-inner.html" %}
+    {% include "partials/media_items/score/media_score_stars_inner.html" %}
   {% endwith %}
 {% else %}
   {# Default: medium size #}
   {% with rating_size="rating-md" badge_size="md" gap_size="gap-2" %}
-    {% include "partials/media-score-stars-inner.html" %}
+    {% include "partials/media_items/score/media_score_stars_inner.html" %}
   {% endwith %}
 {% endif %}

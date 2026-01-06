@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base/base.html" %}
 {% load i18n %}
 {% load static %}
 {% block title %}
@@ -51,7 +51,7 @@
             <div class="card-body p-4">
               <div class="form-control">
                 <label class="label" for="id_cover">
-                  {% include "partials/field_label.html" with label=_("Cover image") field=form.cover %}
+                  {% include "partials/common/field_label.html" with label=_("Cover image") field=form.cover %}
                 </label>
                 {{ form.cover }}
                 <label class="label" id="error-cover">
@@ -65,7 +65,7 @@
             <div class="card-body p-4 space-y-2">
               <div class="form-control">
                 <label class="label" for="id_title">
-                  {% include "partials/field_label.html" with label=_("Title") field=form.title %}
+                  {% include "partials/common/field_label.html" with label=_("Title") field=form.title %}
                 </label>
                 {{ form.title }}
                 <label class="label" id="error-title">
@@ -74,11 +74,11 @@
               </div>
               <div class="form-control">
                 <label class="label" for="id_contributors">
-                  {% include "partials/field_label.html" with label=_("Contributors") field=form.contributors %}
+                  {% include "partials/common/field_label.html" with label=_("Contributors") field=form.contributors %}
                 </label>
                 <div id="contributors-chips" class="flex flex-wrap gap-2 mb-2">
                   {% for contributor in media.contributors.all %}
-                    {% include "partials/contributor-chip.html" with agent=contributor %}
+                    {% include "partials/contributors/contributor_chip.html" with agent=contributor %}
                   {% endfor %}
                 </div>
                 <div class="relative">
@@ -103,7 +103,7 @@
               </div>
               <div class="form-control">
                 <label class="label" for="id_media_type">
-                  {% include "partials/field_label.html" with label=_("Media type") field=form.media_type %}
+                  {% include "partials/common/field_label.html" with label=_("Media type") field=form.media_type %}
                 </label>
                 {{ form.media_type }}
                 <label class="label" id="error-media_type">
@@ -114,7 +114,7 @@
               </div>
               <div class="form-control">
                 <label class="label" for="id_pub_year">
-                  {% include "partials/field_label.html" with label=_("Release year") field=form.pub_year %}
+                  {% include "partials/common/field_label.html" with label=_("Release year") field=form.pub_year %}
                 </label>
                 {{ form.pub_year }}
                 <label class="label" id="error-pub_year">
@@ -123,7 +123,7 @@
               </div>
               <div class="form-control">
                 <label class="label" for="id_external_uri">
-                  {% include "partials/field_label.html" with label=_("External URI") field=form.external_uri %}
+                  {% include "partials/common/field_label.html" with label=_("External URI") field=form.external_uri %}
                 </label>
                 {{ form.external_uri }}
                 <label class="label" id="error-external_uri">
@@ -142,7 +142,7 @@
             <div class="card-body p-4 space-y-2">
               <div class="form-control">
                 <label class="label" for="id_score">
-                  {% include "partials/field_label.html" with label=_("Score") field=form.score %}
+                  {% include "partials/common/field_label.html" with label=_("Score") field=form.score %}
                 </label>
                 {{ form.score }}
                 <label class="label" id="error-score">
@@ -152,7 +152,7 @@
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="form-control">
                   <label class="label" for="id_status">
-                    {% include "partials/field_label.html" with label=_("Status") field=form.status %}
+                    {% include "partials/common/field_label.html" with label=_("Status") field=form.status %}
                   </label>
                   {{ form.status }}
                   <label class="label" id="error-status">
@@ -161,7 +161,7 @@
                 </div>
                 <div class="form-control">
                   <label class="label" for="id_review_date">
-                    <span>{% include "partials/field_label.html" with label=_("Review date") field=form.review_date %}</span>
+                    <span>{% include "partials/common/field_label.html" with label=_("Review date") field=form.review_date %}</span>
                     <button type="button"
                             id="set-today-btn"
                             class="btn btn-xs btn-ghost gap-1"
@@ -185,7 +185,7 @@
             <div class="card-body p-4">
               <div class="form-control">
                 <label class="label" for="id_review">
-                  {% include "partials/field_label.html" with label=_("Review") field=form.review %}
+                  {% include "partials/common/field_label.html" with label=_("Review") field=form.review %}
                 </label>
                 {{ form.review }}
                 <label class="label" id="error-review">
@@ -216,7 +216,7 @@
         {% csrf_token %}
       </form>
       {# Confirmation modal for media deletion #}
-      {% include "partials/confirm-modal.html" with modal_id="confirm-delete-modal" title=_("Delete Media") message=_("Are you sure you want to delete this media? This action cannot be undone.") confirm_text=_("Yes, delete") is_danger=True form_id="delete-form" %}
+      {% include "partials/common/confirm_modal.html" with modal_id="confirm-delete-modal" title=_("Delete Media") message=_("Are you sure you want to delete this media? This action cannot be undone.") confirm_text=_("Yes, delete") is_danger=True form_id="delete-form" %}
     {% endif %}
   </div>
 {% endblock content %}

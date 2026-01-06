@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base/base.html" %}
 {% load i18n %}
 {% load media_tags %}
 {% block title %}
@@ -51,7 +51,9 @@
             {% if media.contributors.all %}
               <div class="flex items-center gap-2 flex-wrap">
                 {% heroicon_mini "user" class="opacity-50 shrink-0" %}
-                <div class="flex flex-wrap gap-1">{% include "partials/media-contributors.html" with use_htmx=False %}</div>
+                <div class="flex flex-wrap gap-1">
+                  {% include "partials/media_items/media_contributors.html" with use_htmx=False %}
+                </div>
               </div>
             {% endif %}
             {# External link #}
@@ -75,11 +77,11 @@
             <div class="flex flex-col gap-4">
               {# Score with stars #}
               {% if media.score %}
-                <div>{% include "partials/media-score-stars.html" %}</div>
+                <div>{% include "partials/media_items/score/media_score_stars.html" %}</div>
               {% endif %}
               {# Status and Review date #}
               <div class="flex flex-wrap gap-4 items-center">
-                <div class="flex items-center gap-2">{% include "partials/media-status-badge.html" %}</div>
+                <div class="flex items-center gap-2">{% include "partials/media_items/media_status_badge.html" %}</div>
                 {% if media.review_date %}
                   <div class="flex items-center gap-2 text-sm opacity-70">
                     {% heroicon_mini "calendar" %}

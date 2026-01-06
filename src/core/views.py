@@ -20,7 +20,7 @@ from .utils import create_backup, delete_orphan_agents_by_ids
 def index(request):
     """Main view for displaying media list."""
     context = build_media_context(request)
-    return render(request, "media.html", context)
+    return render(request, "base/media_index.html", context)
 
 
 @login_required
@@ -28,7 +28,7 @@ def media_detail(request, pk):
     """Display detailed view of a single media item."""
     media = get_object_or_404(Media, pk=pk)
     context = {"media": media}
-    return render(request, "media_detail.html", context)
+    return render(request, "base/media_detail.html", context)
 
 
 @login_required
@@ -67,7 +67,7 @@ def media_edit(request, pk=None):
     else:
         form = MediaForm(instance=media)
     context = {"media": media, "form": form}
-    return render(request, "media_edit.html", context)
+    return render(request, "base/media_edit.html", context)
 
 
 @login_required
@@ -88,14 +88,14 @@ def load_more_media(request):
     context = build_media_context(request)
 
     # Return only the items + load more button
-    return render(request, "partials/media-items-page.html", context)
+    return render(request, "partials/media_items/media_list_page.html", context)
 
 
 @login_required
 def agent_search_htmx(request):
     query = request.GET.get("q", "").strip()
     agents = Agent.objects.filter(name__icontains=query).order_by("name")[:12] if query else []
-    return render(request, "partials/contributors-suggestions.html", {"agents": agents})
+    return render(request, "partials/contributors/contributors_suggestions.html", {"agents": agents})
 
 
 @login_required
@@ -104,23 +104,25 @@ def agent_select_htmx(request):
     agent_id = request.POST.get("id")
     try:
         agent = Agent.objects.get(pk=agent_id)
-        return render(request, "partials/contributor-chip.html", {"agent": agent})
+        return render(request, "partials/contributors/contributor_chip.html", {"agent": agent})
     except Agent.DoesNotExist:
-        return render(request, "partials/contributor-chip.html", {"agent": None, "error": "Agent not found"})
+        return render(
+            request, "partials/contributors/contributor_chip.html", {"agent": None, "error": "Agent not found"}
+        )
 
 
 @login_required
 def media_review_clamped_htmx(request, pk):
     """HTMX view: return clamped review for a media item (for table cell collapse)."""
     media = get_object_or_404(Media, pk=pk)
-    return render(request, "partials/media-review-clamped.html", {"media": media})
+    return render(request, "partials/media_items/media_review_clamped.html", {"media": media})
 
 
 @login_required
 def media_review_full_htmx(request, pk):
     """HTMX view: return full review for a media item (for table cell expansion)."""
     media = get_object_or_404(Media, pk=pk)
-    return render(request, "partials/media-review-full.html", {"media": media})
+    return render(request, "partials/media_items/media_review_full.html", {"media": media})
 
 
 @login_required
@@ -186,4 +188,4 @@ def backup_import(request):
 @login_required
 def backup_manage(request):
     """Display backup management page."""
-    return render(request, "backup_manage.html")
+    return render(request, "base/backup_manage.html")
