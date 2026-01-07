@@ -2,6 +2,48 @@
 
 <!-- version list -->
 
+## v1.3.0 (2026-01-07)
+
+### Bug Fixes
+
+- Change language form
+  ([`87dfb24`](https://github.com/PascalRepond/datakult/commit/87dfb24cff365e8080d3a62621c0336390458b70))
+
+### Build System
+
+- Update docker setup
+  ([`3f6faed`](https://github.com/PascalRepond/datakult/commit/3f6faed7f4fb83b7b0b0e511a609e8fdf708d2de))
+
+### Chores
+
+- Migrate from heroicons to lucide icons
+  ([`8770003`](https://github.com/PascalRepond/datakult/commit/8770003b8d893cf0f5e7684f1c0cb6cc967b5b8d))
+
+- Translate new and updated strings
+  ([`d719756`](https://github.com/PascalRepond/datakult/commit/d71975634a5a265f7aa9687c044203d977c0c9b5))
+
+- Update dependencies
+  ([`e45e823`](https://github.com/PascalRepond/datakult/commit/e45e823fdd083ac1501f0a8b1ae196a9c9331b88))
+
+### Features
+
+- **theming**: Add custom daisyUI themes
+  ([`2d27904`](https://github.com/PascalRepond/datakult/commit/2d279043a2cdf73d1adf5c12185f1f447293ada4))
+
+### Refactoring
+
+- Extract helpers and enhance fixtures
+  ([`bc0bd4b`](https://github.com/PascalRepond/datakult/commit/bc0bd4ba2563a47584b487ea2cb056b16c69b2ea))
+
+- Reorganize templates into subdirectories
+  ([`bc1a6ea`](https://github.com/PascalRepond/datakult/commit/bc1a6ea35ede595c6fe8a2b9f4840b1f1597f70c))
+
+### Testing
+
+- Optimise tests
+  ([`ca12abe`](https://github.com/PascalRepond/datakult/commit/ca12abe8371f7eb521611c5183d5c5e81cd196d5))
+
+
 ## v1.2.2 (2026-01-05)
 
 ### Bug Fixes
