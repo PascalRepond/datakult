@@ -101,48 +101,6 @@
         </div>
       </div>
     </div>
-    <!-- Info Section -->
-    <div class="mt-8 card bg-base-100 shadow-xl">
-      <div class="card-body">
-        <h3 class="card-title text-lg">
-          {% lucide "info" %}
-          {% translate "Backup Information" %}
-        </h3>
-        <div class="divider"></div>
-        <div class="space-y-4 text-sm">
-          <div>
-            <h4 class="font-semibold mb-1">📦 {% translate "Backup Format" %}</h4>
-            <p class="opacity-70">
-              {% translate "Backups are compressed archives in" %}
-              <code class="bg-base-300 px-2 py-1 rounded">.tar.gz</code>
-              {% translate "format containing all your data and files." %}
-            </p>
-          </div>
-          <div>
-            <h4 class="font-semibold mb-1">🔄 {% translate "Automatic Backups" %}</h4>
-            <p class="opacity-70">
-              {% translate "An automatic backup is created daily at 1:00 AM. The 7 most recent backups are kept, older ones are automatically deleted." %}
-            </p>
-          </div>
-          <div>
-            <h4 class="font-semibold mb-1">💾 {% translate "Automatic Backup Location" %}</h4>
-            <p class="opacity-70">
-              {% translate "In production (Docker):" %} <code class="bg-base-300 px-2 py-1 rounded">/app/data/backups</code>
-              <br>
-              {% translate "In development:" %} <code class="bg-base-300 px-2 py-1 rounded">./backups</code>
-            </p>
-          </div>
-          <div>
-            <h4 class="font-semibold mb-1">💡 {% translate "Best Practices" %}</h4>
-            <ul class="list-disc list-inside ml-2 opacity-70 space-y-1">
-              <li>{% translate "Regularly download your backups to external storage" %}</li>
-              <li>{% translate "Test your backups periodically in a test instance" %}</li>
-              <li>{% translate "Keep multiple backups to be able to restore from different points in time" %}</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
     <!-- Back Button -->
     <div class="mt-6">
       <button type="button"

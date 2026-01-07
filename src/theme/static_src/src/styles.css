@@ -1,8 +1,78 @@
 @import "tailwindcss";
 
-@plugin "daisyui"{
-  themes: emerald --default, forest --prefersdark;
-};
+@plugin "daisyui";
+
+/* Theme light custom */
+@plugin "daisyui/theme" {
+  name: "datakult-light";
+  default: true;
+  color-scheme: light;
+  --color-primary: #06b6d4;
+  --color-primary-content: #ffffff;
+  --color-secondary: #8b5cf6;
+  --color-secondary-content: #ffffff;
+  --color-accent: #ec4899;
+  --color-accent-content: #ffffff;
+  --color-neutral: #1e293b;
+  --color-neutral-content: #ffffff;
+  --color-base-100: #ffffff;
+  --color-base-200: #f8fafc;
+  --color-base-300: #e2e8f0;
+  --color-base-content: #0f172a;
+  --color-info: #0ea5e9;
+  --color-info-content: #0f172a;
+  --color-success: #10b981;
+  --color-success-content: #0f172a;
+  --color-warning: #f59e0b;
+  --color-warning-content: #0f172a;
+  --color-error: #b92929;
+  --color-error-content: #0f172a;
+  --rounded-box: 0.75rem;
+  --rounded-btn: 0.5rem;
+  --rounded-badge: 0.5rem;
+  --animation-btn: 0.2s;
+  --animation-input: 0.2s;
+  --btn-focus-scale: 0.98;
+  --border-btn: 1px;
+  --tab-border: 1px;
+  --tab-radius: 0.5rem;
+}
+
+/* Theme dark custom */
+@plugin "daisyui/theme" {
+  name: "datakult-dark";
+  prefersdark: true;
+  color-scheme: dark;
+  --color-primary: #22d3ee;
+  --color-primary-content: #072536;
+  --color-secondary: #a78bfa;
+  --color-secondary-content: #1e1b4b;
+  --color-accent: #f472b6;
+  --color-accent-content: #3c091d;
+  --color-neutral: #0f172a;
+  --color-neutral-content: #e2e8f0;
+  --color-base-100: #0f172a;
+  --color-base-200: #1e293b;
+  --color-base-300: #334155;
+  --color-base-content: #f1f5f9;
+  --color-info: #0ea5e9;
+  --color-info-content: #0f172a;
+  --color-success: #10b981;
+  --color-success-content: #0f172a;
+  --color-warning: #f59e0b;
+  --color-warning-content: #0f172a;
+  --color-error: #b92929;
+  --color-error-content: #0f172a;
+  --rounded-box: 0.75rem;
+  --rounded-btn: 0.5rem;
+  --rounded-badge: 0.5rem;
+  --animation-btn: 0.2s;
+  --animation-input: 0.2s;
+  --btn-focus-scale: 0.98;
+  --border-btn: 1px;
+  --tab-border: 1px;
+  --tab-radius: 0.5rem;
+}
 
 /**
   * A catch-all path to Django template files, JavaScript, and Python files
@@ -16,16 +86,15 @@
 
 /* Star rating widget custom styles */
 .star-rating-widget .star-btn {
-  cursor: pointer;
-  transition: transform 0.15s ease, background-color 0.15s ease;
+  @apply cursor-pointer transition-all duration-150 ease-in-out;
 }
 
 .star-rating-widget .star-btn:hover {
-  transform: scale(1.1);
+  @apply scale-110;
 }
 
 .star-rating-widget .star-btn:active {
-  transform: scale(0.95);
+  @apply scale-95;
 }
 
 /* Form validation error styles */
@@ -33,10 +102,23 @@
   @apply inline-block max-w-full wrap-break-word whitespace-normal;
 }
 
-/* Force checkboxes to be square */
+/* Force checkboxes to be squared */
 .checkbox {
-  border-radius: 0.25rem;
+  @apply rounded;
 }
+
+/* Increase opacity for badge-soft in light mode for better visibility */
+[data-theme="datakult-light"] .badge-soft {
+  @apply opacity-100 font-semibold;
+  background-color: color-mix(in oklch, currentColor 35%, transparent);
+}
+
+@media (prefers-color-scheme: light) {
+    html:not([data-theme]) .badge-soft {
+      @apply opacity-100 font-semibold;
+      background-color: color-mix(in oklch, currentColor 35%, transparent);
+    }
+  }
 
 /* Markdown content styles */
 /* Uses DaisyUI/Tailwind utilities for theme consistency */
