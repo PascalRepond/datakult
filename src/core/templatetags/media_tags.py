@@ -17,16 +17,16 @@ MEDIA_TYPE_ICONS = {
 }
 
 SIZE_CLASSES = {
-    "sm": "w-4 h-4",
-    "md": "w-6 h-6",
-    "lg": "w-8 h-8",
+    "sm": "h-4",
+    "md": "h-5",
+    "lg": "h-8",
 }
 
 STATUS_CLASSES = {
-    "PLANNED": "badge-info",
-    "IN_PROGRESS": "badge-accent",
+    "PLANNED": "badge-accent",
+    "IN_PROGRESS": "badge-info",
     "COMPLETED": "badge-success",
-    "PAUSED": "badge-primary",
+    "PAUSED": "badge-warning",
     "DNF": "badge-error",
 }
 
@@ -49,7 +49,7 @@ def media_icon(media_type, size="sm"):
     """
 
     icon_name = MEDIA_TYPE_ICONS.get(media_type, "circle-question-mark")
-    size_class = SIZE_CLASSES.get(size, "w-4 h-4")
+    size_class = SIZE_CLASSES.get(size, "h-4")
 
     return {
         "icon_name": icon_name,
