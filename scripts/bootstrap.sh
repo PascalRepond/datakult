@@ -64,13 +64,58 @@ if ! command -v uv &> /dev/null; then
 fi
 print_success "uv found: $(uv --version)"
 
+# Check Python version (managed by uv via .python-version)
+PYTHON_VERSION=$(uv run python --version 2>&1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
+REQUIRED_PYTHON_MAJOR=3
+REQUIRED_PYTHON_MINOR=12
+
+PYTHON_MAJOR=$(echo "$PYTHON_VERSION" | cut -d'.' -f1)
+PYTHON_MINOR=$(echo "$PYTHON_VERSION" | cut -d'.' -f2)
+
+if [ "$PYTHON_MAJOR" -lt "$REQUIRED_PYTHON_MAJOR" ] || \
+   ([ "$PYTHON_MAJOR" -eq "$REQUIRED_PYTHON_MAJOR" ] && [ "$PYTHON_MINOR" -lt "$REQUIRED_PYTHON_MINOR" ]); then
+    print_error "Python $REQUIRED_PYTHON_MAJOR.$REQUIRED_PYTHON_MINOR or higher is required, but found $PYTHON_VERSION"
+    echo "uv should automatically install the correct version based on .python-version"
+    exit 1
+fi
+print_success "Python $PYTHON_VERSION found (required: >=$REQUIRED_PYTHON_MAJOR.$REQUIRED_PYTHON_MINOR)"
+
 # Check Node.js/npm
+if ! command -v node &> /dev/null; then
+    print_error "Node.js is not installed."
+    echo "Install Node.js 20+ from: https://nodejs.org/"
+    echo "Or use nvm: https://github.com/nvm-sh/nvm"
+    exit 1
+fi
+
 if ! command -v npm &> /dev/null; then
     print_error "npm is not installed."
     echo "Install Node.js from: https://nodejs.org/"
     exit 1
 fi
-print_success "npm found: $(npm --version)"
+
+# Check Node.js version
+NODE_VERSION=$(node --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+NODE_MAJOR=$(echo "$NODE_VERSION" | cut -d'.' -f1)
+REQUIRED_NODE_MAJOR=20
+
+if [ "$NODE_MAJOR" -lt "$REQUIRED_NODE_MAJOR" ]; then
+    print_error "Node.js $REQUIRED_NODE_MAJOR or higher is required, but found $NODE_VERSION"
+    echo "Install Node.js 20+ from: https://nodejs.org/"
+    echo "Or use nvm: nvm install 20 && nvm use 20"
+    exit 1
+fi
+print_success "Node.js $NODE_VERSION found (required: >=$REQUIRED_NODE_MAJOR)"
+print_success "npm $(npm --version) found"
+
+# Check for gettext (optional but recommended for translations)
+if ! command -v msgfmt &> /dev/null; then
+    print_warning "gettext is not installed (optional, needed for translations)"
+    echo "    Install with: apt-get install gettext (Debian/Ubuntu)"
+    echo "    or: brew install gettext (macOS)"
+else
+    print_success "gettext found"
+fi
 
 # -----------------------------------------------------------------------------
 # 2. Install Python dependencies
@@ -129,7 +174,21 @@ uv run poe migrate
 print_success "Migrations applied"
 
 # -----------------------------------------------------------------------------
-# 7. Create default superuser (if not exists)
+# 7. Compile translation messages
+# -----------------------------------------------------------------------------
+print_step "Compiling translation messages..."
+
+if command -v msgfmt &> /dev/null; then
+    uv run poe compilemessages
+    print_success "Translation messages compiled"
+else
+    print_warning "Skipping translation compilation (gettext not installed)"
+    echo "    Translations will not work until you install gettext and run:"
+    echo "    uv run poe compilemessages"
+fi
+
+# -----------------------------------------------------------------------------
+# 8. Create default superuser (if not exists)
 # -----------------------------------------------------------------------------
 print_step "Checking superuser..."
 

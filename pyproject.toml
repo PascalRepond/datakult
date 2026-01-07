@@ -50,7 +50,6 @@ bootstrap = "./scripts/bootstrap.sh"
 # Backups
 backup = "./src/manage.py export_backup"
 restore = "./src/manage.py import_backup"
-auto-backup = "./src/manage.py auto_backup"
 
 # Translations
 makemessages = "./src/manage.py makemessages -l fr --ignore=theme/* --ignore=staticfiles/* --ignore=venv/*"
