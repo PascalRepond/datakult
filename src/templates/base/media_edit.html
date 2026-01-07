@@ -28,7 +28,7 @@
           <button type="button"
                   onclick="history.length > 1 ? history.back() : window.location.href='{% url 'home' %}'"
                   class="btn btn-ghost btn-sm btn-circle"
-                  aria-label="{% translate "Back" %}">{% heroicon_outline "arrow-left" %}</button>
+                  aria-label="{% translate "Back" %}">{% lucide "arrow-left" %}</button>
           <h1 class="text-4xl font-bold">
             {% if media %}
               {% translate "Edit" %} {{ media.title }}
@@ -38,7 +38,7 @@
           </h1>
         </div>
         <button type="submit" class="btn btn-primary">
-          {% heroicon_outline "check-circle" %}
+          {% lucide "save" %}
           {% translate "Save" %}
         </button>
       </div>
@@ -166,7 +166,7 @@
                             id="set-today-btn"
                             class="btn btn-xs btn-ghost gap-1"
                             title="{% translate "Set to today" %}">
-                      {% heroicon_mini "calendar" %}
+                      {% lucide "calendar" size="16" %}
                       {% translate "Today" %}
                     </button>
                   </label>
@@ -199,7 +199,7 @@
             <div class="card bg-base-200 shadow-md">
               <div class="card-body p-4">
                 <label for="confirm-delete-modal" class="btn btn-error w-full">
-                  {% heroicon_outline "trash" %}
+                  {% lucide "trash" %}
                   {% translate "Delete" %}
                 </label>
               </div>

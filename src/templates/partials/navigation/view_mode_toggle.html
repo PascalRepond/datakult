@@ -4,8 +4,8 @@
 <div class="join" id="view-mode">
    <a href="?{% query_string request view_mode='grid' %}"
       class="join-item btn btn-sm sm:btn-md {% if view_mode == 'grid' %}btn-active{% endif %}"
-      aria-label="{% translate "Grid" %}">{% heroicon_mini "squares-2x2" %}</a>
+      aria-label="{% translate "Grid" %}">{% lucide "grid-2x2" %}</a>
    <a href="?{% query_string request view_mode='list' %}"
       class="join-item btn btn-sm sm:btn-md {% if view_mode == 'list' %}btn-active{% endif %}"
-      aria-label="{% translate "List" %}">{% heroicon_mini "list-bullet" %}</a>
+      aria-label="{% translate "List" %}">{% lucide "list" %}</a>
 </div>

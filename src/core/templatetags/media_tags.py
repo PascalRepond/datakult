@@ -7,13 +7,13 @@ register = template.Library()
 
 MEDIA_TYPE_ICONS = {
     "BOOK": "book-open",
-    "GAME": "puzzle-piece",
-    "MUSIC": "musical-note",
-    "COMIC": "book-open",
+    "GAME": "gamepad",
+    "MUSIC": "disc-3",
+    "COMIC": "book-image",
     "FILM": "film",
     "TV": "tv",
     "PERF": "ticket",
-    "BROADCAST": "microphone",
+    "BROADCAST": "podcast",
 }
 
 SIZE_CLASSES = {
@@ -34,7 +34,7 @@ STATUS_CLASSES = {
 @register.inclusion_tag("partials/media_items/media_icon.html")
 def media_icon(media_type, size="sm"):
     """
-    Render a heroicon based on media type.
+    Render a lucide icon based on media type.
 
     Args:
         media_type: The type of media (BOOK, GAME, MUSIC, etc.)
@@ -48,7 +48,7 @@ def media_icon(media_type, size="sm"):
         {% media_icon media.media_type size="md" %}
     """
 
-    icon_name = MEDIA_TYPE_ICONS.get(media_type, "question-mark-circle")
+    icon_name = MEDIA_TYPE_ICONS.get(media_type, "circle-question-mark")
     size_class = SIZE_CLASSES.get(size, "w-4 h-4")
 
     return {

@@ -45,9 +45,9 @@
           {% if request.GET.search %}
             <a href="?{% query_string_exclude request 'search' %}"
                class="btn btn-ghost btn-sm btn-circle"
-               title="{% translate "Clear search" %}">{% heroicon_mini "x-mark" %}</a>
+               title="{% translate "Clear search" %}">{% lucide "x" %}</a>
           {% endif %}
-          <button type="submit" class="btn btn-ghost btn-sm btn-circle">{% heroicon_mini "magnifying-glass" %}</button>
+          <button type="submit" class="btn btn-ghost btn-sm btn-circle">{% lucide "search" size="16" %}</button>
         </label>
       </form>
       {# Right controls group #}
@@ -58,13 +58,11 @@
         <div class="flex join items-center">
           <a href="?{% query_string request sort=sort|toggle_sort_direction %}"
              class="btn join-item btn-sm sm:btn-md">
-            {% with "transition-transform" as icon_base_class %}
-              {% if sort|slice:":1" == '-' %}
-                {% heroicon_mini "arrow-up" class=icon_base_class|add:" rotate-180" %}
-              {% else %}
-                {% heroicon_mini "arrow-up" class=icon_base_class %}
-              {% endif %}
-            {% endwith %}
+            {% if sort|slice:":1" == '-' %}
+              {% lucide "arrow-down-narrow-wide" class=icon_base_class %}
+            {% else %}
+              {% lucide "arrow-up-wide-narrow" class=icon_base_class %}
+            {% endif %}
           </a>
           <select class="select join-item select-sm sm:select-md"
                   id="sort-field-select"
@@ -78,12 +76,12 @@
         </div>
         {# Filters button - opens drawer #}
         <label for="filters-drawer" class="btn btn-sm sm:btn-md" type="button">
-          {% heroicon_mini "funnel" %}
+          {% lucide "filter" %}
           <span class="hidden sm:inline">{% translate "Filters" %}</span>
         </label>
         {# Add button #}
         <a href="{% url 'media_add' %}" class="btn btn-primary btn-sm sm:btn-md">
-          {% heroicon_outline "plus" %}
+          {% lucide "plus" %}
           <span class="hidden sm:inline">{% translate "Add" %}</span>
         </a>
       </div>
@@ -97,7 +95,7 @@
             <button type="button"
                     class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
                     data-filter="type"
-                    data-value="{{ type_val }}">{% heroicon_mini "x-mark" %}</button>
+                    data-value="{{ type_val }}">{% lucide "x" %}</button>
           </div>
         {% endfor %}
       {% endif %}
@@ -108,7 +106,7 @@
             <button type="button"
                     class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
                     data-filter="status"
-                    data-value="{{ status_val }}">{% heroicon_mini "x-mark" %}</button>
+                    data-value="{{ status_val }}">{% lucide "x" %}</button>
           </div>
         {% endfor %}
       {% endif %}
@@ -119,7 +117,7 @@
             <button type="button"
                     class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
                     data-filter="score"
-                    data-value="{{ score_val }}">{% heroicon_mini "x-mark" %}</button>
+                    data-value="{{ score_val }}">{% lucide "x" %}</button>
           </div>
         {% endfor %}
       {% endif %}
@@ -130,7 +128,7 @@
           {{ filters.review_to }}</span>
           <button type="button"
                   class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
-                  data-filter="review">{% heroicon_mini "x-mark" %}</button>
+                  data-filter="review">{% lucide "x" %}</button>
         </div>
       {% endif %}
       {% if filters.has_review %}
@@ -144,7 +142,7 @@
           </span>
           <button type="button"
                   class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
-                  data-filter="has_review">{% heroicon_mini "x-mark" %}</button>
+                  data-filter="has_review">{% lucide "x" %}</button>
         </div>
       {% endif %}
       {% if filters.has_cover %}
@@ -158,7 +156,7 @@
           </span>
           <button type="button"
                   class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
-                  data-filter="has_cover">{% heroicon_mini "x-mark" %}</button>
+                  data-filter="has_cover">{% lucide "x" %}</button>
         </div>
       {% endif %}
       {% if contributor %}
@@ -168,7 +166,7 @@
           <span id="contributor-badge-name">{{ contributor.name }}</span>
           <button type="button"
                   class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
-                  data-filter="contributor">{% heroicon_mini "x-mark" %}</button>
+                  data-filter="contributor">{% lucide "x" %}</button>
         </div>
       {% endif %}
     </div>
