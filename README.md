@@ -1,4 +1,27 @@
-# Datakult 📚🎮🎬
+<a id="readme-top"></a>
+
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![GPL-3.0][license-shield]][license-url]
+
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/PascalRepond/datakult">
+    <img src="src/static/images/bookshelf.png" alt="Datakult logo (icon by Freepik - Flaticon)" width="80" height="80">
+  </a>
+
+<h3 align="center">Datakult</h3>
+
+  <p align="center">
+    Review and analyse the media and culture that you consume.
+  </p>
+</div>
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
 A Django application to track and rate the media I consume: movies, TV shows, books, video games, music, and more.
 
@@ -11,13 +34,77 @@ A Django application to track and rate the media I consume: movies, TV shows, bo
 - Markdown reviews
 - Filters by type, status, year...
 
-## Tech Stack
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-- **Backend**: Django 6 + Python 3.14
-- **Frontend**: HTMX + Tailwind CSS + daisyUI
-- **Database**: SQLite
+### Built With
 
-## Getting Started
+- [![Django](https://img.shields.io/badge/Django-%23092E20.svg?logo=django&logoColor=white)](https://www.djangoproject.com/)
+- [![DaisyUI](https://img.shields.io/badge/DaisyUI-5A0EF8?logo=daisyui&logoColor=fff)](https://daisyui.com/)
+- [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-%2338B2AC.svg?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+- [![HTMX](https://img.shields.io/badge/HTMX-36C?logo=htmx&logoColor=fff)](https://htmx.org/)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Docker Deployment
+
+### Production Deployment (using pre-built image)
+
+1. Download the Docker configuration files:
+   ```bash
+   mkdir -p docker
+   cd docker
+   curl -O https://raw.githubusercontent.com/PascalRepond/datakult/main/docker/docker-compose.prod.yml
+   curl -O https://raw.githubusercontent.com/PascalRepond/datakult/main/docker/.env.example
+   ```
+
+2. Create your `.env` file from the example:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. Edit the `.env` file and replace the placeholder values:
+   - `SECRET_KEY`: Generate with `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`
+   - `ALLOWED_HOSTS`: Add your domain and IP (e.g., `datakult.example.com,192.168.1.100,localhost`)
+   - `DJANGO_SUPERUSER_PASSWORD`: Use a secure password
+
+4. Start the application:
+   ```bash
+   docker compose -f docker-compose.prod.yml up -d
+   ```
+
+The application will be available at `http://localhost:8000`. Your data will be stored in `docker/datakult_data/`.
+
+Migrations and superuser creation are handled automatically on first start.
+
+### Local Testing (build from source)
+
+To test the Docker build locally before deploying:
+
+```bash
+# From the project root
+docker compose -f docker/docker-compose.local.yml up --build
+```
+
+This builds the image from your current code. Default credentials are `admin/admin`.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Dev environment
+
+### Prerequisites
+
+Before you begin, make sure you have the following installed:
+
+- **uv** (Python package manager)
+  - Install with: `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- **Node.js 20+** and npm 10+
+  - Download from [nodejs.org](https://nodejs.org/)
+  - Or use [nvm](https://github.com/nvm-sh/nvm): `nvm install 20 && nvm use`
+- **gettext** (optional, for translations)
+  - Debian/Ubuntu: `sudo apt-get install gettext`
+  - macOS: `brew install gettext`
+
+### Setup
 
 ```bash
 # Clone the repository
@@ -27,7 +114,7 @@ cd datakult
 # Install dependencies (using uv)
 uv sync
 
-# Initial setup
+# Initial setup (checks versions and installs everything)
 uv run poe bootstrap
 
 # Start the development server
@@ -36,7 +123,7 @@ uv run poe server
 
 ```
 
-## Available Commands
+### Available Commands
 
 ```bash
 uv run poe server          # Dev server with Tailwind hot-reload
@@ -48,82 +135,81 @@ uv run poe format          # Format code
 uv run poe ci              # Run all checks (format, lint, tests, audits)
 ```
 
-### Backup Commands
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Backups
+
+Datakult includes a backup system that exports both the database and media files into a `.tar.gz` archive.
+
+### Manual Backup
+
+**Local environment:**
 
 ```bash
-# Quick commands (via poe)
-uv run poe backup                    # Export a backup
-uv run poe restore backup.tar.gz     # Import a backup (requires file path)
-uv run poe auto-backup               # Auto backup with rotation
+# Create a backup
+uv run poe backup
+
+# Create a backup with automatic rotation (keep only 7 most recent)
+uv run ./src/manage.py export_backup --keep=7
+
+# Restore a backup
+uv run poe restore path/to/backup.tar.gz
 ```
 
-## Project Structure
-
-```text
-src/
-├── config/     # Django settings
-├── core/       # Main app (Media models, views, etc.)
-├── accounts/   # User management
-├── templates/  # HTML templates
-├── static/     # CSS, JS, images
-└── theme/      # Tailwind configuration
-```
-
-## Docker Deployment
-
-### Quick Start (using pre-built image)
-
-1. Download the compose file:
-   ```bash
-   curl -O https://raw.githubusercontent.com/PascalRepond/datakult/main/docker-compose.yml
-   ```
-
-2. Create a `.env` file with your secrets:
-   ```bash
-   cat > .env << EOF
-   SECRET_KEY=your-very-long-secret-key-here-change-this
-   ALLOWED_HOSTS=datakult.example.com,192.168.1.100,localhost
-   DJANGO_SUPERUSER_USERNAME=admin
-   DJANGO_SUPERUSER_EMAIL=admin@example.com
-   DJANGO_SUPERUSER_PASSWORD=change-this-password
-   EOF
-   ```
-
-3. Edit the `.env` file and replace:
-   - `SECRET_KEY` with a long random string
-   - `ALLOWED_HOSTS` with your actual domain and IP
-   - Passwords with secure values
-
-4. Start the application:
-   ```bash
-   docker compose -f docker-compose.yml up -d
-   ```
-
-The application will be available at `http://localhost:8000`.
-
-**Important**: Change the `SECRET_KEY` and passwords in your `.env` file before deploying to production!
-
-Migrations and superuser creation are handled automatically on first start.
-
-### Build from source
+**Docker environment:**
 
 ```bash
-docker compose up -d
+# Create a backup
+docker exec datakult uv run /app/src/manage.py export_backup
+
+# Create a backup with automatic rotation (keep only 7 most recent)
+docker exec datakult uv run /app/src/manage.py export_backup --keep=7
+
+# Restore a backup
+docker exec datakult uv run /app/src/manage.py import_backup /app/data/backups/backup.tar.gz
 ```
 
-### Environment Variables
+Backups are stored in:
 
-| Variable | Default | Description |
-| -------- | ------- | ----------- |
-| `SECRET_KEY` | (insecure default) | Django secret key |
-| `DEBUG` | `false` | Enable debug mode |
-| `ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated list of allowed hosts |
-| `DATABASE_PATH` | `src/db.sqlite3` | Path to SQLite database file |
-| `MEDIA_ROOT` | `src/media` | Path to uploaded media files |
-| `DJANGO_SUPERUSER_USERNAME` | `admin` | Default superuser username |
-| `DJANGO_SUPERUSER_EMAIL` | `admin@example.com` | Default superuser email |
-| `DJANGO_SUPERUSER_PASSWORD` | `admin` | Default superuser password |
+- **Local:** `src/backups/`
+- **Docker:** `/app/data/backups/` (mapped to `docker/datakult_data/backups/` on the host)
 
+### Automated Backups
+
+For production environments, it's recommended to configure automated backups using your system's cron scheduler:
+
+**Example cron configuration (daily backup at 3 AM, keeping 7 most recent):**
+
+```cron
+0 3 * * * docker exec datakult uv run /app/src/manage.py export_backup --keep=7 >> /var/log/datakult-backup.log 2>&1
+```
+
+**Local development cron example:**
+
+```cron
+0 3 * * * cd /path/to/datakult && uv run ./src/manage.py export_backup --keep=7 >> /var/log/datakult-backup.log 2>&1
+```
+
+The `--keep` parameter automatically deletes old backups, maintaining only the N most recent backup files.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- LICENSE -->
 ## License
 
-AGPL-3.0
+Distributed under the GNU GENERAL PUBLIC LICENSE. See `LICENSE` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/PascalRepond/datakult.svg?style=for-the-badge
+[contributors-url]: https://github.com/PascalRepond/datakult/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/PascalRepond/datakult.svg?style=for-the-badge
+[forks-url]: https://github.com/PascalRepond/datakult/network/members
+[stars-shield]: https://img.shields.io/github/stars/PascalRepond/datakult.svg?style=for-the-badge
+[stars-url]: https://github.com/PascalRepond/datakult/stargazers
+[issues-shield]: https://img.shields.io/github/issues/PascalRepond/datakult.svg?style=for-the-badge
+[issues-url]: https://github.com/PascalRepond/datakult/issues
+[license-shield]: https://img.shields.io/github/license/PascalRepond/datakult.svg?style=for-the-badge
+[license-url]: https://github.com/PascalRepond/datakult/blob/main/LICENSE

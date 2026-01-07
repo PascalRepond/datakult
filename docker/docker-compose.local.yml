@@ -1,0 +1,34 @@
+# Datakult - Local Testing Environment
+#
+# This configuration builds the Docker image locally from your current code.
+# Use this to test the Docker build and deployment process before pushing to production.
+#
+# Usage:
+#   1. From the project root: docker compose -f docker/docker-compose.local.yml up --build
+#   2. Access the app at http://localhost:8000
+#   3. Default credentials: admin / admin
+#
+# Note: This builds the image from scratch each time you use --build
+# Your data will be stored in ./docker/datakult_data_local
+
+services:
+  datakult-local:
+    container_name: datakult-local
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./datakult_data_local:/app/data
+    environment:
+      # Security - Simple values for local testing
+      - SECRET_KEY=local-test-secret-key-not-for-production
+      - DEBUG=false
+      # Allowed hosts
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      # Default superuser
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+      - DJANGO_SUPERUSER_PASSWORD=admin
+    restart: unless-stopped

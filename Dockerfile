@@ -18,7 +18,7 @@ RUN npm ci
 RUN npm run build
 
 # Stage 2: Python application
-FROM python:3.14-slim
+FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -52,10 +52,6 @@ COPY --from=tailwind-builder /app/src/theme/static/css/dist/ ./src/theme/static/
 # Create data directory for persistent storage (SQLite + media + backups)
 RUN mkdir -p /app/data/media /app/data/backups
 
-# Copy backup script
-COPY scripts/daily_backup.sh /app/daily_backup.sh
-RUN chmod +x /app/daily_backup.sh
-
 # Copy entrypoint script
 COPY scripts/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
@@ -74,4 +70,4 @@ EXPOSE 8000
 WORKDIR /app/src
 
 ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["uv", "run", "gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["uv", "run", "gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--access-logfile", "-", "--error-logfile", "-"]
