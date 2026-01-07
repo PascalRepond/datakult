@@ -180,35 +180,29 @@ class TestCompressImageSecurity:
         # Should be saved as JPEG
         assert result_img.format == "JPEG"
 
-    def test_compress_image_normal_jpeg(self):
-        """Normal JPEG images are processed successfully."""
-        img = Image.new("RGB", (1000, 1000), color="red")
-        img_io = BytesIO()
-        img.save(img_io, format="JPEG")
-        img_io.seek(0)
+    def test_compress_image_supported_formats(self):
+        """Normal JPEG and PNG images are processed successfully."""
+        # Test JPEG
+        jpeg_img = Image.new("RGB", (1000, 1000), color="red")
+        jpeg_io = BytesIO()
+        jpeg_img.save(jpeg_io, format="JPEG")
+        jpeg_io.seek(0)
 
-        # Should not raise
-        compressed = compress_image(img_io)
+        compressed_jpeg = compress_image(jpeg_io)
+        compressed_jpeg.seek(0)
+        result_jpeg = Image.open(compressed_jpeg)
+        assert result_jpeg.width <= 800
+        assert result_jpeg.height <= 800
 
-        # Verify it's a valid image
-        compressed.seek(0)
-        result_img = Image.open(compressed)
-        assert result_img.width <= 800
-        assert result_img.height <= 800
+        # Test PNG (should be converted to JPEG)
+        png_img = Image.new("RGB", (1000, 1000), color="blue")
+        png_io = BytesIO()
+        png_img.save(png_io, format="PNG")
+        png_io.seek(0)
 
-    def test_compress_image_normal_png(self):
-        """Normal PNG images are processed successfully."""
-        img = Image.new("RGB", (1000, 1000), color="blue")
-        img_io = BytesIO()
-        img.save(img_io, format="PNG")
-        img_io.seek(0)
-
-        # Should not raise
-        compressed = compress_image(img_io)
-
-        # Verify it's a valid image converted to JPEG
-        compressed.seek(0)
-        result_img = Image.open(compressed)
-        assert result_img.format == "JPEG"
-        assert result_img.width <= 800
-        assert result_img.height <= 800
+        compressed_png = compress_image(png_io)
+        compressed_png.seek(0)
+        result_png = Image.open(compressed_png)
+        assert result_png.format == "JPEG"
+        assert result_png.width <= 800
+        assert result_png.height <= 800
