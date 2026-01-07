@@ -72,52 +72,34 @@ class TestExportBackupCommand:
                 assert len(media_entries) == 1
 
     def test_export_with_keep_rotates_old_backups(self, db):
-        """The export_backup command with --keep deletes old backups beyond the keep limit."""
+        """The export_backup command with --keep rotates backups correctly."""
         with TemporaryDirectory() as tmpdir:
-            # Create 5 backups
-            for _ in range(5):
-                out = StringIO()
-                call_command("export_backup", f"--output={tmpdir}", "--keep=3", stdout=out)
-
-            # Only 3 most recent should remain
-            backups = list(Path(tmpdir).glob("datakult_backup_*.tar.gz"))
-            assert len(backups) == 3
-
-    def test_export_with_keep_keeps_most_recent(self, db):
-        """The export_backup command with --keep keeps the most recent backups."""
-        with TemporaryDirectory() as tmpdir:
-            # Create 5 backups
-            for _ in range(5):
+            # Create 4 backups with keep=2
+            for _ in range(4):
                 out = StringIO()
                 call_command("export_backup", f"--output={tmpdir}", "--keep=2", stdout=out)
 
-            # Only 2 backups should remain
-            backups = sorted(Path(tmpdir).glob("datakult_backup_*.tar.gz"), key=lambda p: p.stat().st_mtime)
+            # Only 2 most recent should remain
+            backups = sorted(
+                Path(tmpdir).glob("datakult_backup_*.tar.gz"), key=lambda p: p.stat().st_mtime, reverse=True
+            )
             assert len(backups) == 2
+
+            # Check that rotation message was displayed
+            output = out.getvalue()
+            assert "Deleting old backup" in output or "Deleted" in output
 
     def test_export_without_keep_no_rotation(self, db):
         """The export_backup command without --keep doesn't delete old backups."""
         with TemporaryDirectory() as tmpdir:
-            # Create 10 backups without specifying --keep
-            for _ in range(10):
+            # Create 3 backups without specifying --keep
+            for _ in range(3):
                 out = StringIO()
                 call_command("export_backup", f"--output={tmpdir}", stdout=out)
 
-            # All 10 should remain
+            # All 3 should remain
             backups = list(Path(tmpdir).glob("datakult_backup_*.tar.gz"))
-            assert len(backups) == 10
-
-    def test_export_with_keep_displays_rotation_info(self, db):
-        """The export_backup command with --keep displays information about rotation."""
-        with TemporaryDirectory() as tmpdir:
-            # Create 3 backups with keep=1 to trigger rotation
-            for _ in range(3):
-                out = StringIO()
-                call_command("export_backup", f"--output={tmpdir}", "--keep=1", stdout=out)
-
-            # The last output should mention deletion
-            output = out.getvalue()
-            assert "Deleting old backup" in output or "Deleted" in output
+            assert len(backups) == 3
 
 
 class TestImportBackupCommand:

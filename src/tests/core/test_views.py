@@ -540,31 +540,25 @@ class TestBackupImportView:
 class TestPaginationBehavior:
     """Tests for pagination behavior across views."""
 
-    def test_index_paginates_results(self, logged_in_client, media_factory):
-        """Index view paginates results with 20 items per page."""
+    def test_index_paginates_results_across_pages(self, logged_in_client, media_factory):
+        """Index view paginates results with 20 items per page and navigates correctly."""
         # Create 25 media items
         for i in range(25):
             media_factory(title=f"Media {i}")
 
-        response = logged_in_client.get(reverse("home"))
+        # Test first page
+        response_page1 = logged_in_client.get(reverse("home"))
+        assert response_page1.status_code == 200
+        assert "page_obj" in response_page1.context
+        assert len(response_page1.context["media_list"]) == 20
+        assert response_page1.context["page_obj"].has_next()
 
-        assert response.status_code == 200
-        assert "page_obj" in response.context
-        assert len(response.context["media_list"]) == 20
-        assert response.context["page_obj"].has_next()
-
-    def test_index_second_page_shows_remaining_items(self, logged_in_client, media_factory):
-        """Index view shows remaining items on second page."""
-        # Create 25 media items
-        for i in range(25):
-            media_factory(title=f"Media {i}")
-
-        response = logged_in_client.get(reverse("home"), {"page": 2})
-
-        assert response.status_code == 200
-        assert len(response.context["media_list"]) == 5
-        assert response.context["page_obj"].has_previous()
-        assert not response.context["page_obj"].has_next()
+        # Test second page
+        response_page2 = logged_in_client.get(reverse("home"), {"page": 2})
+        assert response_page2.status_code == 200
+        assert len(response_page2.context["media_list"]) == 5
+        assert response_page2.context["page_obj"].has_previous()
+        assert not response_page2.context["page_obj"].has_next()
 
     def test_search_paginates_results(self, logged_in_client, media_factory):
         """Search view paginates results."""
@@ -642,29 +636,23 @@ class TestLoadMoreMediaView:
         titles = [m.title for m in response.context["media_list"]]
         assert all("Python" in title for title in titles)
 
-    def test_load_more_page_obj_has_next_when_more_pages(self, logged_in_client, media_factory):
-        """Load more view sets has_next correctly when more pages exist."""
-        # Create 45 items (3 pages)
+    def test_load_more_page_obj_pagination_state(self, logged_in_client, media_factory):
+        """Load more view sets has_next correctly across different page states."""
+        # Create 45 items (3 pages of 20 items each)
         for i in range(45):
             media_factory(title=f"Media {i}")
 
-        response = logged_in_client.get(reverse("load_more_media"), {"page": 2})
+        # Test page 2 (middle page) - should have next
+        response_page2 = logged_in_client.get(reverse("load_more_media"), {"page": 2})
+        assert response_page2.status_code == 200
+        assert response_page2.context["page_obj"].has_next()
+        assert response_page2.context["page_obj"].number == 2
 
-        assert response.status_code == 200
-        assert response.context["page_obj"].has_next()
-        assert response.context["page_obj"].number == 2
-
-    def test_load_more_page_obj_no_next_on_last_page(self, logged_in_client, media_factory):
-        """Load more view sets has_next to False on last page."""
-        # Create 25 items (2 pages)
-        for i in range(25):
-            media_factory(title=f"Media {i}")
-
-        response = logged_in_client.get(reverse("load_more_media"), {"page": 2})
-
-        assert response.status_code == 200
-        assert not response.context["page_obj"].has_next()
-        assert response.context["page_obj"].number == 2
+        # Test page 3 (last page) - should not have next
+        response_page3 = logged_in_client.get(reverse("load_more_media"), {"page": 3})
+        assert response_page3.status_code == 200
+        assert not response_page3.context["page_obj"].has_next()
+        assert response_page3.context["page_obj"].number == 3
 
     def test_load_more_includes_view_mode_in_context(self, logged_in_client, media_factory):
         """Load more view includes view_mode in context for template rendering."""

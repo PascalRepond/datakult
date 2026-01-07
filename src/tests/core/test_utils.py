@@ -100,70 +100,48 @@ class TestGetDatakultVersion:
 class TestCreateBackup:
     """Tests for the create_backup function."""
 
-    def test_creates_backup_file(self, db):
-        """A backup file is created."""
-        with TemporaryDirectory() as tmpdir:
-            backup_path = create_backup(output_dir=Path(tmpdir))
-
-            assert backup_path.exists()
-            assert backup_path.suffix == ".gz"
-            assert backup_path.name.startswith("datakult_backup_")
-
-    def test_backup_contains_metadata(self, db):
-        """The backup contains a metadata.json file."""
-        with TemporaryDirectory() as tmpdir:
-            backup_path = create_backup(output_dir=Path(tmpdir))
-
-            with tarfile.open(backup_path, "r:gz") as tar:
-                assert "metadata.json" in tar.getnames()
-
-                # Extract and verify metadata content
-                metadata_file = tar.extractfile("metadata.json")
-                metadata = json.loads(metadata_file.read())
-
-                assert "created_at" in metadata
-                assert "datakult_version" in metadata
-                assert "django_version" in metadata
-                assert "database_engine" in metadata
-
-    def test_backup_contains_database(self, db):
-        """The backup contains a database.json file."""
-        with TemporaryDirectory() as tmpdir:
-            backup_path = create_backup(output_dir=Path(tmpdir))
-
-            with tarfile.open(backup_path, "r:gz") as tar:
-                assert "database.json" in tar.getnames()
-
-    def test_backup_includes_media_data(self, db):
-        """The backup includes media data in the database dump."""
-        # Create a media entry
+    def test_creates_complete_backup(self, db):
+        """A backup file is created with all expected content."""
+        # Create a media entry to verify data backup
         Media.objects.create(title="Test Media", media_type="BOOK")
 
         with TemporaryDirectory() as tmpdir:
             backup_path = create_backup(output_dir=Path(tmpdir))
 
+            # Verify file creation
+            assert backup_path.exists()
+            assert backup_path.suffix == ".gz"
+            assert backup_path.name.startswith("datakult_backup_")
+
+            # Verify archive contents
             with tarfile.open(backup_path, "r:gz") as tar:
+                # Check metadata.json exists and has correct structure
+                assert "metadata.json" in tar.getnames()
+                metadata_file = tar.extractfile("metadata.json")
+                metadata = json.loads(metadata_file.read())
+                assert "created_at" in metadata
+                assert "datakult_version" in metadata
+                assert "django_version" in metadata
+                assert "database_engine" in metadata
+
+                # Check database.json exists and contains media data
+                assert "database.json" in tar.getnames()
                 db_file = tar.extractfile("database.json")
                 db_data = json.loads(db_file.read())
-
-                # Check that media data is present
                 media_entries = [entry for entry in db_data if entry["model"] == "core.media"]
                 assert len(media_entries) == 1
                 assert media_entries[0]["fields"]["title"] == "Test Media"
 
-    def test_custom_filename(self, db):
-        """A custom filename can be provided."""
+    def test_custom_filename_with_extension_handling(self, db):
+        """Custom filenames work correctly with automatic .tar.gz extension."""
         with TemporaryDirectory() as tmpdir:
-            backup_path = create_backup(output_dir=Path(tmpdir), filename="custom_backup.tar.gz")
+            # Test with full extension
+            backup_path1 = create_backup(output_dir=Path(tmpdir), filename="custom_backup.tar.gz")
+            assert backup_path1.name == "custom_backup.tar.gz"
 
-            assert backup_path.name == "custom_backup.tar.gz"
-
-    def test_custom_filename_adds_extension(self, db):
-        """The .tar.gz extension is added if not present."""
-        with TemporaryDirectory() as tmpdir:
-            backup_path = create_backup(output_dir=Path(tmpdir), filename="custom")
-
-            assert backup_path.name == "custom.tar.gz"
+            # Test without extension - should be added automatically
+            backup_path2 = create_backup(output_dir=Path(tmpdir), filename="custom")
+            assert backup_path2.name == "custom.tar.gz"
 
     def test_creates_output_directory(self, db):
         """The output directory is created if it doesn't exist."""
