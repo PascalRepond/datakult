@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     "markdownfield",
     "django_htmx",
     "tailwind",
-    "heroicons",
+    "lucide",
 ]
 
 if DEBUG:
@@ -104,7 +104,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
             ],
             "builtins": [
-                "heroicons.templatetags.heroicons",
+                "lucide.templatetags.lucide",
             ]
         },
     },

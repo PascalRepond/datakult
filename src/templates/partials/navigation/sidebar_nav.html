@@ -16,7 +16,7 @@
   <!-- Main navigation -->
   <li>
     <a href="{% url 'home' %}">
-      {% heroicon_outline "rectangle-stack" %}
+      {% lucide "layers" %}
       {% translate "All" %}
     </a>
   </li>
@@ -27,35 +27,35 @@
   <li>
     <a href="{% url 'home' %}?status=PLANNED"
        class="{% if request.GET.status == 'PLANNED' %} active {% endif %}">
-      {% heroicon_mini "clock" %}
+      {% lucide "clock" %}
       {% translate "Planned" %}
     </a>
   </li>
   <li>
     <a href="{% url 'home' %}?status=IN_PROGRESS"
        class="{% if request.GET.status == 'IN_PROGRESS' %} active {% endif %}">
-      {% heroicon_outline "play" %}
+      {% lucide "play" %}
       {% translate "In progress" %}
     </a>
   </li>
   <li>
     <a href="{% url 'home' %}?status=COMPLETED"
        class="{% if request.GET.status == 'COMPLETED' %} active {% endif %}">
-      {% heroicon_mini "check-circle" %}
+      {% lucide "circle-check" %}
       {% translate "Completed" %}
     </a>
   </li>
   <li>
     <a href="{% url 'home' %}?status=PAUSED"
        class="{% if request.GET.status == 'PAUSED' %} active {% endif %}">
-      {% heroicon_mini "pause" %}
+      {% lucide "pause" %}
       {% translate "Paused" %}
     </a>
   </li>
   <li>
     <a href="{% url 'home' %}?status=DNF"
        class="{% if request.GET.status == 'DNF' %} active {% endif %}">
-      {% heroicon_mini "x-circle" %}
+      {% lucide "circle-x" %}
       {% translate "Did not finish" %}
     </a>
   </li>
@@ -66,13 +66,13 @@
   {% if user.is_authenticated %}
     <li>
       <a href="{% url 'accounts:profile_edit' %}">
-        {% heroicon_mini "user-circle" %}
+        {% lucide "circle-user" %}
         {% translate "Profile" %}
       </a>
     </li>
     <li>
       <a href="{% url 'backup_manage' %}">
-        {% heroicon_mini "arrow-down-tray" %}
+        {% lucide "download" %}
         {% translate "Backups" %}
       </a>
     </li>
@@ -80,7 +80,7 @@
   <!-- Theme selector - compact dropdown -->
   <li class="dropdown w-full">
     <div tabindex="0" role="button" class="flex items-center gap-2 w-full">
-      {% heroicon_mini "sun" %}
+      {% lucide "sun-moon" %}
       <span>{% translate "Theme" %}</span>
     </div>
     <ul tabindex="0"
@@ -122,14 +122,16 @@
     {% if user.is_authenticated %}
       <form action="{% url 'logout' %}" method="post">
         {% csrf_token %}
-        <button type="submit" class="flex items-center gap-2 w-full text-left">
-          {% heroicon_outline "arrow-right-on-rectangle" %}
+        <button type="submit"
+                role="button"
+                class="flex items-center gap-2 w-full text-left cursor-pointer">
+          {% lucide "log-out" %}
           {% translate "Logout" %}
         </button>
       </form>
     {% else %}
       <a href="{% url 'login' %}">
-        {% heroicon_outline "arrow-right-on-rectangle" %}
+        {% lucide "log-in" %}
         {% translate "Log in" %}
       </a>
     {% endif %}

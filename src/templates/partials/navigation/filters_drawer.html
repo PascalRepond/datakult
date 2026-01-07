@@ -16,7 +16,7 @@
       {# Header #}
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-semibold">{% translate "Filters" %}</h2>
-        <label for="filters-drawer" class="btn btn-sm btn-circle btn-ghost">{% heroicon_outline "x-mark" %}</label>
+        <label for="filters-drawer" class="btn btn-sm btn-circle btn-ghost">{% lucide "x" %}</label>
       </div>
       {# Hidden fields to preserve view_mode, sort, contributor and search #}
       <input type="hidden" name="view_mode" value="{{ view_mode }}" />
@@ -185,13 +185,13 @@
       <div class="flex flex-col gap-2">
         {# Apply filters button #}
         <button type="submit" class="btn btn-primary btn-sm">
-          {% heroicon_mini "funnel" %}
+          {% lucide "filter" %}
           {% translate "Apply" %}
         </button>
         {# Clear all filters button #}
         <a href="{% url 'home' %}?view_mode={{ view_mode }}&sort={{ sort }}"
            class="btn btn-sm btn-outline">
-          {% heroicon_mini "x-mark" %}
+          {% lucide "filter-x" %}
           {% translate "Clear filters" %}
         </a>
       </div>
