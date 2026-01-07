@@ -78,6 +78,7 @@
               action="{% url 'accounts:set_language' %}"
               class="space-y-6">
           {% csrf_token %}
+          <input type="hidden" name="next" value="{% url 'accounts:profile_edit' %}">
           <div class="form-control">
             <label class="label" for="language">
               <span class="label-text">{% translate "Choose your preferred language" %}</span>

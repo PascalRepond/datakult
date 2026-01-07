@@ -72,15 +72,3 @@ class TestProfileEditView:
 
         assert response.status_code == 200  # Form re-displayed with errors
         assert response.context["password_form"].errors
-
-
-class TestSetLanguageView:
-    """Tests for the set_language view."""
-
-    def test_set_valid_language(self, logged_in_client):
-        """Setting a valid language saves it in session."""
-        url = reverse("accounts:set_language")
-        response = logged_in_client.post(url, {"language": "fr"})
-
-        assert response.status_code == 302
-        assert logged_in_client.session["django_language"] == "fr"

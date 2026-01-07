@@ -59,9 +59,9 @@
           <a href="?{% query_string request sort=sort|toggle_sort_direction %}"
              class="btn join-item btn-sm sm:btn-md">
             {% if sort|slice:":1" == '-' %}
-              {% lucide "arrow-down-narrow-wide" class=icon_base_class %}
+              {% lucide "arrow-down-narrow-wide" %}
             {% else %}
-              {% lucide "arrow-up-wide-narrow" class=icon_base_class %}
+              {% lucide "arrow-up-wide-narrow" %}
             {% endif %}
           </a>
           <select class="select join-item select-sm sm:select-md"

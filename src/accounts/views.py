@@ -77,21 +77,3 @@ def validate_password_field(request):
     form = CustomPasswordChangeForm(request.user, request.POST)
     field_name = request.POST.get("field_name")
     return _validate_field_htmx(form, field_name)
-
-
-@require_POST
-@login_required
-def set_language(request):
-    """Set the user's preferred language in session."""
-    language = request.POST.get("language")
-
-    # Validate the language code
-    if language and language in dict(settings.LANGUAGES):
-        translation.activate(language)
-        # Store language preference in session using Django's standard key
-        request.session["django_language"] = language
-        messages.success(request, _("Language preference updated."))
-    else:
-        messages.error(request, _("Invalid language selection."))
-
-    return redirect("accounts:profile_edit")
