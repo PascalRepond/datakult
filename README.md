@@ -112,7 +112,7 @@ git clone https://github.com/PascalRepond/datakult.git
 cd datakult
 
 # Install dependencies (using uv)
-uv sync
+uv sync --frozen
 
 # Initial setup (checks versions and installs everything)
 uv run poe bootstrap
