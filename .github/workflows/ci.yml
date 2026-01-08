@@ -27,7 +27,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
 
       - name: Install Python dependencies
-        run: uv sync --frozen
+        run: uv sync --frozen --dev --no-group prod
 
       - name: Install Node.js dependencies
         run: npm ci
@@ -54,7 +54,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
 
       - name: Install dependencies
-        run: uv sync --frozen
+        run: uv sync --frozen --dev --no-group prod
 
       - name: Validate release configuration
         run: |

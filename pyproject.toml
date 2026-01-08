@@ -12,66 +12,57 @@ dependencies = [
     "django-markdownfield>=0.11.0",
     "django-partial-date>=1.3.2",
     "django-tailwind>=4.2.0",
-    "gunicorn>=23.0.0",
     "lucide[django]>=1.1.3",
     "pillow>=12.0.0",
-    "python-dotenv>=1.2.1",
     "whitenoise>=6.11.0",
 ]
 
 [dependency-groups]
 dev = [
-    "cookiecutter>=2.6.0",
+    # Dev environment
     "django-browser-reload>=1.18.0",
-    "djlint>=1.36.4",
     "honcho>=2.0.0",
-    "ipython>=9.3.0",
-    "pip-audit>=2.10.0",
-    "poethepoet>=0.36.0",
+    # Tests and quality
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
     "pytest-django>=4.11.1",
-    "python-semantic-release>=10.5.3",
+    "djlint>=1.36.4",
+    "pip-audit>=2.10.0",
     "ruff>=0.12.4",
+    # Tools
+    "poethepoet>=0.36.0",
+    "python-semantic-release>=10.5.3",
+]
+prod = [
+    "gunicorn>=23.0.0",
 ]
 
 [tool.poe.tasks]
-format = "ruff format ./src"
-lint = "ruff check ./src"
+
+# Dev tasks
 server = "./src/manage.py tailwind dev"
 collectstatic = "./src/manage.py collectstatic --noinput"
-runserver = "./src/manage.py runserver"
 makemigrations = "./src/manage.py makemigrations"
 migrate = "./src/manage.py migrate"
 shell = "./src/manage.py shell"
 setup = "./scripts/setup_dev.sh"
 bootstrap = "./scripts/bootstrap.sh"
 
-# Backups
-backup = "./src/manage.py export_backup"
-restore = "./src/manage.py import_backup"
-
-# Translations
+# Localisation
 makemessages = "./src/manage.py makemessages -l fr --ignore=theme/* --ignore=staticfiles/* --ignore=venv/*"
 compilemessages = "./src/manage.py compilemessages"
 
-# Tests
+# Tests and quality
 test = "pytest ./src --cov=src --cov-report=term-missing"
-test-fast = "pytest ./src -x -q"
-
-# Quality checks
+format = "ruff format ./src"
+lint = "ruff check ./src"
 check-format = "ruff format ./src --check"
 audit-python = "pip-audit"
 audit-js = { shell = "cd ./src/theme/static_src && npm audit" }
 
-# Combined quality check (CI-friendly)
 [tool.poe.tasks.ci]
 sequence = ["check-format", "lint", "audit-python", "audit-js", "test"]
 help = "Run all quality checks (format, lint, security audits, tests)"
-
-[tool.poe.tasks.audit]
-sequence = ["audit-python", "audit-js"]
-help = "Run security audits on Python and JavaScript dependencies"
 
 # Release management
 [tool.poe.tasks.changelog]
@@ -92,13 +83,11 @@ src = [
     "src",
 ]
 respect-gitignore = true
-# https://docs.astral.sh/ruff/settings/
 fix = true
 show-fixes = true
+output-format = "grouped"
 
 extend-exclude = ["*/**/migrations/**", "./src/config/settings.py"]
-
-output-format = "grouped"
 
 # https://docs.astral.sh/ruff/rules/
 lint.select = ["ALL"]
@@ -130,15 +119,11 @@ package = false
 DJANGO_SETTINGS_MODULE = "config.settings"
 python_files = ["test_*.py", "*_test.py"]
 pythonpath = ["./src"]
-testpaths = ["./src"]
+testpaths = ["./src/tests"]
 addopts = [
     "-v",
     "--tb=short",
     "--strict-markers",
-]
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
 ]
 
 [tool.coverage.run]

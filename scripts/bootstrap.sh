@@ -123,7 +123,7 @@ fi
 print_step "Installing Python dependencies..."
 
 cd "$PROJECT_ROOT"
-uv sync
+uv sync --frozen --dev --no-group prod
 
 print_success "Python dependencies installed"
 
