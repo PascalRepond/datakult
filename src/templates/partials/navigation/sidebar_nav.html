@@ -3,15 +3,18 @@
 <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
   <!-- Logo/Title at the top -->
   <li class="menu-title">
-    <a href="{% url 'home' %}"
-       class="flex items-center gap-3 hover:opacity-80 transition-opacity">
-      <div class="tooltip tooltip-right" data-tip="Icon by Freepik - Flaticon">
-        <img src="{% static 'images/bookshelf.png' %}"
-             alt="Datakult logo"
-             class="w-8 h-8">
-      </div>
-      <span class="text-xl font-bold text-primary">Datakult</span>
-    </a>
+    <div class="flex justify-between items-center">
+      <a href="{% url 'home' %}"
+         class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <div class="tooltip tooltip-right" data-tip="Icon by Freepik - Flaticon">
+          <img src="{% static 'images/bookshelf.png' %}"
+               alt="Datakult logo"
+               class="w-8 h-8">
+        </div>
+        <span class="text-xl font-bold text-primary">Datakult</span>
+      </a>
+      <span class="text-xs text-base-content/50">v{{ version }}</span>
+    </div>
   </li>
   <!-- Main navigation -->
   <li>
