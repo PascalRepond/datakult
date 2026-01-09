@@ -7,10 +7,11 @@ These tests verify the behavior of views using pytest-django.
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+from django.contrib.messages import get_messages
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
-from core.models import Agent, Media
+from core.models import Agent, Media, SavedView
 from core.utils import create_backup
 
 
@@ -29,6 +30,18 @@ class TestIndexView:
 
         assert response.status_code == 200
         assert "media_list" in response.context
+
+    def test_index_includes_saved_views_in_context(self, logged_in_client, user, db):
+        """The index view includes saved_views in the context for authenticated users."""
+        # Create some saved views for the user
+        SavedView.objects.create(user=user, name="View 1")
+        SavedView.objects.create(user=user, name="View 2")
+
+        response = logged_in_client.get(reverse("home"))
+
+        assert response.status_code == 200
+        assert "saved_views" in response.context
+        assert len(response.context["saved_views"]) == 2
 
 
 class TestMediaEditView:
@@ -52,6 +65,21 @@ class TestMediaEditView:
 
         assert response.status_code == 302  # Redirect after success
         assert Media.objects.filter(title="New Test Media").exists()
+
+    def test_media_add_shows_success_message(self, logged_in_client, db):
+        """Creating a new media shows a success message."""
+
+        data = {
+            "title": "New Test Media",
+            "media_type": "BOOK",
+            "status": "PLANNED",
+        }
+        response = logged_in_client.post(reverse("media_add"), data, follow=True)
+
+        messages = list(get_messages(response.wsgi_request))
+        assert len(messages) > 0
+        assert "New Test Media" in str(messages[0])
+        assert "created" in str(messages[0]).lower()
 
     def test_media_add_with_new_contributor(self, logged_in_client, db):
         """POST with new_contributors creates agents and links them."""
@@ -91,6 +119,25 @@ class TestMediaEditView:
         assert media.title == "Updated Title"
         assert media.status == "COMPLETED"
 
+    def test_media_edit_shows_success_message(self, logged_in_client, media):
+        """Updating a media shows a success message."""
+
+        data = {
+            "title": "Updated Title",
+            "media_type": media.media_type,
+            "status": "COMPLETED",
+        }
+        response = logged_in_client.post(
+            reverse("media_edit", kwargs={"pk": media.pk}),
+            data,
+            follow=True,
+        )
+
+        messages = list(get_messages(response.wsgi_request))
+        assert len(messages) > 0
+        assert "Updated Title" in str(messages[0])
+        assert "updated" in str(messages[0]).lower()
+
     def test_media_edit_removes_contributor_cleans_orphan(self, logged_in_client, db):
         """Removing a contributor from media deletes orphan agent."""
         agent = Agent.objects.create(name="Soon Orphan")
@@ -118,6 +165,20 @@ class TestMediaDeleteView:
 
         assert response.status_code == 302
         assert not Media.objects.filter(pk=media_pk).exists()
+
+    def test_media_delete_shows_success_message(self, logged_in_client, media):
+        """Deleting a media shows a success message with the title."""
+
+        media_title = media.title
+        response = logged_in_client.post(
+            reverse("media_delete", kwargs={"pk": media.pk}),
+            follow=True,
+        )
+
+        messages = list(get_messages(response.wsgi_request))
+        assert len(messages) > 0
+        assert media_title in str(messages[0])
+        assert "deleted" in str(messages[0]).lower()
 
     def test_media_delete_cleans_orphan_contributors(self, logged_in_client, db):
         """Deleting media removes orphan contributors."""
@@ -263,6 +324,20 @@ class TestSortingHelper:
         response = logged_in_client.get(reverse("home"), {"sort": "invalid_field"})
 
         assert response.context["sort_field"] == "review_date"
+
+    def test_sorting_by_updated_at(self, logged_in_client):
+        """Sorting by updated_at field works correctly."""
+        response = logged_in_client.get(reverse("home"), {"sort": "updated_at"})
+
+        assert response.context["sort_field"] == "updated_at"
+        assert response.context["sort"] == "updated_at"
+
+    def test_sorting_by_updated_at_descending(self, logged_in_client):
+        """Descending sorting by updated_at field works correctly."""
+        response = logged_in_client.get(reverse("home"), {"sort": "-updated_at"})
+
+        assert response.context["sort_field"] == "updated_at"
+        assert response.context["sort"] == "-updated_at"
 
 
 class TestFilteringHelper:
@@ -729,3 +804,368 @@ class TestMediaDetailView:
         assert 'class="link link-hover contributor-link"' in content
         # Should NOT contain HTMX attributes for contributor links
         assert "hx-target" not in content
+
+
+class TestSavedViewSaveView:
+    """Tests for the saved_view_save view."""
+
+    def test_saved_view_save_creates_new_view(self, logged_in_client, user, db):
+        """POST with valid data creates a new saved view."""
+        data = {
+            "view_name": "My Books",
+            "type": ["BOOK"],
+            "status": ["COMPLETED"],
+            "score": ["8", "9"],
+            "sort": "-score",
+            "view_mode": "list",
+        }
+        response = logged_in_client.post(reverse("saved_view_save"), data)
+
+        # Should redirect to home with filters applied
+        assert response.status_code == 302
+        assert "/" in response.url
+
+        # View should be created in database
+        assert SavedView.objects.filter(user=user, name="My Books").exists()
+        saved_view = SavedView.objects.get(user=user, name="My Books")
+        assert saved_view.filter_types == ["BOOK"]
+        assert saved_view.filter_statuses == ["COMPLETED"]
+        assert saved_view.filter_scores == ["8", "9"]
+        assert saved_view.sort == "-score"
+        assert saved_view.view_mode == "list"
+
+    def test_saved_view_save_updates_existing_view(self, logged_in_client, user, db):
+        """POST with existing view name updates the view instead of creating duplicate."""
+        # Create initial view
+        SavedView.objects.create(
+            user=user,
+            name="My View",
+            filter_types=["BOOK"],
+            sort="-review_date",
+        )
+
+        # Update with different filters
+        data = {
+            "view_name": "My View",
+            "type": ["FILM"],
+            "sort": "-score",
+            "view_mode": "grid",
+        }
+        response = logged_in_client.post(reverse("saved_view_save"), data)
+
+        assert response.status_code == 302
+
+        # Should still be only one view with that name
+        assert SavedView.objects.filter(user=user, name="My View").count() == 1
+
+        # View should be updated
+        saved_view = SavedView.objects.get(user=user, name="My View")
+        assert saved_view.filter_types == ["FILM"]
+        assert saved_view.sort == "-score"
+        assert saved_view.view_mode == "grid"
+
+    def test_saved_view_save_requires_view_name(self, logged_in_client, user, db):
+        """POST without view_name redirects with error message."""
+        data = {
+            "type": ["BOOK"],
+        }
+        response = logged_in_client.post(reverse("saved_view_save"), data)
+
+        # Should redirect back to home
+        assert response.status_code == 302
+
+        # No view should be created
+        assert SavedView.objects.filter(user=user).count() == 0
+
+    def test_saved_view_save_get_redirects(self, logged_in_client):
+        """GET request redirects to home."""
+        response = logged_in_client.get(reverse("saved_view_save"))
+
+        assert response.status_code == 302
+        assert response.url == reverse("home")
+
+    def test_saved_view_save_stores_all_filter_types(self, logged_in_client, user, db):
+        """All filter parameters are correctly stored."""
+        from core.models import Agent
+
+        agent = Agent.objects.create(name="Test Author")
+
+        data = {
+            "view_name": "Complex View",
+            "type": ["BOOK", "FILM"],
+            "status": ["COMPLETED", "IN_PROGRESS"],
+            "score": ["8", "9", "10"],
+            "contributor": str(agent.pk),
+            "review_from": "2024-01-01",
+            "review_to": "2024-12-31",
+            "has_review": "filled",
+            "has_cover": "empty",
+            "sort": "score",
+            "view_mode": "list",
+        }
+        response = logged_in_client.post(reverse("saved_view_save"), data)
+
+        assert response.status_code == 302
+
+        saved_view = SavedView.objects.get(user=user, name="Complex View")
+        assert saved_view.filter_types == ["BOOK", "FILM"]
+        assert saved_view.filter_statuses == ["COMPLETED", "IN_PROGRESS"]
+        assert saved_view.filter_scores == ["8", "9", "10"]
+        assert saved_view.filter_contributor_id == agent.pk
+        assert saved_view.filter_review_from == "2024-01-01"
+        assert saved_view.filter_review_to == "2024-12-31"
+        assert saved_view.filter_has_review == "filled"
+        assert saved_view.filter_has_cover == "empty"
+        assert saved_view.sort == "score"
+        assert saved_view.view_mode == "list"
+
+    def test_saved_view_save_redirects_with_filters(self, logged_in_client, user, db):
+        """After saving, redirects to home with all filters applied in URL."""
+        data = {
+            "view_name": "Filtered View",
+            "type": ["BOOK"],
+            "status": ["COMPLETED"],
+            "sort": "-score",
+            "view_mode": "grid",
+        }
+        response = logged_in_client.post(reverse("saved_view_save"), data)
+
+        assert response.status_code == 302
+        # URL should contain the filters
+        assert "type=BOOK" in response.url
+        assert "status=COMPLETED" in response.url
+        assert "sort=-score" in response.url
+        assert "view_mode=grid" in response.url
+
+
+class TestSavedViewDeleteView:
+    """Tests for the saved_view_delete view."""
+
+    def test_saved_view_delete_removes_view(self, logged_in_client, user, db):
+        """POST request deletes the saved view."""
+        saved_view = SavedView.objects.create(user=user, name="To Delete")
+
+        response = logged_in_client.post(reverse("saved_view_delete", kwargs={"pk": saved_view.pk}))
+
+        assert response.status_code == 302
+        assert response.url == reverse("home")
+        assert not SavedView.objects.filter(pk=saved_view.pk).exists()
+
+    def test_saved_view_delete_only_deletes_own_views(self, logged_in_client, user, django_user_model, db):
+        """User cannot delete another user's saved views."""
+        other_user = django_user_model.objects.create_user(
+            username="otheruser",
+            email="other@example.com",
+            password="testpass123",
+        )
+        other_view = SavedView.objects.create(user=other_user, name="Other View")
+
+        response = logged_in_client.post(reverse("saved_view_delete", kwargs={"pk": other_view.pk}))
+
+        # Should redirect but view should still exist
+        assert response.status_code == 302
+        assert SavedView.objects.filter(pk=other_view.pk).exists()
+
+    def test_saved_view_delete_nonexistent_view(self, logged_in_client, db):
+        """Deleting a non-existent view redirects with error message."""
+        response = logged_in_client.post(reverse("saved_view_delete", kwargs={"pk": 99999}))
+
+        assert response.status_code == 302
+        assert response.url == reverse("home")
+
+    def test_saved_view_delete_get_redirects(self, logged_in_client, user, db):
+        """GET request redirects to home without deleting."""
+        saved_view = SavedView.objects.create(user=user, name="To Keep")
+
+        response = logged_in_client.get(reverse("saved_view_delete", kwargs={"pk": saved_view.pk}))
+
+        assert response.status_code == 302
+        assert response.url == reverse("home")
+        assert SavedView.objects.filter(pk=saved_view.pk).exists()
+
+
+class TestSavedViewValidation:
+    """Tests for saved view input validation."""
+
+    def test_saved_view_rejects_invalid_media_type(self, logged_in_client, user, db):
+        """Saved view validation rejects invalid media types."""
+        data = {
+            "view_name": "Invalid Type View",
+            "type": ["INVALID_TYPE"],
+            "sort": "-review_date",
+            "view_mode": "grid",
+        }
+        response = logged_in_client.post(reverse("saved_view_save"), data, follow=True)
+
+        # Should redirect back to home with error
+        assert response.status_code == 200
+        # View should not be created
+        assert not SavedView.objects.filter(user=user, name="Invalid Type View").exists()
+
+    def test_saved_view_rejects_invalid_status(self, logged_in_client, user, db):
+        """Saved view validation rejects invalid statuses."""
+        data = {
+            "view_name": "Invalid Status View",
+            "status": ["INVALID_STATUS"],
+            "sort": "-review_date",
+            "view_mode": "grid",
+        }
+        logged_in_client.post(reverse("saved_view_save"), data)
+
+        # View should not be created
+        assert not SavedView.objects.filter(user=user, name="Invalid Status View").exists()
+
+    def test_saved_view_rejects_invalid_score(self, logged_in_client, user, db):
+        """Saved view validation rejects invalid scores."""
+        data = {
+            "view_name": "Invalid Score View",
+            "score": ["invalid"],
+            "sort": "-review_date",
+            "view_mode": "grid",
+        }
+        logged_in_client.post(reverse("saved_view_save"), data)
+
+        # View should not be created
+        assert not SavedView.objects.filter(user=user, name="Invalid Score View").exists()
+
+    def test_saved_view_rejects_invalid_sort_field(self, logged_in_client, user, db):
+        """Saved view validation rejects invalid sort fields."""
+        data = {
+            "view_name": "Invalid Sort View",
+            "sort": "invalid_field",
+            "view_mode": "grid",
+        }
+        logged_in_client.post(reverse("saved_view_save"), data)
+
+        # View should not be created
+        assert not SavedView.objects.filter(user=user, name="Invalid Sort View").exists()
+
+    def test_saved_view_rejects_invalid_view_mode(self, logged_in_client, user, db):
+        """Saved view validation rejects invalid view modes."""
+        data = {
+            "view_name": "Invalid View Mode",
+            "sort": "-review_date",
+            "view_mode": "invalid_mode",
+        }
+        logged_in_client.post(reverse("saved_view_save"), data)
+
+        # View should not be created
+        assert not SavedView.objects.filter(user=user, name="Invalid View Mode").exists()
+
+    def test_saved_view_rejects_nonexistent_contributor(self, logged_in_client, user, db):
+        """Saved view validation rejects non-existent contributor IDs."""
+        data = {
+            "view_name": "Invalid Contributor View",
+            "contributor": "99999",
+            "sort": "-review_date",
+            "view_mode": "grid",
+        }
+        logged_in_client.post(reverse("saved_view_save"), data)
+
+        # View should not be created
+        assert not SavedView.objects.filter(user=user, name="Invalid Contributor View").exists()
+
+    def test_saved_view_rejects_invalid_contributor_format(self, logged_in_client, user, db):
+        """Saved view validation rejects invalid contributor ID formats."""
+        data = {
+            "view_name": "Invalid Contributor Format",
+            "contributor": "not-a-number",
+            "sort": "-review_date",
+            "view_mode": "grid",
+        }
+        logged_in_client.post(reverse("saved_view_save"), data)
+
+        # View should not be created
+        assert not SavedView.objects.filter(user=user, name="Invalid Contributor Format").exists()
+
+    def test_saved_view_rejects_invalid_date_format(self, logged_in_client, user, db):
+        """Saved view validation rejects invalid date formats."""
+        data = {
+            "view_name": "Invalid Date View",
+            "review_from": "not-a-date",
+            "sort": "-review_date",
+            "view_mode": "grid",
+        }
+        logged_in_client.post(reverse("saved_view_save"), data)
+
+        # View should not be created
+        assert not SavedView.objects.filter(user=user, name="Invalid Date View").exists()
+
+    def test_saved_view_rejects_invalid_has_review_value(self, logged_in_client, user, db):
+        """Saved view validation rejects invalid has_review values."""
+        data = {
+            "view_name": "Invalid Has Review",
+            "has_review": "invalid",
+            "sort": "-review_date",
+            "view_mode": "grid",
+        }
+        logged_in_client.post(reverse("saved_view_save"), data)
+
+        # View should not be created
+        assert not SavedView.objects.filter(user=user, name="Invalid Has Review").exists()
+
+    def test_saved_view_rejects_invalid_has_cover_value(self, logged_in_client, user, db):
+        """Saved view validation rejects invalid has_cover values."""
+        data = {
+            "view_name": "Invalid Has Cover",
+            "has_cover": "invalid",
+            "sort": "-review_date",
+            "view_mode": "grid",
+        }
+        logged_in_client.post(reverse("saved_view_save"), data)
+
+        # View should not be created
+        assert not SavedView.objects.filter(user=user, name="Invalid Has Cover").exists()
+
+    def test_saved_view_accepts_valid_data(self, logged_in_client, user, db):
+        """Saved view validation accepts all valid data."""
+        agent = Agent.objects.create(name="Valid Author")
+
+        data = {
+            "view_name": "Valid View",
+            "type": ["BOOK", "FILM"],
+            "status": ["COMPLETED"],
+            "score": ["8", "9", "none"],
+            "contributor": str(agent.pk),
+            "review_from": "2024-01",
+            "review_to": "2024-12-31",
+            "has_review": "filled",
+            "has_cover": "empty",
+            "sort": "-score",
+            "view_mode": "list",
+        }
+        response = logged_in_client.post(reverse("saved_view_save"), data)
+
+        # Should redirect successfully
+        assert response.status_code == 302
+
+        # View should be created
+        assert SavedView.objects.filter(user=user, name="Valid View").exists()
+        saved_view = SavedView.objects.get(user=user, name="Valid View")
+        assert saved_view.filter_types == ["BOOK", "FILM"]
+        assert saved_view.filter_statuses == ["COMPLETED"]
+        assert saved_view.filter_scores == ["8", "9", "none"]
+        assert saved_view.filter_contributor_id == agent.pk
+        assert saved_view.filter_review_from == "2024-01"
+        assert saved_view.filter_review_to == "2024-12-31"
+        assert saved_view.filter_has_review == "filled"
+        assert saved_view.filter_has_cover == "empty"
+        assert saved_view.sort == "-score"
+        assert saved_view.view_mode == "list"
+
+    def test_saved_view_accepts_descending_sort(self, logged_in_client, user, db):
+        """Saved view validation accepts descending sort fields (with -)."""
+        data = {
+            "view_name": "Descending Sort View",
+            "sort": "-created_at",
+            "view_mode": "grid",
+        }
+        response = logged_in_client.post(reverse("saved_view_save"), data)
+
+        # Should redirect successfully
+        assert response.status_code == 302
+
+        # View should be created with descending sort
+        assert SavedView.objects.filter(user=user, name="Descending Sort View").exists()
+        saved_view = SavedView.objects.get(user=user, name="Descending Sort View")
+        assert saved_view.sort == "-created_at"

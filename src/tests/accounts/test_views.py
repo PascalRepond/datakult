@@ -5,6 +5,7 @@ These tests verify the behavior of the profile edit view.
 Only tests custom functionality, not Django's built-in authentication.
 """
 
+from django.contrib.messages import get_messages
 from django.urls import reverse
 
 
@@ -72,3 +73,48 @@ class TestProfileEditView:
 
         assert response.status_code == 200  # Form re-displayed with errors
         assert response.context["password_form"].errors
+
+
+class TestSetLanguageView:
+    """Tests for the set_language_view."""
+
+    def test_set_language_changes_language(self, logged_in_client):
+        """POST with valid language code changes the language."""
+        response = logged_in_client.post(
+            reverse("accounts:set_language"),
+            {"language": "fr"},
+        )
+
+        # Should redirect (default behavior of set_language)
+        assert response.status_code == 302
+
+    def test_set_language_shows_success_message(self, logged_in_client):
+        """Setting language shows a success message."""
+
+        response = logged_in_client.post(
+            reverse("accounts:set_language"),
+            {"language": "fr"},
+            follow=True,
+        )
+
+        messages = list(get_messages(response.wsgi_request))
+        assert any(("lang" in str(m).lower()) for m in messages)
+
+    def test_set_language_ignores_invalid_language(self, logged_in_client):
+        """Invalid language codes don't show success message."""
+
+        response = logged_in_client.post(
+            reverse("accounts:set_language"),
+            {"language": "invalid"},
+            follow=True,
+        )
+
+        messages = list(get_messages(response.wsgi_request))
+        assert not any(("lang" in str(m).lower()) for m in messages)
+
+    def test_set_language_get_not_allowed(self, logged_in_client):
+        """GET request is not allowed (require_POST decorator)."""
+        response = logged_in_client.get(reverse("accounts:set_language"))
+
+        # require_POST returns 405 Method Not Allowed for GET
+        assert response.status_code == 405

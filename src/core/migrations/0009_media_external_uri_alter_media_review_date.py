@@ -5,20 +5,30 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0008_media_review_rendered_alter_media_review'),
+        ("core", "0008_media_review_rendered_alter_media_review"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='media',
-            name='external_uri',
-            field=models.URLField(blank=True, default='', help_text='Link to an external page about this media (e.g., official site, IMDb, Goodreads, etc.)', max_length=500, verbose_name='External URI'),
+            model_name="media",
+            name="external_uri",
+            field=models.URLField(
+                blank=True,
+                default="",
+                help_text="Link to an external page about this media (e.g., official site, IMDb, Goodreads, etc.)",
+                max_length=500,
+                verbose_name="External URI",
+            ),
         ),
         migrations.AlterField(
-            model_name='media',
-            name='review_date',
-            field=partial_date.fields.PartialDateField(blank=True, help_text='Either a full date or just year and month, or only year.', null=True, verbose_name='Review date'),
+            model_name="media",
+            name="review_date",
+            field=partial_date.fields.PartialDateField(
+                blank=True,
+                help_text="Either a full date or just year and month, or only year.",
+                null=True,
+                verbose_name="Review date",
+            ),
         ),
     ]

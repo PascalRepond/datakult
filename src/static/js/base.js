@@ -1,5 +1,5 @@
 // THEME SWITCHER
-document.addEventListener("DOMContentLoaded", () => {
+function initThemeSwitcher() {
     const htmlElement = document.documentElement;
     const themeRadios = document.querySelectorAll('input[name="theme-sidebar"]');
 
@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
             applyTheme(selectedTheme);
         });
     });
-});
+}
 
 // CLEAN URL - Remove default/empty parameters from URL
 // Default values that should not appear in URL
@@ -39,8 +39,7 @@ const DEFAULT_PARAMS = {
     'sort': '-review_date',
 };
 
-// Clean URL on page load - remove empty and default parameters
-document.addEventListener('DOMContentLoaded', function() {
+function cleanUrlParameters() {
     const url = new URL(window.location);
     const params = url.searchParams;
     let needsCleanup = false;
@@ -70,12 +69,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const newUrl = url.pathname + (params.toString() ? '?' + params.toString() : '');
         window.history.replaceState({}, '', newUrl);
     }
-});
+}
 
 // Handle badge removal - simple page reload with filter removed
 document.body.addEventListener('click', function(e) {
     const btn = e.target.closest('.remove-filter-badge');
     if (!btn) return;
+    e.preventDefault();
 
     const filterName = btn.dataset.filter;
     const filterValue = btn.dataset.value;
@@ -89,6 +89,10 @@ document.body.addEventListener('click', function(e) {
         const values = params.getAll(filterName).filter(v => v !== filterValue);
         params.delete(filterName);
         values.forEach(v => params.append(filterName, v));
+    } else if (filterName === 'review') {
+        // Special case for review date filter - remove both from and to
+        params.delete('review_from');
+        params.delete('review_to');
     } else {
         // For single-value filters
         params.delete(filterName);
@@ -114,4 +118,28 @@ document.body.addEventListener('htmx:afterSwap', function(event) {
             input.classList.toggle('input-error', hasError);
         }
     }
+});
+
+// TOAST MESSAGES
+// Auto-dismiss toast messages after 5 seconds
+function initToastMessages() {
+    const toastContainer = document.querySelector('.toast');
+    if (!toastContainer) return;
+
+    const alerts = toastContainer.querySelectorAll('.alert');
+    alerts.forEach((alert) => {
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            alert.style.transition = 'opacity 0.3s ease-out';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 300);
+        }, 5000);
+    });
+}
+
+// INITIALIZE ALL FEATURES ON DOM READY
+document.addEventListener('DOMContentLoaded', function() {
+    initThemeSwitcher();
+    cleanUrlParameters();
+    initToastMessages();
 });

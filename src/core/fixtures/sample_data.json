@@ -3,6 +3,8 @@
         "model": "core.agent",
         "pk": 1,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Christopher Nolan"
         }
     },
@@ -10,6 +12,8 @@
         "model": "core.agent",
         "pk": 2,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Denis Villeneuve"
         }
     },
@@ -17,6 +21,8 @@
         "model": "core.agent",
         "pk": 3,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Frank Herbert"
         }
     },
@@ -24,6 +30,8 @@
         "model": "core.agent",
         "pk": 4,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Hayao Miyazaki"
         }
     },
@@ -31,6 +39,8 @@
         "model": "core.agent",
         "pk": 5,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Hideo Kojima"
         }
     },
@@ -38,6 +48,8 @@
         "model": "core.agent",
         "pk": 6,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Radiohead"
         }
     },
@@ -45,6 +57,8 @@
         "model": "core.agent",
         "pk": 7,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Fumito Ueda"
         }
     },
@@ -52,6 +66,8 @@
         "model": "core.agent",
         "pk": 8,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Isaac Asimov"
         }
     },
@@ -59,6 +75,8 @@
         "model": "core.agent",
         "pk": 9,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Quentin Tarantino"
         }
     },
@@ -66,6 +84,8 @@
         "model": "core.agent",
         "pk": 10,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Bong Joon-ho"
         }
     },
@@ -73,6 +93,8 @@
         "model": "core.agent",
         "pk": 11,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Daft Punk"
         }
     },
@@ -80,6 +102,8 @@
         "model": "core.agent",
         "pk": 12,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Hidetaka Miyazaki"
         }
     },
@@ -87,6 +111,8 @@
         "model": "core.agent",
         "pk": 13,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Neil Gaiman"
         }
     },
@@ -94,6 +120,8 @@
         "model": "core.agent",
         "pk": 14,
         "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
             "name": "Wes Anderson"
         }
     },
@@ -101,6 +129,8 @@
         "model": "core.media",
         "pk": 1,
         "fields": {
+            "created_at": "2021-10-15T10:00:00Z",
+            "updated_at": "2021-10-15T10:00:00Z",
             "title": "Dune",
             "media_type": "FILM",
             "external_uri": "https://www.imdb.com/title/tt1160419/",
@@ -117,6 +147,8 @@
         "model": "core.media",
         "pk": 2,
         "fields": {
+            "created_at": "2020-01-15T10:00:00Z",
+            "updated_at": "2020-01-15T10:00:00Z",
             "title": "Dune (novel)",
             "media_type": "BOOK",
             "external_uri": "https://www.goodreads.com/book/show/44767458-dune",
@@ -133,6 +165,8 @@
         "model": "core.media",
         "pk": 3,
         "fields": {
+            "created_at": "2014-11-15T10:00:00Z",
+            "updated_at": "2014-11-15T10:00:00Z",
             "title": "Interstellar",
             "media_type": "FILM",
             "external_uri": "https://www.imdb.com/title/tt0816692/",
@@ -149,6 +183,8 @@
         "model": "core.media",
         "pk": 4,
         "fields": {
+            "created_at": "2015-01-15T10:00:00Z",
+            "updated_at": "2015-01-15T10:00:00Z",
             "title": "Spirited Away",
             "media_type": "FILM",
             "external_uri": "https://www.imdb.com/title/tt0245429/",
@@ -165,6 +201,8 @@
         "model": "core.media",
         "pk": 5,
         "fields": {
+            "created_at": "2024-01-15T10:00:00Z",
+            "updated_at": "2024-01-15T10:00:00Z",
             "title": "Death Stranding",
             "media_type": "GAME",
             "external_uri": "https://www.igdb.com/games/death-stranding",
@@ -180,6 +218,8 @@
         "model": "core.media",
         "pk": 6,
         "fields": {
+            "created_at": "2018-01-15T10:00:00Z",
+            "updated_at": "2018-01-15T10:00:00Z",
             "title": "OK Computer",
             "media_type": "MUSIC",
             "external_uri": "https://www.discogs.com/master/21491-Radiohead-OK-Computer",
@@ -196,6 +236,8 @@
         "model": "core.media",
         "pk": 7,
         "fields": {
+            "created_at": "2020-01-15T10:00:00Z",
+            "updated_at": "2020-01-15T10:00:00Z",
             "title": "Breaking Bad",
             "media_type": "TV",
             "external_uri": "https://www.imdb.com/title/tt0903747/",
@@ -212,6 +254,8 @@
         "model": "core.media",
         "pk": 8,
         "fields": {
+            "created_at": "2024-03-15T10:00:00Z",
+            "updated_at": "2024-03-15T10:00:00Z",
             "title": "Dune: Part Two",
             "media_type": "FILM",
             "external_uri": "https://www.imdb.com/title/tt15239678/",
@@ -227,6 +271,8 @@
         "model": "core.media",
         "pk": 9,
         "fields": {
+            "created_at": "2018-01-15T10:00:00Z",
+            "updated_at": "2018-01-15T10:00:00Z",
             "title": "Shadow of the Colossus",
             "media_type": "GAME",
             "external_uri": "https://www.igdb.com/games/shadow-of-the-colossus",
@@ -243,6 +289,8 @@
         "model": "core.media",
         "pk": 10,
         "fields": {
+            "created_at": "2019-01-15T10:00:00Z",
+            "updated_at": "2019-01-15T10:00:00Z",
             "title": "Foundation",
             "media_type": "BOOK",
             "external_uri": "https://www.goodreads.com/book/show/29579.Foundation",
@@ -259,6 +307,8 @@
         "model": "core.media",
         "pk": 11,
         "fields": {
+            "created_at": "2016-01-15T10:00:00Z",
+            "updated_at": "2016-01-15T10:00:00Z",
             "title": "Pulp Fiction",
             "media_type": "FILM",
             "external_uri": "https://www.imdb.com/title/tt0110912/",
@@ -275,6 +325,8 @@
         "model": "core.media",
         "pk": 12,
         "fields": {
+            "created_at": "2020-02-15T10:00:00Z",
+            "updated_at": "2020-02-15T10:00:00Z",
             "title": "Parasite",
             "media_type": "FILM",
             "external_uri": "https://www.imdb.com/title/tt6751668/",
@@ -290,6 +342,8 @@
         "model": "core.media",
         "pk": 13,
         "fields": {
+            "created_at": "2013-01-15T10:00:00Z",
+            "updated_at": "2013-01-15T10:00:00Z",
             "title": "Random Access Memories",
             "media_type": "MUSIC",
             "external_uri": "https://www.discogs.com/master/556257-Daft-Punk-Random-Access-Memories",
@@ -305,6 +359,8 @@
         "model": "core.media",
         "pk": 14,
         "fields": {
+            "created_at": "2024-01-15T10:00:00Z",
+            "updated_at": "2024-01-15T10:00:00Z",
             "title": "Elden Ring",
             "media_type": "GAME",
             "external_uri": "https://www.igdb.com/games/elden-ring",
@@ -321,6 +377,8 @@
         "model": "core.media",
         "pk": 15,
         "fields": {
+            "created_at": "2021-01-15T10:00:00Z",
+            "updated_at": "2021-01-15T10:00:00Z",
             "title": "The Sandman",
             "media_type": "COMIC",
             "external_uri": "https://www.goodreads.com/series/40372-the-sandman",
@@ -337,6 +395,8 @@
         "model": "core.media",
         "pk": 16,
         "fields": {
+            "created_at": "2015-01-15T10:00:00Z",
+            "updated_at": "2015-01-15T10:00:00Z",
             "title": "The Grand Budapest Hotel",
             "media_type": "FILM",
             "external_uri": "https://www.imdb.com/title/tt2278388/",
@@ -352,6 +412,8 @@
         "model": "core.media",
         "pk": 17,
         "fields": {
+            "created_at": "2017-01-15T10:00:00Z",
+            "updated_at": "2017-01-15T10:00:00Z",
             "title": "Dark Souls",
             "media_type": "GAME",
             "external_uri": "https://www.igdb.com/games/dark-souls",
@@ -368,6 +430,8 @@
         "model": "core.media",
         "pk": 18,
         "fields": {
+            "created_at": "2014-01-15T10:00:00Z",
+            "updated_at": "2014-01-15T10:00:00Z",
             "title": "Princess Mononoke",
             "media_type": "FILM",
             "external_uri": "https://www.imdb.com/title/tt0119698/",
@@ -384,6 +448,8 @@
         "model": "core.media",
         "pk": 19,
         "fields": {
+            "created_at": "2022-01-15T10:00:00Z",
+            "updated_at": "2022-01-15T10:00:00Z",
             "title": "The Leftovers",
             "media_type": "TV",
             "external_uri": "https://www.imdb.com/title/tt2699128/",
@@ -400,6 +466,8 @@
         "model": "core.media",
         "pk": 20,
         "fields": {
+            "created_at": "2019-01-15T10:00:00Z",
+            "updated_at": "2019-01-15T10:00:00Z",
             "title": "Kid A",
             "media_type": "MUSIC",
             "external_uri": "https://www.discogs.com/master/21501-Radiohead-Kid-A",
@@ -416,6 +484,8 @@
         "model": "core.media",
         "pk": 21,
         "fields": {
+            "created_at": "2024-01-15T10:00:00Z",
+            "updated_at": "2024-01-15T10:00:00Z",
             "title": "American Gods",
             "media_type": "BOOK",
             "external_uri": "https://www.goodreads.com/book/show/30165203-american-gods",
@@ -432,6 +502,8 @@
         "model": "core.media",
         "pk": 22,
         "fields": {
+            "created_at": "2024-01-15T10:00:00Z",
+            "updated_at": "2024-01-15T10:00:00Z",
             "title": "Memories of Murder",
             "media_type": "FILM",
             "external_uri": "https://www.imdb.com/title/tt0353969/",
@@ -447,6 +519,8 @@
         "model": "core.media",
         "pk": 23,
         "fields": {
+            "created_at": "2016-01-15T10:00:00Z",
+            "updated_at": "2016-01-15T10:00:00Z",
             "title": "Metal Gear Solid V: The Phantom Pain",
             "media_type": "GAME",
             "external_uri": "https://www.igdb.com/games/metal-gear-solid-v-the-phantom-pain",

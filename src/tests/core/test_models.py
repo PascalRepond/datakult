@@ -10,9 +10,10 @@ from io import BytesIO
 import pytest
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
+from freezegun import freeze_time
 from PIL import Image
 
-from core.models import MAX_FILE_SIZE_MB, Media, compress_image
+from core.models import MAX_FILE_SIZE_MB, Media, SavedView, compress_image
 
 
 class TestAgentModel:
@@ -21,6 +22,29 @@ class TestAgentModel:
     def test_agent_str_representation(self, agent):
         """The string representation of an agent is its name."""
         assert str(agent) == agent.name
+
+    def test_agent_updated_at_auto_updates_on_save(self, agent, db):
+        """The updated_at field is automatically updated when agent is saved."""
+        # Freeze time at a specific moment
+        with freeze_time("2024-01-01 12:00:00") as frozen_time:
+            # Create/update agent at this frozen time
+            agent.name = "Initial Name"
+            agent.save()
+            agent.refresh_from_db()
+            original_updated_at = agent.updated_at
+
+            # Move time forward by 1 hour
+            frozen_time.move_to("2024-01-01 13:00:00")
+
+            # Update and save again
+            agent.name = "Updated Name"
+            agent.save()
+
+            # Refresh from database
+            agent.refresh_from_db()
+
+            # updated_at should be more recent than original
+            assert agent.updated_at > original_updated_at
 
 
 class TestMediaModel:
@@ -101,6 +125,29 @@ class TestMediaModel:
         # Cleanup
         media.cover.delete(save=False)
         media.delete()
+
+    def test_media_updated_at_auto_updates_on_save(self, media, db):
+        """The updated_at field is automatically updated when media is saved."""
+        # Freeze time at a specific moment
+        with freeze_time("2024-01-01 12:00:00") as frozen_time:
+            # Create/update media at this frozen time
+            media.title = "Initial Title"
+            media.save()
+            media.refresh_from_db()
+            original_updated_at = media.updated_at
+
+            # Move time forward by 1 hour
+            frozen_time.move_to("2024-01-01 13:00:00")
+
+            # Update and save again
+            media.title = "Updated Title"
+            media.save()
+
+            # Refresh from database
+            media.refresh_from_db()
+
+            # updated_at should be more recent than original
+            assert media.updated_at > original_updated_at
 
 
 class TestCompressImageSecurity:
@@ -206,3 +253,97 @@ class TestCompressImageSecurity:
         assert result_png.format == "JPEG"
         assert result_png.width <= 800
         assert result_png.height <= 800
+
+
+class TestSavedViewModel:
+    """Tests for the SavedView model."""
+
+    def test_saved_view_str_representation(self, user, db):
+        """The string representation includes username and view name."""
+
+        saved_view = SavedView.objects.create(
+            user=user,
+            name="My Favorite Books",
+        )
+
+        assert str(saved_view) == f"{user.username} - My Favorite Books"
+
+    def test_saved_view_unique_together_constraint(self, user, db):
+        """User cannot have multiple views with the same name."""
+        from django.db import IntegrityError
+
+        # Create first view
+        SavedView.objects.create(user=user, name="My View")
+
+        # Attempting to create another view with the same name should fail
+        with pytest.raises(IntegrityError):
+            SavedView.objects.create(user=user, name="My View")
+
+    def test_saved_view_default_values(self, user, db):
+        """SavedView has correct default values for filters and preferences."""
+
+        saved_view = SavedView.objects.create(user=user, name="Default View")
+
+        assert saved_view.filter_types == []
+        assert saved_view.filter_statuses == []
+        assert saved_view.filter_scores == []
+        assert saved_view.filter_contributor_id is None
+        assert saved_view.filter_review_from == ""
+        assert saved_view.filter_review_to == ""
+        assert saved_view.filter_has_review == ""
+        assert saved_view.filter_has_cover == ""
+        assert saved_view.sort == "-review_date"
+        assert saved_view.view_mode == "grid"
+
+    def test_saved_view_stores_filter_parameters(self, user, db):
+        """SavedView correctly stores all filter parameters."""
+
+        saved_view = SavedView.objects.create(
+            user=user,
+            name="Filtered View",
+            filter_types=["BOOK", "FILM"],
+            filter_statuses=["COMPLETED"],
+            filter_scores=["8", "9", "10"],
+            filter_contributor_id=1,
+            filter_review_from="2024-01-01",
+            filter_review_to="2024-12-31",
+            filter_has_review="yes",
+            filter_has_cover="no",
+            sort="-score",
+            view_mode="list",
+        )
+
+        saved_view.refresh_from_db()
+
+        assert saved_view.filter_types == ["BOOK", "FILM"]
+        assert saved_view.filter_statuses == ["COMPLETED"]
+        assert saved_view.filter_scores == ["8", "9", "10"]
+        assert saved_view.filter_contributor_id == 1
+        assert saved_view.filter_review_from == "2024-01-01"
+        assert saved_view.filter_review_to == "2024-12-31"
+        assert saved_view.filter_has_review == "yes"
+        assert saved_view.filter_has_cover == "no"
+        assert saved_view.sort == "-score"
+        assert saved_view.view_mode == "list"
+
+    def test_saved_view_updated_at_auto_updates(self, user, db):
+        """The updated_at field is automatically updated on save."""
+        # Freeze time at a specific moment
+        with freeze_time("2024-01-01 12:00:00") as frozen_time:
+            # Create saved view at this frozen time
+            saved_view = SavedView.objects.create(user=user, name="Test View")
+            saved_view.refresh_from_db()
+            original_updated_at = saved_view.updated_at
+
+            # Move time forward by 1 hour
+            frozen_time.move_to("2024-01-01 13:00:00")
+
+            # Update and save again
+            saved_view.name = "Updated View Name"
+            saved_view.save()
+
+            # Refresh from database
+            saved_view.refresh_from_db()
+
+            # updated_at should be more recent than original
+            assert saved_view.updated_at > original_updated_at

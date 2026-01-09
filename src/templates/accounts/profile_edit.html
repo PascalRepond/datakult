@@ -6,13 +6,6 @@
 {% block content %}
   <div class="max-w-2xl mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-8">{% translate "Edit Profile" %}</h1>
-    {% if messages %}
-      {% for message in messages %}
-        <div class="alert alert-success">
-          <span>{{ message }}</span>
-        </div>
-      {% endfor %}
-    {% endif %}
     <!-- Profile Information -->
     <div class="card bg-base-200 shadow-xl mb-8">
       <div class="card-body">

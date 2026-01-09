@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load static %}
+{% load media_tags %}
 <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
   <!-- Logo/Title at the top -->
   <li class="menu-title">
@@ -13,12 +14,14 @@
         </div>
         <span class="text-xl font-bold text-primary">Datakult</span>
       </a>
-      <span class="text-xs text-base-content/50">v{{ version }}</span>
+      {% if version %}<span class="text-xs text-base-content/50">v{{ version }}</span>{% endif %}
     </div>
   </li>
   <!-- Main navigation -->
   <li>
-    <a href="{% url 'home' %}">
+    {% has_filters request as filters_active %}
+    <a href="{% url 'home' %}"
+       class="{% if request.resolver_match.view_name == 'home' and not filters_active %}menu-active{% endif %}">
       {% lucide "layers" %}
       {% translate "All" %}
     </a>
@@ -28,53 +31,54 @@
     <span>{% translate "By status" %}</span>
   </li>
   <li>
-    <a href="{% url 'home' %}?status=PLANNED"
-       class="{% if request.GET.status == 'PLANNED' %} active {% endif %}">
+    {% status_filter_matches request 'PLANNED' as planned_active %}
+    <a href="{% url 'home' %}?status=PLANNED&sort=-updated_at"
+       class="{% if planned_active %}menu-active{% endif %}">
       {% lucide "clock" %}
       {% translate "Planned" %}
     </a>
   </li>
   <li>
-    <a href="{% url 'home' %}?status=IN_PROGRESS"
-       class="{% if request.GET.status == 'IN_PROGRESS' %} active {% endif %}">
+    {% status_filter_matches request 'IN_PROGRESS' as in_progress_active %}
+    <a href="{% url 'home' %}?status=IN_PROGRESS&sort=-updated_at"
+       class="{% if in_progress_active %}menu-active{% endif %}">
       {% lucide "play" %}
       {% translate "In progress" %}
     </a>
   </li>
   <li>
-    <a href="{% url 'home' %}?status=COMPLETED"
-       class="{% if request.GET.status == 'COMPLETED' %} active {% endif %}">
-      {% lucide "circle-check" %}
-      {% translate "Completed" %}
-    </a>
-  </li>
-  <li>
-    <a href="{% url 'home' %}?status=PAUSED"
-       class="{% if request.GET.status == 'PAUSED' %} active {% endif %}">
+    {% status_filter_matches request 'PAUSED' as paused_active %}
+    <a href="{% url 'home' %}?status=PAUSED&sort=-updated_at"
+       class="{% if paused_active %}menu-active{% endif %}">
       {% lucide "pause" %}
       {% translate "Paused" %}
     </a>
   </li>
   <li>
-    <a href="{% url 'home' %}?status=DNF"
-       class="{% if request.GET.status == 'DNF' %} active {% endif %}">
-      {% lucide "circle-x" %}
-      {% translate "Did not finish" %}
+    {% status_filter_matches request 'COMPLETED' 'DNF' as completed_active %}
+    <a href="{% url 'home' %}?status=COMPLETED&status=DNF"
+       class="{% if completed_active %}menu-active{% endif %}">
+      {% lucide "circle-check" %}
+      {% translate "Completed" %}
     </a>
   </li>
+  <!-- Saved views -->
+  {% include "partials/saved_views/saved_views_list.html" %}
   <!-- Separator for settings -->
   <li class="menu-title mt-4">
     <span>{% translate "Settings" %}</span>
   </li>
   {% if user.is_authenticated %}
     <li>
-      <a href="{% url 'accounts:profile_edit' %}">
+      <a href="{% url 'accounts:profile_edit' %}"
+         class="{% if request.resolver_match.view_name == 'accounts:profile_edit' %}menu-active{% endif %}">
         {% lucide "circle-user" %}
         {% translate "Profile" %}
       </a>
     </li>
     <li>
-      <a href="{% url 'backup_manage' %}">
+      <a href="{% url 'backup_manage' %}"
+         class="{% if request.resolver_match.view_name == 'backup_manage' %}menu-active{% endif %}">
         {% lucide "download" %}
         {% translate "Backups" %}
       </a>

@@ -15,7 +15,7 @@ def resolve_sorting(request):
     sort = request.GET.get("sort") or request.GET.get("order_by") or f"-{default_field}"
 
     raw_field = sort.lstrip("-")
-    valid_fields = {"created_at", "review_date", "score"}
+    valid_fields = {"created_at", "updated_at", "review_date", "score"}
     sort_field = raw_field if raw_field in valid_fields else default_field
 
     is_desc = sort.startswith("-")

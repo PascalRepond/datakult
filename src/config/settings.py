@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 from pathlib import Path
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -133,6 +134,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Messages framework configuration for DaisyUI alerts
+
+MESSAGE_TAGS = {
+    messages.DEBUG: "info",
+    messages.INFO: "info",
+    messages.SUCCESS: "success",
+    messages.WARNING: "warning",
+    messages.ERROR: "error",
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
@@ -146,12 +157,14 @@ USE_TZ = True
 
 # Supported languages
 # https://docs.djangoproject.com/en/6.0/topics/i18n/translation/#how-django-discovers-language-preference
+
 LANGUAGES = [
     ("en", "English"),
     ("fr", "Français"),
 ]
 
 # Path where Django will look for translation files
+
 LOCALE_PATHS = [
     BASE_DIR / "locale",
 ]
@@ -168,6 +181,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Use CompressedManifestStaticFilesStorage only in production
 # In DEBUG mode (dev/test), use simple storage to avoid needing collectstatic
+
 if DEBUG:
     STORAGES = {
         "staticfiles": {

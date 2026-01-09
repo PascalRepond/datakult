@@ -6,8 +6,10 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import translation
 from django.utils.html import escape
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
+from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
+from django.views.i18n import set_language as django_set_language
 
 from .forms import CustomPasswordChangeForm, UserProfileForm
 
@@ -77,3 +79,18 @@ def validate_password_field(request):
     form = CustomPasswordChangeForm(request.user, request.POST)
     field_name = request.POST.get("field_name")
     return _validate_field_htmx(form, field_name)
+
+
+@require_POST
+@login_required
+@csrf_protect
+def set_language_view(request):
+    """Custom wrapper to set language with a success message."""
+    response = django_set_language(request)
+
+    # Add success message after language is set
+    language = request.POST.get("language")
+    if language and language in dict(settings.LANGUAGES):
+        messages.success(request, _("Language preference updated."))
+
+    return response

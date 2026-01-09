@@ -26,6 +26,19 @@
     {% endblock head_js %}
   </head>
   <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <!-- Toast container for messages -->
+    <div class="toast toast-top toast-end z-50">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} shadow-lg relative pr-12"
+               role="alert">
+            <span>{{ message }}</span>
+            <button onclick="this.parentElement.remove()"
+                    class="btn btn-ghost btn-sm btn-circle absolute top-2 right-2">{% lucide "x" %}</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
     <!-- Drawer layout: sidebar on desktop, hamburger menu on mobile -->
     <div class="drawer xl:drawer-open">
       <!-- Hidden checkbox to control drawer state -->
@@ -51,7 +64,7 @@
               </div>
               Datakult
             </a>
-            <span class="text-xs text-base-content/50">v{{ version }}</span>
+            {% if version %}<span class="text-xs text-base-content/50">v{{ version }}</span>{% endif %}
           </div>
         </div>
         <!-- Page content -->
