@@ -11,10 +11,10 @@ def populate_review_rendered(apps, _schema_editor):
     This function renders markdown to HTML for all Media objects
     that have a review but no rendered HTML yet.
     """
-    Media = apps.get_model('core', 'Media')
+    Media = apps.get_model("core", "Media")
 
     # Get all media with non-empty reviews
-    medias = Media.objects.filter(review__isnull=False).exclude(review='')
+    medias = Media.objects.filter(review__isnull=False).exclude(review="")
 
     # Save each one to trigger markdown rendering
     for media in medias:
@@ -22,22 +22,23 @@ def populate_review_rendered(apps, _schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0007_alter_media_score'),
+        ("core", "0007_alter_media_score"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='media',
-            name='review_rendered',
-            field=markdownfield.models.RenderedMarkdownField(default=''),
+            model_name="media",
+            name="review_rendered",
+            field=markdownfield.models.RenderedMarkdownField(default=""),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='media',
-            name='review',
-            field=markdownfield.models.MarkdownField(blank=True, rendered_field='review_rendered', verbose_name='Review'),
+            model_name="media",
+            name="review",
+            field=markdownfield.models.MarkdownField(
+                blank=True, rendered_field="review_rendered", verbose_name="Review"
+            ),
         ),
         migrations.RunPython(populate_review_rendered, migrations.RunPython.noop),
     ]

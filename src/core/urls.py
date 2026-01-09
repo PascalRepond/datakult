@@ -19,4 +19,7 @@ urlpatterns = [
     path("backup/", views.backup_manage, name="backup_manage"),
     path("backup/export/", views.backup_export, name="backup_export"),
     path("backup/import/", views.backup_import, name="backup_import"),
+    # Saved views
+    path("saved-views/save/", views.saved_view_save, name="saved_view_save"),
+    path("saved-views/<int:pk>/delete/", views.saved_view_delete, name="saved_view_delete"),
 ]

@@ -75,14 +75,17 @@
 }
 
 /**
-  * A catch-all path to Django template files, JavaScript, and Python files
-  * that contain Tailwind CSS classes and will be scanned by Tailwind to generate the final CSS file.
+  * Tailwind v4 content sources
   *
-  * If your final CSS file is not being updated after code changes, you may want to broaden or narrow
-  * the scope of this path.
+  * Strategy: Balance between maintainability and performance
+  * - Scan all templates (HTML) broadly
+  * - Limit JS scanning to static/js/ directory (avoids static/css/dist/ rebuild loops)
+  * - Scan Python files in Django apps (for dynamic HTML in views/forms/htmx)
   */
-@source "../../../**/*.{html,py,js}";
-@source "!../node_modules/**";
+@source "../../../templates/**/*.html";
+@source "../../../*/templates/**/*.html";
+@source "../../../static/js/**/*.js";
+@source "../../../*/**/*.py";
 
 /* Star rating widget custom styles */
 .star-rating-widget .star-btn {

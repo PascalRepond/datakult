@@ -5,30 +5,57 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Agent',
+            name="Agent",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('name', models.CharField(max_length=255, verbose_name='Name')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("name", models.CharField(max_length=255, verbose_name="Name")),
             ],
         ),
         migrations.CreateModel(
-            name='Media',
+            name="Media",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('title', models.CharField(max_length=255, verbose_name='Title')),
-                ('media_type', models.CharField(choices=[('BOOK', 'Book'), ('GAME', 'Video game'), ('MUSIC', 'Music'), ('COMIC', 'Comic'), ('FILM', 'Film'), ('TV', 'TV series'), ('PERF', 'Show/performance'), ('BROADCAST', 'Broadcast (podcast, web series, etc.)')], verbose_name='Media type')),
-                ('pub_year', models.IntegerField(blank=True, null=True, validators=[django.core.validators.MinValueValidator(-4000, 'Year must be between -4000 and 2100.'), django.core.validators.MaxValueValidator(2100, 'Year must be between -4000 and 2100.')], verbose_name='Release year')),
-                ('contributor', models.ManyToManyField(blank=True, null=True, to='core.agent', verbose_name='Contributor')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("title", models.CharField(max_length=255, verbose_name="Title")),
+                (
+                    "media_type",
+                    models.CharField(
+                        choices=[
+                            ("BOOK", "Book"),
+                            ("GAME", "Video game"),
+                            ("MUSIC", "Music"),
+                            ("COMIC", "Comic"),
+                            ("FILM", "Film"),
+                            ("TV", "TV series"),
+                            ("PERF", "Show/performance"),
+                            ("BROADCAST", "Broadcast (podcast, web series, etc.)"),
+                        ],
+                        verbose_name="Media type",
+                    ),
+                ),
+                (
+                    "pub_year",
+                    models.IntegerField(
+                        blank=True,
+                        null=True,
+                        validators=[
+                            django.core.validators.MinValueValidator(-4000, "Year must be between -4000 and 2100."),
+                            django.core.validators.MaxValueValidator(2100, "Year must be between -4000 and 2100."),
+                        ],
+                        verbose_name="Release year",
+                    ),
+                ),
+                (
+                    "contributor",
+                    models.ManyToManyField(blank=True, null=True, to="core.agent", verbose_name="Contributor"),
+                ),
             ],
         ),
     ]

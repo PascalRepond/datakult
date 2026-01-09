@@ -4,15 +4,30 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0006_alter_agent_created_at_alter_media_created_at'),
+        ("core", "0006_alter_agent_created_at_alter_media_created_at"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='media',
-            name='score',
-            field=models.IntegerField(blank=True, choices=[(1, 'Detested'), (2, 'Hated'), (3, 'Disliked'), (4, 'Not appreciated'), (5, 'Moderately appreciated'), (6, 'Appreciated'), (7, 'Enjoyed'), (8, 'Really enjoyed'), (9, 'Loved'), (10, 'Adored')], null=True, verbose_name='Review score'),
+            model_name="media",
+            name="score",
+            field=models.IntegerField(
+                blank=True,
+                choices=[
+                    (1, "Detested"),
+                    (2, "Hated"),
+                    (3, "Disliked"),
+                    (4, "Not appreciated"),
+                    (5, "Moderately appreciated"),
+                    (6, "Appreciated"),
+                    (7, "Enjoyed"),
+                    (8, "Really enjoyed"),
+                    (9, "Loved"),
+                    (10, "Adored"),
+                ],
+                null=True,
+                verbose_name="Review score",
+            ),
         ),
     ]

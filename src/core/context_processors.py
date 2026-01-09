@@ -1,6 +1,13 @@
 """Context processors for the core app."""
 
+from functools import lru_cache
+
 from .utils import get_datakult_version
+
+
+@lru_cache(maxsize=1)
+def _cached_version() -> str:
+    return get_datakult_version()
 
 
 def version(_request):
@@ -14,4 +21,4 @@ def version(_request):
     Returns:
         A dictionary with the version string.
     """
-    return {"version": get_datakult_version()}
+    return {"version": _cached_version()}

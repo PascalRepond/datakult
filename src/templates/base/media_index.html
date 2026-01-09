@@ -67,11 +67,13 @@
           <select class="select join-item select-sm sm:select-md"
                   id="sort-field-select"
                   onchange="window.location.href = '?{% query_string_exclude request 'sort' 'sort_field' %}&sort=' + (this.value.startsWith('-') ? this.value : '{% if sort|slice:":1" == "-" %}-{% endif %}' + this.value)">
-            <option value="created_at"
-                    {% if sort_field == 'created_at' %}selected{% endif %}>{% translate "Creation date" %}</option>
+            <option value="score" {% if sort_field == 'score' %}selected{% endif %}>{% translate "Score" %}</option>
             <option value="review_date"
                     {% if sort_field == 'review_date' %}selected{% endif %}>{% translate "Review date" %}</option>
-            <option value="score" {% if sort_field == 'score' %}selected{% endif %}>{% translate "Score" %}</option>
+            <option value="created_at"
+                    {% if sort_field == 'created_at' %}selected{% endif %}>{% translate "Creation date" %}</option>
+            <option value="updated_at"
+                    {% if sort_field == 'updated_at' %}selected{% endif %}>{% translate "Update date" %}</option>
           </select>
         </div>
         {# Filters button - opens drawer #}
@@ -169,9 +171,20 @@
                   data-filter="contributor">{% lucide "x" %}</button>
         </div>
       {% endif %}
+      {# Save view button - only shown when filters are active #}
+      {% if filters.has_any or contributor %}
+        <label for="save-view-modal"
+               class="btn btn-sm btn-ghost gap-2"
+               type="button">
+          {% lucide "bookmark" %}
+          {% translate "Save view" %}
+        </label>
+      {% endif %}
     </div>
   </div>
   {# Filters drawer #}
   {% include "partials/navigation/filters_drawer.html" %}
+  {# Save view modal #}
+  {% include "partials/saved_views/save_view_modal.html" %}
   {% include "partials/media_items/media_list.html" %}
 {% endblock content %}

@@ -1,5 +1,7 @@
 from io import BytesIO
+from urllib.parse import urlencode
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -96,6 +98,7 @@ class Agent(models.Model):
     """Model for an agent entity that can be contributor for a media."""
 
     created_at = models.DateTimeField(default=timezone.now, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
     name = models.CharField(
         verbose_name=_("Name"),
         blank=False,
@@ -110,6 +113,7 @@ class Media(models.Model):
     """Model for a piece of media or work of art (book, game, tv series, film, etc.)"""
 
     created_at = models.DateTimeField(default=timezone.now, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
     title = models.CharField(
         verbose_name=_("Title"),
         null=False,
@@ -163,8 +167,8 @@ class Media(models.Model):
         null=True,
         blank=True,
         validators=[
-            MinValueValidator(-4000, _("Year must be between -4000 and 2100.")),
-            MaxValueValidator(2200, _("Year must be between -4000 and 2100.")),
+            MinValueValidator(-4000, _("Year must be between -4000 and 2200.")),
+            MaxValueValidator(2200, _("Year must be between -4000 and 2200.")),
         ],
     )
     review = MarkdownField(
@@ -225,3 +229,58 @@ class Media(models.Model):
             self.cover.save(self.cover.name, compressed, save=False)
 
         super().save(*args, **kwargs)
+
+
+class SavedView(models.Model):
+    """Model for saving filtered views with custom names."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="saved_views",
+    )
+    name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+
+    # Filter parameters
+    filter_types = models.JSONField(default=list, blank=True)
+    filter_statuses = models.JSONField(default=list, blank=True)
+    filter_scores = models.JSONField(default=list, blank=True)
+    filter_contributor_id = models.IntegerField(null=True, blank=True)
+    filter_review_from = models.CharField(max_length=20, blank=True, default="")
+    filter_review_to = models.CharField(max_length=20, blank=True, default="")
+    filter_has_review = models.CharField(max_length=10, blank=True, default="")
+    filter_has_cover = models.CharField(max_length=10, blank=True, default="")
+
+    # View preferences
+    sort = models.CharField(max_length=50, default="-review_date")
+    view_mode = models.CharField(max_length=20, default="grid")
+
+    class Meta:
+        unique_together = [["user", "name"]]
+        ordering = ["name"]
+        verbose_name = _("Saved view")
+        verbose_name_plural = _("Saved views")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.name}"
+
+    def get_filter_url(self):
+        """Build the URL with all filters applied."""
+
+        params = [
+            *[("type", val) for val in self.filter_types],
+            *[("status", val) for val in self.filter_statuses],
+            *[("score", val) for val in self.filter_scores],
+        ]
+        optional_filters = [
+            ("contributor", self.filter_contributor_id),
+            ("review_from", self.filter_review_from),
+            ("review_to", self.filter_review_to),
+            ("has_review", self.filter_has_review),
+            ("has_cover", self.filter_has_cover),
+        ]
+        params.extend((key, value) for key, value in optional_filters if value)
+        params.extend([("sort", self.sort), ("view_mode", self.view_mode)])
+        return f"/?{urlencode(params)}"

@@ -30,6 +30,17 @@ STATUS_CLASSES = {
     "DNF": "badge-error",
 }
 
+FILTER_PARAMS = {
+    "contributor",
+    "type",
+    "status",
+    "score",
+    "review_from",
+    "review_to",
+    "has_review",
+    "has_cover",
+}
+
 
 @register.inclusion_tag("partials/media_items/media_icon.html")
 def media_icon(media_type, size="sm"):
@@ -156,3 +167,45 @@ def toggle_sort_direction(sort_value):
     if sort_value.startswith("-"):
         return sort_value[1:]
     return f"-{sort_value}"
+
+
+@register.simple_tag
+def has_filters(request):
+    """
+    Check if any filter parameters are present in the request.
+
+    Args:
+        request: The current request object
+
+    Returns:
+        True if any filter parameters exist, False otherwise
+
+    Example usage:
+        {% if has_filters request %}...{% endif %}
+    """
+    if not hasattr(request, "GET"):
+        return False
+    return any((param in request.GET) and any(v != "" for v in request.GET.getlist(param)) for param in FILTER_PARAMS)
+
+
+@register.simple_tag
+def status_filter_matches(request, *expected_statuses):
+    """
+    Check if the status filter exactly matches the expected statuses.
+
+    Args:
+        request: The current request object
+        *expected_statuses: One or more status values to check for
+
+    Returns:
+        True if status filter exactly matches expected values, False otherwise
+
+    Example usage:
+        {% status_filter_matches request 'COMPLETED' 'DNF' as is_active %}
+        {% if is_active %}...{% endif %}
+    """
+    if not hasattr(request, "GET"):
+        return False
+    current_statuses = set(request.GET.getlist("status"))
+    expected_set = set(expected_statuses)
+    return current_statuses == expected_set

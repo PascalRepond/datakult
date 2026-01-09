@@ -1,0 +1,27 @@
+{% load i18n %}
+{# List items for saved views - only <li> elements for use inside <ul> #}
+{% if saved_views %}
+  <li class="menu-title mt-4">
+    <span>{% translate "Saved views" %}</span>
+  </li>
+  {% for view in saved_views %}
+    <li class="group">
+      <a href="{{ view.get_filter_url }}"
+         class="flex items-center justify-between">
+        <span class="flex items-center gap-2">
+          {% lucide "bookmark" %}
+          {{ view.name }}
+        </span>
+        <form method="post"
+              action="{% url 'saved_view_delete' view.id %}"
+              class="inline"
+              onsubmit="event.stopPropagation();">
+          {% csrf_token %}
+          <button type="submit"
+                  class="btn btn-ghost btn-xs btn-circle opacity-0 group-hover:opacity-100 transition-opacity"
+                  onclick="event.stopPropagation();">{% lucide "trash-2" size="14" %}</button>
+        </form>
+      </a>
+    </li>
+  {% endfor %}
+{% endif %}

@@ -1,0 +1,40 @@
+{% load i18n %}
+<input type="checkbox" id="save-view-modal" class="modal-toggle" />
+<div class="modal"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="save-view-modal-title">
+  <div class="modal-box">
+    <h3 id="save-view-modal-title" class="text-lg font-bold">{% translate "Save current view" %}</h3>
+    <form method="post" action="{% url 'saved_view_save' %}" class="py-4">
+      {% csrf_token %}
+      <div class="form-control">
+        <label class="floating-label">
+          <span>{% translate "Name" %}</span>
+          <input type="text"
+                 name="view_name"
+                 class="input validator w-full"
+                 required
+                 autofocus />
+        </label>
+        <label class="label text-sm">{% translate "Enter the name of an existing view to update it." %}</label>
+      </div>
+      {# Include all current filters and settings as hidden fields #}
+      {% for type_val in filters.type %}<input type="hidden" name="type" value="{{ type_val }}" />{% endfor %}
+      {% for status_val in filters.status %}<input type="hidden" name="status" value="{{ status_val }}" />{% endfor %}
+      {% for score_val in filters.score %}<input type="hidden" name="score" value="{{ score_val }}" />{% endfor %}
+      {% if contributor %}<input type="hidden" name="contributor" value="{{ contributor.id }}" />{% endif %}
+      {% if filters.review_from %}<input type="hidden" name="review_from" value="{{ filters.review_from }}" />{% endif %}
+      {% if filters.review_to %}<input type="hidden" name="review_to" value="{{ filters.review_to }}" />{% endif %}
+      {% if filters.has_review %}<input type="hidden" name="has_review" value="{{ filters.has_review }}" />{% endif %}
+      {% if filters.has_cover %}<input type="hidden" name="has_cover" value="{{ filters.has_cover }}" />{% endif %}
+      <input type="hidden" name="sort" value="{{ sort }}" />
+      <input type="hidden" name="view_mode" value="{{ view_mode }}" />
+      <div class="modal-action">
+        <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
+        <label for="save-view-modal" class="btn">{% translate "Cancel" %}</label>
+      </div>
+    </form>
+  </div>
+  <label class="modal-backdrop" for="save-view-modal">{% translate "Close" %}</label>
+</div>

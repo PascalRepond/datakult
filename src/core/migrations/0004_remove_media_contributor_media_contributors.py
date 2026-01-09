@@ -4,19 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0003_media_review_media_review_date_media_score_and_more'),
+        ("core", "0003_media_review_media_review_date_media_score_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='media',
-            name='contributor',
+            model_name="media",
+            name="contributor",
         ),
         migrations.AddField(
-            model_name='media',
-            name='contributors',
-            field=models.ManyToManyField(blank=True, related_name='media', to='core.agent', verbose_name='Contributor'),
+            model_name="media",
+            name="contributors",
+            field=models.ManyToManyField(blank=True, related_name="media", to="core.agent", verbose_name="Contributor"),
         ),
     ]

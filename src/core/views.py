@@ -4,14 +4,16 @@ from pathlib import Path
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
+from partial_date import PartialDate
 
 from .forms import MediaForm
-from .models import Agent, Media
+from .models import Agent, Media, SavedView
 from .queries import build_media_context
 from .utils import create_backup, delete_orphan_agents_by_ids
 
@@ -44,7 +46,7 @@ def media_edit(request, pk=None):
         for raw_name in new_contributor_names:
             name = raw_name.strip()
             if name:
-                agent, _ = Agent.objects.get_or_create(name=name)
+                agent, _created = Agent.objects.get_or_create(name=name)
                 new_contributor_ids.append(str(agent.pk))
 
         # Create a mutable copy of POST data
@@ -63,6 +65,13 @@ def media_edit(request, pk=None):
             removed_ids = before_contributor_ids - after_contributor_ids
             if removed_ids:
                 delete_orphan_agents_by_ids(removed_ids)
+
+            # Add success message
+            if media:
+                messages.success(request, _("'%(title)s' updated successfully") % {"title": instance.title})
+            else:
+                messages.success(request, _("'%(title)s' created successfully") % {"title": instance.title})
+
             return redirect("media_detail", pk=instance.pk)
     else:
         form = MediaForm(instance=media)
@@ -74,10 +83,16 @@ def media_edit(request, pk=None):
 def media_delete(request, pk):
     media = get_object_or_404(Media, pk=pk)
     if request.method == "POST":
+        # Memorise title before deletion
+        media_title = media.title
         # Memorise contributors to cleanup after deletion
         contributor_ids = list(media.contributors.values_list("pk", flat=True))
         media.delete()
         delete_orphan_agents_by_ids(contributor_ids)
+
+        # Add success message
+        messages.success(request, _("'%(title)s' deleted successfully") % {"title": media_title})
+
         return redirect("home")
     return redirect("media_edit", pk=pk)
 
@@ -189,3 +204,146 @@ def backup_import(request):
 def backup_manage(request):
     """Display backup management page."""
     return render(request, "base/backup_manage.html")
+
+
+def validate_saved_view_data(post_data):  # noqa: C901, PLR0912
+    """
+    Validate saved view data against model constraints.
+
+    Args:
+        post_data: POST data dictionary from request
+
+    Returns:
+        list: List of error messages (empty if valid)
+    """
+    errors = []
+
+    # Validate media types against model choices
+    valid_types = [choice[0] for choice in Media.media_type.field.choices]
+    invalid_types = [t for t in post_data.getlist("type") if t not in valid_types]
+    if invalid_types:
+        errors.append(_("Invalid media types: %(types)s") % {"types": ", ".join(invalid_types)})
+
+    # Validate statuses against model choices
+    valid_statuses = [choice[0] for choice in Media.status.field.choices]
+    invalid_statuses = [s for s in post_data.getlist("status") if s not in valid_statuses]
+    if invalid_statuses:
+        errors.append(_("Invalid statuses: %(statuses)s") % {"statuses": ", ".join(invalid_statuses)})
+
+    # Validate scores against model choices + "none"
+    valid_scores = [str(choice[0]) for choice in Media.score.field.choices] + ["none"]
+    invalid_scores = [s for s in post_data.getlist("score") if s not in valid_scores]
+    if invalid_scores:
+        errors.append(_("Invalid scores: %(scores)s") % {"scores": ", ".join(invalid_scores)})
+
+    # Validate sort field against whitelist
+    sort = post_data.get("sort", "-review_date").lstrip("-")
+    valid_sorts = {"created_at", "updated_at", "review_date", "score"}
+    if sort not in valid_sorts:
+        errors.append(_("Invalid sort field: %(sort)s") % {"sort": sort})
+
+    # Validate view_mode against expected values
+    view_mode = post_data.get("view_mode", "grid")
+    valid_view_modes = {"grid", "list"}
+    if view_mode not in valid_view_modes:
+        errors.append(_("Invalid view mode: %(mode)s") % {"mode": view_mode})
+
+    # Validate contributor (if present)
+    contributor_id = post_data.get("contributor")
+    if contributor_id:
+        try:
+            contributor_id_int = int(contributor_id)
+            if not Agent.objects.filter(pk=contributor_id_int).exists():
+                errors.append(_("Contributor does not exist: ID %(id)s") % {"id": contributor_id})
+        except (ValueError, TypeError):
+            errors.append(_("Invalid contributor ID format: %(id)s") % {"id": contributor_id})
+
+    # Validate review dates (if present)
+    for field_name, field_label in [("review_from", _("Start date")), ("review_to", _("End date"))]:
+        date_value = post_data.get(field_name, "").strip()
+        if date_value:
+            try:
+                PartialDate(date_value)
+            except (ValueError, TypeError, DjangoValidationError):
+                errors.append(_("Invalid %(label)s: %(value)s") % {"label": field_label, "value": date_value})
+
+    # Validate has_review and has_cover
+    for field_name, field_label in [("has_review", _("Review filter")), ("has_cover", _("Cover filter"))]:
+        field_value = post_data.get(field_name, "")
+        if field_value and field_value not in {"empty", "filled"}:
+            errors.append(_("Invalid %(label)s value: %(value)s") % {"label": field_label, "value": field_value})
+
+    return errors
+
+
+@login_required
+def saved_view_save(request):
+    """Save or update a saved view."""
+    if request.method != "POST":
+        return redirect("home")
+
+    view_name = request.POST.get("view_name", "").strip()
+
+    if not view_name:
+        messages.error(request, _("View name is required"))
+        return redirect("home")
+
+    # Validate all filter inputs before saving
+    validation_errors = validate_saved_view_data(request.POST)
+    if validation_errors:
+        for error in validation_errors:
+            messages.error(request, error)
+        return redirect("home")
+
+    # Extract current view state from request
+    view_data = {
+        "name": view_name,
+        "filter_types": request.POST.getlist("type"),
+        "filter_statuses": request.POST.getlist("status"),
+        "filter_scores": request.POST.getlist("score"),
+        "filter_contributor_id": request.POST.get("contributor") or None,
+        "filter_review_from": request.POST.get("review_from", ""),
+        "filter_review_to": request.POST.get("review_to", ""),
+        "filter_has_review": request.POST.get("has_review", ""),
+        "filter_has_cover": request.POST.get("has_cover", ""),
+        "sort": request.POST.get("sort", "-review_date"),
+        "view_mode": request.POST.get("view_mode", "grid"),
+    }
+
+    # Check if a view with this name already exists
+    existing_view = SavedView.objects.filter(user=request.user, name=view_name).first()
+    if existing_view:
+        # Update the existing view instead of creating a new one
+        for key, value in view_data.items():
+            setattr(existing_view, key, value)
+        existing_view.save()
+        saved_view = existing_view
+        messages.success(
+            request,
+            _("View '%(name)s' has been updated") % {"name": view_name},
+        )
+    else:
+        # Create new view
+        saved_view = SavedView.objects.create(user=request.user, **view_data)
+        messages.success(request, _("View '%(name)s' saved successfully") % {"name": view_name})
+
+    # Redirect to home with the view's filters applied
+    return redirect(saved_view.get_filter_url())
+
+
+@login_required
+def saved_view_delete(request, pk):
+    """Delete a saved view."""
+    if request.method != "POST":
+        return redirect("home")
+
+    try:
+        saved_view = SavedView.objects.get(pk=pk, user=request.user)
+        view_name = saved_view.name
+        saved_view.delete()
+        messages.success(request, _("View '%(name)s' deleted successfully") % {"name": view_name})
+    except SavedView.DoesNotExist:
+        messages.error(request, _("View not found"))
+
+    # Redirect to home to refresh the sidebar
+    return redirect("home")

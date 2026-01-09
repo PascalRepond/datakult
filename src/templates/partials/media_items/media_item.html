@@ -45,6 +45,7 @@
           <div id="review-cell-{{ media.id }}" class="text-sm review-text">
             {% include "partials/media_items/media_review_clamped.html" %}
           </div>
+          {% if media.review_date %}<div class="text-xs italic text-right">{{ media.review_date }}</div>{% endif %}
         {% endif %}
       </div>
     </div>

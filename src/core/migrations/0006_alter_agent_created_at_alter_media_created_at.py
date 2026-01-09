@@ -5,20 +5,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0005_media_cover_alter_media_score'),
+        ("core", "0005_media_cover_alter_media_score"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='agent',
-            name='created_at',
+            model_name="agent",
+            name="created_at",
             field=models.DateTimeField(default=django.utils.timezone.now, editable=False),
         ),
         migrations.AlterField(
-            model_name='media',
-            name='created_at',
+            model_name="media",
+            name="created_at",
             field=models.DateTimeField(default=django.utils.timezone.now, editable=False),
         ),
     ]
