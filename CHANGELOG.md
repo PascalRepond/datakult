@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v1.4.0 (2026-01-12)
+
+### Continuous Integration
+
+- Remove unused dependencies and optimise CI workflows
+  ([`824ca57`](https://github.com/PascalRepond/datakult/commit/824ca57658181b9e9dfceb41a764fd2c076e3d9c))
+
+### Features
+
+- Add saved views feature with filters and sorting
+  ([`939e08f`](https://github.com/PascalRepond/datakult/commit/939e08f31d571455bc4b20f050734a2ae40103eb))
+
+- Display version number in sidebar and header
+  ([`8faf601`](https://github.com/PascalRepond/datakult/commit/8faf601d0ab7a4961954d85d236c78f7080bb3a7))
+
+
 ## v1.3.0 (2026-01-07)
 
 ### Bug Fixes
