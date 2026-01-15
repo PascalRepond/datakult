@@ -4,24 +4,24 @@
   {% translate "Log in" %} - Datakult
 {% endblock title %}
 {% block content %}
-  <div class="relative flex justify-center items-center h-[80vh] overflow-hidden">
-    <form method="post">
+  <div class="relative flex justify-center items-center h-[80vh] overflow-hidden px-4">
+    <form method="post" class="w-full max-w-sm">
       {% csrf_token %}
-      <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-sm border p-8 gap-4">
+      <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-full border p-4 sm:p-8 gap-4">
         <legend class="fieldset-legend text-xl">{% translate "Log in" %}</legend>
         <input type="username"
-               class="input w-sm"
+               class="input w-full"
                placeholder="{% translate "Username" %}"
                id="inputUsername"
                name="username"
                required />
         <input type="password"
-               class="input w-sm"
+               class="input w-full"
                id="inputPassword"
                placeholder="{% translate "Password" %}"
                name="password"
                required />
-        <button type="submit" class="btn btn-primary mt-4">{% translate "Log in" %}</button>
+        <button type="submit" class="btn btn-primary mt-4 w-full">{% translate "Log in" %}</button>
       </fieldset>
     </form>
   </div>

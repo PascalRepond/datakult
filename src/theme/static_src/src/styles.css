@@ -2,6 +2,13 @@
 
 @plugin "daisyui";
 
+/* Reduce base font size on small screens for better mobile experience */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+}
+
 /* Theme light custom */
 @plugin "daisyui/theme" {
   name: "datakult-light";

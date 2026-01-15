@@ -35,7 +35,7 @@
         {% if filters.review_to %}<input type="hidden" name="review_to" value="{{ filters.review_to }}" />{% endif %}
         {% if filters.has_review %}<input type="hidden" name="has_review" value="{{ filters.has_review }}" />{% endif %}
         {% if filters.has_cover %}<input type="hidden" name="has_cover" value="{{ filters.has_cover }}" />{% endif %}
-        <label class="input flex items-center gap-2">
+        <label class="input w-full flex items-center gap-2">
           <input type="search"
                  class="grow"
                  placeholder="{% translate "Search" %}"
