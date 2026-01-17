@@ -1,0 +1,10 @@
+{% load i18n %}
+{% if tag %}
+  <span class="badge badge-lg badge-secondary gap-2" data-id="{{ tag.pk }}" data-input-id="tag-input-{{ tag.pk }}">
+    <span>{{ tag.name }}</span>
+    <button type="button" class="btn btn-ghost btn-xs btn-circle" data-action="remove-chip">✕</button>
+    <input type="hidden" id="tag-input-{{ tag.pk }}" name="tags" value="{{ tag.pk }}" />
+  </span>
+{% elif error %}
+  <span class="text-error text-sm">{{ error }}</span>
+{% endif %}

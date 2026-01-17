@@ -1,5 +1,59 @@
 [
     {
+        "model": "core.tag",
+        "pk": 1,
+        "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
+            "name": "Science-Fiction"
+        }
+    },
+    {
+        "model": "core.tag",
+        "pk": 2,
+        "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
+            "name": "Animation"
+        }
+    },
+    {
+        "model": "core.tag",
+        "pk": 3,
+        "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
+            "name": "Thriller"
+        }
+    },
+    {
+        "model": "core.tag",
+        "pk": 4,
+        "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
+            "name": "Fantasy"
+        }
+    },
+    {
+        "model": "core.tag",
+        "pk": 5,
+        "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
+            "name": "Action-RPG"
+        }
+    },
+    {
+        "model": "core.tag",
+        "pk": 6,
+        "fields": {
+            "created_at": "2024-01-01T10:00:00Z",
+            "updated_at": "2024-01-01T10:00:00Z",
+            "name": "Electronic"
+        }
+    },
+    {
         "model": "core.agent",
         "pk": 1,
         "fields": {
@@ -140,6 +194,7 @@
             "score": 9,
             "review_date": "2021-10",
             "contributors": [2],
+            "tags": [1],
             "cover": "covers/cover_01.jpg"
         }
     },
@@ -158,6 +213,7 @@
             "score": 10,
             "review_date": "2020",
             "contributors": [3],
+            "tags": [1],
             "cover": "covers/cover_02.jpg"
         }
     },
@@ -176,6 +232,7 @@
             "score": 8,
             "review_date": "2014-11-15",
             "contributors": [1],
+            "tags": [1],
             "cover": "covers/cover_03.jpg"
         }
     },
@@ -194,6 +251,7 @@
             "score": 10,
             "review_date": "2015",
             "contributors": [4],
+            "tags": [2, 4],
             "cover": "covers/cover_04.jpg"
         }
     },
@@ -211,7 +269,8 @@
             "review": "",
             "score": null,
             "review_date": null,
-            "contributors": [5]
+            "contributors": [5],
+            "tags": [1, 5]
         }
     },
     {
@@ -229,6 +288,7 @@
             "score": 9,
             "review_date": "2018",
             "contributors": [6],
+            "tags": [6],
             "cover": "covers/cover_06.jpg"
         }
     },
@@ -247,6 +307,7 @@
             "score": 10,
             "review_date": "2020",
             "contributors": [],
+            "tags": [3],
             "cover": "covers/cover_07.jpg"
         }
     },
@@ -264,7 +325,8 @@
             "review": "A sequel that's even more **epic** than the first installment. The action sequences are *breathtaking*, and the character development reaches new heights. Villeneuve has created something truly special here.",
             "score": 9,
             "review_date": "2024-03",
-            "contributors": [2]
+            "contributors": [2],
+            "tags": [1]
         }
     },
     {
@@ -282,6 +344,7 @@
             "score": 9,
             "review_date": "2018",
             "contributors": [7],
+            "tags": [5],
             "cover": "covers/cover_09.jpg"
         }
     },
@@ -300,6 +363,7 @@
             "score": 9,
             "review_date": "2019",
             "contributors": [8],
+            "tags": [1],
             "cover": "covers/cover_10.jpg"
         }
     },
@@ -318,6 +382,7 @@
             "score": 9,
             "review_date": "2016",
             "contributors": [9],
+            "tags": [3],
             "cover": "covers/cover_11.jpg"
         }
     },
@@ -335,7 +400,8 @@
             "review": "A **brilliant** social thriller that blends genres masterfully. Bong Joon-ho's commentary on class struggle is *devastatingly effective*, shifting from comedy to horror with seamless precision. The film's structure is **perfect**, with each act building tension until the explosive finale.",
             "score": 10,
             "review_date": "2020-02",
-            "contributors": [10]
+            "contributors": [10],
+            "tags": [3]
         }
     },
     {
@@ -352,7 +418,8 @@
             "review": "An **ambitious album** that celebrates analog music and live instrumentation. Daft Punk took a bold departure from their electronic roots, collaborating with legendary musicians. *Get Lucky* became an instant classic.",
             "score": 8,
             "review_date": "2013",
-            "contributors": [11]
+            "contributors": [11],
+            "tags": [6]
         }
     },
     {
@@ -370,6 +437,7 @@
             "score": null,
             "review_date": null,
             "contributors": [12],
+            "tags": [4, 5],
             "cover": "covers/cover_14.jpg"
         }
     },
@@ -388,6 +456,7 @@
             "score": 10,
             "review_date": "2021",
             "contributors": [13],
+            "tags": [4],
             "cover": "covers/cover_15.jpg"
         }
     },
@@ -423,6 +492,7 @@
             "score": 9,
             "review_date": "2017",
             "contributors": [12],
+            "tags": [4, 5],
             "cover": "covers/cover_17.jpg"
         }
     },
@@ -441,6 +511,7 @@
             "score": 9,
             "review_date": "2014",
             "contributors": [4],
+            "tags": [2, 4],
             "cover": "covers/cover_18.jpg"
         }
     },
@@ -477,6 +548,7 @@
             "score": 9,
             "review_date": "2019",
             "contributors": [6],
+            "tags": [6],
             "cover": "covers/cover_20.jpg"
         }
     },
@@ -495,6 +567,7 @@
             "score": null,
             "review_date": null,
             "contributors": [13],
+            "tags": [4],
             "cover": "covers/cover_21.jpg"
         }
     },
@@ -512,7 +585,8 @@
             "review": "",
             "score": null,
             "review_date": null,
-            "contributors": [10]
+            "contributors": [10],
+            "tags": [3]
         }
     },
     {
@@ -530,7 +604,48 @@
             "score": 6,
             "review_date": "2016",
             "contributors": [5],
+            "tags": [5],
             "cover": "covers/cover_23.jpg"
+        }
+    },
+    {
+        "model": "core.savedview",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "name": "Movies to watch",
+            "created_at": "2024-01-15T10:00:00Z",
+            "updated_at": "2024-01-15T10:00:00Z",
+            "filter_types": ["FILM"],
+            "filter_statuses": ["PLANNED"],
+            "filter_scores": [],
+            "filter_contributor_id": null,
+            "filter_review_from": "",
+            "filter_review_to": "",
+            "filter_has_review": "",
+            "filter_has_cover": "",
+            "sort": "title",
+            "view_mode": "list"
+        }
+    },
+    {
+        "model": "core.savedview",
+        "pk": 2,
+        "fields": {
+            "user": 1,
+            "name": "Faves",
+            "created_at": "2024-01-15T10:00:00Z",
+            "updated_at": "2024-01-15T10:00:00Z",
+            "filter_types": [],
+            "filter_statuses": ["COMPLETED"],
+            "filter_scores": [9, 10],
+            "filter_contributor_id": null,
+            "filter_review_from": "",
+            "filter_review_to": "",
+            "filter_has_review": "yes",
+            "filter_has_cover": "",
+            "sort": "-score",
+            "view_mode": "grid"
         }
     }
 ]

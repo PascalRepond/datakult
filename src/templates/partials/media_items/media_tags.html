@@ -1,0 +1,9 @@
+{# Renders the list of tags with links #}
+{# Parameters: media #}
+{% load media_tags %}
+{% if media.tags.all %}
+  {% for tag in media.tags.all %}
+    <a href="{% url 'home' %}?{% query_string request tag=tag.id %}"
+       class="badge badge-outline badge-sm tag-link hover:badge-secondary">{{ tag.name }}</a>
+  {% endfor %}
+{% endif %}

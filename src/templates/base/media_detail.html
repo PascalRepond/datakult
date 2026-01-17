@@ -49,11 +49,16 @@
             </div>
             {# Contributors #}
             {% if media.contributors.all %}
-              <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex flex-wrap gap-1">
                 {% lucide "user" size="16" class="opacity-50" %}
-                <div class="flex flex-wrap gap-1">
-                  {% include "partials/media_items/media_contributors.html" with use_htmx=False %}
-                </div>
+                {% include "partials/media_items/media_contributors.html" with use_htmx=False %}
+              </div>
+            {% endif %}
+            {# Tags #}
+            {% if media.tags.all %}
+              <div class="flex flex-wrap gap-1 items-center">
+                {% lucide "tag" size="16" class="opacity-50" %}
+                {% include "partials/media_items/media_tags.html" %}
               </div>
             {% endif %}
             {# External link #}

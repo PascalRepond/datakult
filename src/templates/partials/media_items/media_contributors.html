@@ -1,8 +1,9 @@
 {# Renders the list of contributors with links #}
-{# Parameters: media, view_mode, sort #}
+{# Parameters: media #}
+{% load media_tags %}
 {% if media.contributors.all %}
   {% for contributor in media.contributors.all %}
-    <a href="{% url 'home' %}?view_mode={{ view_mode|default:'grid' }}&sort={{ sort|default:'-review_date' }}&contributor={{ contributor.id }}"
+    <a href="{% url 'home' %}?{% query_string request contributor=contributor.id %}"
        class="link link-hover contributor-link">{{ contributor.name }}</a>
     {% if not forloop.last %};{% endif %}
   {% endfor %}

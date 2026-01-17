@@ -150,10 +150,50 @@ function registerServiceWorker() {
     }
 }
 
+// MULTI-SELECT FILTER LABELS
+// Update dropdown labels to show count of selected items
+function initMultiSelectLabels() {
+    const filters = [
+        { name: 'type', labelId: 'type-filter-label' },
+        { name: 'status', labelId: 'status-filter-label' },
+        { name: 'score', labelId: 'score-filter-label' }
+    ];
+
+    filters.forEach(filter => {
+        const label = document.getElementById(filter.labelId);
+        if (!label) return;
+
+        // Find the dropdown container
+        const dropdown = label.closest('.dropdown');
+        if (!dropdown) return;
+
+        // Read localized strings from data attributes (with fallbacks)
+        const defaultText = label.dataset.defaultText || 'All';
+        const selectedText = label.dataset.selectedText || 'selected';
+
+        const checkboxes = dropdown.querySelectorAll(`input[name="${filter.name}"]`);
+
+        const updateLabel = () => {
+            const checkedCount = dropdown.querySelectorAll(`input[name="${filter.name}"]:checked`).length;
+            if (checkedCount === 0) {
+                label.textContent = defaultText;
+            } else {
+                label.textContent = `${checkedCount} ${selectedText}`;
+            }
+        };
+
+        // Add change listener to each checkbox
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateLabel);
+        });
+    });
+}
+
 // INITIALIZE ALL FEATURES ON DOM READY
 document.addEventListener('DOMContentLoaded', function() {
     initThemeSwitcher();
     cleanUrlParameters();
     initToastMessages();
     registerServiceWorker();
+    initMultiSelectLabels();
 });

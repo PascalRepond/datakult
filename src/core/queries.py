@@ -9,7 +9,12 @@ from .models import Media, SavedView
 
 def build_search_queryset(query):
     """Build a filtered queryset based on search query."""
-    q_objects = Q(title__icontains=query) | Q(contributors__name__icontains=query) | Q(review__icontains=query)
+    q_objects = (
+        Q(title__icontains=query)
+        | Q(contributors__name__icontains=query)
+        | Q(review__icontains=query)
+        | Q(tags__name__icontains=query)
+    )
 
     # Try to parse query as a year (integer)
     try:
@@ -19,7 +24,7 @@ def build_search_queryset(query):
         # Not a valid integer, skip year filtering
         pass
 
-    return Media.objects.filter(q_objects).distinct()
+    return Media.objects.filter(q_objects).prefetch_related("tags", "contributors").distinct()
 
 
 def build_media_context(request):
@@ -35,10 +40,14 @@ def build_media_context(request):
     search_query = request.GET.get("search", "").strip()
 
     # Build queryset based on whether it's a search or not
-    queryset = build_search_queryset(search_query) if search_query else Media.objects.all()
+    queryset = (
+        build_search_queryset(search_query)
+        if search_query
+        else Media.objects.all().prefetch_related("tags", "contributors")
+    )
 
     # Apply filters and sorting
-    queryset, contributor = apply_filters(queryset, filters)
+    queryset, contributor, tag = apply_filters(queryset, filters)
     queryset = queryset.order_by(sort)
 
     # Pagination: 20 items per page
@@ -56,6 +65,7 @@ def build_media_context(request):
         "sort_field": sort_field,
         "sort": sort,
         "contributor": contributor,
+        "tag": tag,
         "filters": filters,
         "saved_views": saved_views,
         **get_field_choices(),

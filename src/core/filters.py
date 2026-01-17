@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from .models import Agent, Media
+from .models import Agent, Media, Tag
 
 
 def resolve_sorting(request):
@@ -27,6 +27,7 @@ def extract_filters(request):
     """Extract filter parameters from request and return filters dict."""
     filters = {
         "contributor": request.GET.get("contributor", ""),
+        "tag": request.GET.get("tag", ""),
         "type": request.GET.getlist("type"),
         "status": request.GET.getlist("status"),
         "score": request.GET.getlist("score"),
@@ -79,15 +80,25 @@ def get_field_choices():
     }
 
 
+def _apply_related_filter(queryset, model, pk_value, filter_field):
+    """Apply a filter based on a related model lookup."""
+    instance = None
+    if pk_value:
+        with contextlib.suppress(ValueError, TypeError):
+            instance = model.objects.filter(pk=pk_value).first()
+        if instance:
+            queryset = queryset.filter(**{filter_field: instance})
+    return queryset, instance
+
+
 def apply_contributor_filter(queryset, contributor_id):
     """Apply contributor filter to queryset and return (queryset, contributor)."""
+    return _apply_related_filter(queryset, Agent, contributor_id, "contributors")
 
-    contributor = None
-    if contributor_id:
-        contributor = Agent.objects.filter(pk=contributor_id).first()
-        if contributor:
-            queryset = queryset.filter(contributors=contributor)
-    return queryset, contributor
+
+def apply_tag_filter(queryset, tag_id):
+    """Apply tag filter to queryset and return (queryset, tag)."""
+    return _apply_related_filter(queryset, Tag, tag_id, "tags")
 
 
 def apply_type_filter(queryset, media_types):
@@ -143,10 +154,11 @@ def apply_date_and_content_filters(queryset, filters):
 
 
 def apply_filters(queryset, filters):
-    """Apply filters to a queryset and return (queryset, contributor)."""
+    """Apply filters to a queryset and return (queryset, contributor, tag)."""
     queryset, contributor = apply_contributor_filter(queryset, filters["contributor"])
+    queryset, tag = apply_tag_filter(queryset, filters["tag"])
     queryset = apply_type_filter(queryset, filters["type"])
     queryset = apply_status_filter(queryset, filters["status"])
     queryset = apply_score_filter(queryset, filters["score"])
     queryset = apply_date_and_content_filters(queryset, filters)
-    return queryset, contributor
+    return queryset, contributor, tag
