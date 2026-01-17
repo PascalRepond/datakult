@@ -1,0 +1,19 @@
+{% load i18n %}
+{% if tags %}
+  <div class="mt-1 bg-base-100 shadow-xl rounded-lg border border-base-300 max-h-60 overflow-y-auto">
+    {% for tag in tags %}
+      <a class="block px-4 py-3 hover:bg-secondary hover:text-secondary-content cursor-pointer transition-colors"
+         hx-post="{% url 'tag_select_htmx' %}"
+         hx-vals='{"id": "{{ tag.pk }}"}'
+         hx-target="#tags-chips"
+         hx-swap="beforeend"
+         hx-on::after-request="document.getElementById('tag-suggestions').innerHTML = ''; document.getElementById('tag-suggestions').classList.add('hidden'); document.getElementById('tag_search').value = '';"
+         href="#"
+         onclick="return false;">{{ tag.name }}</a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="mt-1 bg-base-100 shadow-xl rounded-lg border border-base-300 px-4 py-2 text-sm text-base-content/70">
+    {% translate "No result, press Enter to add" %}
+  </div>
+{% endif %}

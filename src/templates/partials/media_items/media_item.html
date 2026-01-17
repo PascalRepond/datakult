@@ -31,6 +31,9 @@
             </a>
             {% if media.pub_year %}<span class="opacity-70">({{ media.pub_year }})</span>{% endif %}
             <div>{% include "partials/media_items/media_contributors.html" %}</div>
+            {% if media.tags.all %}
+              <div class="flex flex-wrap gap-1 mt-1">{% include "partials/media_items/media_tags.html" %}</div>
+            {% endif %}
           </div>
           {% include "partials/media_items/media_edit_button.html" %}
         </div>
@@ -71,6 +74,9 @@
           </div>
           {% if media.contributors.all %}
             <div class="text-sm opacity-70">{% include "partials/media_items/media_contributors.html" %}</div>
+          {% endif %}
+          {% if media.tags.all %}
+            <div class="flex flex-wrap gap-1 mt-1">{% include "partials/media_items/media_tags.html" %}</div>
           {% endif %}
           {# Show badge on small screens only (hidden from md+) #}
           {% if media.score %}

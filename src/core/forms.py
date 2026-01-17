@@ -39,6 +39,7 @@ class MediaForm(forms.ModelForm):
         fields = (
             "title",
             "contributors",
+            "tags",
             "media_type",
             "external_uri",
             "status",
@@ -76,8 +77,8 @@ class MediaForm(forms.ModelForm):
         # Add HTMX attributes for dynamic validation
         validation_url = reverse("media_validate_field")
         for field_name, field in self.fields.items():
-            # Do not add dynamic validation on file or M2M fields (cover, contributors)
-            if field_name in ["cover", "contributors"]:
+            # Do not add dynamic validation on file or M2M fields (cover, contributors, tags)
+            if field_name in ["cover", "contributors", "tags"]:
                 continue
             field.widget.attrs.update(
                 {

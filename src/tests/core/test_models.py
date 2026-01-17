@@ -347,3 +347,64 @@ class TestSavedViewModel:
 
             # updated_at should be more recent than original
             assert saved_view.updated_at > original_updated_at
+
+    def test_get_filter_url_with_defaults(self, user, db):
+        """get_filter_url returns URL with default sort and view_mode."""
+        saved_view = SavedView.objects.create(user=user, name="Default View")
+
+        url = saved_view.get_filter_url()
+
+        assert url == "/?sort=-review_date&view_mode=grid"
+
+    def test_get_filter_url_with_list_filters(self, user, db):
+        """get_filter_url includes list filters (type, status, score) as repeated params."""
+        saved_view = SavedView.objects.create(
+            user=user,
+            name="Filtered View",
+            filter_types=["BOOK", "FILM"],
+            filter_statuses=["COMPLETED"],
+            filter_scores=["9", "10"],
+        )
+
+        url = saved_view.get_filter_url()
+
+        # Check that list params are repeated
+        assert "type=BOOK" in url
+        assert "type=FILM" in url
+        assert "status=COMPLETED" in url
+        assert "score=9" in url
+        assert "score=10" in url
+
+    def test_get_filter_url_with_optional_filters(self, user, db):
+        """get_filter_url includes optional filters only when they have values."""
+        saved_view = SavedView.objects.create(
+            user=user,
+            name="Full Filters",
+            filter_contributor_id=42,
+            filter_review_from="2024-01",
+            filter_review_to="2024-12",
+            filter_has_review="yes",
+            filter_has_cover="no",
+        )
+
+        url = saved_view.get_filter_url()
+
+        assert "contributor=42" in url
+        assert "review_from=2024-01" in url
+        assert "review_to=2024-12" in url
+        assert "has_review=yes" in url
+        assert "has_cover=no" in url
+
+    def test_get_filter_url_excludes_empty_optional_filters(self, user, db):
+        """get_filter_url excludes optional filters when empty."""
+        saved_view = SavedView.objects.create(
+            user=user,
+            name="Minimal View",
+            filter_contributor_id=None,  # Empty
+            filter_review_from="",  # Empty
+        )
+
+        url = saved_view.get_filter_url()
+
+        assert "contributor" not in url
+        assert "review_from" not in url

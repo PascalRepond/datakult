@@ -1,0 +1,18 @@
+{% comment %} Filter badge with remove button
+   Parameters:
+   - label: Text to display in the badge
+   - filter_name: Name of the filter (for data-filter attribute)
+   - filter_value: Optional value (for multi-value filters like type, status, score)
+   - badge_id: Optional ID for the badge element
+- label_id: Optional ID for the label span element {% endcomment %}
+{% load i18n %}
+<div class="badge badge-secondary gap-1"
+     {% if filter_name %}data-filter="{{ filter_name }}"{% endif %}
+     {% if badge_id %}id="{{ badge_id }}"{% endif %}>
+   <span {% if label_id %}id="{{ label_id }}"{% endif %}>{{ label }}</span>
+   <button type="button"
+           aria-label="{% translate "Remove" %}"
+           class="cursor-pointer hover:bg-base-content/20 rounded-full p-0.5 remove-filter-badge"
+           {% if filter_name %}data-filter="{{ filter_name }}"{% endif %}
+           {% if filter_value %}data-value="{{ filter_value }}"{% endif %}>{% lucide "x" size="14" %}</button>
+</div>

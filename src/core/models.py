@@ -102,8 +102,33 @@ class Agent(models.Model):
     name = models.CharField(
         verbose_name=_("Name"),
         blank=False,
-        max_length=255,
+        max_length=100,
+        unique=True,
     )
+
+    class Meta:
+        verbose_name = _("Agent")
+        verbose_name_plural = _("Agents")
+
+    def __str__(self):
+        return self.name
+
+
+class Tag(models.Model):
+    """Model for tags/genres that can be applied to media."""
+
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+    updated_at = models.DateTimeField(auto_now=True, editable=False)
+    name = models.CharField(
+        verbose_name=_("Name"),
+        blank=False,
+        max_length=100,
+        unique=True,
+    )
+
+    class Meta:
+        verbose_name = _("Tag")
+        verbose_name_plural = _("Tags")
 
     def __str__(self):
         return self.name
@@ -123,6 +148,12 @@ class Media(models.Model):
     contributors = models.ManyToManyField(
         Agent,
         verbose_name=_("Contributor"),
+        blank=True,
+        related_name="media",
+    )
+    tags = models.ManyToManyField(
+        Tag,
+        verbose_name=_("Tags"),
         blank=True,
         related_name="media",
     )

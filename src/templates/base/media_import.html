@@ -1,0 +1,66 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% block title %}
+  {% translate "Import from TMDB" %} - Datakult
+{% endblock title %}
+{% block content %}
+  <div class="max-w-2xl mx-auto">
+    {# Header #}
+    <div class="flex items-center gap-4 mb-6">
+      <a href="{% if media_id %}{% url 'media_edit' media_id %}{% else %}{% url 'media_add' %}{% endif %}"
+         class="btn btn-ghost btn-sm btn-circle"
+         aria-label="{% translate 'Back' %}">{% lucide "arrow-left" %}</a>
+      <h1 class="text-4xl font-bold">{% translate "Import from TMDB" %}</h1>
+    </div>
+    {# Search form #}
+    <div class="card bg-base-200 shadow-md mb-6">
+      <div class="card-body p-4 space-y-3">
+        <div class="join w-full">
+          <input type="text"
+                 id="tmdb-query"
+                 name="q"
+                 class="input join-item w-full"
+                 placeholder="{% translate 'Search for a movie or TV show...' %}"
+                 autocomplete="off"
+                 hx-get="{% url 'tmdb_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
+                 hx-trigger="keyup changed delay:400ms, search"
+                 hx-target="#tmdb-results"
+                 hx-include="#tmdb-lang"
+                 hx-indicator="#search-spinner" />
+          <button type="button"
+                  class="btn btn-primary join-item"
+                  hx-get="{% url 'tmdb_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
+                  hx-include="#tmdb-query, #tmdb-lang"
+                  hx-target="#tmdb-results"
+                  hx-indicator="#search-spinner">{% lucide "search" %}</button>
+        </div>
+        <div class="flex items-center gap-2">
+          <label for="tmdb-lang" class="text-sm text-base-content/70">{% translate "Metadata language:" %}</label>
+          <select id="tmdb-lang" name="lang" class="select select-sm select-bordered">
+            <option value="en-US" selected>English</option>
+            <option value="fr-FR">Fran&ccedil;ais</option>
+            <option value="de-DE">Deutsch</option>
+            <option value="es-ES">Espa&ntilde;ol</option>
+            <option value="it-IT">Italiano</option>
+            <option value="pt-PT">Portugu&ecirc;s</option>
+            <option value="ja-JP">&#26085;&#26412;&#35486;</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    {# Loading indicator #}
+    <div id="search-spinner" class="htmx-indicator text-center py-8">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+    {# Results #}
+    <div id="tmdb-results"></div>
+    {# Manual entry link #}
+    <div class="text-center mt-8">
+      <p class="text-base-content/70 mb-2">{% translate "Can't find what you're looking for?" %}</p>
+      <a href="{% if media_id %}{% url 'media_edit' media_id %}{% else %}{% url 'media_add' %}{% endif %}" class="btn btn-outline btn-sm">
+        {% lucide "square-pen" class="w-4 h-4" %}
+        {% translate "Add manually" %}
+      </a>
+    </div>
+  </div>
+{% endblock content %}

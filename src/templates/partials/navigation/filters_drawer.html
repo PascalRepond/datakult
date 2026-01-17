@@ -18,12 +18,15 @@
         <h2 class="text-lg font-semibold">{% translate "Filters" %}</h2>
         <label for="filters-drawer" class="btn btn-sm btn-circle btn-ghost">{% lucide "x" %}</label>
       </div>
-      {# Hidden fields to preserve view_mode, sort, contributor and search #}
+      {# Hidden fields to preserve view_mode, sort, contributor, tag and search #}
       <input type="hidden" name="view_mode" value="{{ view_mode }}" />
       <input type="hidden" name="sort" value="{{ sort }}" />
       <input type="hidden"
              name="contributor"
              value="{{ contributor.id|default:'' }}" />
+      <input type="hidden"
+             name="tag"
+             value="{{ tag.id|default:'' }}" />
       {% if request.GET.search %}<input type="hidden" name="search" value="{{ request.GET.search }}" />{% endif %}
       {# Filters content #}
       <div class="flex flex-col gap-3">
@@ -35,7 +38,10 @@
           <div class="dropdown dropdown-bottom w-full">
             <label tabindex="0"
                    class="select select-bordered select-sm w-full flex items-center justify-between cursor-pointer">
-              <span class="flex-1" id="type-filter-label">
+              <span class="flex-1"
+                      id="type-filter-label"
+                      data-default-text="{% translate "All types" %}"
+                      data-selected-text="{% translate "selected" %}">
                 {% if filters.type %}
                   {{ filters.type|length }} {% translate "selected" %}
                 {% else %}
@@ -66,7 +72,10 @@
           <div class="dropdown dropdown-bottom w-full">
             <label tabindex="0"
                    class="select select-bordered select-sm w-full flex items-center justify-between cursor-pointer">
-              <span class="flex-1" id="status-filter-label">
+              <span class="flex-1"
+                      id="status-filter-label"
+                      data-default-text="{% translate "All statuses" %}"
+                      data-selected-text="{% translate "selected" %}">
                 {% if filters.status %}
                   {{ filters.status|length }} {% translate "selected" %}
                 {% else %}
@@ -97,7 +106,10 @@
           <div class="dropdown dropdown-bottom w-full">
             <label tabindex="0"
                    class="select select-bordered select-sm w-full flex items-center justify-between cursor-pointer">
-              <span class="flex-1" id="score-filter-label">
+              <span class="flex-1"
+                      id="score-filter-label"
+                      data-default-text="{% translate "All scores" %}"
+                      data-selected-text="{% translate "selected" %}">
                 {% if filters.score %}
                   {{ filters.score|length }} {% translate "selected" %}
                 {% else %}

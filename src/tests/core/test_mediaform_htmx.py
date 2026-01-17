@@ -8,7 +8,7 @@ def test_mediaform_htmx_attrs():
     form = MediaForm()
     for field_name, field in form.fields.items():
         widget = field.widget
-        if field_name in ["cover", "contributors"]:
+        if field_name in ["cover", "contributors", "tags"]:
             # These fields should not have HTMX attributes
             for attr in ["hx-post", "hx-trigger", "hx-target", "hx-include", "hx-vals"]:
                 assert attr not in widget.attrs

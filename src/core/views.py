@@ -1,21 +1,33 @@
+import logging
 import tarfile
 import tempfile
 from pathlib import Path
 
+import requests
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.files.base import ContentFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.db import IntegrityError
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
 from partial_date import PartialDate
 
 from .forms import MediaForm
-from .models import Agent, Media, SavedView
+from .models import Agent, Media, SavedView, Tag
 from .queries import build_media_context
+from .services.tmdb import get_tmdb_client
 from .utils import create_backup, delete_orphan_agents_by_ids
+
+logger = logging.getLogger(__name__)
+
+# TMDB constants
+DEFAULT_TMDB_LANGUAGE = "en-US"
+MIN_SEARCH_QUERY_LENGTH = 2
+MAX_TMDB_RESULTS = 8
 
 
 @login_required
@@ -33,50 +45,208 @@ def media_detail(request, pk):
     return render(request, "base/media_detail.html", context)
 
 
+MAX_NAME_LENGTH = 100
+
+
+def _get_or_create_safe(model_class, name):
+    """
+    Safely get or create an object by name with validation.
+
+    Returns (instance, error_message). If error_message is not None,
+    instance will be None.
+    """
+    clean_name = name.strip()[:MAX_NAME_LENGTH]
+
+    if not clean_name:
+        return None, None  # Skip empty names silently
+
+    # Try to find existing object first to avoid race conditions
+    existing = model_class.objects.filter(name=clean_name).first()
+    if existing:
+        return existing, None
+
+    # Try to create, catching IntegrityError for race conditions
+    try:
+        obj, _created = model_class.objects.get_or_create(name=clean_name)
+    except IntegrityError:
+        # Race condition: object was created between filter() and get_or_create()
+        existing = model_class.objects.filter(name=clean_name).first()
+        if existing:
+            return existing, None
+        # Unexpected error
+        return None, f"Failed to create {model_class.__name__}: {clean_name}"
+    else:
+        return obj, None
+
+
+def _process_new_contributors(post_data):
+    """Process new contributors from POST and return (modified POST data, errors)."""
+    new_contributor_names = post_data.getlist("new_contributors")
+    new_contributor_ids = []
+    errors = []
+
+    for raw_name in new_contributor_names:
+        agent, error = _get_or_create_safe(Agent, raw_name)
+        if error:
+            errors.append(error)
+        elif agent:
+            new_contributor_ids.append(str(agent.pk))
+
+    # Create a mutable copy and merge contributors
+    post_data = post_data.copy()
+    existing_contributors = post_data.getlist("contributors")
+    post_data.setlist("contributors", existing_contributors + new_contributor_ids)
+    return post_data, errors
+
+
+def _process_new_tags(post_data):
+    """Process new tags from POST and return (modified POST data, errors)."""
+    new_tag_names = post_data.getlist("new_tags")
+    new_tag_ids = []
+    errors = []
+
+    for raw_name in new_tag_names:
+        tag, error = _get_or_create_safe(Tag, raw_name)
+        if error:
+            errors.append(error)
+        elif tag:
+            new_tag_ids.append(str(tag.pk))
+
+    # Merge with existing tags
+    existing_tags = post_data.getlist("tags")
+    post_data.setlist("tags", existing_tags + new_tag_ids)
+    return post_data, errors
+
+
+def _handle_tmdb_poster(request, instance):
+    """Download and attach TMDB poster if provided."""
+    tmdb_poster_url = request.POST.get("tmdb_poster_url")
+    if tmdb_poster_url and not request.FILES.get("cover"):
+        poster_bytes = _download_tmdb_poster(tmdb_poster_url)
+        if poster_bytes:
+            filename = f"{instance.title[:50].replace('/', '_')}.jpg"
+            instance.cover.save(filename, ContentFile(poster_bytes), save=False)
+
+
+def _build_tmdb_initial_data(tmdb_data: dict, media_type: str, media=None) -> dict:
+    """Build form initial data from TMDB data, optionally merging with existing media."""
+    initial_data = {
+        "title": tmdb_data.get("title", ""),
+        "pub_year": tmdb_data.get("year"),
+        "media_type": "FILM" if media_type == "movie" else "TV",
+        "external_uri": tmdb_data.get("tmdb_url", ""),
+    }
+    if media:
+        # Keep existing values for fields user may have customized
+        initial_data["status"] = media.status
+        initial_data["score"] = media.score
+        initial_data["review"] = media.review
+        initial_data["review_date"] = media.review_date
+    return initial_data
+
+
 @login_required
 def media_edit(request, pk=None):
     media = get_object_or_404(Media, pk=pk) if pk else None
+    tmdb_data = None
+    tmdb_contributors = []
+    tmdb_tags = []
+
     if request.method == "POST":
-        before_contributor_ids = set()
-        if media is not None:
-            before_contributor_ids = set(media.contributors.values_list("pk", flat=True))
-        # Handle new contributors first
-        new_contributor_names = request.POST.getlist("new_contributors")
-        new_contributor_ids = []
-        for raw_name in new_contributor_names:
-            name = raw_name.strip()
-            if name:
-                agent, _created = Agent.objects.get_or_create(name=name)
-                new_contributor_ids.append(str(agent.pk))
+        before_contributor_ids = set(media.contributors.values_list("pk", flat=True)) if media else set()
+        post_data, contributor_errors = _process_new_contributors(request.POST)
+        post_data, tag_errors = _process_new_tags(post_data)
 
-        # Create a mutable copy of POST data
-        post_data = request.POST.copy()
-
-        # Add new contributor IDs to existing contributors
-        existing_contributors = post_data.getlist("contributors")
-        all_contributor_ids = existing_contributors + new_contributor_ids
-        post_data.setlist("contributors", all_contributor_ids)
+        # Report any errors from processing contributors/tags
+        for error in contributor_errors + tag_errors:
+            messages.error(request, error)
 
         form = MediaForm(post_data, request.FILES, instance=media)
         if form.is_valid():
-            instance = form.save()
-            # Cleanup agents removed from this media that became orphans
+            instance = form.save(commit=False)
+            _handle_tmdb_poster(request, instance)
+            instance.save()
+            form.save_m2m()
+
+            # Cleanup orphan agents
             after_contributor_ids = set(instance.contributors.values_list("pk", flat=True))
             removed_ids = before_contributor_ids - after_contributor_ids
             if removed_ids:
                 delete_orphan_agents_by_ids(removed_ids)
 
-            # Add success message
-            if media:
-                messages.success(request, _("'%(title)s' updated successfully") % {"title": instance.title})
-            else:
-                messages.success(request, _("'%(title)s' created successfully") % {"title": instance.title})
-
+            msg_key = "'%(title)s' updated successfully" if media else "'%(title)s' created successfully"
+            messages.success(request, _(msg_key) % {"title": instance.title})
             return redirect("media_detail", pk=instance.pk)
     else:
-        form = MediaForm(instance=media)
-    context = {"media": media, "form": form}
+        tmdb_id = request.GET.get("tmdb_id")
+        media_type = request.GET.get("media_type")
+        lang = request.GET.get("lang", DEFAULT_TMDB_LANGUAGE)
+
+        if tmdb_id and media_type in ("movie", "tv"):
+            tmdb_data = _fetch_tmdb_data(tmdb_id, media_type, language=lang)
+            if tmdb_data:
+                initial_data = _build_tmdb_initial_data(tmdb_data, media_type, media)
+                form = MediaForm(initial=initial_data, instance=media)
+
+                # Filter out TMDB contributors/tags that already exist on the media
+                existing_contributor_names = set()
+                existing_tag_names = set()
+                if media:
+                    existing_contributor_names = {c.name.lower() for c in media.contributors.all()}
+                    existing_tag_names = {t.name.lower() for t in media.tags.all()}
+
+                tmdb_contributors = [
+                    name for name in tmdb_data.get("contributors", []) if name.lower() not in existing_contributor_names
+                ]
+                tmdb_tags = [name for name in tmdb_data.get("genres", []) if name.lower() not in existing_tag_names]
+            else:
+                form = MediaForm(instance=media)
+        else:
+            form = MediaForm(instance=media)
+
+    context = {
+        "media": media,
+        "form": form,
+        "tmdb_data": tmdb_data,
+        "tmdb_contributors": tmdb_contributors,
+        "tmdb_tags": tmdb_tags,
+    }
     return render(request, "base/media_edit.html", context)
+
+
+def _fetch_tmdb_data(tmdb_id: str, media_type: str, language: str = DEFAULT_TMDB_LANGUAGE) -> dict | None:
+    """Fetch TMDB data for pre-filling the form."""
+    client = get_tmdb_client()
+    if not client:
+        return None
+
+    try:
+        details = client.get_full_details(int(tmdb_id), media_type, language=language)
+    except (requests.RequestException, ValueError):
+        logger.exception("Failed to fetch TMDB data for %s/%s", media_type, tmdb_id)
+        return None
+
+    # Combine directors and production companies
+    contributors = details.get("directors", []) + details.get("production_companies", [])
+    details["contributors"] = contributors
+    return details
+
+
+def _download_tmdb_poster(poster_url: str) -> bytes | None:
+    """Download poster image from TMDB."""
+    client = get_tmdb_client()
+    if not client:
+        return None
+    return client.download_poster(poster_url)
+
+
+@login_required
+def media_import(request):
+    """Display TMDB search page for importing media."""
+    # Optional: if editing existing media, pass media_id to template
+    media_id = request.GET.get("media_id")
+    context = {"media_id": media_id}
+    return render(request, "base/media_import.html", context)
 
 
 @login_required
@@ -124,6 +294,59 @@ def agent_select_htmx(request):
         return render(
             request, "partials/contributors/contributor_chip.html", {"agent": None, "error": "Agent not found"}
         )
+
+
+@login_required
+def tag_search_htmx(request):
+    """HTMX view: search tags by name."""
+    query = request.GET.get("q", "").strip()
+    tags = Tag.objects.filter(name__icontains=query).order_by("name")[:12] if query else []
+    return render(request, "partials/tags/tag_suggestions.html", {"tags": tags})
+
+
+@login_required
+def tag_select_htmx(request):
+    """Select an existing tag and return the chip."""
+    tag_id = request.POST.get("id")
+    try:
+        tag = Tag.objects.get(pk=tag_id)
+        return render(request, "partials/tags/tag_chip.html", {"tag": tag})
+    except Tag.DoesNotExist:
+        return render(request, "partials/tags/tag_chip.html", {"tag": None, "error": "Tag not found"})
+
+
+@login_required
+def tmdb_search_htmx(request):
+    """HTMX view: search TMDB for movies and TV shows."""
+    query = request.GET.get("q", "").strip()
+    media_id = request.GET.get("media_id")  # For editing existing media
+    lang = request.GET.get("lang", DEFAULT_TMDB_LANGUAGE)
+
+    base_context = {"results": [], "media_id": media_id, "lang": lang}
+
+    if len(query) < MIN_SEARCH_QUERY_LENGTH:
+        return render(request, "partials/tmdb/tmdb_suggestions.html", base_context)
+
+    client = get_tmdb_client()
+    if not client:
+        logger.warning("TMDB search attempted but API key not configured")
+        return render(
+            request,
+            "partials/tmdb/tmdb_suggestions.html",
+            {**base_context, "error": "TMDB API key not configured"},
+        )
+
+    try:
+        results = client.search_multi(query, language=lang)[:MAX_TMDB_RESULTS]
+    except requests.RequestException:
+        logger.exception("TMDB search failed")
+        return render(
+            request,
+            "partials/tmdb/tmdb_suggestions.html",
+            {**base_context, "error": "Search failed"},
+        )
+
+    return render(request, "partials/tmdb/tmdb_suggestions.html", {**base_context, "results": results})
 
 
 @login_required

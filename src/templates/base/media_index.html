@@ -28,6 +28,7 @@
         <input type="hidden"
                name="contributor"
                value="{{ contributor.id|default:'' }}" />
+        <input type="hidden" name="tag" value="{{ tag.id|default:'' }}" />
         {% for type_val in filters.type %}<input type="hidden" name="type" value="{{ type_val }}" />{% endfor %}
         {% for status_val in filters.status %}<input type="hidden" name="status" value="{{ status_val }}" />{% endfor %}
         {% for score_val in filters.score %}<input type="hidden" name="score" value="{{ score_val }}" />{% endfor %}
@@ -82,7 +83,8 @@
           <span class="hidden sm:inline">{% translate "Filters" %}</span>
         </label>
         {# Add button #}
-        <a href="{% url 'media_add' %}" class="btn btn-primary btn-sm sm:btn-md">
+        <a href="{% url 'media_import' %}"
+           class="btn btn-primary btn-sm sm:btn-md">
           {% lucide "plus" %}
           <span class="hidden sm:inline">{% translate "Add" %}</span>
         </a>
@@ -92,87 +94,48 @@
     <div id="active-filters-badges" class="flex flex-wrap gap-2 items-center">
       {% if filters.type %}
         {% for type_val, type_label in filters.type_display %}
-          <div class="badge badge-secondary gap-1">
-            <span>{{ type_label }}</span>
-            <button type="button"
-                    class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
-                    data-filter="type"
-                    data-value="{{ type_val }}">{% lucide "x" %}</button>
-          </div>
+          {% include "partials/filters/filter_badge.html" with label=type_label filter_name="type" filter_value=type_val %}
         {% endfor %}
       {% endif %}
       {% if filters.status %}
         {% for status_val, status_label in filters.status_display %}
-          <div class="badge badge-secondary gap-1">
-            <span>{{ status_label }}</span>
-            <button type="button"
-                    class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
-                    data-filter="status"
-                    data-value="{{ status_val }}">{% lucide "x" %}</button>
-          </div>
+          {% include "partials/filters/filter_badge.html" with label=status_label filter_name="status" filter_value=status_val %}
         {% endfor %}
       {% endif %}
       {% if filters.score %}
         {% for score_val, score_label in filters.score_display %}
-          <div class="badge badge-secondary gap-1">
-            <span>{{ score_label }}</span>
-            <button type="button"
-                    class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
-                    data-filter="score"
-                    data-value="{{ score_val }}">{% lucide "x" %}</button>
-          </div>
+          {% include "partials/filters/filter_badge.html" with label=score_label filter_name="score" filter_value=score_val %}
         {% endfor %}
       {% endif %}
       {% if filters.review_from or filters.review_to %}
-        <div class="badge badge-secondary gap-1" data-filter="review">
-          <span>📅 {{ filters.review_from }}
-            {% if filters.review_from and filters.review_to %}→{% endif %}
-          {{ filters.review_to }}</span>
-          <button type="button"
-                  class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
-                  data-filter="review">{% lucide "x" %}</button>
-        </div>
+        {% with review_label="📅 "|add:filters.review_from|default:""|add:" → "|add:filters.review_to|default:"" %}
+          {% include "partials/filters/filter_badge.html" with label=review_label filter_name="review" %}
+        {% endwith %}
       {% endif %}
       {% if filters.has_review %}
-        <div class="badge badge-secondary gap-1" data-filter="has_review">
-          <span>
-            {% if filters.has_review == 'empty' %}
-              {% translate "No review" %}
-            {% else %}
-              {% translate "Has review" %}
-            {% endif %}
-          </span>
-          <button type="button"
-                  class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
-                  data-filter="has_review">{% lucide "x" %}</button>
-        </div>
+        {% if filters.has_review == 'empty' %}
+          {% translate "No review" as has_review_label %}
+        {% else %}
+          {% translate "Has review" as has_review_label %}
+        {% endif %}
+        {% include "partials/filters/filter_badge.html" with label=has_review_label filter_name="has_review" %}
       {% endif %}
       {% if filters.has_cover %}
-        <div class="badge badge-secondary gap-1" data-filter="has_cover">
-          <span>
-            {% if filters.has_cover == 'empty' %}
-              {% translate "No cover" %}
-            {% else %}
-              {% translate "Has cover" %}
-            {% endif %}
-          </span>
-          <button type="button"
-                  class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
-                  data-filter="has_cover">{% lucide "x" %}</button>
-        </div>
+        {% if filters.has_cover == 'empty' %}
+          {% translate "No cover" as has_cover_label %}
+        {% else %}
+          {% translate "Has cover" as has_cover_label %}
+        {% endif %}
+        {% include "partials/filters/filter_badge.html" with label=has_cover_label filter_name="has_cover" %}
       {% endif %}
       {% if contributor %}
-        <div class="badge badge-primary gap-1"
-             data-filter="contributor"
-             id="contributor-badge">
-          <span id="contributor-badge-name">{{ contributor.name }}</span>
-          <button type="button"
-                  class="btn btn-ghost btn-xs btn-circle remove-filter-badge"
-                  data-filter="contributor">{% lucide "x" %}</button>
-        </div>
+        {% include "partials/filters/filter_badge.html" with label=contributor.name filter_name="contributor" badge_id="contributor-badge" label_id="contributor-badge-name" %}
+      {% endif %}
+      {% if tag %}
+        {% include "partials/filters/filter_badge.html" with label=tag.name filter_name="tag" badge_id="tag-badge" label_id="tag-badge-name" %}
       {% endif %}
       {# Save view button - only shown when filters are active #}
-      {% if filters.has_any or contributor %}
+      {% if filters.has_any or contributor or tag %}
         <label for="save-view-modal"
                class="btn btn-sm btn-ghost gap-2"
                type="button">

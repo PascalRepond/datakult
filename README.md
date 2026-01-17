@@ -66,6 +66,7 @@ A Django application to track and rate the media I consume: movies, TV shows, bo
    - `SECRET_KEY`: Generate with `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`
    - `ALLOWED_HOSTS`: Add your domain and IP (e.g., `datakult.example.com,192.168.1.100,localhost`)
    - `DJANGO_SUPERUSER_PASSWORD`: Use a secure password
+   - `TMDB_API_KEY`: If you want to be able to import metadata from TMDB
 
 4. Start the application:
    ```bash

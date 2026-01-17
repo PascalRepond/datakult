@@ -37,10 +37,18 @@
             {% endif %}
           </h1>
         </div>
-        <button type="submit" class="btn btn-primary">
-          {% lucide "save" %}
-          {% translate "Save" %}
-        </button>
+        <div class="flex gap-2">
+          <a href="{% url 'media_import' %}{% if media %}?media_id={{ media.pk }}{% endif %}"
+             class="btn btn-outline btn-sm"
+             title="{% translate 'Import from TMDB' %}">
+            {% lucide "download" class="w-4 h-4" %}
+            TMDB
+          </a>
+          <button type="submit" class="btn btn-primary">
+            {% lucide "save" %}
+            {% translate "Save" %}
+          </button>
+        </div>
       </div>
       {# Main content #}
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -53,7 +61,32 @@
                 <label class="label" for="id_cover">
                   {% include "partials/common/field_label.html" with label=_("Cover image") field=form.cover %}
                 </label>
-                {{ form.cover }}
+                {# Show TMDB poster if available #}
+                {% if tmdb_data.poster_url %}
+                  <div class="mb-2">
+                    <img src="{{ tmdb_data.poster_url }}"
+                         alt="{% translate 'Cover from TMDB' %}"
+                         class="w-full rounded-lg"
+                         id="tmdb-poster-preview">
+                    <input type="hidden"
+                           name="tmdb_poster_url"
+                           id="tmdb-poster-url-input"
+                           value="{{ tmdb_data.poster_url }}">
+                    <p class="text-xs text-base-content/60 mt-1">
+                      {% if media.cover %}
+                        {% translate "This will replace the current cover" %}
+                      {% else %}
+                        {% translate "Cover will be imported from TMDB" %}
+                      {% endif %}
+                    </p>
+                    <details class="mt-2">
+                      <summary class="text-xs link link-hover cursor-pointer">{% translate "Upload a different image instead" %}</summary>
+                      <div class="mt-2">{{ form.cover }}</div>
+                    </details>
+                  </div>
+                {% else %}
+                  {{ form.cover }}
+                {% endif %}
                 <label class="label" id="error-cover">
                   {% if form.cover.errors %}<span class="label-text-alt text-error">{{ form.cover.errors.0 }}</span>{% endif %}
                 </label>
@@ -77,8 +110,19 @@
                   {% include "partials/common/field_label.html" with label=_("Contributors") field=form.contributors %}
                 </label>
                 <div id="contributors-chips" class="flex flex-wrap gap-2 mb-2">
+                  {# Existing contributors (from database) #}
                   {% for contributor in media.contributors.all %}
                     {% include "partials/contributors/contributor_chip.html" with agent=contributor %}
+                  {% endfor %}
+                  {# TMDB contributors (pre-filled as new) #}
+                  {% for name in tmdb_contributors %}
+                    <span class="badge badge-lg badge-primary gap-2" data-name="{{ name }}">
+                      <span>{{ name }}</span>
+                      <button type="button"
+                              class="btn btn-ghost btn-xs btn-circle"
+                              data-action="remove-chip">✕</button>
+                      <input type="hidden" name="new_contributors" value="{{ name }}">
+                    </span>
                   {% endfor %}
                 </div>
                 <div class="relative">
@@ -95,11 +139,51 @@
                   <div id="contributor-suggestions"
                        class="absolute top-full left-0 right-0 z-50 hidden"></div>
                 </div>
-                <label class="label" id="error-contributors">
-                  {% if form.contributors.errors %}
+                {% if form.contributors.errors %}
+                  <label class="label" id="error-contributors">
                     <span class="label-text-alt text-error">{{ form.contributors.errors.0 }}</span>
-                  {% endif %}
+                  </label>
+                {% endif %}
+              </div>
+              <div class="form-control">
+                <label class="label" for="id_tags">
+                  {% include "partials/common/field_label.html" with label=_("Tags") field=form.tags %}
                 </label>
+                <div id="tags-chips" class="flex flex-wrap gap-2 mb-2">
+                  {# Existing tags (from database) #}
+                  {% for tag in media.tags.all %}
+                    {% include "partials/tags/tag_chip.html" %}
+                  {% endfor %}
+                  {# TMDB tags (pre-filled as new) #}
+                  {% for name in tmdb_tags %}
+                    <span class="badge badge-lg badge-secondary gap-2" data-name="{{ name }}">
+                      <span>{{ name }}</span>
+                      <button type="button"
+                              class="btn btn-ghost btn-xs btn-circle"
+                              data-action="remove-chip">✕</button>
+                      <input type="hidden" name="new_tags" value="{{ name }}">
+                    </span>
+                  {% endfor %}
+                </div>
+                <div class="relative">
+                  <input type="text"
+                         id="tag_search"
+                         name="tag_search"
+                         class="input w-full"
+                         placeholder="{% translate 'Type to search or press Enter to add' %}"
+                         autocomplete="off"
+                         hx-get="{% url 'tag_search_htmx' %}"
+                         hx-trigger="keyup changed delay:300ms"
+                         hx-target="#tag-suggestions"
+                         hx-vals='js:{q: document.getElementById("tag_search").value}' />
+                  <div id="tag-suggestions"
+                       class="absolute top-full left-0 right-0 z-50 hidden"></div>
+                </div>
+                {% if form.tags.errors %}
+                  <label class="label" id="error-tags">
+                    <span class="label-text-alt text-error">{{ form.tags.errors.0 }}</span>
+                  </label>
+                {% endif %}
               </div>
               <div class="form-control">
                 <label class="label" for="id_media_type">
