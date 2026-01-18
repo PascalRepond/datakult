@@ -223,6 +223,8 @@ TAILWIND_APP_NAME = "theme"
 # =============================================================================
 
 TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "")
+TWITCH_CLIENT_ID = os.environ.get("TWITCH_CLIENT_ID", "")
+TWITCH_CLIENT_SECRET = os.environ.get("TWITCH_CLIENT_SECRET", "")
 
 # =============================================================================
 # Security Settings for Production (behind reverse proxy like Cloudflare Tunnel)

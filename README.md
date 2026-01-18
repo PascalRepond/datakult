@@ -67,6 +67,7 @@ A Django application to track and rate the media I consume: movies, TV shows, bo
    - `ALLOWED_HOSTS`: Add your domain and IP (e.g., `datakult.example.com,192.168.1.100,localhost`)
    - `DJANGO_SUPERUSER_PASSWORD`: Use a secure password
    - `TMDB_API_KEY`: If you want to be able to import metadata from TMDB
+   - `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET`: If you want to import metadata from IGDB
 
 4. Start the application:
    ```bash

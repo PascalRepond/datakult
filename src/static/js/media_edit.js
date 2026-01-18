@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'btn btn-ghost btn-xs btn-circle';
+      btn.className = 'btn btn-neutral btn-ghost btn-xs btn-circle';
       btn.dataset.action = 'remove-chip';
       btn.textContent = '✕';
 

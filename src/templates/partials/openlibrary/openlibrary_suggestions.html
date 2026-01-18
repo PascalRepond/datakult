@@ -7,7 +7,7 @@
 {% elif results %}
   <div class="space-y-2">
     {% for result in results %}
-      <a href="{% if media_id %}{% url 'media_edit' pk=media_id %}{% else %}{% url 'media_add' %}{% endif %}?tmdb_id={{ result.tmdb_id }}&media_type={{ result.media_type }}&lang={{ lang }}"
+      <a href="{% if media_id %}{% url 'media_edit' pk=media_id %}{% else %}{% url 'media_add' %}{% endif %}?openlibrary_key={{ result.olid }}{% if result.year %}&year={{ result.year }}{% endif %}"
          class="card bg-base-100 shadow hover:shadow-lg transition-shadow">
         <div class="card-body p-3 flex-row items-center gap-4">
           {% if result.cover_url_small %}
@@ -17,23 +17,23 @@
                  loading="lazy">
           {% else %}
             <div class="w-16 h-24 bg-base-200 rounded shrink-0 flex items-center justify-center">
-              {% lucide "image-off" class="w-6 h-6 opacity-50" %}
+              {% lucide "book" class="w-6 h-6 opacity-50" %}
             </div>
           {% endif %}
           <div class="flex-1 min-w-0">
             <h3 class="font-bold text-lg truncate">{{ result.title }}</h3>
             <div class="flex items-center gap-2 text-sm opacity-70 mb-1">
-              {% if result.media_type == "movie" %}
-                <span class="badge badge-sm badge-outline">{% translate "Film" %}</span>
-              {% else %}
-                <span class="badge badge-sm badge-outline">{% translate "TV" %}</span>
-              {% endif %}
+              <span class="badge badge-sm badge-outline">{% translate "Book" %}</span>
               {% if result.year %}<span>{{ result.year }}</span>{% endif %}
-              {% if result.original_title and result.original_title != result.title %}
-                <span class="truncate">({{ result.original_title }})</span>
-              {% endif %}
             </div>
-            {% if result.overview %}<p class="text-sm opacity-60 line-clamp-2">{{ result.overview }}</p>{% endif %}
+            {% if result.authors %}
+              <p class="text-sm opacity-60 truncate">
+                {% for author in result.authors %}
+                  {{ author }}
+                  {% if not forloop.last %},{% endif %}
+                {% endfor %}
+              </p>
+            {% endif %}
           </div>
           <div class="shrink-0">{% lucide "chevron-right" class="w-5 h-5 opacity-50" %}</div>
         </div>

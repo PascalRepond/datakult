@@ -1,7 +1,7 @@
 {% extends "base/base.html" %}
 {% load i18n %}
 {% block title %}
-  {% translate "Import from TMDB" %} - Datakult
+  {% translate "Import metadata" %} - Datakult
 {% endblock title %}
 {% block content %}
   <div class="max-w-2xl mx-auto">
@@ -10,11 +10,38 @@
       <a href="{% if media_id %}{% url 'media_edit' media_id %}{% else %}{% url 'media_add' %}{% endif %}"
          class="btn btn-ghost btn-sm btn-circle"
          aria-label="{% translate 'Back' %}">{% lucide "arrow-left" %}</a>
-      <h1 class="text-4xl font-bold">{% translate "Import from TMDB" %}</h1>
+      <h1 class="text-4xl font-bold">{% translate "Import metadata" %}</h1>
     </div>
-    {# Search form #}
-    <div class="card bg-base-200 shadow-md mb-6">
+    {# Source selector tabs #}
+    <div class="tabs tabs-box mb-6">
+      <input type="radio"
+             name="import_source"
+             class="tab"
+             aria-label="{% translate 'Movies & TV' %}"
+             id="tab-tmdb"
+             checked
+             hx-on:click="document.getElementById('source-tmdb').classList.remove('hidden'); document.getElementById('source-igdb').classList.add('hidden'); document.getElementById('source-openlibrary').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
+      <input type="radio"
+             name="import_source"
+             class="tab"
+             aria-label="{% translate 'Video games' %}"
+             id="tab-igdb"
+             hx-on:click="document.getElementById('source-igdb').classList.remove('hidden'); document.getElementById('source-tmdb').classList.add('hidden'); document.getElementById('source-openlibrary').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
+      <input type="radio"
+             name="import_source"
+             class="tab"
+             aria-label="{% translate 'Books' %}"
+             id="tab-openlibrary"
+             hx-on:click="document.getElementById('source-openlibrary').classList.remove('hidden'); document.getElementById('source-tmdb').classList.add('hidden'); document.getElementById('source-igdb').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
+    </div>
+    {# TMDB Search (Movies & TV) #}
+    <div id="source-tmdb" class="card bg-base-200 shadow-md mb-6">
       <div class="card-body p-4 space-y-3">
+        <div class="flex items-center gap-2 mb-2">
+          {% lucide "film" class="w-5 h-5" %}
+          <span class="font-semibold">TMDB</span>
+          <span class="text-sm opacity-70">- {% translate "Movies & TV shows" %}</span>
+        </div>
         <div class="join w-full">
           <input type="text"
                  id="tmdb-query"
@@ -24,14 +51,14 @@
                  autocomplete="off"
                  hx-get="{% url 'tmdb_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
                  hx-trigger="keyup changed delay:400ms, search"
-                 hx-target="#tmdb-results"
+                 hx-target="#import-results"
                  hx-include="#tmdb-lang"
                  hx-indicator="#search-spinner" />
           <button type="button"
                   class="btn btn-primary join-item"
                   hx-get="{% url 'tmdb_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
                   hx-include="#tmdb-query, #tmdb-lang"
-                  hx-target="#tmdb-results"
+                  hx-target="#import-results"
                   hx-indicator="#search-spinner">{% lucide "search" %}</button>
         </div>
         <div class="flex items-center gap-2">
@@ -48,16 +75,74 @@
         </div>
       </div>
     </div>
+    {# IGDB Search (Video games) #}
+    <div id="source-igdb" class="card bg-base-200 shadow-md mb-6 hidden">
+      <div class="card-body p-4 space-y-3">
+        <div class="flex items-center gap-2 mb-2">
+          {% lucide "gamepad-2" class="w-5 h-5" %}
+          <span class="font-semibold">IGDB</span>
+          <span class="text-sm opacity-70">- {% translate "Video games" %}</span>
+        </div>
+        <div class="join w-full">
+          <input type="text"
+                 id="igdb-query"
+                 name="q"
+                 class="input join-item w-full"
+                 placeholder="{% translate 'Search for a video game...' %}"
+                 autocomplete="off"
+                 hx-get="{% url 'igdb_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
+                 hx-trigger="keyup changed delay:400ms, search"
+                 hx-target="#import-results"
+                 hx-indicator="#search-spinner" />
+          <button type="button"
+                  class="btn btn-primary join-item"
+                  hx-get="{% url 'igdb_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
+                  hx-include="#igdb-query"
+                  hx-target="#import-results"
+                  hx-indicator="#search-spinner">{% lucide "search" %}</button>
+        </div>
+      </div>
+    </div>
+    {# OpenLibrary Search (Books) #}
+    <div id="source-openlibrary"
+         class="card bg-base-200 shadow-md mb-6 hidden">
+      <div class="card-body p-4 space-y-3">
+        <div class="flex items-center gap-2 mb-2">
+          {% lucide "book-open" class="w-5 h-5" %}
+          <span class="font-semibold">OpenLibrary</span>
+          <span class="text-sm opacity-70">- {% translate "Books" %}</span>
+        </div>
+        <div class="join w-full">
+          <input type="text"
+                 id="openlibrary-query"
+                 name="q"
+                 class="input join-item w-full"
+                 placeholder="{% translate 'Search for a book...' %}"
+                 autocomplete="off"
+                 hx-get="{% url 'openlibrary_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
+                 hx-trigger="keyup changed delay:400ms, search"
+                 hx-target="#import-results"
+                 hx-indicator="#search-spinner" />
+          <button type="button"
+                  class="btn btn-primary join-item"
+                  hx-get="{% url 'openlibrary_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
+                  hx-include="#openlibrary-query"
+                  hx-target="#import-results"
+                  hx-indicator="#search-spinner">{% lucide "search" %}</button>
+        </div>
+      </div>
+    </div>
     {# Loading indicator #}
     <div id="search-spinner" class="htmx-indicator text-center py-8">
       <span class="loading loading-spinner loading-lg"></span>
     </div>
     {# Results #}
-    <div id="tmdb-results"></div>
+    <div id="import-results"></div>
     {# Manual entry link #}
     <div class="text-center mt-8">
       <p class="text-base-content/70 mb-2">{% translate "Can't find what you're looking for?" %}</p>
-      <a href="{% if media_id %}{% url 'media_edit' media_id %}{% else %}{% url 'media_add' %}{% endif %}" class="btn btn-outline btn-sm">
+      <a href="{% if media_id %}{% url 'media_edit' media_id %}{% else %}{% url 'media_add' %}{% endif %}"
+         class="btn btn-outline btn-sm">
         {% lucide "square-pen" class="w-4 h-4" %}
         {% translate "Add manually" %}
       </a>

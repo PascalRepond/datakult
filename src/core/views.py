@@ -19,15 +19,17 @@ from partial_date import PartialDate
 from .forms import MediaForm
 from .models import Agent, Media, SavedView, Tag
 from .queries import build_media_context
+from .services.igdb import get_igdb_client
+from .services.openlibrary import get_openlibrary_client
 from .services.tmdb import get_tmdb_client
 from .utils import create_backup, delete_orphan_agents_by_ids
 
 logger = logging.getLogger(__name__)
 
-# TMDB constants
+# Search constants
 DEFAULT_TMDB_LANGUAGE = "en-US"
 MIN_SEARCH_QUERY_LENGTH = 2
-MAX_TMDB_RESULTS = 8
+MAX_SEARCH_RESULTS = 15
 
 
 @login_required
@@ -118,23 +120,62 @@ def _process_new_tags(post_data):
     return post_data, errors
 
 
-def _handle_tmdb_poster(request, instance):
-    """Download and attach TMDB poster if provided."""
-    tmdb_poster_url = request.POST.get("tmdb_poster_url")
-    if tmdb_poster_url and not request.FILES.get("cover"):
-        poster_bytes = _download_tmdb_poster(tmdb_poster_url)
-        if poster_bytes:
+def _handle_import_cover(request, instance):
+    """Download and attach cover from import source if provided."""
+    cover_url = request.POST.get("import_cover_url")
+    if cover_url and not request.FILES.get("cover"):
+        cover_bytes = _download_cover(cover_url)
+        if cover_bytes:
             filename = f"{instance.title[:50].replace('/', '_')}.jpg"
-            instance.cover.save(filename, ContentFile(poster_bytes), save=False)
+            instance.cover.save(filename, ContentFile(cover_bytes), save=False)
 
 
-def _build_tmdb_initial_data(tmdb_data: dict, media_type: str, media=None) -> dict:
-    """Build form initial data from TMDB data, optionally merging with existing media."""
+def _download_cover(cover_url: str) -> bytes | None:
+    """Download cover image from any supported source."""
+    if not cover_url:
+        return None
+
+    # Determine source and use appropriate client
+    if "image.tmdb.org" in cover_url:
+        client = get_tmdb_client()
+        if client:
+            return client.download_cover(cover_url)
+    elif "images.igdb.com" in cover_url:
+        client = get_igdb_client()
+        if client:
+            return client.download_cover(cover_url)
+    elif "covers.openlibrary.org" in cover_url:
+        client = get_openlibrary_client()
+        return client.download_cover(cover_url)
+
+    return None
+
+
+def _build_import_initial_data(import_data: dict, media=None) -> dict:
+    """Build form initial data from import data, optionally merging with existing media."""
+    # Determine media_type based on source
+    source_media_type = import_data.get("media_type", "")
+    if source_media_type == "movie":
+        media_type = "FILM"
+    elif source_media_type == "tv":
+        media_type = "TV"
+    elif source_media_type == "game":
+        media_type = "GAME"
+    elif source_media_type == "book":
+        media_type = "BOOK"
+    else:
+        media_type = ""
+
+    # Determine external URI
+    external_uri = (
+        import_data.get("tmdb_url") or import_data.get("igdb_url") or import_data.get("openlibrary_url") or ""
+    )
+
     initial_data = {
-        "title": tmdb_data.get("title", ""),
-        "pub_year": tmdb_data.get("year"),
-        "media_type": "FILM" if media_type == "movie" else "TV",
-        "external_uri": tmdb_data.get("tmdb_url", ""),
+        "title": import_data.get("title", ""),
+        "pub_year": import_data.get("year"),
+        "media_type": media_type,
+        "external_uri": external_uri,
     }
     if media:
         # Keep existing values for fields user may have customized
@@ -148,9 +189,9 @@ def _build_tmdb_initial_data(tmdb_data: dict, media_type: str, media=None) -> di
 @login_required
 def media_edit(request, pk=None):
     media = get_object_or_404(Media, pk=pk) if pk else None
-    tmdb_data = None
-    tmdb_contributors = []
-    tmdb_tags = []
+    import_data = None
+    import_contributors = []
+    import_tags = []
 
     if request.method == "POST":
         before_contributor_ids = set(media.contributors.values_list("pk", flat=True)) if media else set()
@@ -164,7 +205,7 @@ def media_edit(request, pk=None):
         form = MediaForm(post_data, request.FILES, instance=media)
         if form.is_valid():
             instance = form.save(commit=False)
-            _handle_tmdb_poster(request, instance)
+            _handle_import_cover(request, instance)
             instance.save()
             form.save_m2m()
 
@@ -178,38 +219,47 @@ def media_edit(request, pk=None):
             messages.success(request, _(msg_key) % {"title": instance.title})
             return redirect("media_detail", pk=instance.pk)
     else:
+        # Check for import parameters from different sources
         tmdb_id = request.GET.get("tmdb_id")
         media_type = request.GET.get("media_type")
         lang = request.GET.get("lang", DEFAULT_TMDB_LANGUAGE)
+        igdb_id = request.GET.get("igdb_id")
+        openlibrary_key = request.GET.get("openlibrary_key")
 
         if tmdb_id and media_type in ("movie", "tv"):
-            tmdb_data = _fetch_tmdb_data(tmdb_id, media_type, language=lang)
-            if tmdb_data:
-                initial_data = _build_tmdb_initial_data(tmdb_data, media_type, media)
-                form = MediaForm(initial=initial_data, instance=media)
+            import_data = _fetch_tmdb_data(tmdb_id, media_type, language=lang)
+        elif igdb_id:
+            import_data = _fetch_igdb_data(igdb_id)
+        elif openlibrary_key:
+            # Get year from search results if available
+            openlibrary_year = request.GET.get("year")
+            year = int(openlibrary_year) if openlibrary_year and openlibrary_year.isdigit() else None
+            import_data = _fetch_openlibrary_data(openlibrary_key, year=year)
 
-                # Filter out TMDB contributors/tags that already exist on the media
-                existing_contributor_names = set()
-                existing_tag_names = set()
-                if media:
-                    existing_contributor_names = {c.name.lower() for c in media.contributors.all()}
-                    existing_tag_names = {t.name.lower() for t in media.tags.all()}
+        if import_data:
+            initial_data = _build_import_initial_data(import_data, media)
+            form = MediaForm(initial=initial_data, instance=media)
 
-                tmdb_contributors = [
-                    name for name in tmdb_data.get("contributors", []) if name.lower() not in existing_contributor_names
-                ]
-                tmdb_tags = [name for name in tmdb_data.get("genres", []) if name.lower() not in existing_tag_names]
-            else:
-                form = MediaForm(instance=media)
+            # Filter out contributors/tags that already exist on the media
+            existing_contributor_names = set()
+            existing_tag_names = set()
+            if media:
+                existing_contributor_names = {c.name.lower() for c in media.contributors.all()}
+                existing_tag_names = {t.name.lower() for t in media.tags.all()}
+
+            import_contributors = [
+                name for name in import_data.get("contributors", []) if name.lower() not in existing_contributor_names
+            ]
+            import_tags = [name for name in import_data.get("genres", []) if name.lower() not in existing_tag_names]
         else:
             form = MediaForm(instance=media)
 
     context = {
         "media": media,
         "form": form,
-        "tmdb_data": tmdb_data,
-        "tmdb_contributors": tmdb_contributors,
-        "tmdb_tags": tmdb_tags,
+        "import_data": import_data,
+        "import_contributors": import_contributors,
+        "import_tags": import_tags,
     }
     return render(request, "base/media_edit.html", context)
 
@@ -232,12 +282,32 @@ def _fetch_tmdb_data(tmdb_id: str, media_type: str, language: str = DEFAULT_TMDB
     return details
 
 
-def _download_tmdb_poster(poster_url: str) -> bytes | None:
-    """Download poster image from TMDB."""
-    client = get_tmdb_client()
+def _fetch_igdb_data(igdb_id: str) -> dict | None:
+    """Fetch IGDB data for pre-filling the form."""
+    client = get_igdb_client()
     if not client:
         return None
-    return client.download_poster(poster_url)
+
+    try:
+        details = client.get_game_details(int(igdb_id))
+    except (requests.RequestException, ValueError):
+        logger.exception("Failed to fetch IGDB data for game %s", igdb_id)
+        return None
+
+    return details
+
+
+def _fetch_openlibrary_data(work_key: str, year: int | None = None) -> dict | None:
+    """Fetch OpenLibrary data for pre-filling the form."""
+    client = get_openlibrary_client()
+
+    try:
+        details = client.get_work_details(work_key, first_publish_year=year)
+    except requests.RequestException:
+        logger.exception("Failed to fetch OpenLibrary data for work %s", work_key)
+        return None
+
+    return details
 
 
 @login_required
@@ -322,7 +392,7 @@ def tmdb_search_htmx(request):
     media_id = request.GET.get("media_id")  # For editing existing media
     lang = request.GET.get("lang", DEFAULT_TMDB_LANGUAGE)
 
-    base_context = {"results": [], "media_id": media_id, "lang": lang}
+    base_context = {"results": [], "media_id": media_id, "lang": lang, "query": query}
 
     if len(query) < MIN_SEARCH_QUERY_LENGTH:
         return render(request, "partials/tmdb/tmdb_suggestions.html", base_context)
@@ -337,7 +407,7 @@ def tmdb_search_htmx(request):
         )
 
     try:
-        results = client.search_multi(query, language=lang)[:MAX_TMDB_RESULTS]
+        results = client.search_multi(query, language=lang)[:MAX_SEARCH_RESULTS]
     except requests.RequestException:
         logger.exception("TMDB search failed")
         return render(
@@ -347,6 +417,65 @@ def tmdb_search_htmx(request):
         )
 
     return render(request, "partials/tmdb/tmdb_suggestions.html", {**base_context, "results": results})
+
+
+@login_required
+def igdb_search_htmx(request):
+    """HTMX view: search IGDB for video games."""
+    query = request.GET.get("q", "").strip()
+    media_id = request.GET.get("media_id")
+
+    base_context = {"results": [], "media_id": media_id, "query": query}
+
+    if len(query) < MIN_SEARCH_QUERY_LENGTH:
+        return render(request, "partials/igdb/igdb_suggestions.html", base_context)
+
+    client = get_igdb_client()
+    if not client:
+        logger.warning("IGDB search attempted but API credentials not configured")
+        return render(
+            request,
+            "partials/igdb/igdb_suggestions.html",
+            {**base_context, "error": "IGDB API credentials not configured"},
+        )
+
+    try:
+        results = client.search_games(query, limit=MAX_SEARCH_RESULTS)
+    except requests.RequestException:
+        logger.exception("IGDB search failed")
+        return render(
+            request,
+            "partials/igdb/igdb_suggestions.html",
+            {**base_context, "error": "Search failed"},
+        )
+
+    return render(request, "partials/igdb/igdb_suggestions.html", {**base_context, "results": results})
+
+
+@login_required
+def openlibrary_search_htmx(request):
+    """HTMX view: search OpenLibrary for books."""
+    query = request.GET.get("q", "").strip()
+    media_id = request.GET.get("media_id")
+
+    base_context = {"results": [], "media_id": media_id, "query": query}
+
+    if len(query) < MIN_SEARCH_QUERY_LENGTH:
+        return render(request, "partials/openlibrary/openlibrary_suggestions.html", base_context)
+
+    client = get_openlibrary_client()
+
+    try:
+        results = client.search_books(query, limit=MAX_SEARCH_RESULTS)
+    except requests.RequestException:
+        logger.exception("OpenLibrary search failed")
+        return render(
+            request,
+            "partials/openlibrary/openlibrary_suggestions.html",
+            {**base_context, "error": "Search failed"},
+        )
+
+    return render(request, "partials/openlibrary/openlibrary_suggestions.html", {**base_context, "results": results})
 
 
 @login_required
