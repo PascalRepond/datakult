@@ -40,9 +40,9 @@
         <div class="flex gap-2">
           <a href="{% url 'media_import' %}{% if media %}?media_id={{ media.pk }}{% endif %}"
              class="btn btn-outline btn-sm"
-             title="{% translate 'Import from TMDB' %}">
+             title="{% translate 'Import metadata' %}">
             {% lucide "download" class="w-4 h-4" %}
-            TMDB
+            {% translate "Import" %}
           </a>
           <button type="submit" class="btn btn-primary">
             {% lucide "save" %}
@@ -50,6 +50,10 @@
           </button>
         </div>
       </div>
+      <input type="hidden"
+             name="import_cover_url"
+             id="import-cover-url"
+             value="{{ import_data.cover_url|default:'' }}">
       {# Main content #}
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {# Left column - Cover and metadata #}
@@ -61,22 +65,17 @@
                 <label class="label" for="id_cover">
                   {% include "partials/common/field_label.html" with label=_("Cover image") field=form.cover %}
                 </label>
-                {# Show TMDB poster if available #}
-                {% if tmdb_data.poster_url %}
+                {% if import_data.cover_url %}
                   <div class="mb-2">
-                    <img src="{{ tmdb_data.poster_url }}"
-                         alt="{% translate 'Cover from TMDB' %}"
+                    <img src="{{ import_data.cover_url }}"
+                         alt="{% translate 'Imported cover' %}"
                          class="w-full rounded-lg"
-                         id="tmdb-poster-preview">
-                    <input type="hidden"
-                           name="tmdb_poster_url"
-                           id="tmdb-poster-url-input"
-                           value="{{ tmdb_data.poster_url }}">
+                         id="import-poster-preview">
                     <p class="text-xs text-base-content/60 mt-1">
                       {% if media.cover %}
                         {% translate "This will replace the current cover" %}
                       {% else %}
-                        {% translate "Cover will be imported from TMDB" %}
+                        {% translate "Cover will be imported" %}
                       {% endif %}
                     </p>
                     <details class="mt-2">
@@ -114,10 +113,10 @@
                   {% for contributor in media.contributors.all %}
                     {% include "partials/contributors/contributor_chip.html" with agent=contributor %}
                   {% endfor %}
-                  {# TMDB contributors (pre-filled as new) #}
-                  {% for name in tmdb_contributors %}
+                  {# Imported contributors (pre-filled as new) #}
+                  {% for name in import_contributors %}
                     <span class="badge badge-lg badge-primary gap-2" data-name="{{ name }}">
-                      <span>{{ name }}</span>
+                      {{ name }}
                       <button type="button"
                               class="btn btn-ghost btn-xs btn-circle"
                               data-action="remove-chip">✕</button>
@@ -154,10 +153,10 @@
                   {% for tag in media.tags.all %}
                     {% include "partials/tags/tag_chip.html" %}
                   {% endfor %}
-                  {# TMDB tags (pre-filled as new) #}
-                  {% for name in tmdb_tags %}
+                  {# Imported tags (pre-filled as new) #}
+                  {% for name in import_tags %}
                     <span class="badge badge-lg badge-secondary gap-2" data-name="{{ name }}">
-                      <span>{{ name }}</span>
+                      {{ name }}
                       <button type="button"
                               class="btn btn-ghost btn-xs btn-circle"
                               data-action="remove-chip">✕</button>

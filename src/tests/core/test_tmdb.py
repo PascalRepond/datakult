@@ -16,49 +16,49 @@ from core.services.tmdb import (
 
 
 class TestTMDBResult:
-    """Tests for the TMDBResult dataclass poster URL generation."""
+    """Tests for the TMDBResult dataclass cover URL generation."""
 
-    def test_poster_url_builds_w500_url(self):
-        """poster_url constructs the correct w500 image URL."""
+    def test_cover_url_builds_w500_url(self):
+        """cover_url constructs the correct w500 image URL."""
         result = TMDBResult(
             tmdb_id=123,
             title="Test",
             original_title="Test",
             year=2024,
             overview="",
-            poster_path="/abc123.jpg",
+            cover_path="/abc123.jpg",
             media_type="movie",
         )
 
-        assert result.poster_url == f"{TMDB_IMAGE_BASE_URL}w500/abc123.jpg"
+        assert result.cover_url == f"{TMDB_IMAGE_BASE_URL}w500/abc123.jpg"
 
-    def test_poster_url_returns_none_when_no_path(self):
-        """poster_url returns None when poster_path is None."""
+    def test_cover_url_returns_none_when_no_path(self):
+        """cover_url returns None when cover_path is None."""
         result = TMDBResult(
             tmdb_id=123,
             title="Test",
             original_title="Test",
             year=2024,
             overview="",
-            poster_path=None,
+            cover_path=None,
             media_type="movie",
         )
 
-        assert result.poster_url is None
+        assert result.cover_url is None
 
-    def test_poster_url_small_builds_w185_url(self):
-        """poster_url_small constructs the correct w185 thumbnail URL."""
+    def test_cover_url_small_builds_w185_url(self):
+        """cover_url_small constructs the correct w185 thumbnail URL."""
         result = TMDBResult(
             tmdb_id=123,
             title="Test",
             original_title="Test",
             year=2024,
             overview="",
-            poster_path="/abc123.jpg",
+            cover_path="/abc123.jpg",
             media_type="movie",
         )
 
-        assert result.poster_url_small == f"{TMDB_IMAGE_BASE_URL}w185/abc123.jpg"
+        assert result.cover_url_small == f"{TMDB_IMAGE_BASE_URL}w185/abc123.jpg"
 
 
 class TestTMDBClientValidation:

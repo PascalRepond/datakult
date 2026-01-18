@@ -1,9 +1,16 @@
 {% load i18n %}
 {% if agent %}
-  <span class="badge badge-lg badge-primary gap-2" data-id="{{ agent.pk }}" data-input-id="contributor-input-{{ agent.pk }}">
+  <span class="badge badge-lg badge-primary gap-2"
+        data-id="{{ agent.pk }}"
+        data-input-id="contributor-input-{{ agent.pk }}">
     {{ agent.name }}
-    <button type="button" class="btn btn-ghost btn-xs btn-circle" data-action="remove-chip">✕</button>
-    <input type="hidden" id="contributor-input-{{ agent.pk }}" name="contributors" value="{{ agent.pk }}" />
+    <button type="button"
+            class="btn btn-neutral btn-ghost btn-xs btn-circle"
+            data-action="remove-chip">✕</button>
+    <input type="hidden"
+           id="contributor-input-{{ agent.pk }}"
+           name="contributors"
+           value="{{ agent.pk }}" />
   </span>
 {% elif error %}
   <span class="text-error text-sm">{{ error }}</span>
