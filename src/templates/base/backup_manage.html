@@ -6,7 +6,10 @@
 {% endblock title %}
 {% block content %}
   <div class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-8">{% translate "Backup Management" %}</h1>
+    <div class="flex items-center gap-4 mb-8">
+      {% include "partials/common/back_button.html" %}
+      <h1 class="text-4xl font-bold">{% translate "Backup Management" %}</h1>
+    </div>
     <!-- Messages -->
     {% if messages %}
       <div class="mb-6">
@@ -100,15 +103,6 @@
           </form>
         </div>
       </div>
-    </div>
-    <!-- Back Button -->
-    <div class="mt-6">
-      <button type="button"
-              onclick="history.length> 1 ? history.back() : window.location.href='{% url 'home' %}'"
-              class="btn btn-ghost">
-        {% lucide "arrow-left" %}
-        {% translate "Back to Home" %}
-      </button>
     </div>
   </div>
   {# Confirmation modal for backup import #}
