@@ -2,6 +2,20 @@
 
 <!-- version list -->
 
+## v1.5.0 (2026-01-21)
+
+### Features
+
+- Add basic PWA support
+  ([`2082d6d`](https://github.com/PascalRepond/datakult/commit/2082d6d3517ccce3b27881b87280fba0fed3f06a))
+
+- Add igdb and openlibrary imports
+  ([`5a45e37`](https://github.com/PascalRepond/datakult/commit/5a45e37ab066951a5a64e17d11c44834d32a97c9))
+
+- Add tags system and TMDB import integration
+  ([`59a4e82`](https://github.com/PascalRepond/datakult/commit/59a4e8286c546ac17cc3a0481cd13a8c537d22f0))
+
+
 ## v1.4.0 (2026-01-12)
 
 ### Continuous Integration
