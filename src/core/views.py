@@ -20,6 +20,7 @@ from .forms import MediaForm
 from .models import Agent, Media, SavedView, Tag
 from .queries import build_media_context
 from .services.igdb import get_igdb_client
+from .services.musicbrainz import get_musicbrainz_client
 from .services.openlibrary import get_openlibrary_client
 from .services.tmdb import get_tmdb_client
 from .utils import create_backup, delete_orphan_agents_by_ids
@@ -147,6 +148,9 @@ def _download_cover(cover_url: str) -> bytes | None:
     elif "covers.openlibrary.org" in cover_url:
         client = get_openlibrary_client()
         return client.download_cover(cover_url)
+    elif "coverartarchive.org" in cover_url:
+        client = get_musicbrainz_client()
+        return client.download_cover(cover_url)
 
     return None
 
@@ -163,12 +167,18 @@ def _build_import_initial_data(import_data: dict, media=None) -> dict:
         media_type = "GAME"
     elif source_media_type == "book":
         media_type = "BOOK"
+    elif source_media_type == "music":
+        media_type = "MUSIC"
     else:
         media_type = ""
 
     # Determine external URI
     external_uri = (
-        import_data.get("tmdb_url") or import_data.get("igdb_url") or import_data.get("openlibrary_url") or ""
+        import_data.get("tmdb_url")
+        or import_data.get("igdb_url")
+        or import_data.get("openlibrary_url")
+        or import_data.get("musicbrainz_url")
+        or ""
     )
 
     initial_data = {
@@ -184,6 +194,28 @@ def _build_import_initial_data(import_data: dict, media=None) -> dict:
         initial_data["review"] = media.review
         initial_data["review_date"] = media.review_date
     return initial_data
+
+
+def _get_import_data_from_request(request) -> dict | None:
+    """Fetch import data based on request parameters."""
+    tmdb_id = request.GET.get("tmdb_id")
+    media_type = request.GET.get("media_type")
+    lang = request.GET.get("lang", DEFAULT_TMDB_LANGUAGE)
+    igdb_id = request.GET.get("igdb_id")
+    openlibrary_key = request.GET.get("openlibrary_key")
+    musicbrainz_id = request.GET.get("musicbrainz_id")
+
+    if tmdb_id and media_type in ("movie", "tv"):
+        return _fetch_tmdb_data(tmdb_id, media_type, language=lang)
+    if igdb_id:
+        return _fetch_igdb_data(igdb_id)
+    if openlibrary_key:
+        openlibrary_year = request.GET.get("year")
+        year = int(openlibrary_year) if openlibrary_year and openlibrary_year.isdigit() else None
+        return _fetch_openlibrary_data(openlibrary_key, year=year)
+    if musicbrainz_id:
+        return _fetch_musicbrainz_data(musicbrainz_id)
+    return None
 
 
 @login_required
@@ -219,23 +251,7 @@ def media_edit(request, pk=None):
             messages.success(request, _(msg_key) % {"title": instance.title})
             return redirect("media_detail", pk=instance.pk)
     else:
-        # Check for import parameters from different sources
-        tmdb_id = request.GET.get("tmdb_id")
-        media_type = request.GET.get("media_type")
-        lang = request.GET.get("lang", DEFAULT_TMDB_LANGUAGE)
-        igdb_id = request.GET.get("igdb_id")
-        openlibrary_key = request.GET.get("openlibrary_key")
-
-        if tmdb_id and media_type in ("movie", "tv"):
-            import_data = _fetch_tmdb_data(tmdb_id, media_type, language=lang)
-        elif igdb_id:
-            import_data = _fetch_igdb_data(igdb_id)
-        elif openlibrary_key:
-            # Get year from search results if available
-            openlibrary_year = request.GET.get("year")
-            year = int(openlibrary_year) if openlibrary_year and openlibrary_year.isdigit() else None
-            import_data = _fetch_openlibrary_data(openlibrary_key, year=year)
-
+        import_data = _get_import_data_from_request(request)
         if import_data:
             initial_data = _build_import_initial_data(import_data, media)
             form = MediaForm(initial=initial_data, instance=media)
@@ -305,6 +321,19 @@ def _fetch_openlibrary_data(work_key: str, year: int | None = None) -> dict | No
         details = client.get_work_details(work_key, first_publish_year=year)
     except requests.RequestException:
         logger.exception("Failed to fetch OpenLibrary data for work %s", work_key)
+        return None
+
+    return details
+
+
+def _fetch_musicbrainz_data(mbid: str) -> dict | None:
+    """Fetch MusicBrainz data for pre-filling the form."""
+    client = get_musicbrainz_client()
+
+    try:
+        details = client.get_release_details(mbid)
+    except requests.RequestException:
+        logger.exception("Failed to fetch MusicBrainz data for release %s", mbid)
         return None
 
     return details
@@ -476,6 +505,32 @@ def openlibrary_search_htmx(request):
         )
 
     return render(request, "partials/openlibrary/openlibrary_suggestions.html", {**base_context, "results": results})
+
+
+@login_required
+def musicbrainz_search_htmx(request):
+    """HTMX view: search MusicBrainz for music albums."""
+    query = request.GET.get("q", "").strip()
+    media_id = request.GET.get("media_id")
+
+    base_context = {"results": [], "media_id": media_id, "query": query}
+
+    if len(query) < MIN_SEARCH_QUERY_LENGTH:
+        return render(request, "partials/musicbrainz/musicbrainz_suggestions.html", base_context)
+
+    client = get_musicbrainz_client()
+
+    try:
+        results = client.search_releases(query, limit=MAX_SEARCH_RESULTS)
+    except requests.RequestException:
+        logger.exception("MusicBrainz search failed")
+        return render(
+            request,
+            "partials/musicbrainz/musicbrainz_suggestions.html",
+            {**base_context, "error": "Search failed"},
+        )
+
+    return render(request, "partials/musicbrainz/musicbrainz_suggestions.html", {**base_context, "results": results})
 
 
 @login_required

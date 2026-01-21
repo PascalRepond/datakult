@@ -18,6 +18,7 @@ urlpatterns = [
     path("tmdb-search/", views.tmdb_search_htmx, name="tmdb_search_htmx"),
     path("igdb-search/", views.igdb_search_htmx, name="igdb_search_htmx"),
     path("openlibrary-search/", views.openlibrary_search_htmx, name="openlibrary_search_htmx"),
+    path("musicbrainz-search/", views.musicbrainz_search_htmx, name="musicbrainz_search_htmx"),
     path("media/validate_field/", validate_media_field, name="media_validate_field"),
     path("media/<int:pk>/review-full/", views.media_review_full_htmx, name="media_review_full_htmx"),
     path("media/<int:pk>/review-clamped/", views.media_review_clamped_htmx, name="media_review_clamped_htmx"),
