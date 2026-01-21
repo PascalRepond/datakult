@@ -35,7 +35,7 @@
           </h1>
         </div>
         <div class="flex gap-2">
-          <a href="{% url 'media_import' %}{% if media %}?media_id={{ media.pk }}{% endif %}"
+          <a href="{% url 'media_import' %}{% if media %}?media_id={{ media.pk }}&media_type={{ media.media_type }}&title={{ media.title|urlencode }}{% endif %}"
              class="btn btn-outline btn-sm"
              title="{% translate 'Import metadata' %}">
             {% lucide "download" class="w-4 h-4" %}

@@ -341,10 +341,27 @@ def _fetch_musicbrainz_data(mbid: str) -> dict | None:
 
 @login_required
 def media_import(request):
-    """Display TMDB search page for importing media."""
-    # Optional: if editing existing media, pass media_id to template
+    """Display search page for importing media metadata."""
     media_id = request.GET.get("media_id")
-    context = {"media_id": media_id}
+    media_type = request.GET.get("media_type", "")
+    title = request.GET.get("title", "")
+
+    # Map media_type to the appropriate import source
+    source_mapping = {
+        "FILM": "tmdb",
+        "TV": "tmdb",
+        "GAME": "igdb",
+        "BOOK": "openlibrary",
+        "COMIC": "openlibrary",
+        "MUSIC": "musicbrainz",
+    }
+    default_source = source_mapping.get(media_type, "tmdb")
+
+    context = {
+        "media_id": media_id,
+        "default_source": default_source,
+        "default_query": title,
+    }
     return render(request, "base/media_import.html", context)
 
 
