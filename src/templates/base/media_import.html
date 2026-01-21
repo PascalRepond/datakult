@@ -7,9 +7,7 @@
   <div class="max-w-2xl mx-auto">
     {# Header #}
     <div class="flex items-center gap-4 mb-6">
-      <a href="{% if media_id %}{% url 'media_edit' media_id %}{% else %}{% url 'media_add' %}{% endif %}"
-         class="btn btn-ghost btn-sm btn-circle"
-         aria-label="{% translate 'Back' %}">{% lucide "arrow-left" %}</a>
+      {% include "partials/common/back_button.html" %}
       <h1 class="text-4xl font-bold">{% translate "Import metadata" %}</h1>
     </div>
     {# Source selector tabs #}
@@ -20,24 +18,28 @@
              aria-label="{% translate 'Movies & TV' %}"
              id="tab-tmdb"
              checked
+             autocomplete="off"
              hx-on:click="document.getElementById('source-tmdb').classList.remove('hidden'); document.getElementById('source-igdb').classList.add('hidden'); document.getElementById('source-openlibrary').classList.add('hidden'); document.getElementById('source-musicbrainz').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
       <input type="radio"
              name="import_source"
              class="tab"
              aria-label="{% translate 'Video games' %}"
              id="tab-igdb"
+             autocomplete="off"
              hx-on:click="document.getElementById('source-igdb').classList.remove('hidden'); document.getElementById('source-tmdb').classList.add('hidden'); document.getElementById('source-openlibrary').classList.add('hidden'); document.getElementById('source-musicbrainz').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
       <input type="radio"
              name="import_source"
              class="tab"
              aria-label="{% translate 'Books' %}"
              id="tab-openlibrary"
+             autocomplete="off"
              hx-on:click="document.getElementById('source-openlibrary').classList.remove('hidden'); document.getElementById('source-tmdb').classList.add('hidden'); document.getElementById('source-igdb').classList.add('hidden'); document.getElementById('source-musicbrainz').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
       <input type="radio"
              name="import_source"
              class="tab"
              aria-label="{% translate 'Music' %}"
              id="tab-musicbrainz"
+             autocomplete="off"
              hx-on:click="document.getElementById('source-musicbrainz').classList.remove('hidden'); document.getElementById('source-tmdb').classList.add('hidden'); document.getElementById('source-igdb').classList.add('hidden'); document.getElementById('source-openlibrary').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
     </div>
     {# TMDB Search (Movies & TV) #}

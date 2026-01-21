@@ -1,0 +1,8 @@
+{% load i18n %}
+{% load lucide %}
+<button type="button"
+        onclick="history.length > 1 ? history.back() : window.location.href='{% url 'home' %}'"
+        class="btn btn-ghost btn-sm btn-circle"
+        aria-label="{% translate 'Back' %}">
+    {% lucide "arrow-left" %}
+</button>

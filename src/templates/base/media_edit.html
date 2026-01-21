@@ -25,10 +25,7 @@
       {# Header #}
       <div class="flex justify-between items-start gap-4 mb-6">
         <div class="flex-1">
-          <button type="button"
-                  onclick="history.length > 1 ? history.back() : window.location.href='{% url 'home' %}'"
-                  class="btn btn-ghost btn-sm btn-circle"
-                  aria-label="{% translate "Back" %}">{% lucide "arrow-left" %}</button>
+          {% include "partials/common/back_button.html" %}
           <h1 class="text-4xl font-bold">
             {% if media %}
               {% translate "Edit" %} {{ media.title }}

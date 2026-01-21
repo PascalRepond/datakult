@@ -5,7 +5,10 @@
 {% endblock title %}
 {% block content %}
   <div class="max-w-2xl mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">{% translate "Edit Profile" %}</h1>
+    <div class="flex items-center gap-4 mb-8">
+      {% include "partials/common/back_button.html" %}
+      <h1 class="text-4xl font-bold">{% translate "Edit Profile" %}</h1>
+    </div>
     <!-- Profile Information -->
     <div class="card bg-base-200 shadow-xl mb-8">
       <div class="card-body">
@@ -139,9 +142,6 @@
           </div>
         </form>
       </div>
-    </div>
-    <div class="mt-8">
-      <a href="{% url 'home' %}" class="btn btn-ghost">← {% translate "Back to Home" %}</a>
     </div>
   </div>
 {% endblock content %}
