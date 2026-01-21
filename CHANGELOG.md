@@ -2,6 +2,32 @@
 
 <!-- version list -->
 
+## v1.6.0 (2026-01-21)
+
+### Bug Fixes
+
+- Display saved views in the sidebar on all pages
+  ([`a6dcbb1`](https://github.com/PascalRepond/datakult/commit/a6dcbb1672646cab1e78bf9946b4ca305e0df1f9))
+
+### Chores
+
+- Update translations
+  ([`1023487`](https://github.com/PascalRepond/datakult/commit/102348789334dfd6cc53092be9d9128b26c9108e))
+
+### Features
+
+- Add musicbrainz metadata import
+  ([`b74c549`](https://github.com/PascalRepond/datakult/commit/b74c549165a7c0dfe82a54c5e631c00c10fe667f))
+
+- Importing from an existing media opens the correct tab and pre-fills the search
+  ([`8054eaf`](https://github.com/PascalRepond/datakult/commit/8054eaf1e6369445afe268883988a5f097fea241))
+
+### Testing
+
+- Add tests for latest features
+  ([`b013b4f`](https://github.com/PascalRepond/datakult/commit/b013b4f9dc72993e209f06f2cfcf6528e50ea3d8))
+
+
 ## v1.5.0 (2026-01-21)
 
 ### Features
