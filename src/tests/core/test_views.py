@@ -1169,3 +1169,108 @@ class TestSavedViewValidation:
         assert SavedView.objects.filter(user=user, name="Descending Sort View").exists()
         saved_view = SavedView.objects.get(user=user, name="Descending Sort View")
         assert saved_view.sort == "-created_at"
+
+
+class TestMediaImportView:
+    """Tests for the media_import view."""
+
+    def test_media_import_accessible_when_logged_in(self, logged_in_client):
+        """The import view is accessible when logged in."""
+        response = logged_in_client.get(reverse("media_import"))
+
+        assert response.status_code == 200
+        assert "base/media_import.html" in [t.name for t in response.templates]
+
+    def test_media_import_default_source_is_tmdb(self, logged_in_client):
+        """Without parameters, default source is TMDB."""
+        response = logged_in_client.get(reverse("media_import"))
+
+        assert response.context["default_source"] == "tmdb"
+        assert response.context["default_query"] == ""
+
+    def test_media_import_film_maps_to_tmdb(self, logged_in_client):
+        """FILM media type maps to TMDB source."""
+        response = logged_in_client.get(
+            reverse("media_import"),
+            {"media_type": "FILM", "title": "The Matrix"},
+        )
+
+        assert response.context["default_source"] == "tmdb"
+        assert response.context["default_query"] == "The Matrix"
+
+    def test_media_import_tv_maps_to_tmdb(self, logged_in_client):
+        """TV media type maps to TMDB source."""
+        response = logged_in_client.get(
+            reverse("media_import"),
+            {"media_type": "TV", "title": "Breaking Bad"},
+        )
+
+        assert response.context["default_source"] == "tmdb"
+        assert response.context["default_query"] == "Breaking Bad"
+
+    def test_media_import_game_maps_to_igdb(self, logged_in_client):
+        """GAME media type maps to IGDB source."""
+        response = logged_in_client.get(
+            reverse("media_import"),
+            {"media_type": "GAME", "title": "The Witcher 3"},
+        )
+
+        assert response.context["default_source"] == "igdb"
+        assert response.context["default_query"] == "The Witcher 3"
+
+    def test_media_import_book_maps_to_openlibrary(self, logged_in_client):
+        """BOOK media type maps to OpenLibrary source."""
+        response = logged_in_client.get(
+            reverse("media_import"),
+            {"media_type": "BOOK", "title": "1984"},
+        )
+
+        assert response.context["default_source"] == "openlibrary"
+        assert response.context["default_query"] == "1984"
+
+    def test_media_import_comic_maps_to_openlibrary(self, logged_in_client):
+        """COMIC media type maps to OpenLibrary source."""
+        response = logged_in_client.get(
+            reverse("media_import"),
+            {"media_type": "COMIC", "title": "Watchmen"},
+        )
+
+        assert response.context["default_source"] == "openlibrary"
+        assert response.context["default_query"] == "Watchmen"
+
+    def test_media_import_music_maps_to_musicbrainz(self, logged_in_client):
+        """MUSIC media type maps to MusicBrainz source."""
+        response = logged_in_client.get(
+            reverse("media_import"),
+            {"media_type": "MUSIC", "title": "Abbey Road"},
+        )
+
+        assert response.context["default_source"] == "musicbrainz"
+        assert response.context["default_query"] == "Abbey Road"
+
+    def test_media_import_unknown_type_defaults_to_tmdb(self, logged_in_client):
+        """Unknown media type defaults to TMDB source."""
+        response = logged_in_client.get(
+            reverse("media_import"),
+            {"media_type": "UNKNOWN", "title": "Something"},
+        )
+
+        assert response.context["default_source"] == "tmdb"
+
+    def test_media_import_passes_media_id(self, logged_in_client, media):
+        """Media ID is passed to the template context."""
+        response = logged_in_client.get(
+            reverse("media_import"),
+            {"media_id": media.pk},
+        )
+
+        assert response.context["media_id"] == str(media.pk)
+
+    def test_media_import_handles_special_characters_in_title(self, logged_in_client):
+        """Title with special characters is handled correctly."""
+        response = logged_in_client.get(
+            reverse("media_import"),
+            {"media_type": "FILM", "title": "Amélie & Co: L'histoire"},
+        )
+
+        assert response.context["default_query"] == "Amélie & Co: L'histoire"

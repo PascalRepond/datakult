@@ -17,7 +17,7 @@
              class="tab"
              aria-label="{% translate 'Movies & TV' %}"
              id="tab-tmdb"
-             checked
+             {% if default_source == "tmdb" or not default_source %}checked{% endif %}
              autocomplete="off"
              hx-on:click="document.getElementById('source-tmdb').classList.remove('hidden'); document.getElementById('source-igdb').classList.add('hidden'); document.getElementById('source-openlibrary').classList.add('hidden'); document.getElementById('source-musicbrainz').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
       <input type="radio"
@@ -25,6 +25,7 @@
              class="tab"
              aria-label="{% translate 'Video games' %}"
              id="tab-igdb"
+             {% if default_source == "igdb" %}checked{% endif %}
              autocomplete="off"
              hx-on:click="document.getElementById('source-igdb').classList.remove('hidden'); document.getElementById('source-tmdb').classList.add('hidden'); document.getElementById('source-openlibrary').classList.add('hidden'); document.getElementById('source-musicbrainz').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
       <input type="radio"
@@ -32,6 +33,7 @@
              class="tab"
              aria-label="{% translate 'Books' %}"
              id="tab-openlibrary"
+             {% if default_source == "openlibrary" %}checked{% endif %}
              autocomplete="off"
              hx-on:click="document.getElementById('source-openlibrary').classList.remove('hidden'); document.getElementById('source-tmdb').classList.add('hidden'); document.getElementById('source-igdb').classList.add('hidden'); document.getElementById('source-musicbrainz').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
       <input type="radio"
@@ -39,11 +41,12 @@
              class="tab"
              aria-label="{% translate 'Music' %}"
              id="tab-musicbrainz"
+             {% if default_source == "musicbrainz" %}checked{% endif %}
              autocomplete="off"
              hx-on:click="document.getElementById('source-musicbrainz').classList.remove('hidden'); document.getElementById('source-tmdb').classList.add('hidden'); document.getElementById('source-igdb').classList.add('hidden'); document.getElementById('source-openlibrary').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
     </div>
     {# TMDB Search (Movies & TV) #}
-    <div id="source-tmdb" class="card bg-base-200 shadow-md mb-6">
+    <div id="source-tmdb" class="card bg-base-200 shadow-md mb-6{% if default_source and default_source != 'tmdb' %} hidden{% endif %}">
       <div class="card-body p-4 space-y-3">
         <div class="flex items-center gap-2 mb-2">
           {% lucide "film" class="w-5 h-5" %}
@@ -56,9 +59,10 @@
                  name="q"
                  class="input join-item w-full"
                  placeholder="{% translate 'Search...' %}"
+                 value="{{ default_query }}"
                  autocomplete="off"
                  hx-get="{% url 'tmdb_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
-                 hx-trigger="keyup changed delay:400ms, search"
+                 hx-trigger="keyup changed delay:400ms, search{% if default_query and default_source == 'tmdb' %}, load{% endif %}"
                  hx-target="#import-results"
                  hx-include="#tmdb-lang"
                  hx-indicator="#search-spinner" />
@@ -84,7 +88,7 @@
       </div>
     </div>
     {# IGDB Search (Video games) #}
-    <div id="source-igdb" class="card bg-base-200 shadow-md mb-6 hidden">
+    <div id="source-igdb" class="card bg-base-200 shadow-md mb-6{% if default_source != 'igdb' %} hidden{% endif %}">
       <div class="card-body p-4 space-y-3">
         <div class="flex items-center gap-2 mb-2">
           {% lucide "gamepad-2" class="w-5 h-5" %}
@@ -97,9 +101,10 @@
                  name="q"
                  class="input join-item w-full"
                  placeholder="{% translate 'Search...' %}"
+                 value="{{ default_query }}"
                  autocomplete="off"
                  hx-get="{% url 'igdb_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
-                 hx-trigger="keyup changed delay:400ms, search"
+                 hx-trigger="keyup changed delay:400ms, search{% if default_query and default_source == 'igdb' %}, load{% endif %}"
                  hx-target="#import-results"
                  hx-indicator="#search-spinner" />
           <button type="button"
@@ -113,7 +118,7 @@
     </div>
     {# OpenLibrary Search (Books) #}
     <div id="source-openlibrary"
-         class="card bg-base-200 shadow-md mb-6 hidden">
+         class="card bg-base-200 shadow-md mb-6{% if default_source != 'openlibrary' %} hidden{% endif %}">
       <div class="card-body p-4 space-y-3">
         <div class="flex items-center gap-2 mb-2">
           {% lucide "book-open" class="w-5 h-5" %}
@@ -126,9 +131,10 @@
                  name="q"
                  class="input join-item w-full"
                  placeholder="{% translate 'Search...' %}"
+                 value="{{ default_query }}"
                  autocomplete="off"
                  hx-get="{% url 'openlibrary_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
-                 hx-trigger="keyup changed delay:400ms, search"
+                 hx-trigger="keyup changed delay:400ms, search{% if default_query and default_source == 'openlibrary' %}, load{% endif %}"
                  hx-target="#import-results"
                  hx-indicator="#search-spinner" />
           <button type="button"
@@ -142,7 +148,7 @@
     </div>
     {# MusicBrainz Search (Music) #}
     <div id="source-musicbrainz"
-         class="card bg-base-200 shadow-md mb-6 hidden">
+         class="card bg-base-200 shadow-md mb-6{% if default_source != 'musicbrainz' %} hidden{% endif %}">
       <div class="card-body p-4 space-y-3">
         <div class="flex items-center gap-2 mb-2">
           {% lucide "disc-3" class="w-5 h-5" %}
@@ -155,9 +161,10 @@
                  name="q"
                  class="input join-item w-full"
                  placeholder="{% translate 'Search...' %}"
+                 value="{{ default_query }}"
                  autocomplete="off"
                  hx-get="{% url 'musicbrainz_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
-                 hx-trigger="keyup changed delay:400ms, search"
+                 hx-trigger="keyup changed delay:400ms, search{% if default_query and default_source == 'musicbrainz' %}, load{% endif %}"
                  hx-target="#import-results"
                  hx-indicator="#search-spinner" />
           <button type="button"
