@@ -2,6 +2,7 @@
 
 from functools import lru_cache
 
+from .models import SavedView
 from .utils import get_datakult_version
 
 
@@ -22,3 +23,17 @@ def version(_request):
         A dictionary with the version string.
     """
     return {"version": _cached_version()}
+
+
+def saved_views(request):
+    """Add saved views to the template context for authenticated users.
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        A dictionary with the user's saved views queryset.
+    """
+    if request.user.is_authenticated:
+        return {"saved_views": request.user.saved_views.all()}
+    return {"saved_views": SavedView.objects.none()}

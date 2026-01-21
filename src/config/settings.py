@@ -96,6 +96,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.version",
+                "core.context_processors.saved_views",
             ],
             "builtins": [
                 "lucide.templatetags.lucide",

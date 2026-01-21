@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 
 from .filters import apply_filters, extract_filters, get_field_choices, resolve_sorting
-from .models import Media, SavedView
+from .models import Media
 
 
 def build_search_queryset(query):
@@ -55,9 +55,6 @@ def build_media_context(request):
     paginator = Paginator(queryset, 20)
     page_obj = paginator.get_page(page_number)
 
-    # Saved views for the current user
-    saved_views = request.user.saved_views.all() if request.user.is_authenticated else SavedView.objects.none()
-
     return {
         "media_list": page_obj.object_list,
         "page_obj": page_obj,
@@ -67,6 +64,5 @@ def build_media_context(request):
         "contributor": contributor,
         "tag": tag,
         "filters": filters,
-        "saved_views": saved_views,
         **get_field_choices(),
     }
