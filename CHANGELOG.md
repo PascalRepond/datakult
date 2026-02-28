@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v1.6.1 (2026-02-28)
+
+### Bug Fixes
+
+- Display review date even if no review
+  ([`d782240`](https://github.com/PascalRepond/datakult/commit/d78224095de09fabe404ef35dc3ec23888924bfb))
+
+### Chores
+
+- Update dependencies
+  ([`ef383f9`](https://github.com/PascalRepond/datakult/commit/ef383f96a33bc71ee4b1def91d716db3b8546a44))
+
+- Update dependencies
+  ([`ef6ddab`](https://github.com/PascalRepond/datakult/commit/ef6ddab84a6584fdbb8b4914c1517a4a774c176b))
+
+
 ## v1.6.0 (2026-01-21)
 
 ### Bug Fixes
