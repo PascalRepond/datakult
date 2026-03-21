@@ -56,7 +56,7 @@ class MediaForm(forms.ModelForm):
             "status": forms.Select(attrs={"class": "select validator w-full"}),
             "pub_year": forms.NumberInput(attrs={"class": "input validator w-full", "placeholder": _("YYYY")}),
             "score": StarRatingWidget(attrs={"class": "validator"}),
-            "review": MDEWidget(),
+            "review": MDEWidget(options={"nativeSpellcheck": True, "inputStyle": "contenteditable"}),
             "review_date": forms.TextInput(
                 attrs={
                     "class": "input validator w-full",
@@ -70,16 +70,15 @@ class MediaForm(forms.ModelForm):
         """
         Initialize the form and add HTMX attributes for dynamic field validation.
 
-        Configures all form fields (except cover and contributors) with HTMX
-        attributes to enable real-time validation on user input.
+        Enables real-time HTMX validation only on free-text fields where user
+        input can actually be invalid: title (required), external_uri (URL
+        format), pub_year (min/max range), and review_date (date format).
         """
         super().__init__(*args, **kwargs)
-        # Add HTMX attributes for dynamic validation
         validation_url = reverse("media_validate_field")
-        for field_name, field in self.fields.items():
-            # Do not add dynamic validation on file or M2M fields (cover, contributors, tags)
-            if field_name in ["cover", "contributors", "tags"]:
-                continue
+        validated_fields = ["title", "external_uri", "pub_year", "review_date"]
+        for field_name in validated_fields:
+            field = self.fields[field_name]
             field.widget.attrs.update(
                 {
                     "hx-post": validation_url,

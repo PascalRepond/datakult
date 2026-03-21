@@ -21,14 +21,11 @@ def test_htmx_validate_field_valid(logged_in_client):
 
 
 @pytest.mark.django_db
-def test_htmx_validate_field_no_validation_for_cover_contributors(logged_in_client):
+def test_htmx_validate_field_blank_allowed_fields(logged_in_client):
     url = reverse("media_validate_field")
-    # cover and contributors should not trigger validation markup
-    data = {"field_name": "cover"}
-    response = logged_in_client.post(url, data, HTTP_HX_REQUEST="true")
-    assert response.status_code == 200
-    assert response.content.decode().strip() == ""
-    data = {"field_name": "contributors"}
-    response = logged_in_client.post(url, data, HTTP_HX_REQUEST="true")
-    assert response.status_code == 200
-    assert response.content.decode().strip() == ""
+    # Fields with blank=True return no error when submitted empty
+    for field_name in ["cover", "contributors", "review", "score"]:
+        data = {"field_name": field_name}
+        response = logged_in_client.post(url, data, HTTP_HX_REQUEST="true")
+        assert response.status_code == 200
+        assert response.content.decode().strip() == "", f"Expected no error for {field_name}"
