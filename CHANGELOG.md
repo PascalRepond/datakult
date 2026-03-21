@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.6.2 (2026-03-21)
+
+### Bug Fixes
+
+- **editor**: Allow browser spell check in markdown editor
+  ([`202a76b`](https://github.com/PascalRepond/datakult/commit/202a76b4dfa4909221e172cfb58540719a4c495d))
+
+
 ## v1.6.1 (2026-02-28)
 
 ### Bug Fixes
