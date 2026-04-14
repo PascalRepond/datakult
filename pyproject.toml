@@ -23,7 +23,7 @@ dev = [
     "django-browser-reload>=1.18.0",
     "honcho>=2.0.0",
     # Tests and quality
-    "pytest>=9.0.2",
+    "pytest>=9.0.3",
     "pytest-cov>=7.0.0",
     "pytest-django>=4.11.1",
     "freezegun>=1.5.0",
