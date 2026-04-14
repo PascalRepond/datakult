@@ -83,7 +83,7 @@ print_success "Python $PYTHON_VERSION found (required: >=$REQUIRED_PYTHON_MAJOR.
 # Check Node.js/npm
 if ! command -v node &> /dev/null; then
     print_error "Node.js is not installed."
-    echo "Install Node.js 20+ from: https://nodejs.org/"
+    echo "Install Node.js 24+ from: https://nodejs.org/"
     echo "Or use nvm: https://github.com/nvm-sh/nvm"
     exit 1
 fi
@@ -97,12 +97,12 @@ fi
 # Check Node.js version
 NODE_VERSION=$(node --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
 NODE_MAJOR=$(echo "$NODE_VERSION" | cut -d'.' -f1)
-REQUIRED_NODE_MAJOR=20
+REQUIRED_NODE_MAJOR=24
 
 if [ "$NODE_MAJOR" -lt "$REQUIRED_NODE_MAJOR" ]; then
     print_error "Node.js $REQUIRED_NODE_MAJOR or higher is required, but found $NODE_VERSION"
-    echo "Install Node.js 20+ from: https://nodejs.org/"
-    echo "Or use nvm: nvm install 20 && nvm use 20"
+    echo "Install Node.js 24+ from: https://nodejs.org/"
+    echo "Or use nvm: nvm install 24 && nvm use 24"
     exit 1
 fi
 print_success "Node.js $NODE_VERSION found (required: >=$REQUIRED_NODE_MAJOR)"
