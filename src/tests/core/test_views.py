@@ -15,1262 +15,1146 @@ from core.models import Agent, Media, SavedView
 from core.utils import create_backup
 
 
-class TestIndexView:
-    """Tests for the index (home) view."""
-
-    def test_index_accessible_when_logged_in(self, logged_in_client):
-        """The index view is accessible when logged in."""
-        response = logged_in_client.get(reverse("home"))
-
-        assert response.status_code == 200
-
-    def test_index_displays_media_list(self, logged_in_client, media):
-        """The index view displays the media list."""
-        response = logged_in_client.get(reverse("home"))
-
-        assert response.status_code == 200
-        assert "media_list" in response.context
-
-    def test_index_includes_saved_views_in_context(self, logged_in_client, user, db):
-        """The index view includes saved_views in the context for authenticated users."""
-        # Create some saved views for the user
-        SavedView.objects.create(user=user, name="View 1")
-        SavedView.objects.create(user=user, name="View 2")
-
-        response = logged_in_client.get(reverse("home"))
-
-        assert response.status_code == 200
-        assert "saved_views" in response.context
-        assert len(response.context["saved_views"]) == 2
-
-
-class TestMediaEditView:
-    """Tests for the media_edit view."""
-
-    def test_media_add_get_displays_form(self, logged_in_client):
-        """GET request displays the form."""
-        response = logged_in_client.get(reverse("media_add"))
-
-        assert response.status_code == 200
-        assert "form" in response.context
-
-    def test_media_add_post_creates_media(self, logged_in_client, db):
-        """POST with valid data creates a new media."""
-        data = {
-            "title": "New Test Media",
-            "media_type": "BOOK",
-            "status": "PLANNED",
-        }
-        response = logged_in_client.post(reverse("media_add"), data)
-
-        assert response.status_code == 302  # Redirect after success
-        assert Media.objects.filter(title="New Test Media").exists()
-
-    def test_media_add_shows_success_message(self, logged_in_client, db):
-        """Creating a new media shows a success message."""
-
-        data = {
-            "title": "New Test Media",
-            "media_type": "BOOK",
-            "status": "PLANNED",
-        }
-        response = logged_in_client.post(reverse("media_add"), data, follow=True)
-
-        messages = list(get_messages(response.wsgi_request))
-        assert len(messages) > 0
-        assert "New Test Media" in str(messages[0])
-        assert "created" in str(messages[0]).lower()
-
-    def test_media_add_with_new_contributor(self, logged_in_client, db):
-        """POST with new_contributors creates agents and links them."""
-        data = {
-            "title": "Book with Author",
-            "media_type": "BOOK",
-            "status": "PLANNED",
-            "new_contributors": ["New Author"],
-        }
-        response = logged_in_client.post(reverse("media_add"), data)
-
-        assert response.status_code == 302
-        media = Media.objects.get(title="Book with Author")
-        assert media.contributors.filter(name="New Author").exists()
-
-    def test_media_edit_get_displays_existing(self, logged_in_client, media):
-        """GET on edit view shows the existing media."""
-        response = logged_in_client.get(reverse("media_edit", kwargs={"pk": media.pk}))
-
-        assert response.status_code == 200
-        assert response.context["media"] == media
-
-    def test_media_edit_post_updates_media(self, logged_in_client, media):
-        """POST updates the existing media."""
-        data = {
-            "title": "Updated Title",
-            "media_type": media.media_type,
-            "status": "COMPLETED",
-        }
-        response = logged_in_client.post(
-            reverse("media_edit", kwargs={"pk": media.pk}),
-            data,
-        )
-
-        assert response.status_code == 302
-        media.refresh_from_db()
-        assert media.title == "Updated Title"
-        assert media.status == "COMPLETED"
-
-    def test_media_edit_shows_success_message(self, logged_in_client, media):
-        """Updating a media shows a success message."""
-
-        data = {
-            "title": "Updated Title",
-            "media_type": media.media_type,
-            "status": "COMPLETED",
-        }
-        response = logged_in_client.post(
-            reverse("media_edit", kwargs={"pk": media.pk}),
-            data,
-            follow=True,
-        )
-
-        messages = list(get_messages(response.wsgi_request))
-        assert len(messages) > 0
-        assert "Updated Title" in str(messages[0])
-        assert "updated" in str(messages[0]).lower()
+def test_index_accessible_when_logged_in(logged_in_client):
+    """The index view is accessible when logged in."""
+    response = logged_in_client.get(reverse("home"))
 
-    def test_media_edit_removes_contributor_cleans_orphan(self, logged_in_client, db):
-        """Removing a contributor from media deletes orphan agent."""
-        agent = Agent.objects.create(name="Soon Orphan")
-        media = Media.objects.create(title="Test", media_type="BOOK")
-        media.contributors.add(agent)
+    assert response.status_code == 200
 
-        data = {
-            "title": media.title,
-            "media_type": media.media_type,
-            "status": media.status,
-            "contributors": [],  # Remove the contributor
-        }
-        logged_in_client.post(reverse("media_edit", kwargs={"pk": media.pk}), data)
 
-        assert not Agent.objects.filter(pk=agent.pk).exists()
+def test_index_displays_media_list(logged_in_client, media):
+    """The index view displays the media list."""
+    response = logged_in_client.get(reverse("home"))
 
+    assert response.status_code == 200
+    assert "media_list" in response.context
+
+
+def test_index_includes_saved_views_in_context(logged_in_client, user, db):
+    """The index view includes saved_views in the context for authenticated users."""
+    SavedView.objects.create(user=user, name="View 1")
+    SavedView.objects.create(user=user, name="View 2")
+
+    response = logged_in_client.get(reverse("home"))
+
+    assert response.status_code == 200
+    assert "saved_views" in response.context
+    assert len(response.context["saved_views"]) == 2
+
+
+def test_media_add_get_displays_form(logged_in_client):
+    """GET request displays the form."""
+    response = logged_in_client.get(reverse("media_add"))
+
+    assert response.status_code == 200
+    assert "form" in response.context
+
+
+def test_media_add_post_creates_media(logged_in_client, db):
+    """POST with valid data creates a new media."""
+    data = {
+        "title": "New Test Media",
+        "media_type": "BOOK",
+        "status": "PLANNED",
+    }
+    response = logged_in_client.post(reverse("media_add"), data)
+
+    assert response.status_code == 302  # Redirect after success
+    assert Media.objects.filter(title="New Test Media").exists()
+
+
+def test_media_add_shows_success_message(logged_in_client, db):
+    """Creating a new media shows a success message."""
+    data = {
+        "title": "New Test Media",
+        "media_type": "BOOK",
+        "status": "PLANNED",
+    }
+    response = logged_in_client.post(reverse("media_add"), data, follow=True)
+
+    messages = list(get_messages(response.wsgi_request))
+    assert len(messages) > 0
+    assert "New Test Media" in str(messages[0])
+    assert "created" in str(messages[0]).lower()
+
+
+def test_media_add_with_new_contributor(logged_in_client, db):
+    """POST with new_contributors creates agents and links them."""
+    data = {
+        "title": "Book with Author",
+        "media_type": "BOOK",
+        "status": "PLANNED",
+        "new_contributors": ["New Author"],
+    }
+    response = logged_in_client.post(reverse("media_add"), data)
 
-class TestMediaDeleteView:
-    """Tests for the media_delete view."""
+    assert response.status_code == 302
+    media = Media.objects.get(title="Book with Author")
+    assert media.contributors.filter(name="New Author").exists()
 
-    def test_media_delete_post_deletes_media(self, logged_in_client, media):
-        """POST request deletes the media."""
-        media_pk = media.pk
-        response = logged_in_client.post(reverse("media_delete", kwargs={"pk": media_pk}))
 
-        assert response.status_code == 302
-        assert not Media.objects.filter(pk=media_pk).exists()
+def test_media_edit_get_displays_existing(logged_in_client, media):
+    """GET on edit view shows the existing media."""
+    response = logged_in_client.get(reverse("media_edit", kwargs={"pk": media.pk}))
+
+    assert response.status_code == 200
+    assert response.context["media"] == media
 
-    def test_media_delete_shows_success_message(self, logged_in_client, media):
-        """Deleting a media shows a success message with the title."""
 
-        media_title = media.title
-        response = logged_in_client.post(
-            reverse("media_delete", kwargs={"pk": media.pk}),
-            follow=True,
-        )
+def test_media_edit_post_updates_media(logged_in_client, media):
+    """POST updates the existing media."""
+    data = {
+        "title": "Updated Title",
+        "media_type": media.media_type,
+        "status": "COMPLETED",
+    }
+    response = logged_in_client.post(
+        reverse("media_edit", kwargs={"pk": media.pk}),
+        data,
+    )
 
-        messages = list(get_messages(response.wsgi_request))
-        assert len(messages) > 0
-        assert media_title in str(messages[0])
-        assert "deleted" in str(messages[0]).lower()
+    assert response.status_code == 302
+    media.refresh_from_db()
+    assert media.title == "Updated Title"
+    assert media.status == "COMPLETED"
 
-    def test_media_delete_cleans_orphan_contributors(self, logged_in_client, db):
-        """Deleting media removes orphan contributors."""
-        agent = Agent.objects.create(name="Will Be Orphan")
-        media = Media.objects.create(title="To Delete", media_type="BOOK")
-        media.contributors.add(agent)
 
-        logged_in_client.post(reverse("media_delete", kwargs={"pk": media.pk}))
+def test_media_edit_shows_success_message(logged_in_client, media):
+    """Updating a media shows a success message."""
+    data = {
+        "title": "Updated Title",
+        "media_type": media.media_type,
+        "status": "COMPLETED",
+    }
+    response = logged_in_client.post(
+        reverse("media_edit", kwargs={"pk": media.pk}),
+        data,
+        follow=True,
+    )
 
-        assert not Agent.objects.filter(pk=agent.pk).exists()
+    messages = list(get_messages(response.wsgi_request))
+    assert len(messages) > 0
+    assert "Updated Title" in str(messages[0])
+    assert "updated" in str(messages[0]).lower()
 
-    def test_media_delete_keeps_shared_contributors(self, logged_in_client, db):
-        """Contributors linked to other media are kept."""
-        agent = Agent.objects.create(name="Shared Author")
-        media1 = Media.objects.create(title="To Delete", media_type="BOOK")
-        media2 = Media.objects.create(title="To Keep", media_type="BOOK")
-        media1.contributors.add(agent)
-        media2.contributors.add(agent)
 
-        logged_in_client.post(reverse("media_delete", kwargs={"pk": media1.pk}))
+def test_media_edit_removes_contributor_cleans_orphan(logged_in_client, db):
+    """Removing a contributor from media deletes orphan agent."""
+    agent = Agent.objects.create(name="Soon Orphan")
+    media = Media.objects.create(title="Test", media_type="BOOK")
+    media.contributors.add(agent)
 
-        assert Agent.objects.filter(pk=agent.pk).exists()
+    data = {
+        "title": media.title,
+        "media_type": media.media_type,
+        "status": media.status,
+        "contributors": [],  # Remove the contributor
+    }
+    logged_in_client.post(reverse("media_edit", kwargs={"pk": media.pk}), data)
 
-    def test_media_delete_get_redirects(self, logged_in_client, media):
-        """GET request redirects to edit page (no delete)."""
-        response = logged_in_client.get(reverse("media_delete", kwargs={"pk": media.pk}))
+    assert not Agent.objects.filter(pk=agent.pk).exists()
 
-        assert response.status_code == 302
-        assert f"/media/{media.pk}/edit/" in response.url
-        assert Media.objects.filter(pk=media.pk).exists()
 
+def test_media_delete_post_deletes_media(logged_in_client, media):
+    """POST request deletes the media."""
+    media_pk = media.pk
+    response = logged_in_client.post(reverse("media_delete", kwargs={"pk": media_pk}))
 
-class TestSearchView:
-    """Tests for the search view (integrated into index view)."""
+    assert response.status_code == 302
+    assert not Media.objects.filter(pk=media_pk).exists()
 
-    def test_search_with_query(self, logged_in_client, media):
-        """Search returns results matching the query."""
-        response = logged_in_client.get(reverse("home"), {"search": media.title})
 
-        assert response.status_code == 200
+def test_media_delete_shows_success_message(logged_in_client, media):
+    """Deleting a media shows a success message with the title."""
+    media_title = media.title
+    response = logged_in_client.post(
+        reverse("media_delete", kwargs={"pk": media.pk}),
+        follow=True,
+    )
 
-    def test_search_by_title(self, logged_in_client, media_factory):
-        """Search finds media by title."""
-        media_factory(title="Unique Title Here")
-        media_factory(title="Other Book")
+    messages = list(get_messages(response.wsgi_request))
+    assert len(messages) > 0
+    assert media_title in str(messages[0])
+    assert "deleted" in str(messages[0]).lower()
 
-        response = logged_in_client.get(reverse("home"), {"search": "Unique"})
 
-        assert len(response.context["media_list"]) == 1
+def test_media_delete_cleans_orphan_contributors(logged_in_client, db):
+    """Deleting media removes orphan contributors."""
+    agent = Agent.objects.create(name="Will Be Orphan")
+    media = Media.objects.create(title="To Delete", media_type="BOOK")
+    media.contributors.add(agent)
 
-    def test_search_by_contributor(self, logged_in_client, db):
-        """Search finds media by contributor name."""
-        agent = Agent.objects.create(name="Famous Author")
-        media = Media.objects.create(title="Some Book", media_type="BOOK")
-        media.contributors.add(agent)
+    logged_in_client.post(reverse("media_delete", kwargs={"pk": media.pk}))
 
-        response = logged_in_client.get(reverse("home"), {"search": "Famous"})
+    assert not Agent.objects.filter(pk=agent.pk).exists()
 
-        assert media in response.context["media_list"]
 
+def test_media_delete_keeps_shared_contributors(logged_in_client, db):
+    """Contributors linked to other media are kept."""
+    agent = Agent.objects.create(name="Shared Author")
+    media1 = Media.objects.create(title="To Delete", media_type="BOOK")
+    media2 = Media.objects.create(title="To Keep", media_type="BOOK")
+    media1.contributors.add(agent)
+    media2.contributors.add(agent)
 
-class TestAgentSearchHtmxView:
-    """Tests for the agent_search_htmx view."""
+    logged_in_client.post(reverse("media_delete", kwargs={"pk": media1.pk}))
 
-    def test_agent_search_returns_matching_agents(self, logged_in_client, db):
-        """Search returns agents matching the query."""
-        Agent.objects.create(name="John Doe")
-        Agent.objects.create(name="Jane Doe")
-        Agent.objects.create(name="Bob Smith")
+    assert Agent.objects.filter(pk=agent.pk).exists()
 
-        response = logged_in_client.get(reverse("agent_search_htmx"), {"q": "Doe"})
 
-        assert response.status_code == 200
-        assert len(response.context["agents"]) == 2
+def test_media_delete_get_redirects(logged_in_client, media):
+    """GET request redirects to edit page (no delete)."""
+    response = logged_in_client.get(reverse("media_delete", kwargs={"pk": media.pk}))
 
-    def test_agent_search_empty_query(self, logged_in_client, agent):
-        """Empty query returns no agents."""
-        response = logged_in_client.get(reverse("agent_search_htmx"), {"q": ""})
+    assert response.status_code == 302
+    assert f"/media/{media.pk}/edit/" in response.url
+    assert Media.objects.filter(pk=media.pk).exists()
 
-        assert response.status_code == 200
-        assert len(response.context["agents"]) == 0
 
-    def test_agent_search_limits_results(self, logged_in_client, db):
-        """Search limits results to 12."""
-        for i in range(20):
-            Agent.objects.create(name=f"Agent {i}")
+def test_search_with_query(logged_in_client, media):
+    """Search returns results matching the query."""
+    response = logged_in_client.get(reverse("home"), {"search": media.title})
 
-        response = logged_in_client.get(reverse("agent_search_htmx"), {"q": "Agent"})
+    assert response.status_code == 200
 
-        assert len(response.context["agents"]) == 12
 
+def test_search_by_title(logged_in_client, media_factory):
+    """Search finds media by title."""
+    media_factory(title="Unique Title Here")
+    media_factory(title="Other Book")
 
-class TestAgentSelectHtmxView:
-    """Tests for the agent_select_htmx view."""
+    response = logged_in_client.get(reverse("home"), {"search": "Unique"})
 
-    def test_agent_select_returns_chip(self, logged_in_client, agent):
-        """Selecting an agent returns the chip template."""
-        response = logged_in_client.post(
-            reverse("agent_select_htmx"),
-            {"id": agent.pk},
-        )
+    assert len(response.context["media_list"]) == 1
 
-        assert response.status_code == 200
-        assert response.context["agent"] == agent
 
-    def test_agent_select_nonexistent(self, logged_in_client, db):
-        """Selecting a non-existent agent returns error."""
-        response = logged_in_client.post(
-            reverse("agent_select_htmx"),
-            {"id": 99999},
-        )
+def test_search_by_contributor(logged_in_client, db):
+    """Search finds media by contributor name."""
+    agent = Agent.objects.create(name="Famous Author")
+    media = Media.objects.create(title="Some Book", media_type="BOOK")
+    media.contributors.add(agent)
 
-        assert response.status_code == 200
-        assert response.context["error"] == "Agent not found"
+    response = logged_in_client.get(reverse("home"), {"search": "Famous"})
 
+    assert media in response.context["media_list"]
 
-class TestSortingHelper:
-    """Tests for the _resolve_sorting helper logic via index view."""
 
-    def test_default_sorting(self, logged_in_client):
-        """Default sorting is by review_date descending."""
-        response = logged_in_client.get(reverse("home"))
+def test_agent_search_returns_matching_agents(logged_in_client, db):
+    """Search returns agents matching the query."""
+    Agent.objects.create(name="John Doe")
+    Agent.objects.create(name="Jane Doe")
+    Agent.objects.create(name="Bob Smith")
 
-        assert response.context["sort_field"] == "review_date"
-        assert response.context["sort"] == "-review_date"
+    response = logged_in_client.get(reverse("agent_search_htmx"), {"q": "Doe"})
 
-    def test_custom_sorting(self, logged_in_client):
-        """Custom sorting is applied."""
-        response = logged_in_client.get(reverse("home"), {"sort": "score"})
+    assert response.status_code == 200
+    assert len(response.context["agents"]) == 2
 
-        assert response.context["sort_field"] == "score"
-        assert response.context["sort"] == "score"
 
-    def test_descending_sorting(self, logged_in_client):
-        """Descending sorting is applied."""
-        response = logged_in_client.get(reverse("home"), {"sort": "-review_date"})
+def test_agent_search_empty_query(logged_in_client, agent):
+    """Empty query returns no agents."""
+    response = logged_in_client.get(reverse("agent_search_htmx"), {"q": ""})
 
-        assert response.context["sort_field"] == "review_date"
-        assert response.context["sort"] == "-review_date"
+    assert response.status_code == 200
+    assert len(response.context["agents"]) == 0
 
-    def test_invalid_sort_field_uses_default(self, logged_in_client):
-        """Invalid sort field falls back to default."""
-        response = logged_in_client.get(reverse("home"), {"sort": "invalid_field"})
 
-        assert response.context["sort_field"] == "review_date"
+def test_agent_search_limits_results(logged_in_client, db):
+    """Search limits results to 12."""
+    for i in range(20):
+        Agent.objects.create(name=f"Agent {i}")
 
-    def test_sorting_by_updated_at(self, logged_in_client):
-        """Sorting by updated_at field works correctly."""
-        response = logged_in_client.get(reverse("home"), {"sort": "updated_at"})
+    response = logged_in_client.get(reverse("agent_search_htmx"), {"q": "Agent"})
 
-        assert response.context["sort_field"] == "updated_at"
-        assert response.context["sort"] == "updated_at"
+    assert len(response.context["agents"]) == 12
 
-    def test_sorting_by_updated_at_descending(self, logged_in_client):
-        """Descending sorting by updated_at field works correctly."""
-        response = logged_in_client.get(reverse("home"), {"sort": "-updated_at"})
 
-        assert response.context["sort_field"] == "updated_at"
-        assert response.context["sort"] == "-updated_at"
+def test_agent_select_returns_chip(logged_in_client, agent):
+    """Selecting an agent returns the chip template."""
+    response = logged_in_client.post(
+        reverse("agent_select_htmx"),
+        {"id": agent.pk},
+    )
 
+    assert response.status_code == 200
+    assert response.context["agent"] == agent
 
-class TestFilteringHelper:
-    """Tests for the filtering logic via index view."""
 
-    def test_filter_by_type(self, logged_in_client, media_factory):
-        """Filtering by media type works."""
-        media_factory(title="A Book", media_type="BOOK")
-        media_factory(title="A Film", media_type="FILM")
+def test_agent_select_nonexistent(logged_in_client, db):
+    """Selecting a non-existent agent returns error."""
+    response = logged_in_client.post(
+        reverse("agent_select_htmx"),
+        {"id": 99999},
+    )
 
-        response = logged_in_client.get(reverse("home"), {"type": "BOOK"})
+    assert response.status_code == 200
+    assert response.context["error"] == "Agent not found"
 
-        titles = [m.title for m in response.context["media_list"]]
-        assert "A Book" in titles
-        assert "A Film" not in titles
 
-    def test_filter_by_status(self, logged_in_client, media_factory):
-        """Filtering by status works."""
-        media_factory(title="Planned", status="PLANNED")
-        media_factory(title="Completed", status="COMPLETED")
+def test_default_sorting(logged_in_client):
+    """Default sorting is by review_date descending."""
+    response = logged_in_client.get(reverse("home"))
 
-        response = logged_in_client.get(reverse("home"), {"status": "COMPLETED"})
+    assert response.context["sort_field"] == "review_date"
+    assert response.context["sort"] == "-review_date"
 
-        titles = [m.title for m in response.context["media_list"]]
-        assert "Completed" in titles
-        assert "Planned" not in titles
 
-    def test_filter_by_contributor(self, logged_in_client, db):
-        """Filtering by contributor works."""
-        agent = Agent.objects.create(name="Specific Author")
-        media = Media.objects.create(title="By Author", media_type="BOOK")
-        media.contributors.add(agent)
-        Media.objects.create(title="No Author", media_type="BOOK")
+def test_custom_sorting(logged_in_client):
+    """Custom sorting is applied."""
+    response = logged_in_client.get(reverse("home"), {"sort": "score"})
 
-        response = logged_in_client.get(reverse("home"), {"contributor": agent.pk})
+    assert response.context["sort_field"] == "score"
+    assert response.context["sort"] == "score"
 
-        titles = [m.title for m in response.context["media_list"]]
-        assert "By Author" in titles
-        assert "No Author" not in titles
 
-    def test_filter_by_no_score(self, logged_in_client, media_factory):
-        """Filtering by 'no score' works."""
-        media_factory(title="Rated", score=8)
-        media_factory(title="Unrated", score=None)
-
-        response = logged_in_client.get(reverse("home"), {"score": "none"})
-
-        titles = [m.title for m in response.context["media_list"]]
-        assert "Unrated" in titles
-        assert "Rated" not in titles
-
-    def test_filter_with_invalid_date_ignores_filter(self, logged_in_client, media_factory):
-        """Invalid date values in URL are silently ignored."""
-        media_factory(title="Recent", review_date="2025-01-01")
-        media_factory(title="Old", review_date="2020-01-01")
-
-        # Try with invalid date format - should not crash and return all results
-        response = logged_in_client.get(reverse("home"), {"review_from": "not-a-date"})
-
-        assert response.status_code == 200
-        titles = [m.title for m in response.context["media_list"]]
-        # Both should be present since the invalid filter was ignored
-        assert "Recent" in titles
-        assert "Old" in titles
+def test_descending_sorting(logged_in_client):
+    """Descending sorting is applied."""
+    response = logged_in_client.get(reverse("home"), {"sort": "-review_date"})
 
+    assert response.context["sort_field"] == "review_date"
+    assert response.context["sort"] == "-review_date"
 
-class TestMediaReviewHtmxViews:
-    """Tests for HTMX views that display media reviews."""
 
-    def test_media_review_clamped_returns_partial(self, logged_in_client, db):
-        """Clamped review view returns the clamped partial template."""
-        media = Media.objects.create(
-            title="Test Media",
-            media_type="BOOK",
-            review="This is a test review with some content that could be truncated.",
-        )
-        response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
+def test_invalid_sort_field_uses_default(logged_in_client):
+    """Invalid sort field falls back to default."""
+    response = logged_in_client.get(reverse("home"), {"sort": "invalid_field"})
 
-        assert response.status_code == 200
-        assert "partials/media_items/media_review_clamped.html" in [t.name for t in response.templates]
-        assert "media" in response.context
-        assert response.context["media"] == media
+    assert response.context["sort_field"] == "review_date"
 
-    def test_media_review_clamped_with_short_review(self, logged_in_client, db):
-        """Clamped review with short text doesn't show 'See more' button."""
-        media = Media.objects.create(
-            title="Test Media",
-            media_type="BOOK",
-            review="Short review",
-        )
-        response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
 
-        content = response.content.decode("utf-8")
-        # With less than 50 words, the 'See more' button should not appear
-        assert "See more" not in content
+def test_sorting_by_updated_at(logged_in_client):
+    """Sorting by updated_at field works correctly."""
+    response = logged_in_client.get(reverse("home"), {"sort": "updated_at"})
 
-    def test_media_review_clamped_with_long_review(self, logged_in_client, db):
-        """Clamped review with long text shows 'See more' button."""
-        long_review = " ".join(["word"] * 55)
-        media = Media.objects.create(
-            title="Test Media",
-            media_type="BOOK",
-            review=long_review,
-        )
-        response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
+    assert response.context["sort_field"] == "updated_at"
+    assert response.context["sort"] == "updated_at"
 
-        content = response.content.decode("utf-8")
-        # With more than 50 words, the 'See more' button should appear
-        assert "See more" in content
 
-    def test_media_review_full_returns_partial(self, logged_in_client, db):
-        """Full review view returns the full partial template."""
-        media = Media.objects.create(
-            title="Test Media",
-            media_type="BOOK",
-            review="This is a test review.",
-        )
-        response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
+def test_sorting_by_updated_at_descending(logged_in_client):
+    """Descending sorting by updated_at field works correctly."""
+    response = logged_in_client.get(reverse("home"), {"sort": "-updated_at"})
 
-        assert response.status_code == 200
-        assert "partials/media_items/media_review_full.html" in [t.name for t in response.templates]
-        assert "media" in response.context
-        assert response.context["media"] == media
+    assert response.context["sort_field"] == "updated_at"
+    assert response.context["sort"] == "-updated_at"
 
-    def test_media_review_full_shows_see_less_button(self, logged_in_client, db):
-        """Full review view shows 'See less' button."""
-        media = Media.objects.create(
-            title="Test Media",
-            media_type="BOOK",
-            review="Some review content",
-        )
-        response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
 
-        content = response.content.decode("utf-8")
-        assert "See less" in content
+def test_filter_by_type(logged_in_client, media_factory):
+    """Filtering by media type works."""
+    media_factory(title="A Book", media_type="BOOK")
+    media_factory(title="A Film", media_type="FILM")
 
-    def test_media_review_renders_html_safely(self, logged_in_client, db):
-        """Review views render HTML content from review_rendered field."""
-        media = Media.objects.create(
-            title="Test Media",
-            media_type="BOOK",
-            review="**Bold text**",
-        )
-        # After save, review_rendered should contain HTML
-        media.refresh_from_db()
+    response = logged_in_client.get(reverse("home"), {"type": "BOOK"})
 
-        response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
-        content = response.content.decode("utf-8")
+    titles = [m.title for m in response.context["media_list"]]
+    assert "A Book" in titles
+    assert "A Film" not in titles
 
-        # The rendered HTML should be present in the response
-        assert "<strong>Bold text</strong>" in content
 
-    def test_media_review_nonexistent_media_returns_404(self, logged_in_client):
-        """Accessing review views with nonexistent media returns 404."""
-        response_clamped = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": 99999}))
-        response_full = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": 99999}))
+def test_filter_by_status(logged_in_client, media_factory):
+    """Filtering by status works."""
+    media_factory(title="Planned", status="PLANNED")
+    media_factory(title="Completed", status="COMPLETED")
 
-        assert response_clamped.status_code == 404
-        assert response_full.status_code == 404
+    response = logged_in_client.get(reverse("home"), {"status": "COMPLETED"})
 
+    titles = [m.title for m in response.context["media_list"]]
+    assert "Completed" in titles
+    assert "Planned" not in titles
 
-class TestBackupManageView:
-    """Tests for the backup_manage view."""
 
-    def test_backup_manage_displays_page(self, logged_in_client):
-        """The backup manage view displays the backup management page."""
-        response = logged_in_client.get(reverse("backup_manage"))
+def test_filter_by_contributor(logged_in_client, db):
+    """Filtering by contributor works."""
+    agent = Agent.objects.create(name="Specific Author")
+    media = Media.objects.create(title="By Author", media_type="BOOK")
+    media.contributors.add(agent)
+    Media.objects.create(title="No Author", media_type="BOOK")
 
-        assert response.status_code == 200
-        assert "base/backup_manage.html" in [t.name for t in response.templates]
+    response = logged_in_client.get(reverse("home"), {"contributor": agent.pk})
 
+    titles = [m.title for m in response.context["media_list"]]
+    assert "By Author" in titles
+    assert "No Author" not in titles
 
-class TestBackupExportView:
-    """Tests for the backup_export view."""
 
-    def test_backup_export_creates_and_downloads_backup(self, logged_in_client, db):
-        """The backup export view creates and returns a backup file."""
-        # Create some test data
-        Media.objects.create(title="Test Media", media_type="BOOK")
+def test_filter_by_no_score(logged_in_client, media_factory):
+    """Filtering by 'no score' works."""
+    media_factory(title="Rated", score=8)
+    media_factory(title="Unrated", score=None)
 
-        response = logged_in_client.get(reverse("backup_export"))
+    response = logged_in_client.get(reverse("home"), {"score": "none"})
 
-        # Should return a file download
-        assert response.status_code == 200
-        # Django's FileResponse detects .tar.gz as gzip
-        assert response["Content-Type"] == "application/gzip"
-        assert "attachment" in response["Content-Disposition"]
-        assert "datakult_backup_" in response["Content-Disposition"]
+    titles = [m.title for m in response.context["media_list"]]
+    assert "Unrated" in titles
+    assert "Rated" not in titles
 
-    def test_backup_export_handles_errors_gracefully(self, logged_in_client, monkeypatch):
-        """The backup export view handles errors and redirects with message."""
 
-        # Mock create_backup to raise an exception
-        def mock_create_backup(*args, **kwargs):
-            msg = "Test error"
-            raise OSError(msg)
+def test_filter_with_invalid_date_ignores_filter(logged_in_client, media_factory):
+    """Invalid date values in URL are silently ignored."""
+    media_factory(title="Recent", review_date="2025-01-01")
+    media_factory(title="Old", review_date="2020-01-01")
 
-        monkeypatch.setattr("core.views.create_backup", mock_create_backup)
+    # Try with invalid date format - should not crash and return all results
+    response = logged_in_client.get(reverse("home"), {"review_from": "not-a-date"})
 
-        response = logged_in_client.get(reverse("backup_export"))
+    assert response.status_code == 200
+    titles = [m.title for m in response.context["media_list"]]
+    # Both should be present since the invalid filter was ignored
+    assert "Recent" in titles
+    assert "Old" in titles
 
-        # Should redirect back to backup manage with error message
-        assert response.status_code == 302
-        assert response.url == reverse("backup_manage")
 
+def test_media_review_clamped_returns_partial(logged_in_client, db):
+    """Clamped review view returns the clamped partial template."""
+    media = Media.objects.create(
+        title="Test Media",
+        media_type="BOOK",
+        review="This is a test review with some content that could be truncated.",
+    )
+    response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
 
-class TestBackupImportView:
-    """Tests for the backup_import view."""
+    assert response.status_code == 200
+    assert "partials/media_items/media_review_clamped.html" in [t.name for t in response.templates]
+    assert "media" in response.context
+    assert response.context["media"] == media
 
-    def test_backup_import_get_redirects(self, logged_in_client):
-        """GET requests to backup import redirect to backup manage."""
-        response = logged_in_client.get(reverse("backup_import"))
 
-        assert response.status_code == 302
-        assert response.url == reverse("backup_manage")
+def test_media_review_clamped_with_short_review(logged_in_client, db):
+    """Clamped review with short text doesn't show 'See more' button."""
+    media = Media.objects.create(
+        title="Test Media",
+        media_type="BOOK",
+        review="Short review",
+    )
+    response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
 
-    def test_backup_import_requires_file(self, logged_in_client):
-        """The backup import view requires a file to be uploaded."""
-        response = logged_in_client.post(reverse("backup_import"))
+    content = response.content.decode("utf-8")
+    # With less than 50 words, the 'See more' button should not appear
+    assert "See more" not in content
 
-        assert response.status_code == 302
-        # Should redirect back with error message
 
-    def test_backup_import_rejects_invalid_format(self, logged_in_client):
-        """The backup import view rejects files with invalid format."""
-        invalid_file = SimpleUploadedFile("backup.txt", b"not a backup", content_type="text/plain")
+def test_media_review_clamped_with_long_review(logged_in_client, db):
+    """Clamped review with long text shows 'See more' button."""
+    long_review = " ".join(["word"] * 55)
+    media = Media.objects.create(
+        title="Test Media",
+        media_type="BOOK",
+        review=long_review,
+    )
+    response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
 
-        response = logged_in_client.post(reverse("backup_import"), {"backup_file": invalid_file})
+    content = response.content.decode("utf-8")
+    # With more than 50 words, the 'See more' button should appear
+    assert "See more" in content
 
-        assert response.status_code == 302
-        assert response.url == reverse("backup_manage")
 
-    def test_backup_import_restores_data(self, logged_in_client, db):
-        """The backup import view successfully restores data from a backup."""
-        # Create test data and backup
-        original_media = Media.objects.create(title="Original Media", media_type="BOOK", status="COMPLETED")
+def test_media_review_full_returns_partial(logged_in_client, db):
+    """Full review view returns the full partial template."""
+    media = Media.objects.create(
+        title="Test Media",
+        media_type="BOOK",
+        review="This is a test review.",
+    )
+    response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
 
-        with TemporaryDirectory() as tmpdir:
-            # Create a backup
-            backup_path = create_backup(output_dir=Path(tmpdir))
+    assert response.status_code == 200
+    assert "partials/media_items/media_review_full.html" in [t.name for t in response.templates]
+    assert "media" in response.context
+    assert response.context["media"] == media
 
-            # Clear the database
-            Media.objects.all().delete()
-            assert Media.objects.count() == 0
 
-            # Import the backup via the view
-            with backup_path.open("rb") as backup_file:
-                uploaded_file = SimpleUploadedFile(
-                    backup_path.name, backup_file.read(), content_type="application/x-tar"
-                )
-                response = logged_in_client.post(reverse("backup_import"), {"backup_file": uploaded_file})
+def test_media_review_full_shows_see_less_button(logged_in_client, db):
+    """Full review view shows 'See less' button."""
+    media = Media.objects.create(
+        title="Test Media",
+        media_type="BOOK",
+        review="Some review content",
+    )
+    response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
 
-            # Should redirect to home
-            assert response.status_code == 302
-            assert response.url == reverse("home")
+    content = response.content.decode("utf-8")
+    assert "See less" in content
 
-            # Data should be restored
-            assert Media.objects.count() == 1
-            restored_media = Media.objects.first()
-            assert restored_media.title == original_media.title
-            assert restored_media.status == original_media.status
 
-    def test_backup_import_handles_errors(self, logged_in_client):
-        """The backup import view handles errors gracefully."""
-        # Create a valid tar.gz file with invalid content
-        invalid_file = SimpleUploadedFile("backup.tar.gz", b"invalid content", content_type="application/x-tar")
+def test_media_review_renders_html_safely(logged_in_client, db):
+    """Review views render HTML content from review_rendered field."""
+    media = Media.objects.create(
+        title="Test Media",
+        media_type="BOOK",
+        review="**Bold text**",
+    )
+    # After save, review_rendered should contain HTML
+    media.refresh_from_db()
 
-        response = logged_in_client.post(reverse("backup_import"), {"backup_file": invalid_file})
+    response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
+    content = response.content.decode("utf-8")
 
-        # Should redirect back to backup manage with error message
-        assert response.status_code == 302
-        assert response.url == reverse("backup_manage")
+    # The rendered HTML should be present in the response
+    assert "<strong>Bold text</strong>" in content
 
 
-class TestPaginationBehavior:
-    """Tests for pagination behavior across views."""
+def test_media_review_nonexistent_media_returns_404(logged_in_client):
+    """Accessing review views with nonexistent media returns 404."""
+    response_clamped = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": 99999}))
+    response_full = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": 99999}))
 
-    def test_index_paginates_results_across_pages(self, logged_in_client, media_factory):
-        """Index view paginates results with 20 items per page and navigates correctly."""
-        # Create 25 media items
-        for i in range(25):
-            media_factory(title=f"Media {i}")
+    assert response_clamped.status_code == 404
+    assert response_full.status_code == 404
 
-        # Test first page
-        response_page1 = logged_in_client.get(reverse("home"))
-        assert response_page1.status_code == 200
-        assert "page_obj" in response_page1.context
-        assert len(response_page1.context["media_list"]) == 20
-        assert response_page1.context["page_obj"].has_next()
 
-        # Test second page
-        response_page2 = logged_in_client.get(reverse("home"), {"page": 2})
-        assert response_page2.status_code == 200
-        assert len(response_page2.context["media_list"]) == 5
-        assert response_page2.context["page_obj"].has_previous()
-        assert not response_page2.context["page_obj"].has_next()
+def test_backup_manage_displays_page(logged_in_client):
+    """The backup manage view displays the backup management page."""
+    response = logged_in_client.get(reverse("backup_manage"))
 
-    def test_search_paginates_results(self, logged_in_client, media_factory):
-        """Search view paginates results."""
-        # Create 25 media items with searchable title
-        for i in range(25):
-            media_factory(title=f"Searchable {i}")
+    assert response.status_code == 200
+    assert "base/backup_manage.html" in [t.name for t in response.templates]
 
-        response = logged_in_client.get(reverse("home"), {"search": "Searchable"})
 
-        assert response.status_code == 200
-        assert len(response.context["media_list"]) == 20
-        assert response.context["page_obj"].has_next()
+def test_backup_export_creates_and_downloads_backup(logged_in_client, db):
+    """The backup export view creates and returns a backup file."""
+    # Create some test data
+    Media.objects.create(title="Test Media", media_type="BOOK")
 
+    response = logged_in_client.get(reverse("backup_export"))
 
-class TestLoadMoreMediaView:
-    """Tests for the load_more_media view (infinite scroll / lazy-loading)."""
+    # Should return a file download
+    assert response.status_code == 200
+    # Django's FileResponse detects .tar.gz as gzip
+    assert response["Content-Type"] == "application/gzip"
+    assert "attachment" in response["Content-Disposition"]
+    assert "datakult_backup_" in response["Content-Disposition"]
 
-    def test_load_more_returns_partial_template(self, logged_in_client, media_factory):
-        """Load more view returns the media-items-page partial template."""
-        for i in range(25):
-            media_factory(title=f"Media {i}")
 
-        response = logged_in_client.get(reverse("load_more_media"), {"page": 2})
+def test_backup_export_handles_errors_gracefully(logged_in_client, monkeypatch):
+    """The backup export view handles errors and redirects with message."""
 
-        assert response.status_code == 200
-        assert "partials/media_items/media_list_page.html" in [t.name for t in response.templates]
+    def mock_create_backup(*args, **kwargs):
+        msg = "Test error"
+        raise OSError(msg)
 
-    def test_load_more_returns_next_page_items(self, logged_in_client, media_factory):
-        """Load more view returns items for the requested page."""
-        # Create 25 items
-        for i in range(25):
-            media_factory(title=f"Media {i:02d}")
+    monkeypatch.setattr("core.views.create_backup", mock_create_backup)
 
-        # Request page 2 (items 21-25)
-        response = logged_in_client.get(reverse("load_more_media"), {"page": 2})
+    response = logged_in_client.get(reverse("backup_export"))
 
-        assert response.status_code == 200
-        assert len(response.context["media_list"]) == 5
+    # Should redirect back to backup manage with error message
+    assert response.status_code == 302
+    assert response.url == reverse("backup_manage")
 
-    def test_load_more_preserves_sorting(self, logged_in_client, media_factory):
-        """Load more view preserves sort order from initial request."""
-        media_factory(title="A", score=5)
-        media_factory(title="B", score=8)
-        media_factory(title="C", score=3)
 
-        response = logged_in_client.get(reverse("load_more_media"), {"page": 1, "sort": "score"})
+def test_backup_import_get_redirects(logged_in_client):
+    """GET requests to backup import redirect to backup manage."""
+    response = logged_in_client.get(reverse("backup_import"))
 
-        assert response.status_code == 200
-        scores = [m.score for m in response.context["media_list"] if m.score is not None]
-        # Should be sorted ascending by score
-        assert scores == sorted(scores)
+    assert response.status_code == 302
+    assert response.url == reverse("backup_manage")
 
-    def test_load_more_preserves_filters(self, logged_in_client, media_factory):
-        """Load more view preserves filters from initial request."""
-        media_factory(title="Book 1", media_type="BOOK")
-        media_factory(title="Film 1", media_type="FILM")
-        media_factory(title="Book 2", media_type="BOOK")
 
-        response = logged_in_client.get(reverse("load_more_media"), {"page": 1, "type": "BOOK"})
+def test_backup_import_requires_file(logged_in_client):
+    """The backup import view requires a file to be uploaded."""
+    response = logged_in_client.post(reverse("backup_import"))
 
-        assert response.status_code == 200
-        media_types = [m.media_type for m in response.context["media_list"]]
-        assert all(mt == "BOOK" for mt in media_types)
+    assert response.status_code == 302
+    # Should redirect back with error message
 
-    def test_load_more_with_search_query(self, logged_in_client, media_factory):
-        """Load more view applies search query when provided."""
-        media_factory(title="Python Guide")
-        media_factory(title="JavaScript Guide")
-        media_factory(title="Python Cookbook")
 
-        response = logged_in_client.get(reverse("load_more_media"), {"page": 1, "search": "Python"})
+def test_backup_import_rejects_invalid_format(logged_in_client):
+    """The backup import view rejects files with invalid format."""
+    invalid_file = SimpleUploadedFile("backup.txt", b"not a backup", content_type="text/plain")
 
-        assert response.status_code == 200
-        assert len(response.context["media_list"]) == 2
-        titles = [m.title for m in response.context["media_list"]]
-        assert all("Python" in title for title in titles)
+    response = logged_in_client.post(reverse("backup_import"), {"backup_file": invalid_file})
 
-    def test_load_more_page_obj_pagination_state(self, logged_in_client, media_factory):
-        """Load more view sets has_next correctly across different page states."""
-        # Create 45 items (3 pages of 20 items each)
-        for i in range(45):
-            media_factory(title=f"Media {i}")
-
-        # Test page 2 (middle page) - should have next
-        response_page2 = logged_in_client.get(reverse("load_more_media"), {"page": 2})
-        assert response_page2.status_code == 200
-        assert response_page2.context["page_obj"].has_next()
-        assert response_page2.context["page_obj"].number == 2
-
-        # Test page 3 (last page) - should not have next
-        response_page3 = logged_in_client.get(reverse("load_more_media"), {"page": 3})
-        assert response_page3.status_code == 200
-        assert not response_page3.context["page_obj"].has_next()
-        assert response_page3.context["page_obj"].number == 3
-
-    def test_load_more_includes_view_mode_in_context(self, logged_in_client, media_factory):
-        """Load more view includes view_mode in context for template rendering."""
-        media_factory(title="Test")
-
-        response_default = logged_in_client.get(reverse("load_more_media"), {"page": 1})
-        response_list = logged_in_client.get(reverse("load_more_media"), {"page": 1, "view_mode": "list"})
-        response_grid = logged_in_client.get(reverse("load_more_media"), {"page": 1, "view_mode": "grid"})
-
-        assert response_default.context["view_mode"] == "grid"
-        assert response_list.context["view_mode"] == "list"
-        assert response_grid.context["view_mode"] == "grid"
-
-
-class TestMediaDetailView:
-    """Tests for the media_detail view."""
-
-    def test_media_detail_accessible_when_logged_in(self, logged_in_client, media):
-        """The detail view is accessible when logged in."""
-        response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
-
-        assert response.status_code == 200
-        assert response.context["media"] == media
-
-    def test_media_detail_displays_correct_template(self, logged_in_client, media):
-        """The detail view uses the media_detail template."""
-        response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
-
-        assert response.status_code == 200
-        assert "base/media_detail.html" in [t.name for t in response.templates]
-
-    def test_media_detail_nonexistent_returns_404(self, logged_in_client):
-        """Accessing detail view with nonexistent media returns 404."""
-        response = logged_in_client.get(reverse("media_detail", kwargs={"pk": 99999}))
-
-        assert response.status_code == 404
-
-    def test_media_detail_shows_all_fields(self, logged_in_client, db):
-        """The detail view displays all media fields."""
-        agent = Agent.objects.create(name="Test Author")
-        media = Media.objects.create(
-            title="Complete Media",
-            media_type="BOOK",
-            status="COMPLETED",
-            score=8,
-            review="This is a detailed review.",
-            pub_year=2023,
-            external_uri="https://example.com",
-        )
-        media.contributors.add(agent)
-
-        response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
-        content = response.content.decode("utf-8")
-
-        assert media.title in content
-        assert "2023" in content
-        assert agent.name in content
-        assert "https://example.com" in content
-
-    def test_media_detail_contributor_links_to_filtered_list(self, logged_in_client, db):
-        """Contributor links in detail view navigate to filtered home page."""
-        agent = Agent.objects.create(name="Test Contributor")
-        media = Media.objects.create(
-            title="Test Media",
-            media_type="BOOK",
-        )
-        media.contributors.add(agent)
-
-        response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
-        content = response.content.decode("utf-8")
-
-        # Should contain a link to home with contributor filter
-        assert f"contributor={agent.id}" in content
-        assert 'class="link link-hover contributor-link"' in content
-        # Should NOT contain HTMX attributes for contributor links
-        assert "hx-target" not in content
-
-
-class TestSavedViewSaveView:
-    """Tests for the saved_view_save view."""
-
-    def test_saved_view_save_creates_new_view(self, logged_in_client, user, db):
-        """POST with valid data creates a new saved view."""
-        data = {
-            "view_name": "My Books",
-            "type": ["BOOK"],
-            "status": ["COMPLETED"],
-            "score": ["8", "9"],
-            "sort": "-score",
-            "view_mode": "list",
-        }
-        response = logged_in_client.post(reverse("saved_view_save"), data)
-
-        # Should redirect to home with filters applied
-        assert response.status_code == 302
-        assert "/" in response.url
-
-        # View should be created in database
-        assert SavedView.objects.filter(user=user, name="My Books").exists()
-        saved_view = SavedView.objects.get(user=user, name="My Books")
-        assert saved_view.filter_types == ["BOOK"]
-        assert saved_view.filter_statuses == ["COMPLETED"]
-        assert saved_view.filter_scores == ["8", "9"]
-        assert saved_view.sort == "-score"
-        assert saved_view.view_mode == "list"
-
-    def test_saved_view_save_updates_existing_view(self, logged_in_client, user, db):
-        """POST with existing view name updates the view instead of creating duplicate."""
-        # Create initial view
-        SavedView.objects.create(
-            user=user,
-            name="My View",
-            filter_types=["BOOK"],
-            sort="-review_date",
-        )
-
-        # Update with different filters
-        data = {
-            "view_name": "My View",
-            "type": ["FILM"],
-            "sort": "-score",
-            "view_mode": "grid",
-        }
-        response = logged_in_client.post(reverse("saved_view_save"), data)
-
-        assert response.status_code == 302
-
-        # Should still be only one view with that name
-        assert SavedView.objects.filter(user=user, name="My View").count() == 1
-
-        # View should be updated
-        saved_view = SavedView.objects.get(user=user, name="My View")
-        assert saved_view.filter_types == ["FILM"]
-        assert saved_view.sort == "-score"
-        assert saved_view.view_mode == "grid"
-
-    def test_saved_view_save_requires_view_name(self, logged_in_client, user, db):
-        """POST without view_name redirects with error message."""
-        data = {
-            "type": ["BOOK"],
-        }
-        response = logged_in_client.post(reverse("saved_view_save"), data)
-
-        # Should redirect back to home
-        assert response.status_code == 302
-
-        # No view should be created
-        assert SavedView.objects.filter(user=user).count() == 0
-
-    def test_saved_view_save_get_redirects(self, logged_in_client):
-        """GET request redirects to home."""
-        response = logged_in_client.get(reverse("saved_view_save"))
+    assert response.status_code == 302
+    assert response.url == reverse("backup_manage")
 
+
+def test_backup_import_restores_data(logged_in_client, db):
+    """The backup import view successfully restores data from a backup."""
+    # Create test data and backup
+    original_media = Media.objects.create(title="Original Media", media_type="BOOK", status="COMPLETED")
+
+    with TemporaryDirectory() as tmpdir:
+        # Create a backup
+        backup_path = create_backup(output_dir=Path(tmpdir))
+
+        # Clear the database
+        Media.objects.all().delete()
+        assert Media.objects.count() == 0
+
+        # Import the backup via the view
+        with backup_path.open("rb") as backup_file:
+            uploaded_file = SimpleUploadedFile(backup_path.name, backup_file.read(), content_type="application/x-tar")
+            response = logged_in_client.post(reverse("backup_import"), {"backup_file": uploaded_file})
+
+        # Should redirect to home
         assert response.status_code == 302
         assert response.url == reverse("home")
 
-    def test_saved_view_save_stores_all_filter_types(self, logged_in_client, user, db):
-        """All filter parameters are correctly stored."""
-        from core.models import Agent
-
-        agent = Agent.objects.create(name="Test Author")
-
-        data = {
-            "view_name": "Complex View",
-            "type": ["BOOK", "FILM"],
-            "status": ["COMPLETED", "IN_PROGRESS"],
-            "score": ["8", "9", "10"],
-            "contributor": str(agent.pk),
-            "review_from": "2024-01-01",
-            "review_to": "2024-12-31",
-            "has_review": "filled",
-            "has_cover": "empty",
-            "sort": "score",
-            "view_mode": "list",
-        }
-        response = logged_in_client.post(reverse("saved_view_save"), data)
-
-        assert response.status_code == 302
-
-        saved_view = SavedView.objects.get(user=user, name="Complex View")
-        assert saved_view.filter_types == ["BOOK", "FILM"]
-        assert saved_view.filter_statuses == ["COMPLETED", "IN_PROGRESS"]
-        assert saved_view.filter_scores == ["8", "9", "10"]
-        assert saved_view.filter_contributor_id == agent.pk
-        assert saved_view.filter_review_from == "2024-01-01"
-        assert saved_view.filter_review_to == "2024-12-31"
-        assert saved_view.filter_has_review == "filled"
-        assert saved_view.filter_has_cover == "empty"
-        assert saved_view.sort == "score"
-        assert saved_view.view_mode == "list"
-
-    def test_saved_view_save_redirects_with_filters(self, logged_in_client, user, db):
-        """After saving, redirects to home with all filters applied in URL."""
-        data = {
-            "view_name": "Filtered View",
-            "type": ["BOOK"],
-            "status": ["COMPLETED"],
-            "sort": "-score",
-            "view_mode": "grid",
-        }
-        response = logged_in_client.post(reverse("saved_view_save"), data)
-
-        assert response.status_code == 302
-        # URL should contain the filters
-        assert "type=BOOK" in response.url
-        assert "status=COMPLETED" in response.url
-        assert "sort=-score" in response.url
-        assert "view_mode=grid" in response.url
-
-
-class TestSavedViewDeleteView:
-    """Tests for the saved_view_delete view."""
-
-    def test_saved_view_delete_removes_view(self, logged_in_client, user, db):
-        """POST request deletes the saved view."""
-        saved_view = SavedView.objects.create(user=user, name="To Delete")
-
-        response = logged_in_client.post(reverse("saved_view_delete", kwargs={"pk": saved_view.pk}))
-
-        assert response.status_code == 302
-        assert response.url == reverse("home")
-        assert not SavedView.objects.filter(pk=saved_view.pk).exists()
-
-    def test_saved_view_delete_only_deletes_own_views(self, logged_in_client, user, django_user_model, db):
-        """User cannot delete another user's saved views."""
-        other_user = django_user_model.objects.create_user(
-            username="otheruser",
-            email="other@example.com",
-            password="testpass123",
-        )
-        other_view = SavedView.objects.create(user=other_user, name="Other View")
-
-        response = logged_in_client.post(reverse("saved_view_delete", kwargs={"pk": other_view.pk}))
-
-        # Should redirect but view should still exist
-        assert response.status_code == 302
-        assert SavedView.objects.filter(pk=other_view.pk).exists()
-
-    def test_saved_view_delete_nonexistent_view(self, logged_in_client, db):
-        """Deleting a non-existent view redirects with error message."""
-        response = logged_in_client.post(reverse("saved_view_delete", kwargs={"pk": 99999}))
-
-        assert response.status_code == 302
-        assert response.url == reverse("home")
-
-    def test_saved_view_delete_get_redirects(self, logged_in_client, user, db):
-        """GET request redirects to home without deleting."""
-        saved_view = SavedView.objects.create(user=user, name="To Keep")
-
-        response = logged_in_client.get(reverse("saved_view_delete", kwargs={"pk": saved_view.pk}))
-
-        assert response.status_code == 302
-        assert response.url == reverse("home")
-        assert SavedView.objects.filter(pk=saved_view.pk).exists()
-
-
-class TestSavedViewValidation:
-    """Tests for saved view input validation."""
-
-    def test_saved_view_rejects_invalid_media_type(self, logged_in_client, user, db):
-        """Saved view validation rejects invalid media types."""
-        data = {
-            "view_name": "Invalid Type View",
-            "type": ["INVALID_TYPE"],
-            "sort": "-review_date",
-            "view_mode": "grid",
-        }
-        response = logged_in_client.post(reverse("saved_view_save"), data, follow=True)
-
-        # Should redirect back to home with error
-        assert response.status_code == 200
-        # View should not be created
-        assert not SavedView.objects.filter(user=user, name="Invalid Type View").exists()
-
-    def test_saved_view_rejects_invalid_status(self, logged_in_client, user, db):
-        """Saved view validation rejects invalid statuses."""
-        data = {
-            "view_name": "Invalid Status View",
-            "status": ["INVALID_STATUS"],
-            "sort": "-review_date",
-            "view_mode": "grid",
-        }
-        logged_in_client.post(reverse("saved_view_save"), data)
-
-        # View should not be created
-        assert not SavedView.objects.filter(user=user, name="Invalid Status View").exists()
-
-    def test_saved_view_rejects_invalid_score(self, logged_in_client, user, db):
-        """Saved view validation rejects invalid scores."""
-        data = {
-            "view_name": "Invalid Score View",
-            "score": ["invalid"],
-            "sort": "-review_date",
-            "view_mode": "grid",
-        }
-        logged_in_client.post(reverse("saved_view_save"), data)
-
-        # View should not be created
-        assert not SavedView.objects.filter(user=user, name="Invalid Score View").exists()
-
-    def test_saved_view_rejects_invalid_sort_field(self, logged_in_client, user, db):
-        """Saved view validation rejects invalid sort fields."""
-        data = {
-            "view_name": "Invalid Sort View",
-            "sort": "invalid_field",
-            "view_mode": "grid",
-        }
-        logged_in_client.post(reverse("saved_view_save"), data)
-
-        # View should not be created
-        assert not SavedView.objects.filter(user=user, name="Invalid Sort View").exists()
-
-    def test_saved_view_rejects_invalid_view_mode(self, logged_in_client, user, db):
-        """Saved view validation rejects invalid view modes."""
-        data = {
-            "view_name": "Invalid View Mode",
-            "sort": "-review_date",
-            "view_mode": "invalid_mode",
-        }
-        logged_in_client.post(reverse("saved_view_save"), data)
-
-        # View should not be created
-        assert not SavedView.objects.filter(user=user, name="Invalid View Mode").exists()
-
-    def test_saved_view_rejects_nonexistent_contributor(self, logged_in_client, user, db):
-        """Saved view validation rejects non-existent contributor IDs."""
-        data = {
-            "view_name": "Invalid Contributor View",
-            "contributor": "99999",
-            "sort": "-review_date",
-            "view_mode": "grid",
-        }
-        logged_in_client.post(reverse("saved_view_save"), data)
-
-        # View should not be created
-        assert not SavedView.objects.filter(user=user, name="Invalid Contributor View").exists()
-
-    def test_saved_view_rejects_invalid_contributor_format(self, logged_in_client, user, db):
-        """Saved view validation rejects invalid contributor ID formats."""
-        data = {
-            "view_name": "Invalid Contributor Format",
-            "contributor": "not-a-number",
-            "sort": "-review_date",
-            "view_mode": "grid",
-        }
-        logged_in_client.post(reverse("saved_view_save"), data)
-
-        # View should not be created
-        assert not SavedView.objects.filter(user=user, name="Invalid Contributor Format").exists()
-
-    def test_saved_view_rejects_invalid_date_format(self, logged_in_client, user, db):
-        """Saved view validation rejects invalid date formats."""
-        data = {
-            "view_name": "Invalid Date View",
-            "review_from": "not-a-date",
-            "sort": "-review_date",
-            "view_mode": "grid",
-        }
-        logged_in_client.post(reverse("saved_view_save"), data)
-
-        # View should not be created
-        assert not SavedView.objects.filter(user=user, name="Invalid Date View").exists()
-
-    def test_saved_view_rejects_invalid_has_review_value(self, logged_in_client, user, db):
-        """Saved view validation rejects invalid has_review values."""
-        data = {
-            "view_name": "Invalid Has Review",
-            "has_review": "invalid",
-            "sort": "-review_date",
-            "view_mode": "grid",
-        }
-        logged_in_client.post(reverse("saved_view_save"), data)
-
-        # View should not be created
-        assert not SavedView.objects.filter(user=user, name="Invalid Has Review").exists()
-
-    def test_saved_view_rejects_invalid_has_cover_value(self, logged_in_client, user, db):
-        """Saved view validation rejects invalid has_cover values."""
-        data = {
-            "view_name": "Invalid Has Cover",
-            "has_cover": "invalid",
-            "sort": "-review_date",
-            "view_mode": "grid",
-        }
-        logged_in_client.post(reverse("saved_view_save"), data)
-
-        # View should not be created
-        assert not SavedView.objects.filter(user=user, name="Invalid Has Cover").exists()
-
-    def test_saved_view_accepts_valid_data(self, logged_in_client, user, db):
-        """Saved view validation accepts all valid data."""
-        agent = Agent.objects.create(name="Valid Author")
-
-        data = {
-            "view_name": "Valid View",
-            "type": ["BOOK", "FILM"],
-            "status": ["COMPLETED"],
-            "score": ["8", "9", "none"],
-            "contributor": str(agent.pk),
-            "review_from": "2024-01",
-            "review_to": "2024-12-31",
-            "has_review": "filled",
-            "has_cover": "empty",
-            "sort": "-score",
-            "view_mode": "list",
-        }
-        response = logged_in_client.post(reverse("saved_view_save"), data)
-
-        # Should redirect successfully
-        assert response.status_code == 302
-
-        # View should be created
-        assert SavedView.objects.filter(user=user, name="Valid View").exists()
-        saved_view = SavedView.objects.get(user=user, name="Valid View")
-        assert saved_view.filter_types == ["BOOK", "FILM"]
-        assert saved_view.filter_statuses == ["COMPLETED"]
-        assert saved_view.filter_scores == ["8", "9", "none"]
-        assert saved_view.filter_contributor_id == agent.pk
-        assert saved_view.filter_review_from == "2024-01"
-        assert saved_view.filter_review_to == "2024-12-31"
-        assert saved_view.filter_has_review == "filled"
-        assert saved_view.filter_has_cover == "empty"
-        assert saved_view.sort == "-score"
-        assert saved_view.view_mode == "list"
-
-    def test_saved_view_accepts_descending_sort(self, logged_in_client, user, db):
-        """Saved view validation accepts descending sort fields (with -)."""
-        data = {
-            "view_name": "Descending Sort View",
-            "sort": "-created_at",
-            "view_mode": "grid",
-        }
-        response = logged_in_client.post(reverse("saved_view_save"), data)
-
-        # Should redirect successfully
-        assert response.status_code == 302
-
-        # View should be created with descending sort
-        assert SavedView.objects.filter(user=user, name="Descending Sort View").exists()
-        saved_view = SavedView.objects.get(user=user, name="Descending Sort View")
-        assert saved_view.sort == "-created_at"
-
-
-class TestMediaImportView:
-    """Tests for the media_import view."""
-
-    def test_media_import_accessible_when_logged_in(self, logged_in_client):
-        """The import view is accessible when logged in."""
-        response = logged_in_client.get(reverse("media_import"))
-
-        assert response.status_code == 200
-        assert "base/media_import.html" in [t.name for t in response.templates]
-
-    def test_media_import_default_source_is_tmdb(self, logged_in_client):
-        """Without parameters, default source is TMDB."""
-        response = logged_in_client.get(reverse("media_import"))
-
-        assert response.context["default_source"] == "tmdb"
-        assert response.context["default_query"] == ""
-
-    def test_media_import_film_maps_to_tmdb(self, logged_in_client):
-        """FILM media type maps to TMDB source."""
-        response = logged_in_client.get(
-            reverse("media_import"),
-            {"media_type": "FILM", "title": "The Matrix"},
-        )
-
-        assert response.context["default_source"] == "tmdb"
-        assert response.context["default_query"] == "The Matrix"
-
-    def test_media_import_tv_maps_to_tmdb(self, logged_in_client):
-        """TV media type maps to TMDB source."""
-        response = logged_in_client.get(
-            reverse("media_import"),
-            {"media_type": "TV", "title": "Breaking Bad"},
-        )
-
-        assert response.context["default_source"] == "tmdb"
-        assert response.context["default_query"] == "Breaking Bad"
-
-    def test_media_import_game_maps_to_igdb(self, logged_in_client):
-        """GAME media type maps to IGDB source."""
-        response = logged_in_client.get(
-            reverse("media_import"),
-            {"media_type": "GAME", "title": "The Witcher 3"},
-        )
-
-        assert response.context["default_source"] == "igdb"
-        assert response.context["default_query"] == "The Witcher 3"
-
-    def test_media_import_book_maps_to_openlibrary(self, logged_in_client):
-        """BOOK media type maps to OpenLibrary source."""
-        response = logged_in_client.get(
-            reverse("media_import"),
-            {"media_type": "BOOK", "title": "1984"},
-        )
-
-        assert response.context["default_source"] == "openlibrary"
-        assert response.context["default_query"] == "1984"
-
-    def test_media_import_comic_maps_to_openlibrary(self, logged_in_client):
-        """COMIC media type maps to OpenLibrary source."""
-        response = logged_in_client.get(
-            reverse("media_import"),
-            {"media_type": "COMIC", "title": "Watchmen"},
-        )
-
-        assert response.context["default_source"] == "openlibrary"
-        assert response.context["default_query"] == "Watchmen"
-
-    def test_media_import_music_maps_to_musicbrainz(self, logged_in_client):
-        """MUSIC media type maps to MusicBrainz source."""
-        response = logged_in_client.get(
-            reverse("media_import"),
-            {"media_type": "MUSIC", "title": "Abbey Road"},
-        )
-
-        assert response.context["default_source"] == "musicbrainz"
-        assert response.context["default_query"] == "Abbey Road"
-
-    def test_media_import_unknown_type_defaults_to_tmdb(self, logged_in_client):
-        """Unknown media type defaults to TMDB source."""
-        response = logged_in_client.get(
-            reverse("media_import"),
-            {"media_type": "UNKNOWN", "title": "Something"},
-        )
-
-        assert response.context["default_source"] == "tmdb"
-
-    def test_media_import_passes_media_id(self, logged_in_client, media):
-        """Media ID is passed to the template context."""
-        response = logged_in_client.get(
-            reverse("media_import"),
-            {"media_id": media.pk},
-        )
-
-        assert response.context["media_id"] == str(media.pk)
-
-    def test_media_import_handles_special_characters_in_title(self, logged_in_client):
-        """Title with special characters is handled correctly."""
-        response = logged_in_client.get(
-            reverse("media_import"),
-            {"media_type": "FILM", "title": "Amélie & Co: L'histoire"},
-        )
-
-        assert response.context["default_query"] == "Amélie & Co: L'histoire"
+        # Data should be restored
+        assert Media.objects.count() == 1
+        restored_media = Media.objects.first()
+        assert restored_media.title == original_media.title
+        assert restored_media.status == original_media.status
+
+
+def test_backup_import_handles_errors(logged_in_client):
+    """The backup import view handles errors gracefully."""
+    # Create a valid tar.gz file with invalid content
+    invalid_file = SimpleUploadedFile("backup.tar.gz", b"invalid content", content_type="application/x-tar")
+
+    response = logged_in_client.post(reverse("backup_import"), {"backup_file": invalid_file})
+
+    # Should redirect back to backup manage with error message
+    assert response.status_code == 302
+    assert response.url == reverse("backup_manage")
+
+
+def test_index_paginates_results_across_pages(logged_in_client, media_factory):
+    """Index view paginates results with 20 items per page and navigates correctly."""
+    # Create 25 media items
+    for i in range(25):
+        media_factory(title=f"Media {i}")
+
+    # Test first page
+    response_page1 = logged_in_client.get(reverse("home"))
+    assert response_page1.status_code == 200
+    assert "page_obj" in response_page1.context
+    assert len(response_page1.context["media_list"]) == 20
+    assert response_page1.context["page_obj"].has_next()
+
+    # Test second page
+    response_page2 = logged_in_client.get(reverse("home"), {"page": 2})
+    assert response_page2.status_code == 200
+    assert len(response_page2.context["media_list"]) == 5
+    assert response_page2.context["page_obj"].has_previous()
+    assert not response_page2.context["page_obj"].has_next()
+
+
+def test_search_paginates_results(logged_in_client, media_factory):
+    """Search view paginates results."""
+    # Create 25 media items with searchable title
+    for i in range(25):
+        media_factory(title=f"Searchable {i}")
+
+    response = logged_in_client.get(reverse("home"), {"search": "Searchable"})
+
+    assert response.status_code == 200
+    assert len(response.context["media_list"]) == 20
+    assert response.context["page_obj"].has_next()
+
+
+def test_load_more_returns_partial_template(logged_in_client, media_factory):
+    """Load more view returns the media-items-page partial template."""
+    for i in range(25):
+        media_factory(title=f"Media {i}")
+
+    response = logged_in_client.get(reverse("load_more_media"), {"page": 2})
+
+    assert response.status_code == 200
+    assert "partials/media_items/media_list_page.html" in [t.name for t in response.templates]
+
+
+def test_load_more_returns_next_page_items(logged_in_client, media_factory):
+    """Load more view returns items for the requested page."""
+    # Create 25 items
+    for i in range(25):
+        media_factory(title=f"Media {i:02d}")
+
+    # Request page 2 (items 21-25)
+    response = logged_in_client.get(reverse("load_more_media"), {"page": 2})
+
+    assert response.status_code == 200
+    assert len(response.context["media_list"]) == 5
+
+
+def test_load_more_preserves_sorting(logged_in_client, media_factory):
+    """Load more view preserves sort order from initial request."""
+    media_factory(title="A", score=5)
+    media_factory(title="B", score=8)
+    media_factory(title="C", score=3)
+
+    response = logged_in_client.get(reverse("load_more_media"), {"page": 1, "sort": "score"})
+
+    assert response.status_code == 200
+    scores = [m.score for m in response.context["media_list"] if m.score is not None]
+    # Should be sorted ascending by score
+    assert scores == sorted(scores)
+
+
+def test_load_more_preserves_filters(logged_in_client, media_factory):
+    """Load more view preserves filters from initial request."""
+    media_factory(title="Book 1", media_type="BOOK")
+    media_factory(title="Film 1", media_type="FILM")
+    media_factory(title="Book 2", media_type="BOOK")
+
+    response = logged_in_client.get(reverse("load_more_media"), {"page": 1, "type": "BOOK"})
+
+    assert response.status_code == 200
+    media_types = [m.media_type for m in response.context["media_list"]]
+    assert all(mt == "BOOK" for mt in media_types)
+
+
+def test_load_more_with_search_query(logged_in_client, media_factory):
+    """Load more view applies search query when provided."""
+    media_factory(title="Python Guide")
+    media_factory(title="JavaScript Guide")
+    media_factory(title="Python Cookbook")
+
+    response = logged_in_client.get(reverse("load_more_media"), {"page": 1, "search": "Python"})
+
+    assert response.status_code == 200
+    assert len(response.context["media_list"]) == 2
+    titles = [m.title for m in response.context["media_list"]]
+    assert all("Python" in title for title in titles)
+
+
+def test_load_more_page_obj_pagination_state(logged_in_client, media_factory):
+    """Load more view sets has_next correctly across different page states."""
+    # Create 45 items (3 pages of 20 items each)
+    for i in range(45):
+        media_factory(title=f"Media {i}")
+
+    # Test page 2 (middle page) - should have next
+    response_page2 = logged_in_client.get(reverse("load_more_media"), {"page": 2})
+    assert response_page2.status_code == 200
+    assert response_page2.context["page_obj"].has_next()
+    assert response_page2.context["page_obj"].number == 2
+
+    # Test page 3 (last page) - should not have next
+    response_page3 = logged_in_client.get(reverse("load_more_media"), {"page": 3})
+    assert response_page3.status_code == 200
+    assert not response_page3.context["page_obj"].has_next()
+    assert response_page3.context["page_obj"].number == 3
+
+
+def test_load_more_includes_view_mode_in_context(logged_in_client, media_factory):
+    """Load more view includes view_mode in context for template rendering."""
+    media_factory(title="Test")
+
+    response_default = logged_in_client.get(reverse("load_more_media"), {"page": 1})
+    response_list = logged_in_client.get(reverse("load_more_media"), {"page": 1, "view_mode": "list"})
+    response_grid = logged_in_client.get(reverse("load_more_media"), {"page": 1, "view_mode": "grid"})
+
+    assert response_default.context["view_mode"] == "grid"
+    assert response_list.context["view_mode"] == "list"
+    assert response_grid.context["view_mode"] == "grid"
+
+
+def test_media_detail_accessible_when_logged_in(logged_in_client, media):
+    """The detail view is accessible when logged in."""
+    response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
+
+    assert response.status_code == 200
+    assert response.context["media"] == media
+
+
+def test_media_detail_displays_correct_template(logged_in_client, media):
+    """The detail view uses the media_detail template."""
+    response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
+
+    assert response.status_code == 200
+    assert "base/media_detail.html" in [t.name for t in response.templates]
+
+
+def test_media_detail_nonexistent_returns_404(logged_in_client):
+    """Accessing detail view with nonexistent media returns 404."""
+    response = logged_in_client.get(reverse("media_detail", kwargs={"pk": 99999}))
+
+    assert response.status_code == 404
+
+
+def test_media_detail_shows_all_fields(logged_in_client, db):
+    """The detail view displays all media fields."""
+    agent = Agent.objects.create(name="Test Author")
+    media = Media.objects.create(
+        title="Complete Media",
+        media_type="BOOK",
+        status="COMPLETED",
+        score=8,
+        review="This is a detailed review.",
+        pub_year=2023,
+        external_uri="https://example.com",
+    )
+    media.contributors.add(agent)
+
+    response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
+    content = response.content.decode("utf-8")
+
+    assert media.title in content
+    assert "2023" in content
+    assert agent.name in content
+    assert "https://example.com" in content
+
+
+def test_media_detail_contributor_links_to_filtered_list(logged_in_client, db):
+    """Contributor links in detail view navigate to filtered home page."""
+    agent = Agent.objects.create(name="Test Contributor")
+    media = Media.objects.create(
+        title="Test Media",
+        media_type="BOOK",
+    )
+    media.contributors.add(agent)
+
+    response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
+    content = response.content.decode("utf-8")
+
+    # Should contain a link to home with contributor filter
+    assert f"contributor={agent.id}" in content
+    assert 'class="link link-hover contributor-link"' in content
+    # Should NOT contain HTMX attributes for contributor links
+    assert "hx-target" not in content
+
+
+def test_saved_view_save_creates_new_view(logged_in_client, user, db):
+    """POST with valid data creates a new saved view."""
+    data = {
+        "view_name": "My Books",
+        "type": ["BOOK"],
+        "status": ["COMPLETED"],
+        "score": ["8", "9"],
+        "sort": "-score",
+        "view_mode": "list",
+    }
+    response = logged_in_client.post(reverse("saved_view_save"), data)
+
+    # Should redirect to home with filters applied
+    assert response.status_code == 302
+    assert "/" in response.url
+
+    # View should be created in database
+    assert SavedView.objects.filter(user=user, name="My Books").exists()
+    saved_view = SavedView.objects.get(user=user, name="My Books")
+    assert saved_view.filter_types == ["BOOK"]
+    assert saved_view.filter_statuses == ["COMPLETED"]
+    assert saved_view.filter_scores == ["8", "9"]
+    assert saved_view.sort == "-score"
+    assert saved_view.view_mode == "list"
+
+
+def test_saved_view_save_updates_existing_view(logged_in_client, user, db):
+    """POST with existing view name updates the view instead of creating duplicate."""
+    # Create initial view
+    SavedView.objects.create(
+        user=user,
+        name="My View",
+        filter_types=["BOOK"],
+        sort="-review_date",
+    )
+
+    # Update with different filters
+    data = {
+        "view_name": "My View",
+        "type": ["FILM"],
+        "sort": "-score",
+        "view_mode": "grid",
+    }
+    response = logged_in_client.post(reverse("saved_view_save"), data)
+
+    assert response.status_code == 302
+
+    # Should still be only one view with that name
+    assert SavedView.objects.filter(user=user, name="My View").count() == 1
+
+    # View should be updated
+    saved_view = SavedView.objects.get(user=user, name="My View")
+    assert saved_view.filter_types == ["FILM"]
+    assert saved_view.sort == "-score"
+    assert saved_view.view_mode == "grid"
+
+
+def test_saved_view_save_requires_view_name(logged_in_client, user, db):
+    """POST without view_name redirects with error message."""
+    data = {
+        "type": ["BOOK"],
+    }
+    response = logged_in_client.post(reverse("saved_view_save"), data)
+
+    # Should redirect back to home
+    assert response.status_code == 302
+
+    # No view should be created
+    assert SavedView.objects.filter(user=user).count() == 0
+
+
+def test_saved_view_save_get_redirects(logged_in_client):
+    """GET request redirects to home."""
+    response = logged_in_client.get(reverse("saved_view_save"))
+
+    assert response.status_code == 302
+    assert response.url == reverse("home")
+
+
+def test_saved_view_save_stores_all_filter_types(logged_in_client, user, db):
+    """All filter parameters are correctly stored."""
+    from core.models import Agent
+
+    agent = Agent.objects.create(name="Test Author")
+
+    data = {
+        "view_name": "Complex View",
+        "type": ["BOOK", "FILM"],
+        "status": ["COMPLETED", "IN_PROGRESS"],
+        "score": ["8", "9", "10"],
+        "contributor": str(agent.pk),
+        "review_from": "2024-01-01",
+        "review_to": "2024-12-31",
+        "has_review": "filled",
+        "has_cover": "empty",
+        "sort": "score",
+        "view_mode": "list",
+    }
+    response = logged_in_client.post(reverse("saved_view_save"), data)
+
+    assert response.status_code == 302
+
+    saved_view = SavedView.objects.get(user=user, name="Complex View")
+    assert saved_view.filter_types == ["BOOK", "FILM"]
+    assert saved_view.filter_statuses == ["COMPLETED", "IN_PROGRESS"]
+    assert saved_view.filter_scores == ["8", "9", "10"]
+    assert saved_view.filter_contributor_id == agent.pk
+    assert saved_view.filter_review_from == "2024-01-01"
+    assert saved_view.filter_review_to == "2024-12-31"
+    assert saved_view.filter_has_review == "filled"
+    assert saved_view.filter_has_cover == "empty"
+    assert saved_view.sort == "score"
+    assert saved_view.view_mode == "list"
+
+
+def test_saved_view_save_redirects_with_filters(logged_in_client, user, db):
+    """After saving, redirects to home with all filters applied in URL."""
+    data = {
+        "view_name": "Filtered View",
+        "type": ["BOOK"],
+        "status": ["COMPLETED"],
+        "sort": "-score",
+        "view_mode": "grid",
+    }
+    response = logged_in_client.post(reverse("saved_view_save"), data)
+
+    assert response.status_code == 302
+    # URL should contain the filters
+    assert "type=BOOK" in response.url
+    assert "status=COMPLETED" in response.url
+    assert "sort=-score" in response.url
+    assert "view_mode=grid" in response.url
+
+
+def test_saved_view_delete_removes_view(logged_in_client, user, db):
+    """POST request deletes the saved view."""
+    saved_view = SavedView.objects.create(user=user, name="To Delete")
+
+    response = logged_in_client.post(reverse("saved_view_delete", kwargs={"pk": saved_view.pk}))
+
+    assert response.status_code == 302
+    assert response.url == reverse("home")
+    assert not SavedView.objects.filter(pk=saved_view.pk).exists()
+
+
+def test_saved_view_delete_only_deletes_own_views(logged_in_client, user, django_user_model, db):
+    """User cannot delete another user's saved views."""
+    other_user = django_user_model.objects.create_user(
+        username="otheruser",
+        email="other@example.com",
+        password="testpass123",
+    )
+    other_view = SavedView.objects.create(user=other_user, name="Other View")
+
+    response = logged_in_client.post(reverse("saved_view_delete", kwargs={"pk": other_view.pk}))
+
+    # Should redirect but view should still exist
+    assert response.status_code == 302
+    assert SavedView.objects.filter(pk=other_view.pk).exists()
+
+
+def test_saved_view_delete_nonexistent_view(logged_in_client, db):
+    """Deleting a non-existent view redirects with error message."""
+    response = logged_in_client.post(reverse("saved_view_delete", kwargs={"pk": 99999}))
+
+    assert response.status_code == 302
+    assert response.url == reverse("home")
+
+
+def test_saved_view_delete_get_redirects(logged_in_client, user, db):
+    """GET request redirects to home without deleting."""
+    saved_view = SavedView.objects.create(user=user, name="To Keep")
+
+    response = logged_in_client.get(reverse("saved_view_delete", kwargs={"pk": saved_view.pk}))
+
+    assert response.status_code == 302
+    assert response.url == reverse("home")
+    assert SavedView.objects.filter(pk=saved_view.pk).exists()
+
+
+def test_saved_view_rejects_invalid_media_type(logged_in_client, user, db):
+    """Saved view validation rejects invalid media types."""
+    data = {
+        "view_name": "Invalid Type View",
+        "type": ["INVALID_TYPE"],
+        "sort": "-review_date",
+        "view_mode": "grid",
+    }
+    response = logged_in_client.post(reverse("saved_view_save"), data, follow=True)
+
+    # Should redirect back to home with error
+    assert response.status_code == 200
+    # View should not be created
+    assert not SavedView.objects.filter(user=user, name="Invalid Type View").exists()
+
+
+def test_saved_view_rejects_invalid_status(logged_in_client, user, db):
+    """Saved view validation rejects invalid statuses."""
+    data = {
+        "view_name": "Invalid Status View",
+        "status": ["INVALID_STATUS"],
+        "sort": "-review_date",
+        "view_mode": "grid",
+    }
+    logged_in_client.post(reverse("saved_view_save"), data)
+
+    # View should not be created
+    assert not SavedView.objects.filter(user=user, name="Invalid Status View").exists()
+
+
+def test_saved_view_rejects_invalid_score(logged_in_client, user, db):
+    """Saved view validation rejects invalid scores."""
+    data = {
+        "view_name": "Invalid Score View",
+        "score": ["invalid"],
+        "sort": "-review_date",
+        "view_mode": "grid",
+    }
+    logged_in_client.post(reverse("saved_view_save"), data)
+
+    # View should not be created
+    assert not SavedView.objects.filter(user=user, name="Invalid Score View").exists()
+
+
+def test_saved_view_rejects_invalid_sort_field(logged_in_client, user, db):
+    """Saved view validation rejects invalid sort fields."""
+    data = {
+        "view_name": "Invalid Sort View",
+        "sort": "invalid_field",
+        "view_mode": "grid",
+    }
+    logged_in_client.post(reverse("saved_view_save"), data)
+
+    # View should not be created
+    assert not SavedView.objects.filter(user=user, name="Invalid Sort View").exists()
+
+
+def test_saved_view_rejects_invalid_view_mode(logged_in_client, user, db):
+    """Saved view validation rejects invalid view modes."""
+    data = {
+        "view_name": "Invalid View Mode",
+        "sort": "-review_date",
+        "view_mode": "invalid_mode",
+    }
+    logged_in_client.post(reverse("saved_view_save"), data)
+
+    # View should not be created
+    assert not SavedView.objects.filter(user=user, name="Invalid View Mode").exists()
+
+
+def test_saved_view_rejects_nonexistent_contributor(logged_in_client, user, db):
+    """Saved view validation rejects non-existent contributor IDs."""
+    data = {
+        "view_name": "Invalid Contributor View",
+        "contributor": "99999",
+        "sort": "-review_date",
+        "view_mode": "grid",
+    }
+    logged_in_client.post(reverse("saved_view_save"), data)
+
+    # View should not be created
+    assert not SavedView.objects.filter(user=user, name="Invalid Contributor View").exists()
+
+
+def test_saved_view_rejects_invalid_contributor_format(logged_in_client, user, db):
+    """Saved view validation rejects invalid contributor ID formats."""
+    data = {
+        "view_name": "Invalid Contributor Format",
+        "contributor": "not-a-number",
+        "sort": "-review_date",
+        "view_mode": "grid",
+    }
+    logged_in_client.post(reverse("saved_view_save"), data)
+
+    # View should not be created
+    assert not SavedView.objects.filter(user=user, name="Invalid Contributor Format").exists()
+
+
+def test_saved_view_rejects_invalid_date_format(logged_in_client, user, db):
+    """Saved view validation rejects invalid date formats."""
+    data = {
+        "view_name": "Invalid Date View",
+        "review_from": "not-a-date",
+        "sort": "-review_date",
+        "view_mode": "grid",
+    }
+    logged_in_client.post(reverse("saved_view_save"), data)
+
+    # View should not be created
+    assert not SavedView.objects.filter(user=user, name="Invalid Date View").exists()
+
+
+def test_saved_view_rejects_invalid_has_review_value(logged_in_client, user, db):
+    """Saved view validation rejects invalid has_review values."""
+    data = {
+        "view_name": "Invalid Has Review",
+        "has_review": "invalid",
+        "sort": "-review_date",
+        "view_mode": "grid",
+    }
+    logged_in_client.post(reverse("saved_view_save"), data)
+
+    # View should not be created
+    assert not SavedView.objects.filter(user=user, name="Invalid Has Review").exists()
+
+
+def test_saved_view_rejects_invalid_has_cover_value(logged_in_client, user, db):
+    """Saved view validation rejects invalid has_cover values."""
+    data = {
+        "view_name": "Invalid Has Cover",
+        "has_cover": "invalid",
+        "sort": "-review_date",
+        "view_mode": "grid",
+    }
+    logged_in_client.post(reverse("saved_view_save"), data)
+
+    # View should not be created
+    assert not SavedView.objects.filter(user=user, name="Invalid Has Cover").exists()
+
+
+def test_saved_view_accepts_valid_data(logged_in_client, user, db):
+    """Saved view validation accepts all valid data."""
+    agent = Agent.objects.create(name="Valid Author")
+
+    data = {
+        "view_name": "Valid View",
+        "type": ["BOOK", "FILM"],
+        "status": ["COMPLETED"],
+        "score": ["8", "9", "none"],
+        "contributor": str(agent.pk),
+        "review_from": "2024-01",
+        "review_to": "2024-12-31",
+        "has_review": "filled",
+        "has_cover": "empty",
+        "sort": "-score",
+        "view_mode": "list",
+    }
+    response = logged_in_client.post(reverse("saved_view_save"), data)
+
+    # Should redirect successfully
+    assert response.status_code == 302
+
+    # View should be created
+    assert SavedView.objects.filter(user=user, name="Valid View").exists()
+    saved_view = SavedView.objects.get(user=user, name="Valid View")
+    assert saved_view.filter_types == ["BOOK", "FILM"]
+    assert saved_view.filter_statuses == ["COMPLETED"]
+    assert saved_view.filter_scores == ["8", "9", "none"]
+    assert saved_view.filter_contributor_id == agent.pk
+    assert saved_view.filter_review_from == "2024-01"
+    assert saved_view.filter_review_to == "2024-12-31"
+    assert saved_view.filter_has_review == "filled"
+    assert saved_view.filter_has_cover == "empty"
+    assert saved_view.sort == "-score"
+    assert saved_view.view_mode == "list"
