@@ -2,6 +2,24 @@
 
 <!-- version list -->
 
+## v1.6.3 (2026-04-14)
+
+### Chores
+
+- Update dependencies and Node/Python versions
+  ([`a4511d4`](https://github.com/PascalRepond/datakult/commit/a4511d40228a5808d858f28351d2617237fa23c8))
+
+### Continuous Integration
+
+- Update github actions versions to latest
+  ([`22c629c`](https://github.com/PascalRepond/datakult/commit/22c629cef2015453b860456107c520089af6c88a))
+
+### Refactoring
+
+- **tests**: Replace class-based tests with plain functions
+  ([`5b251c1`](https://github.com/PascalRepond/datakult/commit/5b251c1db8862655828fc6a79dfa644c210621fe))
+
+
 ## v1.6.2 (2026-03-21)
 
 ### Bug Fixes
