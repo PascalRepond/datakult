@@ -1,5 +1,5 @@
 # Stage 1: Build Tailwind CSS
-FROM node:22-alpine AS tailwind-builder
+FROM node:24-alpine AS tailwind-builder
 
 # Reproduce the exact project structure for @source paths to work
 WORKDIR /app/src
@@ -18,7 +18,7 @@ RUN npm ci
 RUN npm run build
 
 # Stage 2: Python application
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1

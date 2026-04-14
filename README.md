@@ -99,7 +99,7 @@ Before you begin, make sure you have the following installed:
 
 - **uv** (Python package manager)
   - Install with: `curl -LsSf https://astral.sh/uv/install.sh | sh`
-- **Node.js 20+** and npm 10+
+- **Node.js 24+** and npm 11+
   - Download from [nodejs.org](https://nodejs.org/)
   - Or use [nvm](https://github.com/nvm-sh/nvm): `nvm install 20 && nvm use`
 - **gettext** (optional, for translations)
