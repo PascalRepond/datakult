@@ -10,7 +10,7 @@ Rate limiting: Please be respectful and limit requests to ~1/second.
 import logging
 import re
 from dataclasses import dataclass
-from urllib.parse import urlencode, urljoin
+from urllib.parse import quote, urlencode, urljoin
 
 import requests
 
@@ -29,10 +29,6 @@ OPENLIBRARY_COVER_PATTERN = re.compile(r"^https://covers\.openlibrary\.org/[baw]
 MIN_COVER_SIZE_BYTES = 1000
 
 
-class OpenLibraryError(Exception):
-    """Exception raised when OpenLibrary API request fails."""
-
-
 @dataclass
 class OpenLibraryResult:
     """Represents a search result from OpenLibrary."""
@@ -42,6 +38,8 @@ class OpenLibraryResult:
     authors: list[str]
     year: int | None
     cover_id: int | None
+
+    source: str = "openlibrary"
 
     @property
     def olid(self) -> str:
@@ -151,9 +149,9 @@ class OpenLibraryClient:
             - cover_url: full URL for cover image
             - openlibrary_url: URL to OpenLibrary page
         """
-        # Normalize work key
-        if not work_key.startswith("/works/"):
-            work_key = f"/works/{work_key}"
+        # Normalize to a bare OLID and escape it — work_key is user-supplied
+        olid = quote(work_key.removeprefix("/works/"), safe="")
+        work_key = f"/works/{olid}"
 
         # Fetch work details
         work_data = self._request(f"{work_key}.json")
@@ -205,8 +203,8 @@ class OpenLibraryClient:
         Returns:
             Book details dict or None if not found
         """
-        # Clean ISBN (remove dashes and spaces)
-        isbn = re.sub(r"[\s-]", "", isbn)
+        # Clean ISBN (remove dashes and spaces) then escape for safe path interpolation
+        isbn = quote(re.sub(r"[\s-]", "", isbn), safe="")
 
         try:
             data = self._request(f"isbn/{isbn}.json")

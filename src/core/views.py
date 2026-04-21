@@ -1,6 +1,8 @@
+import itertools
 import logging
 import tarfile
 import tempfile
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import requests
@@ -19,6 +21,7 @@ from partial_date import PartialDate
 from .forms import MediaForm
 from .models import Agent, Media, SavedView, Tag
 from .queries import build_media_context
+from .services.googlebooks import get_googlebooks_client
 from .services.igdb import get_igdb_client
 from .services.musicbrainz import get_musicbrainz_client
 from .services.openlibrary import get_openlibrary_client
@@ -131,26 +134,24 @@ def _handle_import_cover(request, instance):
             instance.cover.save(filename, ContentFile(cover_bytes), save=False)
 
 
+_COVER_SOURCES = (
+    ("image.tmdb.org", get_tmdb_client),
+    ("images.igdb.com", get_igdb_client),
+    ("covers.openlibrary.org", get_openlibrary_client),
+    ("books.google.com", get_googlebooks_client),
+    ("coverartarchive.org", get_musicbrainz_client),
+)
+
+
 def _download_cover(cover_url: str) -> bytes | None:
     """Download cover image from any supported source."""
     if not cover_url:
         return None
 
-    # Determine source and use appropriate client
-    if "image.tmdb.org" in cover_url:
-        client = get_tmdb_client()
-        if client:
-            return client.download_cover(cover_url)
-    elif "images.igdb.com" in cover_url:
-        client = get_igdb_client()
-        if client:
-            return client.download_cover(cover_url)
-    elif "covers.openlibrary.org" in cover_url:
-        client = get_openlibrary_client()
-        return client.download_cover(cover_url)
-    elif "coverartarchive.org" in cover_url:
-        client = get_musicbrainz_client()
-        return client.download_cover(cover_url)
+    for host, get_client in _COVER_SOURCES:
+        if host in cover_url:
+            client = get_client()
+            return client.download_cover(cover_url) if client else None
 
     return None
 
@@ -177,6 +178,7 @@ def _build_import_initial_data(import_data: dict, media=None) -> dict:
         import_data.get("tmdb_url")
         or import_data.get("igdb_url")
         or import_data.get("openlibrary_url")
+        or import_data.get("googlebooks_url")
         or import_data.get("musicbrainz_url")
         or ""
     )
@@ -203,6 +205,7 @@ def _get_import_data_from_request(request) -> dict | None:
     lang = request.GET.get("lang", DEFAULT_TMDB_LANGUAGE)
     igdb_id = request.GET.get("igdb_id")
     openlibrary_key = request.GET.get("openlibrary_key")
+    googlebooks_id = request.GET.get("googlebooks_id")
     musicbrainz_id = request.GET.get("musicbrainz_id")
 
     if tmdb_id and media_type in ("movie", "tv"):
@@ -213,6 +216,8 @@ def _get_import_data_from_request(request) -> dict | None:
         openlibrary_year = request.GET.get("year")
         year = int(openlibrary_year) if openlibrary_year and openlibrary_year.isdigit() else None
         return _fetch_openlibrary_data(openlibrary_key, year=year)
+    if googlebooks_id:
+        return _fetch_googlebooks_data(googlebooks_id)
     if musicbrainz_id:
         return _fetch_musicbrainz_data(musicbrainz_id)
     return None
@@ -326,6 +331,19 @@ def _fetch_openlibrary_data(work_key: str, year: int | None = None) -> dict | No
     return details
 
 
+def _fetch_googlebooks_data(volume_id: str) -> dict | None:
+    """Fetch Google Books data for pre-filling the form."""
+    client = get_googlebooks_client()
+
+    try:
+        details = client.get_volume_details(volume_id)
+    except requests.RequestException:
+        logger.exception("Failed to fetch Google Books data for volume %s", volume_id)
+        return None
+
+    return details
+
+
 def _fetch_musicbrainz_data(mbid: str) -> dict | None:
     """Fetch MusicBrainz data for pre-filling the form."""
     client = get_musicbrainz_client()
@@ -351,8 +369,8 @@ def media_import(request):
         "FILM": "tmdb",
         "TV": "tmdb",
         "GAME": "igdb",
-        "BOOK": "openlibrary",
-        "COMIC": "openlibrary",
+        "BOOK": "books",
+        "COMIC": "books",
         "MUSIC": "musicbrainz",
     }
     default_source = source_mapping.get(media_type, "tmdb")
@@ -498,30 +516,58 @@ def igdb_search_htmx(request):
     return render(request, "partials/igdb/igdb_suggestions.html", {**base_context, "results": results})
 
 
+def _search_books_source(search_fn, query: str, limit: int, source_name: str) -> tuple[list, bool]:
+    """
+    Run a book search. Returns (results, ok).
+
+    ok=False means the source errored — the other source can still fill the page.
+    """
+    try:
+        return search_fn(query, limit=limit), True
+    except requests.RequestException:
+        logger.exception("%s search failed", source_name)
+        return [], False
+
+
+def _interleave(*iterables):
+    """Round-robin interleave: [a1,a2], [b1,b2,b3] -> [a1,b1,a2,b2,b3]."""
+    sentinel = object()
+    zipped = itertools.zip_longest(*iterables, fillvalue=sentinel)
+    return [item for group in zipped for item in group if item is not sentinel]
+
+
 @login_required
-def openlibrary_search_htmx(request):
-    """HTMX view: search OpenLibrary for books."""
+def book_search_htmx(request):
+    """HTMX view: search OpenLibrary and Google Books in parallel, return merged results."""
     query = request.GET.get("q", "").strip()
     media_id = request.GET.get("media_id")
 
     base_context = {"results": [], "media_id": media_id, "query": query}
 
     if len(query) < MIN_SEARCH_QUERY_LENGTH:
-        return render(request, "partials/openlibrary/openlibrary_suggestions.html", base_context)
+        return render(request, "partials/book/book_suggestions.html", base_context)
 
-    client = get_openlibrary_client()
+    openlibrary = get_openlibrary_client()
+    googlebooks = get_googlebooks_client()
 
-    try:
-        results = client.search_books(query, limit=MAX_SEARCH_RESULTS)
-    except requests.RequestException:
-        logger.exception("OpenLibrary search failed")
-        return render(
-            request,
-            "partials/openlibrary/openlibrary_suggestions.html",
-            {**base_context, "error": "Search failed"},
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        ol_future = executor.submit(
+            _search_books_source, openlibrary.search_books, query, MAX_SEARCH_RESULTS, "OpenLibrary"
         )
+        gb_future = executor.submit(
+            _search_books_source, googlebooks.search_books, query, MAX_SEARCH_RESULTS, "Google Books"
+        )
+        ol_results, ol_ok = ol_future.result()
+        gb_results, gb_ok = gb_future.result()
 
-    return render(request, "partials/openlibrary/openlibrary_suggestions.html", {**base_context, "results": results})
+    # Google Books typically has richer metadata for modern fiction, so we lead with it
+    merged = _interleave(gb_results, ol_results)[:MAX_SEARCH_RESULTS]
+
+    context = {**base_context, "results": merged}
+    if not ol_ok and not gb_ok:
+        context["error"] = "Search failed"
+
+    return render(request, "partials/book/book_suggestions.html", context)
 
 
 @login_required

@@ -12,6 +12,7 @@ import logging
 import re
 from dataclasses import dataclass
 from http import HTTPStatus
+from urllib.parse import quote
 
 import requests
 
@@ -31,10 +32,6 @@ COVERART_PATTERN = re.compile(r"^https://coverartarchive\.org/release/[a-f0-9-]+
 
 # Minimum size in bytes to consider a cover valid
 MIN_COVER_SIZE_BYTES = 1000
-
-
-class MusicBrainzError(Exception):
-    """Exception raised when MusicBrainz API request fails."""
 
 
 def _extract_artists(data: dict) -> list[str]:
@@ -171,7 +168,7 @@ class MusicBrainzClient:
             - musicbrainz_url: URL to MusicBrainz page
             - media_type: "music"
         """
-        data = self._request(f"release/{mbid}", {"inc": "artists+labels+tags+genres+release-groups"})
+        data = self._request(f"release/{quote(mbid, safe='')}", {"inc": "artists+labels+tags+genres+release-groups"})
 
         artists = _extract_artists(data)
         year = _extract_year(data.get("date", ""))
@@ -211,7 +208,7 @@ class MusicBrainzClient:
         """
         try:
             response = self.session.head(
-                f"{COVERART_BASE_URL}release/{mbid}/front",
+                f"{COVERART_BASE_URL}release/{quote(mbid, safe='')}/front",
                 timeout=5,
                 allow_redirects=True,
             )
