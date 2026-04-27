@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.7.0 (2026-04-27)
+
+### Chores
+
+- Update dependencies
+  ([`d989d59`](https://github.com/PascalRepond/datakult/commit/d989d59a54524583aad225cc9f1a644606cc78a7))
+
+### Features
+
+- **import**: Add Google Books as complementary book source
+  ([`5d5bf89`](https://github.com/PascalRepond/datakult/commit/5d5bf89c95503225359b90ef2ea0e52666f154d4))
+
+
 ## v1.6.3 (2026-04-14)
 
 ### Chores
