@@ -12,7 +12,7 @@ def service_worker(_request):
     try:
         with sw_path.open() as f:
             return HttpResponse(f.read(), content_type="application/javascript")
-    except (FileNotFoundError, PermissionError):
+    except FileNotFoundError, PermissionError:
         return HttpResponseNotFound("Service worker not found")
 
 
