@@ -3,9 +3,12 @@ name = "datakult"
 version = "1.7.0"
 description = "Review and analyse the media and culture that you consume."
 readme = "README.md"
-license = "AGPL-3.0"
+license = "AGPL-3.0-only"
+authors = [
+    { name = "Pascal Repond", email = "pascalr.92+dev@gmail.com" },
+]
 
-requires-python = ">=3.12"
+requires-python = ">=3.14,<4.0.0"
 dependencies = [
     "django>=6.0.0",
     "django-htmx>=1.23.2",
@@ -41,25 +44,79 @@ prod = [
 [tool.poe.tasks]
 
 # Dev tasks
-server = "./src/manage.py tailwind dev"
-collectstatic = "./src/manage.py collectstatic --noinput"
-makemigrations = "./src/manage.py makemigrations"
-migrate = "./src/manage.py migrate"
-shell = "./src/manage.py shell"
-setup = "./scripts/setup_dev.sh"
-bootstrap = "./scripts/bootstrap.sh"
+[tool.poe.tasks.server]
+cmd = "./src/manage.py tailwind dev"
+help = "Start the dev server (Django + Tailwind watch via honcho)"
+
+[tool.poe.tasks.collectstatic]
+cmd = "./src/manage.py collectstatic --noinput"
+help = "Collect static files into STATIC_ROOT"
+
+[tool.poe.tasks.makemigrations]
+cmd = "./src/manage.py makemigrations"
+help = "Generate new database migrations"
+
+[tool.poe.tasks.migrate]
+cmd = "./src/manage.py migrate"
+help = "Apply pending database migrations"
+
+[tool.poe.tasks.shell]
+cmd = "./src/manage.py shell"
+help = "Open the Django interactive shell"
+
+[tool.poe.tasks.setup]
+cmd = "./scripts/setup_dev.sh"
+help = "Set up the development environment"
+
+[tool.poe.tasks.bootstrap]
+cmd = "./scripts/bootstrap.sh"
+help = "Bootstrap the project from scratch"
 
 # Localisation
-makemessages = "./src/manage.py makemessages -l fr --ignore=theme/* --ignore=staticfiles/* --ignore=venv/*"
-compilemessages = "./src/manage.py compilemessages"
+[tool.poe.tasks.makemessages]
+cmd = "./src/manage.py makemessages -l fr --ignore=theme/* --ignore=staticfiles/* --ignore=venv/*"
+help = "Extract translatable strings for all supported locales"
+
+[tool.poe.tasks.compilemessages]
+cmd = "./src/manage.py compilemessages"
+help = "Compile .po translation files to .mo"
 
 # Tests and quality
-test = "pytest ./src --cov=src --cov-report=term-missing"
-format = "ruff format ./src"
-lint = "ruff check ./src"
-check-format = "ruff format ./src --check"
-audit-python = "pip-audit"
-audit-js = { shell = "cd ./src/theme/static_src && npm audit" }
+[tool.poe.tasks.test]
+cmd = "pytest ./src --cov=src --cov-report=term-missing"
+help = "Run the test suite with coverage report"
+
+[tool.poe.tasks.format]
+cmd = "ruff format ./src"
+help = "Auto-format source code with ruff"
+
+[tool.poe.tasks.lint]
+cmd = "ruff check ./src"
+help = "Lint source code with ruff"
+
+[tool.poe.tasks.check-format]
+cmd = "ruff format ./src --check"
+help = "Check formatting without modifying files (CI)"
+
+[tool.poe.tasks.audit-python]
+cmd = "pip-audit"
+help = "Audit Python dependencies for known vulnerabilities"
+
+[tool.poe.tasks.audit-js]
+shell = "cd ./src/theme/static_src && npm audit"
+help = "Audit JS dependencies for known vulnerabilities"
+
+[tool.poe.tasks.update-python]
+cmd = "uv lock --upgrade"
+help = "Upgrade all Python dependencies in the lock file"
+
+[tool.poe.tasks.update-js]
+shell = "cd ./src/theme/static_src && npm update"
+help = "Upgrade all Node dependencies"
+
+[tool.poe.tasks.update]
+sequence = ["update-python", "update-js"]
+help = "Upgrade all dependencies (Python and Node)"
 
 [tool.poe.tasks.ci]
 sequence = ["check-format", "lint", "audit-python", "audit-js", "test"]
@@ -93,11 +150,11 @@ extend-exclude = ["./src/config/settings.py"]
 # https://docs.astral.sh/ruff/rules/
 lint.select = ["ALL"]
 lint.ignore = [
-    "ANN",
-    "D",
-    "PGH004",
-    "RUF012",
-    "COM812",
+    "ANN",    # type annotations not required project-wide
+    "D",      # docstrings not enforced project-wide
+    "PGH004", # allow blanket `noqa` without specific rule codes
+    "RUF012", # mutable class-level defaults don't need ClassVar in Django models
+    "COM812", # trailing comma conflicts with ruff formatter
 ]
 
 [tool.ruff.lint.per-file-ignores]

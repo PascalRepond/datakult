@@ -1,9 +1,12 @@
 import json
 import tarfile
 import tomllib
-from collections.abc import Iterable
 from io import BytesIO, StringIO
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 import django
 from django.conf import settings
@@ -25,7 +28,7 @@ def get_datakult_version() -> str:
         with pyproject_path.open("rb") as f:
             pyproject_data = tomllib.load(f)
         return pyproject_data.get("project", {}).get("version", "unknown")
-    except (FileNotFoundError, KeyError, tomllib.TOMLDecodeError):
+    except FileNotFoundError, KeyError, tomllib.TOMLDecodeError:
         return "unknown"
 
 

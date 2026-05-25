@@ -293,7 +293,7 @@ def _fetch_tmdb_data(tmdb_id: str, media_type: str, language: str = DEFAULT_TMDB
 
     try:
         details = client.get_full_details(int(tmdb_id), media_type, language=language)
-    except (requests.RequestException, ValueError):
+    except requests.RequestException, ValueError:
         logger.exception("Failed to fetch TMDB data for %s/%s", media_type, tmdb_id)
         return None
 
@@ -311,7 +311,7 @@ def _fetch_igdb_data(igdb_id: str) -> dict | None:
 
     try:
         details = client.get_game_details(int(igdb_id))
-    except (requests.RequestException, ValueError):
+    except requests.RequestException, ValueError:
         logger.exception("Failed to fetch IGDB data for game %s", igdb_id)
         return None
 
@@ -725,7 +725,7 @@ def validate_saved_view_data(post_data):  # noqa: C901, PLR0912
             contributor_id_int = int(contributor_id)
             if not Agent.objects.filter(pk=contributor_id_int).exists():
                 errors.append(_("Contributor does not exist: ID %(id)s") % {"id": contributor_id})
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             errors.append(_("Invalid contributor ID format: %(id)s") % {"id": contributor_id})
 
     # Validate review dates (if present)
@@ -734,7 +734,7 @@ def validate_saved_view_data(post_data):  # noqa: C901, PLR0912
         if date_value:
             try:
                 PartialDate(date_value)
-            except (ValueError, TypeError, DjangoValidationError):
+            except ValueError, TypeError, DjangoValidationError:
                 errors.append(_("Invalid %(label)s: %(value)s") % {"label": field_label, "value": date_value})
 
     # Validate has_review and has_cover
