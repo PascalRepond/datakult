@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v1.7.1 (2026-06-03)
+
+### Chores
+
+- Update dependencies
+  ([`6e95bc4`](https://github.com/PascalRepond/datakult/commit/6e95bc413f25e2d2350cc10934f04927703c5e12))
+
+- Update dependencies and improve project config
+  ([`357e7d4`](https://github.com/PascalRepond/datakult/commit/357e7d4c2f9b079b037d233615bca4cb93bf5062))
+
+
 ## v1.7.0 (2026-04-27)
 
 ### Chores
