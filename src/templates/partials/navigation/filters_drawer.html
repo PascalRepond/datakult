@@ -197,13 +197,13 @@
       <div class="flex flex-col gap-2">
         {# Apply filters button #}
         <button type="submit" class="btn btn-primary btn-sm">
-          {% lucide "filter" %}
+          {% lucide "funnel" %}
           {% translate "Apply" %}
         </button>
         {# Clear all filters button #}
         <a href="{% url 'home' %}?view_mode={{ view_mode }}&sort={{ sort }}"
            class="btn btn-sm btn-outline">
-          {% lucide "filter-x" %}
+          {% lucide "funnel-x" %}
           {% translate "Clear filters" %}
         </a>
       </div>
