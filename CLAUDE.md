@@ -1,10 +1,10 @@
-# Datakult guide
+# Datakult Claude guide
 
 ## Overview
 
-Datakult is a personal Django web app to track and rate media consumed: films, TV series, books, video games, music, podcasts, etc. It includes a rating system, markdown reviews, and filtering by type/status/year. Media metadata can be fetched from external APIs (TMDB, Google Books, MusicBrainz, OpenLibrary, IGDB).
+Datakult is a personal Django web app to track and rate media consumed: films, TV series, books, video games, music, podcasts, etc. It includes a rating system, markdown reviews, and filtering by type/status/year. Media metadata can be fetched from external APIs (TMDB, Google Books, MusicBrainz, OpenLibrary, IGDB). It is developed for personal and educational use.
 
-**Stack**: Python 3.14.*, Django 6.x, SQLite, HTMX, Tailwind CSS, DaisyUI, Lucide icons, Pillow, WhiteNoise
+**Stack**: Python 3.14, Django 6.x, SQLite, HTMX, Tailwind CSS (django-tailwind), DaisyUI, Lucide icons, Pillow, WhiteNoise
 **Package manager**: `uv` with `poethepoet` for task running
 
 ## Commands
@@ -25,24 +25,8 @@ uv run poe shell            # Open Django shell
 **IMPORTANT:** After editing files, make sure that there are no errors in the formatting and linting.
 
 ```bash
-uv run poe lint             # ruff check ./src
-uv run poe format           # ruff format ./src
-```
-
-### Tests and CI
-
-```bash
-uv run poe test             # Run pytest with coverage
-uv run poe ci               # Full CI pipeline: format check, lint, audits, tests
-uv run poe audit-python     # pip-audit for Python dependency vulnerabilities
-uv run poe audit-js         # npm audit for JS dependency vulnerabilities
-```
-
-### Internationalisation
-
-```bash
-uv run poe makemessages     # Extract translatable strings (en + fr)
-uv run poe compilemessages  # Compile .po files to .mo
+uv run poe lint     # ruff check ./src
+uv run poe format   # ruff format ./src
 ```
 
 ### Setup (done by humans)
@@ -63,23 +47,41 @@ src/
 ├── static/         # Project-wide static files (JS, images)
 ├── theme/          # Tailwind CSS configuration (django-tailwind)
 ├── locale/         # Translation files (en, fr)
-└── tests/
-    ├── conftest.py # Shared pytest fixtures (agent, media, user, logged_in_client, etc.)
-    ├── core/       # Tests for the core app
-    └── accounts/   # Tests for the accounts app
+└── tests/          # Tests split into tests/core/ and tests/accounts/
 ```
 
 Key design choices:
 
-- Single `Media` model covers all media types via a `media_type` field
-- `Agent` model represents any contributor (author, director, artist, etc.)
-- Custom user model from the start (`accounts.CustomUser`)
-- Views use FBVs; HTMX handles dynamic interactions without full-page reloads
-- Fixtures (sample JSON data) live in `src/core/fixtures/`
+- Single `Media` model covers all media types via a `media_type` field.
+- `Agent` model represents any contributor (author, director, artist, etc.).
+- Custom user model from the start (`accounts.CustomUser`).
+- Views use function-based views (FBVs); HTMX handles dynamic interactions without full-page reloads.
+
+## Code Style
+
+- Always write docstrings and comments in English.
+- Be clear and concise in the docstrings and do not over-comment the code.
+- Prefer existing DaisyUI classes before adding custom CSS.
+
+### Python/Django
+
+- Use function-based views (FBVs) unless a class-based view is clearly more appropriate.
+- Models must define an explicit `__str__` method.
+
+### Templates
+
+- Use partials in `templates/partials/` for reusable components.
+- Prefer HTMX for dynamic interactions over vanilla JavaScript.
+- Use DaisyUI classes for styling.
+
+### JavaScript
+
+- Keep JavaScript minimal; prefer HTMX.
+- JS files live in `static/js/`.
 
 ### Translations
 
-The app supports **English** (`en`) and **French** (`fr`). Django's standard i18n framework is used (`gettext_lazy`, `.po`/`.mo` files in `src/locale/`). Run `uv run poe makemessages` after adding new translatable strings, then `uv run poe compilemessages` before testing translations.
+The app supports **English** (`en`) and **French** (`fr`) via Django's i18n framework (`gettext_lazy`, `.po`/`.mo` files in `src/locale/`). During standard development, make sure any end-user-facing strings are marked for translation in the code. Run `uv run poe makemessages` after adding new strings, then `uv run poe compilemessages` before testing translations.
 
 ## Testing Notes
 
@@ -146,7 +148,7 @@ Transform tasks into verifiable goals:
 
 For multi-step tasks, state a brief plan:
 
-```md
+```text
 1. [Step] → verify: [check]
 2. [Step] → verify: [check]
 3. [Step] → verify: [check]
