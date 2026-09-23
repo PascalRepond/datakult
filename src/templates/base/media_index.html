@@ -7,7 +7,7 @@
 {% endblock title %}
 {% block content %}
   <div class="flex items-baseline gap-4 my-4">
-    <h1 class="text-4xl">{% translate "My media" %}</h1>
+    <h1 class="text-4xl font-bold">{% translate "My media" %}</h1>
     <span class="text-sm text-base-content/70">
       {{ page_obj.paginator.count }}
       {% if page_obj.paginator.count > 1 %}
@@ -59,7 +59,7 @@
         <div class="flex join items-center">
           <a href="?{% query_string request sort=sort|toggle_sort_direction %}"
              class="btn join-item btn-sm sm:btn-md">
-            {% if sort|slice:":1" == '-' %}
+            {% if sort|slice:":1" == "-" %}
               {% lucide "arrow-down-narrow-wide" %}
             {% else %}
               {% lucide "arrow-up-wide-narrow" %}
@@ -113,7 +113,7 @@
         {% endwith %}
       {% endif %}
       {% if filters.has_review %}
-        {% if filters.has_review == 'empty' %}
+        {% if filters.has_review == "empty" %}
           {% translate "No review" as has_review_label %}
         {% else %}
           {% translate "Has review" as has_review_label %}
@@ -121,7 +121,7 @@
         {% include "partials/filters/filter_badge.html" with label=has_review_label filter_name="has_review" %}
       {% endif %}
       {% if filters.has_cover %}
-        {% if filters.has_cover == 'empty' %}
+        {% if filters.has_cover == "empty" %}
           {% translate "No cover" as has_cover_label %}
         {% else %}
           {% translate "Has cover" as has_cover_label %}

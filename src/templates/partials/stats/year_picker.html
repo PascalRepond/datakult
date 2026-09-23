@@ -1,0 +1,51 @@
+{% load i18n %}
+{% load l10n %}
+{% load lucide %}
+{% load media_tags %}
+{# Year picker: arrows to the previous/next years with data, and a dropdown grid of all years #}
+{# Links keep the other filters of the page. Parameters: years, year, previous_year, next_year #}
+<nav class="flex items-center gap-1"
+     aria-label="{% translate "Year" %}"
+     hx-boost="true">
+  {% if previous_year %}
+    <a href="{% url 'stats' %}?{% query_string request year=previous_year %}"
+       class="btn btn-square btn-ghost"
+       aria-label="{% translate "Previous year" %}"
+       title="{{ previous_year|unlocalize }}">{% lucide "chevron-left" %}</a>
+  {% else %}
+    <span class="btn btn-square btn-ghost btn-disabled" aria-hidden="true">{% lucide "chevron-left" %}</span>
+  {% endif %}
+  <div class="dropdown dropdown-center">
+    <div tabindex="0" role="button" class="btn min-w-44 justify-between">
+      <span class="flex items-center gap-2">
+        {% lucide "calendar" %}
+        {% if year %}
+          {{ year|unlocalize }}
+        {% else %}
+          {% translate "All years" %}
+        {% endif %}
+      </span>
+      {% lucide "chevron-down" class="h-4 w-4 opacity-60" %}
+    </div>
+    <div tabindex="-1"
+         class="dropdown-content z-10 mt-2 w-72 p-3 bg-base-100 rounded-box shadow-xl">
+      <a href="{% url 'stats' %}?{% query_string request year=None %}"
+         class="btn btn-sm btn-block mb-2 {% if year is None %}btn-primary{% else %}btn-ghost{% endif %}">{% translate "All years" %}</a>
+      <div class="grid grid-cols-4 gap-1 max-h-64 overflow-y-auto">
+        {% for y in years %}
+          <a href="{% url 'stats' %}?{% query_string request year=y %}"
+             class="btn btn-sm {% if y == year %}btn-primary{% else %}btn-ghost{% endif %}"
+             {% if y == year %}aria-current="true"{% endif %}>{{ y|unlocalize }}</a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% if next_year %}
+    <a href="{% url 'stats' %}?{% query_string request year=next_year %}"
+       class="btn btn-square btn-ghost"
+       aria-label="{% translate "Next year" %}"
+       title="{{ next_year|unlocalize }}">{% lucide "chevron-right" %}</a>
+  {% else %}
+    <span class="btn btn-square btn-ghost btn-disabled" aria-hidden="true">{% lucide "chevron-right" %}</span>
+  {% endif %}
+</nav>

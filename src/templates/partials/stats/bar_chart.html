@@ -1,0 +1,24 @@
+{% load l10n %}
+{# Vertical bar chart, scrollable when bars don't fit #}
+{# Parameters: rows (list of dicts with label, count, pct and optional title and url), stars (optional, adds a star after each label) #}
+{# Non-empty bars link to their url, when one is given #}
+{# Bars are rendered in reverse inside a row-reverse container so that an overflowing chart starts scrolled to the latest bar #}
+<div class="flex flex-row-reverse gap-1 h-56 overflow-x-auto pb-2">
+  {% for row in rows reversed %}
+    <a {% if row.url and row.count %}href="{{ row.url }}"{% endif %}
+       class="group flex-1 min-w-8 flex flex-col items-center gap-1"
+       title="{{ row.title|default:row.label|unlocalize }}: {{ row.count }}">
+      {# Top padding keeps room for the count above the tallest bar #}
+      <div class="flex-1 w-full flex items-end pt-5">
+        <div class="relative w-full rounded-t bg-primary transition-opacity {% if row.count %}min-h-1{% endif %} {% if row.url and row.count %}group-hover:opacity-75{% endif %}"
+             style="height: {{ row.pct }}%">
+          <span class="absolute bottom-full inset-x-0 mb-1 text-center text-xs">{{ row.count }}</span>
+        </div>
+      </div>
+      <span class="w-full flex items-center justify-center gap-0.5 text-xs whitespace-nowrap border-t border-base-300 pt-1">
+        {{ row.label|unlocalize }}
+        {% if stars %}<span class="mask mask-star-2 bg-orange-400 w-3 h-3" aria-hidden="true"></span>{% endif %}
+      </span>
+    </a>
+  {% endfor %}
+</div>

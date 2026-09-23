@@ -1,0 +1,104 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% load l10n %}
+{% load lucide %}
+{% load media_tags %}
+{% block title %}
+  {% translate "Statistics" %} - Datakult
+{% endblock title %}
+{% block content %}
+  <div class="max-w-4xl mx-auto">
+    {# show:none keeps the scroll position, instead of scrolling boosted links' target into view #}
+    <div id="stats-content"
+         hx-target="#stats-content"
+         hx-select="#stats-content"
+         hx-swap="outerHTML show:none">
+      <div class="flex flex-wrap items-center gap-4 mb-8">
+        {% include "partials/common/back_button.html" %}
+        <h1 class="text-4xl font-bold">{% translate "Statistics" %}</h1>
+        <div class="ml-auto">{% include "partials/stats/year_picker.html" %}</div>
+      </div>
+      <!-- Rated media per type, used as a filter (click the active one again to clear it) -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6" hx-boost="true">
+        {% for row in type_counts %}
+          <a href="{% url 'stats' %}?{% if row.media_type == media_type %}{% query_string request type=None %}{% else %}{% query_string request type=row.media_type %}{% endif %}" class="card bg-base-200 hover:bg-base-300 transition-colors {% if row.media_type == media_type %}ring-2 ring-primary{% elif not row.count %}opacity-50{% endif %}" {% if row.media_type == media_type %}aria-current="true"{% endif %}>
+            <div class="card-body p-4 gap-1">
+              <div class="flex items-center gap-2 text-sm">
+                {% media_icon row.media_type size="sm" %}
+                <span class="truncate" title="{{ row.label }}">{{ row.label }}</span>
+                {% if row.media_type == media_type %}
+                  {% lucide "x" class="h-4 w-4 ml-auto shrink-0" %}
+                {% endif %}
+              </div>
+              <div class="text-3xl font-bold">{{ row.count }}</div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+      <!-- Rated media covers -->
+      <div class="card bg-base-200 shadow-xl mb-6">
+        <div class="card-body">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="card-title">
+              {% lucide "layout-grid" %}
+              {% if year %}
+                {% blocktranslate count counter=overview.count with year=year|unlocalize %}{{ counter }} media rated in {{ year }}{% plural %}{{ counter }} media rated in {{ year }}{% endblocktranslate %}
+              {% else %}
+                {% blocktranslate count counter=overview.count %}{{ counter }} media rated{% plural %}{{ counter }} media rated{% endblocktranslate %}
+              {% endif %}
+              {% if media_type %}
+                <span class="flex items-center gap-2 font-normal opacity-70">· {% media_icon media_type size="md" %}{{ media_type_label }}</span>
+              {% endif %}
+            </h2>
+          </div>
+          {% if covers %}
+            <div class="flex flex-wrap gap-2">{% include "partials/stats/covers_page.html" %}</div>
+          {% elif year or media_type %}
+            <p class="opacity-70">{% translate "No rated media match the selected filters." %}</p>
+          {% else %}
+            <p class="opacity-70">{% translate "No rated media yet." %}</p>
+          {% endif %}
+        </div>
+      </div>
+      <!-- Score distribution -->
+      <div class="card bg-base-200 shadow-xl mb-6">
+        <div class="card-body">
+          <h2 class="card-title">
+            {% lucide "star" %}
+            {% translate "Score distribution" %}
+          </h2>
+          {% include "partials/stats/bar_chart.html" with rows=score_distribution stars=True %}
+        </div>
+      </div>
+      {% if per_month %}
+        <!-- Rated per month (selected year) -->
+        <div class="card bg-base-200 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title">
+              {% lucide "calendar" %}
+              {% blocktranslate with year=year|unlocalize %}Rated per month in {{ year }}{% endblocktranslate %}
+            </h2>
+            {% include "partials/stats/bar_chart.html" with rows=per_month %}
+          </div>
+        </div>
+      {% else %}
+        <!-- Rated per year (all years); its bars filter this page on their year and scroll back to the top -->
+        <div class="card bg-base-200 shadow-xl"
+             hx-boost="true"
+             hx-swap="outerHTML show:window:top">
+          <div class="card-body">
+            <h2 class="card-title">
+              {% lucide "chart-column" %}
+              {% translate "Rated per year" %}
+            </h2>
+            {% if per_year %}
+              {% include "partials/stats/bar_chart.html" with rows=per_year %}
+            {% else %}
+              <p class="opacity-70">{% translate "No rated media with a review date yet." %}</p>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock content %}
