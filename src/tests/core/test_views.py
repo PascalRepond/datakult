@@ -403,6 +403,23 @@ def test_filter_with_invalid_date_ignores_filter(logged_in_client, media_factory
     assert "Old" in titles
 
 
+def test_filter_review_from_includes_less_precise_dates(logged_in_client, media_factory):
+    """A start date includes review dates with a year or month precision that begin on that day."""
+    media_factory(title="Year", review_date="2016")
+    media_factory(title="January", review_date="2016-01")
+    media_factory(title="March", review_date="2016-03")
+    media_factory(title="March 2nd", review_date="2016-03-02")
+    media_factory(title="Before", review_date="2015-12-31")
+
+    from_new_year = logged_in_client.get(reverse("home"), {"review_from": "2016-01-01"})
+    from_march = logged_in_client.get(reverse("home"), {"review_from": "2016-03-01"})
+    from_march_2nd = logged_in_client.get(reverse("home"), {"review_from": "2016-03-02"})
+
+    assert {m.title for m in from_new_year.context["media_list"]} == {"Year", "January", "March", "March 2nd"}
+    assert {m.title for m in from_march.context["media_list"]} == {"March", "March 2nd"}
+    assert {m.title for m in from_march_2nd.context["media_list"]} == {"March 2nd"}
+
+
 def test_media_review_clamped_returns_partial(logged_in_client, db):
     """Clamped review view returns the clamped partial template."""
     media = Media.objects.create(

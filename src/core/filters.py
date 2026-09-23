@@ -5,6 +5,7 @@ import contextlib
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.translation import gettext as _
+from partial_date import PartialDate
 
 from .models import Agent, Media, Tag
 
@@ -132,12 +133,27 @@ def apply_score_filter(queryset, scores):
     return queryset.filter(score_q)
 
 
+def _review_from_bound(value):
+    """
+    Return the start date `value` with the coarsest precision it allows.
+
+    Review dates store their precision in the seconds (year < month < day), so a day precision
+    bound would exclude year or month precision dates falling on that same day.
+    """
+    date = PartialDate(value).date
+    if date.day != 1:
+        return PartialDate(date, PartialDate.DAY)
+    if date.month != 1:
+        return PartialDate(date, PartialDate.MONTH)
+    return PartialDate(date, PartialDate.YEAR)
+
+
 def apply_date_and_content_filters(queryset, filters):
     """Apply review date, review content, and cover filters."""
     if filters["review_from"]:
         # Skip malformed date values from URL
         with contextlib.suppress(ValueError, TypeError, ValidationError):
-            queryset = queryset.filter(review_date__gte=filters["review_from"])
+            queryset = queryset.filter(review_date__gte=_review_from_bound(filters["review_from"]))
     if filters["review_to"]:
         # Skip malformed date values from URL
         with contextlib.suppress(ValueError, TypeError, ValidationError):
