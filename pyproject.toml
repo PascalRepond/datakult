@@ -155,6 +155,7 @@ lint.ignore = [
     "PGH004", # allow blanket `noqa` without specific rule codes
     "RUF012", # mutable class-level defaults don't need ClassVar in Django models
     "COM812", # trailing comma conflicts with ruff formatter
+    "CPY001", # no copyright notices in the project
 ]
 
 [tool.ruff.lint.per-file-ignores]
