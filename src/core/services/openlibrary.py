@@ -77,10 +77,8 @@ class OpenLibraryClient:
 
     def _request(self, endpoint: str, params: dict | None = None) -> dict:
         """Make a request to the OpenLibrary API."""
-        params = params or {}
-
         url = urljoin(OPENLIBRARY_BASE_URL, endpoint)
-        if params:
+        if params := params or {}:
             url = f"{url}?{urlencode(params)}"
 
         try:
@@ -214,20 +212,13 @@ class OpenLibraryClient:
         if not data:
             return None
 
-        # ISBN endpoint returns an edition, get the work for full details
-        works = data.get("works", [])
-        if works:
-            work_key = works[0].get("key")
-            if work_key:
-                details = self.get_work_details(work_key)
-                # Override year with edition's publish date if available
-                publish_date = data.get("publish_date", "")
-                if publish_date:
-                    # Try to extract year from various date formats
-                    year_match = re.search(r"\b(1[89]\d{2}|20[0-2]\d)\b", publish_date)
-                    if year_match:
-                        details["year"] = int(year_match.group(1))
-                return details
+        if (works := data.get("works", [])) and (work_key := works[0].get("key")):
+            details = self.get_work_details(work_key)
+            if (publish_date := data.get("publish_date", "")) and (
+                year_match := re.search(r"\b(1[89]\d{2}|20[0-2]\d)\b", publish_date)
+            ):
+                details["year"] = int(year_match[1])
+            return details
 
         return None
 

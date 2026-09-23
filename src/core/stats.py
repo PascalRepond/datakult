@@ -62,10 +62,9 @@ def count_per_type(media):
 
 def count_per_year(media):
     """Count media per review year, zero-filling years without any."""
-    counts = Counter(date.date.year for date in _review_dates(media))
-    if not counts:
-        return []
-    return _with_pct([{"label": year, "count": counts[year]} for year in range(min(counts), max(counts) + 1)])
+    if counts := Counter(date.date.year for date in _review_dates(media)):
+        return _with_pct([{"label": year, "count": counts[year]} for year in range(min(counts), max(counts) + 1)])
+    return []
 
 
 def count_per_month(media, year):

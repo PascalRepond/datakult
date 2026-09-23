@@ -1,5 +1,7 @@
 """Media queryset and pagination utilities."""
 
+import contextlib
+
 from django.core.paginator import Paginator
 from django.db.models import Q
 
@@ -17,13 +19,9 @@ def build_search_queryset(query):
     )
 
     # Try to parse query as a year (integer)
-    try:
+    with contextlib.suppress(ValueError):
         parsed_year = int(query)
         q_objects |= Q(pub_year__exact=parsed_year)
-    except ValueError:
-        # Not a valid integer, skip year filtering
-        pass
-
     return Media.objects.filter(q_objects).prefetch_related("tags", "contributors").distinct()
 
 

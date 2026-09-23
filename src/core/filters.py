@@ -104,16 +104,12 @@ def apply_tag_filter(queryset, tag_id):
 
 def apply_type_filter(queryset, media_types):
     """Apply OR filter for media types."""
-    if not media_types:
-        return queryset
-    return queryset.filter(media_type__in=media_types)
+    return queryset.filter(media_type__in=media_types) if media_types else queryset
 
 
 def apply_status_filter(queryset, statuses):
     """Apply OR filter for statuses."""
-    if not statuses:
-        return queryset
-    return queryset.filter(status__in=statuses)
+    return queryset.filter(status__in=statuses) if statuses else queryset
 
 
 def apply_score_filter(queryset, scores):

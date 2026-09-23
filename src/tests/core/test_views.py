@@ -75,7 +75,7 @@ def test_media_add_shows_success_message(logged_in_client, db):
     response = logged_in_client.post(reverse("media_add"), data, follow=True)
 
     messages = list(get_messages(response.wsgi_request))
-    assert len(messages) > 0
+    assert messages
     assert "New Test Media" in str(messages[0])
     assert "created" in str(messages[0]).lower()
 
@@ -135,7 +135,7 @@ def test_media_edit_shows_success_message(logged_in_client, media):
     )
 
     messages = list(get_messages(response.wsgi_request))
-    assert len(messages) > 0
+    assert messages
     assert "Updated Title" in str(messages[0])
     assert "updated" in str(messages[0]).lower()
 
@@ -175,7 +175,7 @@ def test_media_delete_shows_success_message(logged_in_client, media):
     )
 
     messages = list(get_messages(response.wsgi_request))
-    assert len(messages) > 0
+    assert messages
     assert media_title in str(messages[0])
     assert "deleted" in str(messages[0]).lower()
 
