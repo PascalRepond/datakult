@@ -26,6 +26,13 @@
       {% translate "All" %}
     </a>
   </li>
+  <li>
+    <a href="{% url 'stats' %}"
+       class="{% if request.resolver_match.view_name == 'stats' %}menu-active{% endif %}">
+      {% lucide "chart-column" %}
+      {% translate "Statistics" %}
+    </a>
+  </li>
   <!-- Separator -->
   <li class="menu-title mt-4">
     <span>{% translate "By status" %}</span>

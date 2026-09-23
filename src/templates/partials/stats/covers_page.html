@@ -1,0 +1,39 @@
+{% load i18n %}
+{% load l10n %}
+{% load lucide %}
+{% load media_tags %}
+{# One page of media covers followed by a "Show more" button. Parameters: covers (Page) #}
+{% for media in covers %}
+  <div class="tooltip">
+    <div class="tooltip-content text-left">
+      <div class="font-bold">
+        {{ media.title }}
+        {% if media.pub_year %}<span class="font-normal">({{ media.pub_year|unlocalize }})</span>{% endif %}
+      </div>
+      {% if media.contributors.all %}<div class="opacity-80">{{ media.contributors.all|join:", " }}</div>{% endif %}
+    </div>
+    <a href="{% url 'media_detail' media.pk %}"
+       class="relative block"
+       aria-label="{{ media.title }}, {% translate 'Score:' %} {{ media.score }} {% translate 'out of 10' %}">
+      {% include "partials/media_items/media_cover.html" %}
+      <span class="absolute bottom-1 right-1 badge badge-neutral badge-sm gap-0.5">
+        {{ media.score }}
+        <span class="mask mask-star-2 bg-orange-400 w-3 h-3" aria-hidden="true"></span>
+      </span>
+    </a>
+  </div>
+{% endfor %}
+{% if covers.has_next %}
+  {# hx-select is unset so that the partial response isn't filtered by the #stats-content selector inherited from the page #}
+  <div id="covers-more" class="basis-full flex justify-center pt-2">
+    <button type="button"
+            class="btn btn-sm btn-ghost"
+            hx-get="{% url 'stats_covers_htmx' %}?{% query_string request page=covers.next_page_number %}"
+            hx-target="#covers-more"
+            hx-select="unset"
+            hx-swap="outerHTML">
+      {% lucide "chevron-down" %}
+      {% translate "Show more" %}
+    </button>
+  </div>
+{% endif %}
