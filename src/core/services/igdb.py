@@ -53,9 +53,7 @@ def _get_image_url(image_id: str | None, size: str = "cover_big") -> str | None:
     Size options: cover_small (90x128), cover_big (264x374),
                   screenshot_med (569x320), 720p, 1080p
     """
-    if not image_id:
-        return None
-    return f"{IGDB_IMAGE_BASE_URL}t_{size}/{image_id}.jpg"
+    return f"{IGDB_IMAGE_BASE_URL}t_{size}/{image_id}.jpg" if image_id else None
 
 
 def _escape_apicalypse_query(query: str) -> str:
@@ -210,12 +208,10 @@ class IGDBClient:
 
         game = data[0]
 
-        # Extract year
-        release_date = game.get("first_release_date")
-        year = None
-        if release_date:
+        if release_date := game.get("first_release_date"):
             year = datetime.datetime.fromtimestamp(release_date, tz=datetime.UTC).year
-
+        else:
+            year = None
         # Extract developers and publishers
         developers = []
         publishers = []

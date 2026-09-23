@@ -44,7 +44,7 @@ def _extract_year(date_str: str) -> int | None:
     if not date_str:
         return None
     year_match = re.match(r"(\d{4})", date_str)
-    return int(year_match.group(1)) if year_match else None
+    return int(year_match[1]) if year_match else None
 
 
 def _extract_label(label_info: list) -> str | None:
@@ -92,9 +92,7 @@ class MusicBrainzResult:
     @property
     def cover_url_large(self) -> str | None:
         """Returns the full-size cover URL."""
-        if self.mbid:
-            return f"{COVERART_BASE_URL}release/{self.mbid}/front"
-        return None
+        return f"{COVERART_BASE_URL}release/{self.mbid}/front" if self.mbid else None
 
 
 class MusicBrainzClient:

@@ -160,18 +160,14 @@ def _get_or_create_safe(model_class, name):
     if not clean_name:
         return None, None  # Skip empty names silently
 
-    # Try to find existing object first to avoid race conditions
-    existing = model_class.objects.filter(name=clean_name).first()
-    if existing:
+    if existing := model_class.objects.filter(name=clean_name).first():
         return existing, None
 
     # Try to create, catching IntegrityError for race conditions
     try:
         obj, _created = model_class.objects.get_or_create(name=clean_name)
     except IntegrityError:
-        # Race condition: object was created between filter() and get_or_create()
-        existing = model_class.objects.filter(name=clean_name).first()
-        if existing:
+        if existing := model_class.objects.filter(name=clean_name).first():
             return existing, None
         # Unexpected error
         return None, f"Failed to create {model_class.__name__}: {clean_name}"
@@ -221,11 +217,9 @@ def _process_new_tags(post_data):
 def _handle_import_cover(request, instance):
     """Download and attach cover from import source if provided."""
     cover_url = request.POST.get("import_cover_url")
-    if cover_url and not request.FILES.get("cover"):
-        cover_bytes = _download_cover(cover_url)
-        if cover_bytes:
-            filename = f"{instance.title[:50].replace('/', '_')}.jpg"
-            instance.cover.save(filename, ContentFile(cover_bytes), save=False)
+    if cover_url and not request.FILES.get("cover") and (cover_bytes := _download_cover(cover_url)):
+        filename = f"{instance.title[:50].replace('/', '_')}.jpg"
+        instance.cover.save(filename, ContentFile(cover_bytes), save=False)
 
 
 _COVER_SOURCES = (
@@ -312,9 +306,7 @@ def _get_import_data_from_request(request) -> dict | None:
         return _fetch_openlibrary_data(openlibrary_key, year=year)
     if googlebooks_id:
         return _fetch_googlebooks_data(googlebooks_id)
-    if musicbrainz_id:
-        return _fetch_musicbrainz_data(musicbrainz_id)
-    return None
+    return _fetch_musicbrainz_data(musicbrainz_id) if musicbrainz_id else None
 
 
 @login_required
@@ -342,8 +334,7 @@ def media_edit(request, pk=None):
 
             # Cleanup orphan agents
             after_contributor_ids = set(instance.contributors.values_list("pk", flat=True))
-            removed_ids = before_contributor_ids - after_contributor_ids
-            if removed_ids:
+            if removed_ids := before_contributor_ids - after_contributor_ids:
                 delete_orphan_agents_by_ids(removed_ids)
 
             msg_key = "'%(title)s' updated successfully" if media else "'%(title)s' created successfully"
@@ -718,7 +709,7 @@ def backup_export(request):
             filename=backup_path.name,
         )
 
-    except (OSError, tarfile.TarError, PermissionError) as e:
+    except (OSError, tarfile.TarError) as e:
         messages.error(request, _("Backup creation failed: %(error)s") % {"error": str(e)})
         return redirect("backup_manage")
 
@@ -852,9 +843,7 @@ def saved_view_save(request):
         messages.error(request, _("View name is required"))
         return redirect("home")
 
-    # Validate all filter inputs before saving
-    validation_errors = validate_saved_view_data(request.POST)
-    if validation_errors:
+    if validation_errors := validate_saved_view_data(request.POST):
         for error in validation_errors:
             messages.error(request, error)
         return redirect("home")
@@ -874,9 +863,7 @@ def saved_view_save(request):
         "view_mode": request.POST.get("view_mode", "grid"),
     }
 
-    # Check if a view with this name already exists
-    existing_view = SavedView.objects.filter(user=request.user, name=view_name).first()
-    if existing_view:
+    if existing_view := SavedView.objects.filter(user=request.user, name=view_name).first():
         # Update the existing view instead of creating a new one
         for key, value in view_data.items():
             setattr(existing_view, key, value)

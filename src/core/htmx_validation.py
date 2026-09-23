@@ -9,10 +9,8 @@ from .forms import MediaForm
 def _validate_field_htmx(form, field_name):
     """Helper to validate a single form field and return HTMX response."""
     form.is_valid()  # Trigger validation
-    if field_name and field_name in form.fields:
-        errors = form.errors.get(field_name, [])
-        if errors:
-            return HttpResponse(f'<span class="label-text-alt text-error">{escape(errors[0])}</span>')
+    if field_name and field_name in form.fields and (errors := form.errors.get(field_name, [])):
+        return HttpResponse(f'<span class="label-text-alt text-error">{escape(errors[0])}</span>')
     return HttpResponse("")
 
 

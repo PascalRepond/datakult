@@ -42,7 +42,7 @@ def _extract_year(published_date: str) -> int | None:
     if not published_date:
         return None
     match = re.match(r"(\d{4})", published_date)
-    return int(match.group(1)) if match else None
+    return int(match[1]) if match else None
 
 
 def _resize_cover_url(url: str, fife: str) -> str:
@@ -58,13 +58,10 @@ def _resize_cover_url(url: str, fife: str) -> str:
         return url
     # Force HTTPS and drop the page-curl overlay
     rewritten = url.replace("http://", "https://", 1).replace("&edge=curl", "").replace("edge=curl&", "")
-    # Replace any zoom=N with the fife hint; if no zoom is present, append it
     if re.search(r"[?&]zoom=\d+", rewritten):
-        rewritten = re.sub(r"([?&])zoom=\d+", rf"\g<1>fife={fife}", rewritten)
-    else:
-        separator = "&" if "?" in rewritten else "?"
-        rewritten = f"{rewritten}{separator}fife={fife}"
-    return rewritten
+        return re.sub(r"([?&])zoom=\d+", rf"\g<1>fife={fife}", rewritten)
+    separator = "&" if "?" in rewritten else "?"
+    return f"{rewritten}{separator}fife={fife}"
 
 
 @dataclass
@@ -114,9 +111,8 @@ class GoogleBooksClient:
 
     def _request(self, endpoint: str, params: dict | None = None) -> dict:
         """Make a request to the Google Books API."""
-        params = params or {}
         url = f"{GOOGLEBOOKS_BASE_URL}{endpoint}"
-        if params:
+        if params := params or {}:
             url = f"{url}?{urlencode(params)}"
 
         try:

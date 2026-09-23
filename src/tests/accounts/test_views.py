@@ -108,7 +108,7 @@ def test_set_language_ignores_invalid_language(logged_in_client):
     )
 
     messages = list(get_messages(response.wsgi_request))
-    assert not any(("lang" in str(m).lower()) for m in messages)
+    assert all("lang" not in str(m).lower() for m in messages)
 
 
 def test_set_language_get_not_allowed(logged_in_client):

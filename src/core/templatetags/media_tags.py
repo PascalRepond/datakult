@@ -164,9 +164,7 @@ def toggle_sort_direction(sort_value):
     if not sort_value:
         return "review_date"
 
-    if sort_value.startswith("-"):
-        return sort_value[1:]
-    return f"-{sort_value}"
+    return sort_value[1:] if sort_value.startswith("-") else f"-{sort_value}"
 
 
 @register.simple_tag
