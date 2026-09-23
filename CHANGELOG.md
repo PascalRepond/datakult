@@ -2,6 +2,69 @@
 
 <!-- version list -->
 
+## v1.8.0 (2026-09-23)
+
+### Bug Fixes
+
+- **filters**: Include partial dates on start day
+  ([`0b601a7`](https://github.com/PascalRepond/datakult/commit/0b601a77a3b47ecb5fffbc4579e0f829630482fc))
+
+- **tests**: Keep backups out of src/ and narrow Tailwind watch sources
+  ([`a28e547`](https://github.com/PascalRepond/datakult/commit/a28e5473ef0e803a55f37135e991e24760156624))
+
+### Build System
+
+- Update dependencies
+  ([`f99a00c`](https://github.com/PascalRepond/datakult/commit/f99a00c1be3e6002c8eb71aef4f9ddd6530e303e))
+
+### Chores
+
+- Bump actions/setup-node in the github-actions group
+  ([`7ce6f3c`](https://github.com/PascalRepond/datakult/commit/7ce6f3cfe8044cc8126f62a71614f164cba0a446))
+
+- Bump gitpython from 3.1.50 to 3.1.52
+  ([`6b7bf5f`](https://github.com/PascalRepond/datakult/commit/6b7bf5f4ca9db71462e705a8d1cb178e348d8efa))
+
+- Bump gitpython from 3.1.52 to 3.1.59
+  ([`984569c`](https://github.com/PascalRepond/datakult/commit/984569c6b0b53a14cf47edd795a55c0f5f32b4da))
+
+- Bump pip from 26.1.2 to 26.2
+  ([`c1019e5`](https://github.com/PascalRepond/datakult/commit/c1019e568fbd26b44f6401a05141d0d61bb59453))
+
+- Bump postcss from 8.5.16 to 8.5.25 in /src/theme/static_src
+  ([`d2fc075`](https://github.com/PascalRepond/datakult/commit/d2fc0755612ba731fda6ed3db1f2bb412b84cc62))
+
+- Bump sqlparse from 0.5.5 to 0.6.0
+  ([`0af4088`](https://github.com/PascalRepond/datakult/commit/0af4088b332176384a0df8af2c7281a080e72a1e))
+
+- Bump the github-actions group across 1 directory with 3 updates
+  ([`0f57fc9`](https://github.com/PascalRepond/datakult/commit/0f57fc9c4af045ee33eec15a9842e9082e6684d6))
+
+- Bump the github-actions group with 2 updates
+  ([`3129633`](https://github.com/PascalRepond/datakult/commit/31296337b2b99a2d5fc52f63acf241ec7e70dc84))
+
+- Enhance Claude guidelines
+  ([`4e57764`](https://github.com/PascalRepond/datakult/commit/4e57764de9635218c155994124a724cae0ea67d0))
+
+- Update dependencies
+  ([`0646fec`](https://github.com/PascalRepond/datakult/commit/0646fec1e2bbf160c34017db054b9048c0b1bf9e))
+
+### Documentation
+
+- **readme**: Fix wrong node version
+  ([`ab67d35`](https://github.com/PascalRepond/datakult/commit/ab67d35fc3636a9d9663a182e740ff7dcc989477))
+
+### Features
+
+- **stats**: Add a statistics dashboard
+  ([`fc6b54f`](https://github.com/PascalRepond/datakult/commit/fc6b54fbef04266e718c93aa6ef8cc25ec2b9973))
+
+### Refactoring
+
+- Clean up readability
+  ([`0e8badb`](https://github.com/PascalRepond/datakult/commit/0e8badbae717d9da3d3753eb8f204bf2ae87c7ec))
+
+
 ## v1.7.1 (2026-06-03)
 
 ### Chores
