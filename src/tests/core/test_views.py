@@ -509,8 +509,10 @@ def test_backup_manage_displays_page(logged_in_client):
     assert "base/backup_manage.html" in [t.name for t in response.templates]
 
 
-def test_backup_export_creates_and_downloads_backup(logged_in_client, db):
+def test_backup_export_creates_and_downloads_backup(logged_in_client, db, monkeypatch, tmp_path):
     """The backup export view creates and returns a backup file."""
+    # Write the backup to a temporary directory instead of the project's backups folder
+    monkeypatch.setattr("core.views.create_backup", lambda: create_backup(output_dir=tmp_path))
     # Create some test data
     Media.objects.create(title="Test Media", media_type="BOOK")
 
@@ -518,6 +520,7 @@ def test_backup_export_creates_and_downloads_backup(logged_in_client, db):
 
     # Should return a file download
     assert response.status_code == 200
+    assert len(list(tmp_path.glob("datakult_backup_*.tar.gz"))) == 1
     # Django's FileResponse detects .tar.gz as gzip
     assert response["Content-Type"] == "application/gzip"
     assert "attachment" in response["Content-Disposition"]

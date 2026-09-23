@@ -88,11 +88,14 @@
   * - Scan all templates (HTML) broadly
   * - Limit JS scanning to static/js/ directory (avoids static/css/dist/ rebuild loops)
   * - Scan Python files in Django apps (for dynamic HTML in views/forms/htmx)
+  * - List apps explicitly: a glob at the src/ root makes the watcher observe all of src/
+  *   (media/, backups/, node_modules/), which exhausts its memory
   */
 @source "../../../templates/**/*.html";
-@source "../../../*/templates/**/*.html";
+@source "../../../core/templates/**/*.html";
 @source "../../../static/js/**/*.js";
-@source "../../../*/**/*.py";
+@source "../../../core/**/*.py";
+@source "../../../accounts/**/*.py";
 
 /* Star rating widget custom styles */
 .star-rating-widget .star-btn {
