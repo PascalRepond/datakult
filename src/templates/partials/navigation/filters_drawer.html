@@ -18,8 +18,7 @@
         <h2 class="text-lg font-semibold">{% translate "Filters" %}</h2>
         <label for="filters-drawer" class="btn btn-sm btn-circle btn-ghost">{% lucide "x" %}</label>
       </div>
-      {# Hidden fields to preserve view_mode, sort, contributor, tag and search #}
-      <input type="hidden" name="view_mode" value="{{ view_mode }}" />
+      {# Hidden fields to preserve sort, contributor, tag and search #}
       <input type="hidden" name="sort" value="{{ sort }}" />
       <input type="hidden"
              name="contributor"
@@ -203,7 +202,7 @@
           {% translate "Apply" %}
         </button>
         {# Clear all filters button #}
-        <a href="{% url 'home' %}?view_mode={{ view_mode }}&sort={{ sort }}"
+        <a href="{% url 'home' %}?sort={{ sort }}"
            class="btn btn-sm btn-outline">
           {% lucide "funnel-x" %}
           {% translate "Clear filters" %}

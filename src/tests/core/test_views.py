@@ -750,19 +750,6 @@ def test_load_more_page_obj_pagination_state(logged_in_client, media_factory):
     assert response_page3.context["page_obj"].number == 3
 
 
-def test_load_more_includes_view_mode_in_context(logged_in_client, media_factory):
-    """Load more view includes view_mode in context for template rendering."""
-    media_factory(title="Test")
-
-    response_default = logged_in_client.get(reverse("load_more_media"), {"page": 1})
-    response_list = logged_in_client.get(reverse("load_more_media"), {"page": 1, "view_mode": "list"})
-    response_grid = logged_in_client.get(reverse("load_more_media"), {"page": 1, "view_mode": "grid"})
-
-    assert response_default.context["view_mode"] == "grid"
-    assert response_list.context["view_mode"] == "list"
-    assert response_grid.context["view_mode"] == "grid"
-
-
 def test_media_detail_accessible_when_logged_in(logged_in_client, media):
     """The detail view is accessible when logged in."""
     response = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk}))
@@ -836,7 +823,6 @@ def test_saved_view_save_creates_new_view(logged_in_client, user, db):
         "status": ["COMPLETED"],
         "score": ["8", "9"],
         "sort": "-score",
-        "view_mode": "list",
     }
     response = logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -851,7 +837,6 @@ def test_saved_view_save_creates_new_view(logged_in_client, user, db):
     assert saved_view.filter_statuses == ["COMPLETED"]
     assert saved_view.filter_scores == ["8", "9"]
     assert saved_view.sort == "-score"
-    assert saved_view.view_mode == "list"
 
 
 def test_saved_view_save_updates_existing_view(logged_in_client, user, db):
@@ -869,7 +854,6 @@ def test_saved_view_save_updates_existing_view(logged_in_client, user, db):
         "view_name": "My View",
         "type": ["FILM"],
         "sort": "-score",
-        "view_mode": "grid",
     }
     response = logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -882,7 +866,6 @@ def test_saved_view_save_updates_existing_view(logged_in_client, user, db):
     saved_view = SavedView.objects.get(user=user, name="My View")
     assert saved_view.filter_types == ["FILM"]
     assert saved_view.sort == "-score"
-    assert saved_view.view_mode == "grid"
 
 
 def test_saved_view_save_requires_view_name(logged_in_client, user, db):
@@ -924,7 +907,6 @@ def test_saved_view_save_stores_all_filter_types(logged_in_client, user, db):
         "has_review": "filled",
         "has_cover": "empty",
         "sort": "score",
-        "view_mode": "list",
     }
     response = logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -940,7 +922,6 @@ def test_saved_view_save_stores_all_filter_types(logged_in_client, user, db):
     assert saved_view.filter_has_review == "filled"
     assert saved_view.filter_has_cover == "empty"
     assert saved_view.sort == "score"
-    assert saved_view.view_mode == "list"
 
 
 def test_saved_view_save_redirects_with_filters(logged_in_client, user, db):
@@ -950,7 +931,6 @@ def test_saved_view_save_redirects_with_filters(logged_in_client, user, db):
         "type": ["BOOK"],
         "status": ["COMPLETED"],
         "sort": "-score",
-        "view_mode": "grid",
     }
     response = logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -959,7 +939,6 @@ def test_saved_view_save_redirects_with_filters(logged_in_client, user, db):
     assert "type=BOOK" in response.url
     assert "status=COMPLETED" in response.url
     assert "sort=-score" in response.url
-    assert "view_mode=grid" in response.url
 
 
 def test_saved_view_delete_removes_view(logged_in_client, user, db):
@@ -1014,7 +993,6 @@ def test_saved_view_rejects_invalid_media_type(logged_in_client, user, db):
         "view_name": "Invalid Type View",
         "type": ["INVALID_TYPE"],
         "sort": "-review_date",
-        "view_mode": "grid",
     }
     response = logged_in_client.post(reverse("saved_view_save"), data, follow=True)
 
@@ -1030,7 +1008,6 @@ def test_saved_view_rejects_invalid_status(logged_in_client, user, db):
         "view_name": "Invalid Status View",
         "status": ["INVALID_STATUS"],
         "sort": "-review_date",
-        "view_mode": "grid",
     }
     logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -1044,7 +1021,6 @@ def test_saved_view_rejects_invalid_score(logged_in_client, user, db):
         "view_name": "Invalid Score View",
         "score": ["invalid"],
         "sort": "-review_date",
-        "view_mode": "grid",
     }
     logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -1057,25 +1033,11 @@ def test_saved_view_rejects_invalid_sort_field(logged_in_client, user, db):
     data = {
         "view_name": "Invalid Sort View",
         "sort": "invalid_field",
-        "view_mode": "grid",
     }
     logged_in_client.post(reverse("saved_view_save"), data)
 
     # View should not be created
     assert not SavedView.objects.filter(user=user, name="Invalid Sort View").exists()
-
-
-def test_saved_view_rejects_invalid_view_mode(logged_in_client, user, db):
-    """Saved view validation rejects invalid view modes."""
-    data = {
-        "view_name": "Invalid View Mode",
-        "sort": "-review_date",
-        "view_mode": "invalid_mode",
-    }
-    logged_in_client.post(reverse("saved_view_save"), data)
-
-    # View should not be created
-    assert not SavedView.objects.filter(user=user, name="Invalid View Mode").exists()
 
 
 def test_saved_view_rejects_nonexistent_contributor(logged_in_client, user, db):
@@ -1084,7 +1046,6 @@ def test_saved_view_rejects_nonexistent_contributor(logged_in_client, user, db):
         "view_name": "Invalid Contributor View",
         "contributor": "99999",
         "sort": "-review_date",
-        "view_mode": "grid",
     }
     logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -1098,7 +1059,6 @@ def test_saved_view_rejects_invalid_contributor_format(logged_in_client, user, d
         "view_name": "Invalid Contributor Format",
         "contributor": "not-a-number",
         "sort": "-review_date",
-        "view_mode": "grid",
     }
     logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -1112,7 +1072,6 @@ def test_saved_view_rejects_invalid_date_format(logged_in_client, user, db):
         "view_name": "Invalid Date View",
         "review_from": "not-a-date",
         "sort": "-review_date",
-        "view_mode": "grid",
     }
     logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -1126,7 +1085,6 @@ def test_saved_view_rejects_invalid_has_review_value(logged_in_client, user, db)
         "view_name": "Invalid Has Review",
         "has_review": "invalid",
         "sort": "-review_date",
-        "view_mode": "grid",
     }
     logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -1140,7 +1098,6 @@ def test_saved_view_rejects_invalid_has_cover_value(logged_in_client, user, db):
         "view_name": "Invalid Has Cover",
         "has_cover": "invalid",
         "sort": "-review_date",
-        "view_mode": "grid",
     }
     logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -1163,7 +1120,6 @@ def test_saved_view_accepts_valid_data(logged_in_client, user, db):
         "has_review": "filled",
         "has_cover": "empty",
         "sort": "-score",
-        "view_mode": "list",
     }
     response = logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -1182,7 +1138,6 @@ def test_saved_view_accepts_valid_data(logged_in_client, user, db):
     assert saved_view.filter_has_review == "filled"
     assert saved_view.filter_has_cover == "empty"
     assert saved_view.sort == "-score"
-    assert saved_view.view_mode == "list"
 
 
 # Statistics view
@@ -1517,3 +1472,11 @@ def test_sidebar_marks_the_current_saved_view(logged_in_client, user):
 
     assert re.search(rf'<a href="{re.escape(escape(view.get_filter_url()))}"\s+class="[^"]*menu-active', content)
     assert content.count("menu-active") == 1
+
+
+def test_index_always_shows_the_grid(logged_in_client, media):
+    """The list view is gone: an old URL asking for it shows the grid."""
+    content = logged_in_client.get(reverse("home"), {"view_mode": "list"}).content.decode()
+
+    assert 'id="media-container"' in content
+    assert "<table" not in content

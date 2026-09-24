@@ -21,7 +21,6 @@
       {# Search bar - takes remaining space #}
       <form method="get" action="{% url 'home' %}" class="flex-1 order-1">
         {# Hidden fields to preserve current state #}
-        <input type="hidden" name="view_mode" value="{{ view_mode }}" />
         <input type="hidden" name="sort" value="{{ sort }}" />
         <input type="hidden"
                name="contributor"
@@ -53,8 +52,6 @@
       </form>
       {# Right controls group #}
       <div class="flex gap-2 order-2 flex-wrap sm:flex-nowrap">
-        {# View mode toggle #}
-        {% include "partials/navigation/view_mode_toggle.html" %}
         {# Sort selector #}
         <div class="flex join items-center">
           <a href="?{% query_string request sort=sort|toggle_sort_direction %}"

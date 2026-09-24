@@ -51,7 +51,8 @@ class Command(BaseCommand):
             raise CommandError(msg)
 
         self.stdout.write("Importing database…")
-        call_command("loaddata", str(database_file), verbosity=1)
+        # Ignore the fields that older backups still hold but that have since been removed from the models
+        call_command("loaddata", str(database_file), verbosity=1, ignorenonexistent=True)
 
     def _import_media(self, temp_path: Path) -> None:
         """Import media files from the backup."""

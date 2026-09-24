@@ -624,8 +624,7 @@
             "filter_review_to": "",
             "filter_has_review": "",
             "filter_has_cover": "",
-            "sort": "title",
-            "view_mode": "list"
+            "sort": "title"
         }
     },
     {
@@ -644,8 +643,7 @@
             "filter_review_to": "",
             "filter_has_review": "yes",
             "filter_has_cover": "",
-            "sort": "-score",
-            "view_mode": "grid"
+            "sort": "-score"
         }
     }
 ]

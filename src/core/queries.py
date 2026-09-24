@@ -32,7 +32,6 @@ def build_media_context(request):
     Returns a context_dict ready for rendering.
     This consolidates the common logic used by index and load_more_media views.
     """
-    view_mode = request.GET.get("view_mode", "grid")
     sort_field, sort = resolve_sorting(request)
     filters = extract_filters(request)
     search_query = request.GET.get("search", "").strip()
@@ -56,7 +55,6 @@ def build_media_context(request):
     return {
         "media_list": page_obj.object_list,
         "page_obj": page_obj,
-        "view_mode": view_mode,
         "sort_field": sort_field,
         "sort": sort,
         "contributor": contributor,

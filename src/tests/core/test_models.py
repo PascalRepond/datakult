@@ -273,7 +273,6 @@ def test_saved_view_default_values(user, db):
     assert saved_view.filter_has_review == ""
     assert saved_view.filter_has_cover == ""
     assert saved_view.sort == "-review_date"
-    assert saved_view.view_mode == "grid"
 
 
 def test_saved_view_stores_filter_parameters(user, db):
@@ -290,7 +289,6 @@ def test_saved_view_stores_filter_parameters(user, db):
         filter_has_review="yes",
         filter_has_cover="no",
         sort="-score",
-        view_mode="list",
     )
 
     saved_view.refresh_from_db()
@@ -304,7 +302,6 @@ def test_saved_view_stores_filter_parameters(user, db):
     assert saved_view.filter_has_review == "yes"
     assert saved_view.filter_has_cover == "no"
     assert saved_view.sort == "-score"
-    assert saved_view.view_mode == "list"
 
 
 def test_saved_view_updated_at_auto_updates(user, db):
@@ -325,12 +322,12 @@ def test_saved_view_updated_at_auto_updates(user, db):
 
 
 def test_get_filter_url_with_defaults(user, db):
-    """get_filter_url returns URL with default sort and view_mode."""
+    """get_filter_url returns URL with the default sort."""
     saved_view = SavedView.objects.create(user=user, name="Default View")
 
     url = saved_view.get_filter_url()
 
-    assert url == "/?sort=-review_date&view_mode=grid"
+    assert url == "/?sort=-review_date"
 
 
 def test_get_filter_url_with_list_filters(user, db):

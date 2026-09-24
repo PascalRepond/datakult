@@ -138,7 +138,7 @@ def query_string(request, **kwargs):
         Query string with all parameters (including multi-value params)
 
     Example usage:
-        <a href="?{% query_string request view_mode='grid' %}">Grid</a>
+        <a href="?{% query_string request sort='-score' %}">Best first</a>
         <a href="?{% query_string request sort=None %}">Clear sort</a>
     """
     if not hasattr(request, "GET"):

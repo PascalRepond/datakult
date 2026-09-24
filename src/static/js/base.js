@@ -32,7 +32,6 @@ function initThemeSwitcher() {
 // CLEAN URL - Remove default/empty parameters from URL
 // Default values that should not appear in URL
 const DEFAULT_PARAMS = {
-    'view_mode': 'grid',
     'sort': '-review_date',
 };
 

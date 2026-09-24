@@ -797,12 +797,6 @@ def validate_saved_view_data(post_data):  # noqa: C901, PLR0912
     if sort not in valid_sorts:
         errors.append(_("Invalid sort field: %(sort)s") % {"sort": sort})
 
-    # Validate view_mode against expected values
-    view_mode = post_data.get("view_mode", "grid")
-    valid_view_modes = {"grid", "list"}
-    if view_mode not in valid_view_modes:
-        errors.append(_("Invalid view mode: %(mode)s") % {"mode": view_mode})
-
     # Validate contributor and tag (if present)
     related_filters = [
         ("contributor", Agent, _("Contributor does not exist: ID %(id)s"), _("Invalid contributor ID format: %(id)s")),
@@ -865,7 +859,6 @@ def saved_view_save(request):
         "filter_has_review": request.POST.get("has_review", ""),
         "filter_has_cover": request.POST.get("has_cover", ""),
         "sort": request.POST.get("sort", "-review_date"),
-        "view_mode": request.POST.get("view_mode", "grid"),
     }
 
     if existing_view := SavedView.objects.filter(user=request.user, name=view_name).first():

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 21:45+0200\n"
+"POT-Creation-Date: 2026-09-24 21:53+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,7 +33,7 @@ msgid "Language preference updated."
 msgstr "Préférence de langue mise à jour."
 
 #: src/core/filters.py:64
-#: src/templates/partials/navigation/filters_drawer.html:140
+#: src/templates/partials/navigation/filters_drawer.html:139
 msgid "Not rated"
 msgstr "Non noté"
 
@@ -86,7 +86,6 @@ msgid "Tags"
 msgstr "Mots-clés"
 
 #: src/core/models.py:143 src/templates/base/media_edit.html:98
-#: src/templates/partials/media_items/media_list.html:15
 msgid "Title"
 msgstr "Titre"
 
@@ -95,7 +94,7 @@ msgid "Contributor"
 msgstr "Contributeur"
 
 #: src/core/models.py:161 src/templates/base/media_edit.html:171
-#: src/templates/partials/navigation/filters_drawer.html:36
+#: src/templates/partials/navigation/filters_drawer.html:35
 msgid "Media type"
 msgstr "Type de média"
 
@@ -144,8 +143,7 @@ msgstr ""
 "IMDb, Goodreads, etc.)"
 
 #: src/core/models.py:184 src/templates/base/media_edit.html:220
-#: src/templates/partials/media_items/media_list.html:17
-#: src/templates/partials/navigation/filters_drawer.html:70
+#: src/templates/partials/navigation/filters_drawer.html:69
 msgid "Status"
 msgstr "Statut"
 
@@ -178,8 +176,7 @@ msgid "Year must be between -4000 and 2200."
 msgstr "L'année doit être comprise entre -4000 et 2200."
 
 #: src/core/models.py:206 src/templates/base/media_edit.html:253
-#: src/templates/partials/media_items/media_list.html:16
-#: src/templates/partials/navigation/filters_drawer.html:168
+#: src/templates/partials/navigation/filters_drawer.html:167
 msgid "Review"
 msgstr "Critique"
 
@@ -228,9 +225,8 @@ msgid "Adored"
 msgstr "Coup de cœur"
 
 #: src/core/models.py:234 src/templates/base/media_edit.html:229
-#: src/templates/base/media_index.html:76
-#: src/templates/partials/media_items/media_list.html:18
-#: src/templates/partials/navigation/filters_drawer.html:148
+#: src/templates/base/media_index.html:73
+#: src/templates/partials/navigation/filters_drawer.html:147
 msgid "Review date"
 msgstr "Date de critique"
 
@@ -244,11 +240,11 @@ msgstr ""
 msgid "Cover image"
 msgstr "Image de couverture"
 
-#: src/core/models.py:295
+#: src/core/models.py:294
 msgid "Saved view"
 msgstr "Vue enregistrée"
 
-#: src/core/models.py:296
+#: src/core/models.py:295
 #: src/templates/partials/saved_views/saved_views_list.html:6
 msgid "Saved views"
 msgstr "Vues enregistrées"
@@ -333,77 +329,72 @@ msgstr "Scores invalides : %(scores)s"
 msgid "Invalid sort field: %(sort)s"
 msgstr "Champ de tri invalide : %(sort)s"
 
-#: src/core/views.py:804
-#, python-format
-msgid "Invalid view mode: %(mode)s"
-msgstr "Mode de vue invalide : %(mode)s"
-
-#: src/core/views.py:808
+#: src/core/views.py:802
 #, python-format
 msgid "Contributor does not exist: ID %(id)s"
 msgstr "Le contributeur n'existe pas : ID %(id)s"
 
-#: src/core/views.py:808
+#: src/core/views.py:802
 #, python-format
 msgid "Invalid contributor ID format: %(id)s"
 msgstr "Format d'ID de contributeur invalide : %(id)s"
 
-#: src/core/views.py:809
+#: src/core/views.py:803
 #, python-format
 msgid "Tag does not exist: ID %(id)s"
 msgstr "Le tag n'existe pas : ID %(id)s"
 
-#: src/core/views.py:809
+#: src/core/views.py:803
 #, python-format
 msgid "Invalid tag ID format: %(id)s"
 msgstr "Format d'ID de tag invalide : %(id)s"
 
-#: src/core/views.py:821
+#: src/core/views.py:815
 msgid "Start date"
 msgstr "Date de début"
 
-#: src/core/views.py:821
+#: src/core/views.py:815
 msgid "End date"
 msgstr "Date de fin"
 
-#: src/core/views.py:827
+#: src/core/views.py:821
 #, python-format
 msgid "Invalid %(label)s: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:830
+#: src/core/views.py:824
 msgid "Review filter"
 msgstr "Filtre de critique"
 
-#: src/core/views.py:830
+#: src/core/views.py:824
 msgid "Cover filter"
 msgstr "Filtre de couverture"
 
-#: src/core/views.py:833
+#: src/core/views.py:827
 #, python-format
 msgid "Invalid %(label)s value: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:847
+#: src/core/views.py:841
 msgid "View name is required"
 msgstr "Nom de la vue requis"
 
-#: src/core/views.py:879
+#: src/core/views.py:872
 #, python-format
 msgid "View '%(name)s' has been updated"
 msgstr "Vue '%(name)s' a été mise à jour"
 
-#: src/core/views.py:884
+#: src/core/views.py:877
 #, python-format
 msgid "View '%(name)s' saved successfully"
 msgstr "Vue '%(name)s' a été enregistrée avec succès"
 
-#: src/core/views.py:900
+#: src/core/views.py:893
 #, python-format
 msgid "View '%(name)s' deleted successfully"
 msgstr "Vue '%(name)s' supprimée avec succès"
 
-#: src/core/views.py:902
+#: src/core/views.py:895
 msgid "View not found"
 msgstr "Vue non trouvée"
 
@@ -578,7 +569,7 @@ msgstr "Modifier"
 
 #: src/templates/base/media_detail.html:24
 #: src/templates/partials/media_items/media_cover.html:6
-#: src/templates/partials/media_items/media_item.html:13
+#: src/templates/partials/media_items/media_item.html:11
 msgid "Cover of"
 msgstr "Couverture de"
 
@@ -626,8 +617,8 @@ msgid "Search or add…"
 msgstr "Rechercher ou ajouter…"
 
 #: src/templates/base/media_edit.html:210
-#: src/templates/base/media_index.html:74
-#: src/templates/partials/navigation/filters_drawer.html:104
+#: src/templates/base/media_index.html:71
+#: src/templates/partials/navigation/filters_drawer.html:103
 msgid "Score"
 msgstr "Note"
 
@@ -703,59 +694,59 @@ msgid_plural "%(counter)s items"
 msgstr[0] "%(counter)s élément"
 msgstr[1] "%(counter)s éléments"
 
-#: src/templates/base/media_index.html:40
-#: src/templates/base/media_index.html:51
+#: src/templates/base/media_index.html:39
+#: src/templates/base/media_index.html:50
 msgid "Search"
 msgstr "Recherche"
 
-#: src/templates/base/media_index.html:47
+#: src/templates/base/media_index.html:46
 msgid "Clear search"
 msgstr "Vider la recherche"
 
-#: src/templates/base/media_index.html:62
-#: src/templates/base/media_index.html:63
+#: src/templates/base/media_index.html:59
+#: src/templates/base/media_index.html:60
 msgid "Reverse sort order"
 msgstr "Inverser l'ordre de tri"
 
-#: src/templates/base/media_index.html:72
+#: src/templates/base/media_index.html:69
 msgid "Sort by"
 msgstr "Trier par"
 
-#: src/templates/base/media_index.html:78
+#: src/templates/base/media_index.html:75
 msgid "Creation date"
 msgstr "Date de création"
 
-#: src/templates/base/media_index.html:80
+#: src/templates/base/media_index.html:77
 msgid "Update date"
 msgstr "Date de modification"
 
-#: src/templates/base/media_index.html:86
-#: src/templates/base/media_index.html:88
+#: src/templates/base/media_index.html:83
+#: src/templates/base/media_index.html:85
 #: src/templates/partials/navigation/filters_drawer.html:18
 msgid "Filters"
 msgstr "Filtres"
 
-#: src/templates/base/media_index.html:116
-#: src/templates/partials/navigation/filters_drawer.html:177
+#: src/templates/base/media_index.html:113
+#: src/templates/partials/navigation/filters_drawer.html:176
 msgid "No review"
 msgstr "Pas de critique"
 
-#: src/templates/base/media_index.html:118
-#: src/templates/partials/navigation/filters_drawer.html:175
+#: src/templates/base/media_index.html:115
+#: src/templates/partials/navigation/filters_drawer.html:174
 msgid "Has review"
 msgstr "Avec critique"
 
-#: src/templates/base/media_index.html:124
-#: src/templates/partials/navigation/filters_drawer.html:192
+#: src/templates/base/media_index.html:121
+#: src/templates/partials/navigation/filters_drawer.html:191
 msgid "No cover"
 msgstr "Pas de couverture"
 
-#: src/templates/base/media_index.html:126
-#: src/templates/partials/navigation/filters_drawer.html:190
+#: src/templates/base/media_index.html:123
+#: src/templates/partials/navigation/filters_drawer.html:189
 msgid "Has cover"
 msgstr "Avec couverture"
 
-#: src/templates/base/media_index.html:142
+#: src/templates/base/media_index.html:139
 msgid "Save view"
 msgstr "Enregistrer la vue"
 
@@ -829,8 +820,7 @@ msgstr "Confirmer"
 msgid "Close"
 msgstr "Fermer"
 
-#: src/templates/partials/common/load_more_trigger.html:11
-#: src/templates/partials/common/load_more_trigger.html:19
+#: src/templates/partials/common/load_more_trigger.html:10
 #: src/templates/partials/common/spinner.html:16
 msgid "Loading…"
 msgstr "Chargement…"
@@ -840,16 +830,7 @@ msgstr "Chargement…"
 msgid "No result, press Enter to add"
 msgstr "Aucun résultat, appuyez sur Entrée pour ajouter"
 
-#: src/templates/partials/media_items/media_list.html:14
-#: src/templates/partials/navigation/filters_drawer.html:183
-msgid "Cover"
-msgstr "Couverture"
-
-#: src/templates/partials/media_items/media_list.html:19
-msgid "Actions"
-msgstr "Actions"
-
-#: src/templates/partials/media_items/media_list.html:31
+#: src/templates/partials/media_items/media_list.html:9
 msgid "No media found."
 msgstr "Aucun média trouvé."
 
@@ -875,49 +856,53 @@ msgstr "sur 10"
 msgid "Album"
 msgstr "Album"
 
-#: src/templates/partials/navigation/filters_drawer.html:43
-#: src/templates/partials/navigation/filters_drawer.html:48
+#: src/templates/partials/navigation/filters_drawer.html:42
+#: src/templates/partials/navigation/filters_drawer.html:47
 msgid "All types"
 msgstr "Tous les types"
 
-#: src/templates/partials/navigation/filters_drawer.html:44
-#: src/templates/partials/navigation/filters_drawer.html:46
-#: src/templates/partials/navigation/filters_drawer.html:78
-#: src/templates/partials/navigation/filters_drawer.html:80
-#: src/templates/partials/navigation/filters_drawer.html:112
-#: src/templates/partials/navigation/filters_drawer.html:114
+#: src/templates/partials/navigation/filters_drawer.html:43
+#: src/templates/partials/navigation/filters_drawer.html:45
+#: src/templates/partials/navigation/filters_drawer.html:77
+#: src/templates/partials/navigation/filters_drawer.html:79
+#: src/templates/partials/navigation/filters_drawer.html:111
+#: src/templates/partials/navigation/filters_drawer.html:113
 msgid "selected"
 msgstr "sélectionné"
 
-#: src/templates/partials/navigation/filters_drawer.html:77
-#: src/templates/partials/navigation/filters_drawer.html:82
+#: src/templates/partials/navigation/filters_drawer.html:76
+#: src/templates/partials/navigation/filters_drawer.html:81
 msgid "All statuses"
 msgstr "Tous les statuts"
 
-#: src/templates/partials/navigation/filters_drawer.html:111
-#: src/templates/partials/navigation/filters_drawer.html:116
+#: src/templates/partials/navigation/filters_drawer.html:110
+#: src/templates/partials/navigation/filters_drawer.html:115
 msgid "All scores"
 msgstr "Toutes les notes"
 
-#: src/templates/partials/navigation/filters_drawer.html:155
+#: src/templates/partials/navigation/filters_drawer.html:154
 msgid "From"
 msgstr "De"
 
-#: src/templates/partials/navigation/filters_drawer.html:161
+#: src/templates/partials/navigation/filters_drawer.html:160
 msgid "To"
 msgstr "À"
 
-#: src/templates/partials/navigation/filters_drawer.html:173
-#: src/templates/partials/navigation/filters_drawer.html:188
+#: src/templates/partials/navigation/filters_drawer.html:172
+#: src/templates/partials/navigation/filters_drawer.html:187
 #: src/templates/partials/navigation/sidebar_nav.html:28
 msgid "All"
 msgstr "Tout"
 
-#: src/templates/partials/navigation/filters_drawer.html:203
+#: src/templates/partials/navigation/filters_drawer.html:182
+msgid "Cover"
+msgstr "Couverture"
+
+#: src/templates/partials/navigation/filters_drawer.html:202
 msgid "Apply"
 msgstr "Appliquer"
 
-#: src/templates/partials/navigation/filters_drawer.html:209
+#: src/templates/partials/navigation/filters_drawer.html:208
 msgid "Clear filters"
 msgstr "Vider les filtres"
 
@@ -967,14 +952,6 @@ msgstr "Déconnexion"
 msgid "Log in"
 msgstr "Se connecter"
 
-#: src/templates/partials/navigation/view_mode_toggle.html:7
-msgid "Grid"
-msgstr "Grille"
-
-#: src/templates/partials/navigation/view_mode_toggle.html:10
-msgid "List"
-msgstr "Liste"
-
 #: src/templates/partials/saved_views/save_view_modal.html:8
 msgid "Save current view"
 msgstr "Enregistrer la vue actuelle"
@@ -1016,6 +993,19 @@ msgstr "Série"
 #: src/templates/registration/login.html:37
 msgid "Password"
 msgstr "Mot de passe"
+
+#, python-format
+#~ msgid "Invalid view mode: %(mode)s"
+#~ msgstr "Mode de vue invalide : %(mode)s"
+
+#~ msgid "Actions"
+#~ msgstr "Actions"
+
+#~ msgid "Grid"
+#~ msgstr "Grille"
+
+#~ msgid "List"
+#~ msgstr "Liste"
 
 #~ msgid "Can't find what you're looking for?"
 #~ msgstr "Vous ne trouvez pas ce que vous recherchez ?"

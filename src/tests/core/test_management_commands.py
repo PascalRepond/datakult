@@ -6,7 +6,7 @@ These tests verify the backup-related management commands.
 
 import json
 import tarfile
-from io import StringIO
+from io import BytesIO, StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -14,7 +14,7 @@ import pytest
 from django.core.management import call_command
 from django.core.management.base import CommandError
 
-from core.models import Media
+from core.models import Media, SavedView
 
 
 def test_export_creates_backup(db):
@@ -193,3 +193,30 @@ def test_import_with_no_media_flag(db):
         # Check output mentions skipping media
         output = out.getvalue()
         assert "Skipping media files import" in output
+
+
+def test_import_restores_backup_with_removed_fields(db, django_user_model):
+    """A backup made before a field was removed from a model still restores."""
+    user = django_user_model.objects.create_user(username="owner")
+    SavedView.objects.create(user=user, name="Old view")
+
+    with TemporaryDirectory() as tmpdir:
+        backup_path = Path(call_command("export_backup", f"--output={tmpdir}", stdout=StringIO()))
+        # Simulate an older backup, whose saved views still had a view_mode field
+        with tarfile.open(backup_path, "r:gz") as tar:
+            members = {member.name: tar.extractfile(member).read() for member in tar.getmembers() if member.isfile()}
+        database = json.loads(members["database.json"])
+        for obj in database:
+            if obj["model"] == "core.savedview":
+                obj["fields"]["view_mode"] = "list"
+        members["database.json"] = json.dumps(database).encode()
+        old_backup = Path(tmpdir) / "old_backup.tar.gz"
+        with tarfile.open(old_backup, "w:gz") as tar:
+            for name, content in members.items():
+                info = tarfile.TarInfo(name=name)
+                info.size = len(content)
+                tar.addfile(info, BytesIO(content))
+
+        call_command("import_backup", str(old_backup), "--flush", "--no-media", stdout=StringIO())
+
+    assert SavedView.objects.filter(name="Old view").exists()

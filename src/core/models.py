@@ -287,7 +287,6 @@ class SavedView(models.Model):
 
     # View preferences
     sort = models.CharField(max_length=50, default="-review_date")
-    view_mode = models.CharField(max_length=20, default="grid")
 
     class Meta:
         unique_together = [["user", "name"]]
@@ -315,5 +314,5 @@ class SavedView(models.Model):
             ("has_cover", self.filter_has_cover),
         ]
         params.extend((key, value) for key, value in optional_filters if value)
-        params.extend([("sort", self.sort), ("view_mode", self.view_mode)])
+        params.append(("sort", self.sort))
         return f"/?{urlencode(params)}"

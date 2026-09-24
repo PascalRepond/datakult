@@ -1,30 +1,8 @@
 {% load i18n %}
 <div id="media-list">
   {% if page_obj %}
-    {% if view_mode == 'grid' %}
-      {# Grid view - Cards layout #}
-      <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mt-4"
-           id="media-container">{% include "partials/media_items/media_list_page.html" %}</div>
-    {% else %}
-      {# List view - Table layout #}
-      <div class="overflow-x-auto mt-4">
-        <table class="table table-zebra" id="media-container">
-          <thead>
-            <tr>
-              <th class="w-32">{% translate "Cover" %}</th>
-              <th class="w-64 lg:w-80">{% translate "Title" %}</th>
-              <th class="hidden md:table-cell">{% translate "Review" %}</th>
-              <th class="hidden sm:table-cell w-32">{% translate "Status" %}</th>
-              <th class="hidden lg:table-cell w-32">{% translate "Review date" %}</th>
-              <th class="w-32">{% translate "Actions" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% include "partials/media_items/media_list_page.html" %}
-          </tbody>
-        </table>
-      </div>
-    {% endif %}
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mt-4"
+         id="media-container">{% include "partials/media_items/media_list_page.html" %}</div>
   {% else %}
     <div role="alert" class="alert mt-3">
       {% lucide "info" class="text-info" %}
