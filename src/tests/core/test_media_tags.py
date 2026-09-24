@@ -4,12 +4,15 @@ Tests for core.templatetags.media_tags module.
 These tests verify the custom template tags and filters used by the media templates.
 """
 
+import re
+
 import pytest
 from django.template.loader import render_to_string
 from django.utils import translation
 from partial_date import PartialDate
 
-from core.templatetags.media_tags import has_filters, is_current_url, partial_date, score_color
+from core.models import Agent
+from core.templatetags.media_tags import has_filters, is_current_url, partial_date, score_color, status_icon
 
 
 @pytest.mark.parametrize(
@@ -121,3 +124,28 @@ def test_filter_badge_shows_its_dimension_icon():
 def test_is_current_url(rf, current, url, expected):
     """A URL is current when it has the same path and non-empty parameters, in any order, whatever the page."""
     assert is_current_url(rf.get(current), url) is expected
+
+
+@pytest.mark.parametrize(
+    ("status", "expected"),
+    [
+        ("PLANNED", "clock"),
+        ("IN_PROGRESS", "play"),
+        ("PAUSED", "pause"),
+        ("COMPLETED", "circle-check"),
+        ("DNF", "circle-x"),
+    ],
+)
+def test_status_icon_matches_the_sidebar(status, expected):
+    """Each status is shown with the icon of its entry in the sidebar."""
+    assert status_icon(status) == expected
+
+
+def test_contributors_are_separated_by_commas(rf, media_factory, agent):
+    """Contributors are listed with commas, with no space before them."""
+    media = media_factory()
+    media.contributors.add(agent, Agent.objects.create(name="Second Author"))
+
+    html = render_to_string("partials/media_items/media_contributors.html", {"media": media, "request": rf.get("/")})
+
+    assert re.search(r"</a>,\s+<a", html)

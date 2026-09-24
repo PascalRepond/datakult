@@ -25,12 +25,12 @@ SIZE_CLASSES = {
     "lg": "h-8",
 }
 
-STATUS_CLASSES = {
-    "PLANNED": "badge-accent",
-    "IN_PROGRESS": "badge-info",
-    "COMPLETED": "badge-success",
-    "PAUSED": "badge-warning",
-    "DNF": "badge-error",
+STATUS_ICONS = {
+    "PLANNED": "clock",
+    "IN_PROGRESS": "play",
+    "PAUSED": "pause",
+    "COMPLETED": "circle-check",
+    "DNF": "circle-x",
 }
 
 # Upper score bound of each verdict colour: disliked, mixed, enjoyed, loved
@@ -81,21 +81,14 @@ def media_icon(media_type, size="sm"):
 
 
 @register.filter
-def status_badge_class(status):
+def status_icon(status):
     """
-    Return the appropriate DaisyUI badge class for a given status.
-
-    Args:
-        status: The media status (PLANNED, IN_PROGRESS, etc.)
-
-    Returns:
-        String with DaisyUI badge class name
+    Return the lucide icon of a status, the same as its entry in the sidebar.
 
     Example usage:
-        <span class="badge {{ media.status|status_badge_class }}">
+        {% lucide media.status|status_icon %}
     """
-
-    return STATUS_CLASSES.get(status, "badge-ghost")
+    return STATUS_ICONS.get(status, "circle-question-mark")
 
 
 @register.filter

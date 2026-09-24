@@ -1,0 +1,18 @@
+{% load i18n %}
+{# Cover of a media, filling its positioned container: a blurred copy of the cover fills the space #}
+{# left around covers of another shape. Parameters: media, placeholder_class (optional, size of the placeholder icon) #}
+{% if media.cover %}
+  <img src="{{ media.cover.url }}"
+       alt=""
+       aria-hidden="true"
+       class="absolute inset-0 w-full h-full object-cover scale-125 blur-xl opacity-70"
+       loading="lazy">
+  <img src="{{ media.cover.url }}"
+       alt="{% translate "Cover of" %} {{ media.title }}"
+       class="relative w-full h-full object-contain"
+       loading="lazy">
+{% else %}
+  <div class="w-full h-full flex items-center justify-center text-base-content/30">
+    {% lucide "image" class=placeholder_class|default:"w-24 h-24" %}
+  </div>
+{% endif %}

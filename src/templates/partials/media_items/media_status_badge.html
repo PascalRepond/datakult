@@ -1,4 +1,7 @@
 {% load media_tags %}
-{# Renders a status badge #}
-{# Parameters: media #}
-<span class="badge {{ media.status|status_badge_class }}">{{ media.get_status_display }}</span>
+{# Renders a status badge, neutral so that colour stays for the score #}
+{# Parameters: media, extra_class (optional, replaces the default background and border) #}
+<span class="badge gap-1 {{ extra_class|default:'bg-base-100 border-base-300' }}">
+  {% lucide media.status|status_icon size="14" %}
+  {{ media.get_status_display }}
+</span>

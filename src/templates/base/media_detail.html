@@ -18,16 +18,8 @@
       <div class="md:col-span-1 space-y-4">
         {# Cover card #}
         <div class="card bg-base-200 border border-base-300 overflow-hidden">
-          <figure class="relative w-full aspect-2/3 bg-base-300">
-            {% if media.cover %}
-              <img src="{{ media.cover.url }}"
-                   alt="{% translate "Cover of" %} {{ media.title }}"
-                   class="w-full h-full object-contain">
-            {% else %}
-              <div class="w-full h-full flex items-center justify-center text-base-content/30">
-                {% lucide "image" class="w-32 h-32" %}
-              </div>
-            {% endif %}
+          <figure class="relative w-full aspect-2/3 bg-base-300 overflow-hidden">
+            {% include "partials/media_items/cover_image.html" with placeholder_class="w-32 h-32" %}
           </figure>
         </div>
         {# Metadata card #}
