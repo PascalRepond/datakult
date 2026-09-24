@@ -13,6 +13,7 @@ from django.contrib.messages import get_messages
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.html import escape
 
 from core.models import Agent, Media, SavedView, Tag
 from core.utils import create_backup
@@ -1458,3 +1459,61 @@ def test_saved_view_delete_asks_for_confirmation(logged_in_client, user):
     response = logged_in_client.get(reverse("home"))
 
     assert "hx-confirm" in response.content.decode()
+
+
+def _back_url(response):
+    """Return the target of the back link of a page, or None when it has none."""
+    match = re.search(
+        r'<a href="([^"]*)"\s+class="btn btn-ghost btn-sm btn-circle shrink-0"', response.content.decode()
+    )
+    return match and match.group(1)
+
+
+def test_back_links_lead_to_the_parent_page(logged_in_client, media):
+    """Back links go up the hierarchy: detail to list, edit to detail, import to edit or list."""
+    home = reverse("home")
+    detail = reverse("media_detail", args=[media.pk])
+    edit = reverse("media_edit", args=[media.pk])
+
+    assert _back_url(logged_in_client.get(detail)) == home
+    assert _back_url(logged_in_client.get(edit)) == detail
+    assert _back_url(logged_in_client.get(reverse("media_add"))) == home
+    assert _back_url(logged_in_client.get(reverse("media_import"), {"media_id": media.pk})) == edit
+    assert _back_url(logged_in_client.get(reverse("media_import"))) == home
+
+
+@pytest.mark.parametrize("url_name", ["stats", "backup_manage", "accounts:profile_edit"])
+def test_top_level_pages_have_no_back_link(logged_in_client, url_name):
+    """Pages reached from the sidebar have no back link."""
+    assert _back_url(logged_in_client.get(reverse(url_name))) is None
+
+
+def test_import_page_title_depends_on_its_purpose(logged_in_client, media):
+    """The import page is titled as adding a media, or as importing metadata into an existing one."""
+    adding = logged_in_client.get(reverse("media_import")).content.decode()
+    importing = logged_in_client.get(reverse("media_import"), {"media_id": media.pk}).content.decode()
+
+    assert "Add media</h1>" in adding
+    assert "Import metadata</h1>" in importing
+
+
+def test_add_media_is_reachable_from_every_page(logged_in_client, media):
+    """The add action is in the sidebar, and in a floating button on pages other than the forms."""
+    add_url = reverse("media_import")
+    detail = logged_in_client.get(reverse("media_detail", args=[media.pk])).content.decode()
+    edit = logged_in_client.get(reverse("media_edit", args=[media.pk])).content.decode()
+
+    assert detail.count(f'href="{add_url}"') == 2
+    assert 'class="fab' in detail
+    assert 'class="fab' not in edit
+
+
+def test_sidebar_marks_the_current_saved_view(logged_in_client, user):
+    """The saved view matching the current list is highlighted in the sidebar."""
+    view = SavedView.objects.create(user=user, name="Games", filter_types=["GAME"])
+    SavedView.objects.create(user=user, name="Books", filter_types=["BOOK"])
+
+    content = logged_in_client.get(view.get_filter_url()).content.decode()
+
+    assert re.search(rf'<a href="{re.escape(escape(view.get_filter_url()))}"\s+class="[^"]*menu-active', content)
+    assert content.count("menu-active") == 1

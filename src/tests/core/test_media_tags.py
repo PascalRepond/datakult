@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.utils import translation
 from partial_date import PartialDate
 
-from core.templatetags.media_tags import has_filters, partial_date, score_color
+from core.templatetags.media_tags import has_filters, is_current_url, partial_date, score_color
 
 
 @pytest.mark.parametrize(
@@ -106,3 +106,18 @@ def test_filter_badge_shows_its_dimension_icon():
     without_icon = render_to_string("partials/filters/filter_badge.html", {"label": "Dune"})
 
     assert with_icon.count("<svg") == without_icon.count("<svg") + 1
+
+
+@pytest.mark.parametrize(
+    ("current", "url", "expected"),
+    [
+        ("/?status=PLANNED&sort=-score", "/?sort=-score&status=PLANNED", True),
+        ("/?status=PLANNED&sort=-score&page=2", "/?sort=-score&status=PLANNED", True),
+        ("/?status=PLANNED&tag=", "/?status=PLANNED", True),
+        ("/?status=PLANNED", "/?status=PLANNED&status=DNF", False),
+        ("/stats/?status=PLANNED", "/?status=PLANNED", False),
+    ],
+)
+def test_is_current_url(rf, current, url, expected):
+    """A URL is current when it has the same path and non-empty parameters, in any order, whatever the page."""
+    assert is_current_url(rf.get(current), url) is expected

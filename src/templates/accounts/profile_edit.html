@@ -66,10 +66,10 @@
         </form>
       </div>
     </div>
-    <!-- Language Preference -->
+    <!-- Preferences -->
     <div class="card bg-base-200 border border-base-300 mb-8">
       <div class="card-body">
-        <h2 class="card-title">{% translate "Language Preference" %}</h2>
+        <h2 class="card-title">{% translate "Preferences" %}</h2>
         <form method="post"
               action="{% url 'accounts:set_language' %}"
               class="space-y-6">
@@ -141,6 +141,17 @@
             <button type="submit" class="btn btn-primary">{% translate "Change Password" %}</button>
           </div>
         </form>
+      </div>
+    </div>
+    <!-- About -->
+    <div class="card bg-base-200 border border-base-300 mt-8">
+      <div class="card-body">
+        <h2 class="card-title">{% translate "About" %}</h2>
+        <p class="text-sm">
+          Datakult
+          {% if version %}v{{ version }}{% endif %}
+        </p>
+        <p class="text-sm opacity-70">{% translate "Logo icon by Freepik - Flaticon" %}</p>
       </div>
     </div>
   </div>

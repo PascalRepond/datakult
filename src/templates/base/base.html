@@ -30,13 +30,13 @@
       {% endif %}
     </div>
     <!-- Drawer layout: sidebar on desktop, hamburger menu on mobile -->
-    <div class="drawer xl:drawer-open">
+    <div class="drawer lg:drawer-open">
       <!-- Hidden checkbox to control drawer state -->
       <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" />
       <!-- Main content area -->
       <div class="drawer-content flex flex-col">
         <!-- Minimal top navbar (mobile hamburger only) -->
-        <div class="navbar bg-base-100 shadow-sm xl:hidden">
+        <div class="navbar bg-base-100 border-b border-base-300 lg:hidden">
           <!-- Hamburger button (mobile only) -->
           <div class="flex-none">
             <label for="sidebar-drawer"
@@ -47,21 +47,26 @@
           <div class="flex-1">
             <a href="{% url 'home' %}"
                class="btn btn-ghost text-xl text-primary gap-2">
-              <div class="tooltip tooltip-bottom" data-tip="Icon by Freepik - Flaticon">
-                <img src="{% static 'images/bookshelf.png' %}"
-                     alt="Datakult logo"
-                     class="w-6 h-6">
-              </div>
+              <img src="{% static 'images/bookshelf.png' %}"
+                   alt=""
+                   class="w-6 h-6">
               Datakult
             </a>
-            {% if version %}<span class="text-xs text-base-content/50">v{{ version }}</span>{% endif %}
           </div>
         </div>
         <!-- Page content -->
-        <div class="p-4 xl:p-12">
+        <div class="p-4 lg:p-8 xl:p-12">
           {% block content %}
           {% endblock content %}
         </div>
+        {# Floating add button on mobile, where the sidebar is hidden (left out of the forms) #}
+        {% block fab %}
+          <div class="fab z-30 lg:hidden">
+            <a href="{% url 'media_import' %}"
+               class="btn btn-lg btn-circle btn-primary"
+               aria-label="{% translate "Add media" %}">{% lucide "plus" %}</a>
+          </div>
+        {% endblock fab %}
       </div>
       <!-- Sidebar drawer -->
       <div class="drawer-side z-40">

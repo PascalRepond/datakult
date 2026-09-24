@@ -2,20 +2,22 @@
 {% load static %}
 {% load media_tags %}
 <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-  <!-- Logo/Title at the top -->
+  <!-- Logo -->
   <li class="menu-title">
-    <div class="flex justify-between items-center">
-      <a href="{% url 'home' %}"
-         class="flex items-center gap-3 hover:opacity-80 transition-opacity">
-        <div class="tooltip tooltip-right" data-tip="Icon by Freepik - Flaticon">
-          <img src="{% static 'images/bookshelf.png' %}"
-               alt="Datakult logo"
-               class="w-8 h-8">
-        </div>
-        <span class="text-xl font-bold text-primary">Datakult</span>
-      </a>
-      {% if version %}<span class="text-xs text-base-content/50">v{{ version }}</span>{% endif %}
-    </div>
+    <a href="{% url 'home' %}"
+       class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+      <img src="{% static 'images/bookshelf.png' %}"
+           alt=""
+           class="w-8 h-8">
+      <span class="text-xl font-bold text-primary">Datakult</span>
+    </a>
+  </li>
+  <!-- Main action -->
+  <li class="my-2">
+    <a href="{% url 'media_import' %}" class="btn btn-primary">
+      {% lucide "plus" %}
+      {% translate "Add media" %}
+    </a>
   </li>
   <!-- Main navigation -->
   <li>
@@ -71,8 +73,8 @@
   </li>
   <!-- Saved views -->
   {% include "partials/saved_views/saved_views_list.html" %}
-  <!-- Separator for settings -->
-  <li class="menu-title mt-4">
+  <!-- Settings, at the bottom -->
+  <li class="menu-title mt-auto pt-6">
     <span>{% translate "Settings" %}</span>
   </li>
   {% if user.is_authenticated %}
@@ -86,13 +88,13 @@
     <li>
       <a href="{% url 'backup_manage' %}"
          class="{% if request.resolver_match.view_name == 'backup_manage' %}menu-active{% endif %}">
-        {% lucide "download" %}
+        {% lucide "archive" %}
         {% translate "Backups" %}
       </a>
     </li>
   {% endif %}
-  <!-- Theme selector - compact dropdown -->
-  <li class="dropdown w-full">
+  <!-- Theme selector - compact dropdown, opening upwards -->
+  <li class="dropdown dropdown-top w-full">
     <div tabindex="0" role="button" class="flex items-center gap-2 w-full">
       {% lucide "sun-moon" %}
       <span>{% translate "Theme" %}</span>
@@ -131,8 +133,8 @@
       </li>
     </ul>
   </li>
-  <!-- Authentication at the bottom -->
-  <li class="mt-auto">
+  <!-- Authentication -->
+  <li>
     {% if user.is_authenticated %}
       <form action="{% url 'logout' %}" method="post">
         {% csrf_token %}
@@ -150,4 +152,5 @@
       </a>
     {% endif %}
   </li>
+  {% if version %}<li class="menu-title text-xs font-normal">v{{ version }}</li>{% endif %}
 </ul>

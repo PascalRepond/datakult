@@ -1,20 +1,32 @@
 {% extends "base/base.html" %}
 {% load i18n %}
 {% block title %}
-  {% translate "Import metadata" %} — Datakult
+  {% if media_id %}
+    {% translate "Import metadata" %} — Datakult
+  {% else %}
+    {% translate "Add media" %} — Datakult
+  {% endif %}
 {% endblock title %}
+{% block fab %}
+{% endblock fab %}
 {% block content %}
   <div class="max-w-2xl mx-auto">
     {# Header #}
-    <div class="mb-6">
+    <div class="flex justify-between items-center gap-4 mb-6">
       {% if media_id %}
         {% url 'media_edit' media_id as back_url %}
+        {% translate "Import metadata" as page_title %}
       {% else %}
         {% url 'home' as back_url %}
+        {% url 'home' as history_path %}
+        {% translate "Add media" as page_title %}
       {% endif %}
-      {% url 'home' as home_url %}
-      {% translate "Import metadata" as import_label %}
-      {% include "partials/common/page_header.html" with title=import_label back_url=back_url history_path=home_url %}
+      {% include "partials/common/page_header.html" with title=page_title back_url=back_url history_path=history_path %}
+      <a href="{% if media_id %}{% url 'media_edit' media_id %}{% else %}{% url 'media_add' %}{% endif %}"
+         class="btn btn-outline btn-sm shrink-0">
+        {% lucide "square-pen" class="w-4 h-4" %}
+        {% translate "Add manually" %}
+      </a>
     </div>
     {# Source selector tabs #}
     <div class="tabs tabs-box mb-6">
@@ -188,14 +200,5 @@
     </div>
     {# Results #}
     <div id="import-results"></div>
-    {# Manual entry link #}
-    <div class="text-center mt-8">
-      <p class="text-base-content/70 mb-2">{% translate "Can't find what you're looking for?" %}</p>
-      <a href="{% if media_id %}{% url 'media_edit' media_id %}{% else %}{% url 'media_add' %}{% endif %}"
-         class="btn btn-outline btn-sm">
-        {% lucide "square-pen" class="w-4 h-4" %}
-        {% translate "Add manually" %}
-      </a>
-    </div>
   </div>
 {% endblock content %}

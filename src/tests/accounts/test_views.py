@@ -139,3 +139,10 @@ def test_login_page_declares_the_active_language(client, db):
     response = client.get(reverse("login"), HTTP_ACCEPT_LANGUAGE="fr")
 
     assert '<html lang="fr">' in response.content.decode()
+
+
+def test_profile_shows_version_and_credits(logged_in_client):
+    """The profile page tells the app version and credits the logo."""
+    content = logged_in_client.get(reverse("accounts:profile_edit")).content.decode()
+
+    assert "Freepik" in content

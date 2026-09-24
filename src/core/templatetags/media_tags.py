@@ -1,5 +1,7 @@
 """Custom template tags for media-related functionality."""
 
+from urllib.parse import parse_qsl, urlsplit
+
 from django import template
 from django.utils import formats
 
@@ -221,6 +223,24 @@ def has_filters(request):
     if not hasattr(request, "GET"):
         return False
     return any((param in request.GET) and any(v != "" for v in request.GET.getlist(param)) for param in FILTER_PARAMS)
+
+
+def _url_state(path, query):
+    """Return the path and the sorted non-empty query parameters of a URL, without the page."""
+    params = sorted((key, value) for key, value in parse_qsl(query) if value and key != "page")
+    return path, params
+
+
+@register.simple_tag
+def is_current_url(request, url):
+    """
+    Check if a URL points to the current page, whatever the order of its parameters.
+
+    Example usage:
+        {% is_current_url request view.get_filter_url as is_active %}
+    """
+    target = urlsplit(url)
+    return _url_state(request.path, request.META.get("QUERY_STRING", "")) == _url_state(target.path, target.query)
 
 
 @register.simple_tag

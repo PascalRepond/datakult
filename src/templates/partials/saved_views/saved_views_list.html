@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load media_tags %}
 {# List items for saved views - only <li> elements for use inside <ul> #}
 {% if saved_views %}
   <li class="menu-title mt-4">
@@ -6,7 +7,9 @@
   </li>
   {% for view in saved_views %}
     <li class="group flex-row flex-nowrap items-center">
-      <a href="{{ view.get_filter_url }}" class="flex-1 min-w-0">
+      {% is_current_url request view.get_filter_url as view_active %}
+      <a href="{{ view.get_filter_url }}"
+         class="flex-1 min-w-0{% if view_active %} menu-active{% endif %}">
         {% lucide "bookmark" %}
         <span class="truncate">{{ view.name }}</span>
       </a>
