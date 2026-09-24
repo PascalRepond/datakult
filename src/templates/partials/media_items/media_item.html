@@ -22,22 +22,25 @@
       </div>
     </figure>
     <div class="card-body p-3">
-      <div class="flex justify-between gap-2">
-        <div>
-          <a href="{% url 'media_detail' media.pk %}" class="hover:underline">
-            <h3 class="card-title inline">{{ media.title }}</h3>
-          </a>
-          {% if media.pub_year %}<span class="opacity-70">({{ media.pub_year }})</span>{% endif %}
-          <div>{% include "partials/media_items/media_contributors.html" %}</div>
-        </div>
-        {% include "partials/media_items/media_edit_button.html" %}
+      <div>
+        <a href="{% url 'media_detail' media.pk %}" class="hover:underline">
+          <h3 class="card-title inline">{{ media.title }}</h3>
+        </a>
+        {% if media.pub_year %}<span class="opacity-70">({{ media.pub_year }})</span>{% endif %}
+        <div>{% include "partials/media_items/media_contributors.html" %}</div>
       </div>
       {% include "partials/media_items/media_status_badge.html" %}
       {% include "partials/media_items/score/media_score_ring.html" with score=media.score label=media.get_score_display %}
       {% if media.review %}
-        <div id="review-cell-{{ media.id }}" class="text-sm review-text">
-          {% include "partials/media_items/media_review_clamped.html" %}
-        </div>
+        {# Plain text excerpt of the review, opening the whole review in the reading modal of the list #}
+        <button type="button"
+                class="text-sm text-left line-clamp-4 cursor-pointer hover:text-base-content/70 transition-colors"
+                title="{% translate "Read the review" %}"
+                hx-get="{% url 'media_review_htmx' media.pk %}"
+                hx-target="#review-modal-content"
+                hx-on::after-request="if (event.detail.successful) document.getElementById('review-modal').showModal()">
+          {{ media.review_rendered|striptags|truncatewords:60|safe }}
+        </button>
       {% endif %}
       {% if media.review_date %}<div class="text-xs italic text-right">{{ media.review_date|partial_date }}</div>{% endif %}
     </div>

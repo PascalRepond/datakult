@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 21:53+0200\n"
+"POT-Creation-Date: 2026-09-24 21:58+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -287,114 +287,114 @@ msgstr "Retirer la note"
 msgid "'%(title)s' deleted successfully"
 msgstr "'%(title)s' supprimé avec succès"
 
-#: src/core/views.py:713
+#: src/core/views.py:706
 #, python-format
 msgid "Backup creation failed: %(error)s"
 msgstr "Échec de la création du backup : %(error)s"
 
-#: src/core/views.py:724
+#: src/core/views.py:717
 msgid "No file selected"
 msgstr "Aucun fichier sélectionné"
 
-#: src/core/views.py:728
+#: src/core/views.py:721
 msgid "Invalid file format. Use a .tar.gz file"
 msgstr "Format de fichier invalide. Utilisez un fichier .tar.gz"
 
-#: src/core/views.py:743
+#: src/core/views.py:736
 msgid "Backup imported successfully! All data has been restored."
 msgstr "Backup importé avec succès ! Toutes les données ont été restaurées."
 
-#: src/core/views.py:752
+#: src/core/views.py:745
 #, python-format
 msgid "Backup import failed: %(error)s"
 msgstr "Échec de l'importation du backup : %(error)s"
 
-#: src/core/views.py:780
+#: src/core/views.py:773
 #, python-format
 msgid "Invalid media types: %(types)s"
 msgstr "Types de médias invalides : %(types)s"
 
-#: src/core/views.py:786
+#: src/core/views.py:779
 #, python-format
 msgid "Invalid statuses: %(statuses)s"
 msgstr "Statuts invalides : %(statuses)s"
 
-#: src/core/views.py:792
+#: src/core/views.py:785
 #, python-format
 msgid "Invalid scores: %(scores)s"
 msgstr "Scores invalides : %(scores)s"
 
-#: src/core/views.py:798
+#: src/core/views.py:791
 #, python-format
 msgid "Invalid sort field: %(sort)s"
 msgstr "Champ de tri invalide : %(sort)s"
 
-#: src/core/views.py:802
+#: src/core/views.py:795
 #, python-format
 msgid "Contributor does not exist: ID %(id)s"
 msgstr "Le contributeur n'existe pas : ID %(id)s"
 
-#: src/core/views.py:802
+#: src/core/views.py:795
 #, python-format
 msgid "Invalid contributor ID format: %(id)s"
 msgstr "Format d'ID de contributeur invalide : %(id)s"
 
-#: src/core/views.py:803
+#: src/core/views.py:796
 #, python-format
 msgid "Tag does not exist: ID %(id)s"
 msgstr "Le tag n'existe pas : ID %(id)s"
 
-#: src/core/views.py:803
+#: src/core/views.py:796
 #, python-format
 msgid "Invalid tag ID format: %(id)s"
 msgstr "Format d'ID de tag invalide : %(id)s"
 
-#: src/core/views.py:815
+#: src/core/views.py:808
 msgid "Start date"
 msgstr "Date de début"
 
-#: src/core/views.py:815
+#: src/core/views.py:808
 msgid "End date"
 msgstr "Date de fin"
 
-#: src/core/views.py:821
+#: src/core/views.py:814
 #, python-format
 msgid "Invalid %(label)s: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:824
+#: src/core/views.py:817
 msgid "Review filter"
 msgstr "Filtre de critique"
 
-#: src/core/views.py:824
+#: src/core/views.py:817
 msgid "Cover filter"
 msgstr "Filtre de couverture"
 
-#: src/core/views.py:827
+#: src/core/views.py:820
 #, python-format
 msgid "Invalid %(label)s value: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:841
+#: src/core/views.py:834
 msgid "View name is required"
 msgstr "Nom de la vue requis"
 
-#: src/core/views.py:872
+#: src/core/views.py:865
 #, python-format
 msgid "View '%(name)s' has been updated"
 msgstr "Vue '%(name)s' a été mise à jour"
 
-#: src/core/views.py:877
+#: src/core/views.py:870
 #, python-format
 msgid "View '%(name)s' saved successfully"
 msgstr "Vue '%(name)s' a été enregistrée avec succès"
 
-#: src/core/views.py:893
+#: src/core/views.py:886
 #, python-format
 msgid "View '%(name)s' deleted successfully"
 msgstr "Vue '%(name)s' supprimée avec succès"
 
-#: src/core/views.py:895
+#: src/core/views.py:888
 msgid "View not found"
 msgstr "Vue non trouvée"
 
@@ -562,8 +562,7 @@ msgstr "Ajouter un média"
 
 #: src/templates/base/media_detail.html:13 src/templates/base/media_edit.html:6
 #: src/templates/base/media_edit.html:30
-#: src/templates/partials/media_items/media_edit_button.html:6
-#: src/templates/partials/media_items/media_edit_button.html:7
+#: src/templates/partials/media_items/media_review_modal.html:32
 msgid "Edit"
 msgstr "Modifier"
 
@@ -750,6 +749,13 @@ msgstr "Avec couverture"
 msgid "Save view"
 msgstr "Enregistrer la vue"
 
+#: src/templates/base/media_index.html:153
+#: src/templates/partials/common/confirm_modal.html:34
+#: src/templates/partials/media_items/media_review_modal.html:15
+#: src/templates/partials/saved_views/save_view_modal.html:36
+msgid "Close"
+msgstr "Fermer"
+
 #: src/templates/base/stats.html:7 src/templates/base/stats.html:17
 #: src/templates/partials/navigation/sidebar_nav.html:35
 msgid "Statistics"
@@ -815,11 +821,6 @@ msgstr "Annuler"
 msgid "Confirm"
 msgstr "Confirmer"
 
-#: src/templates/partials/common/confirm_modal.html:34
-#: src/templates/partials/saved_views/save_view_modal.html:36
-msgid "Close"
-msgstr "Fermer"
-
 #: src/templates/partials/common/load_more_trigger.html:10
 #: src/templates/partials/common/spinner.html:16
 msgid "Loading…"
@@ -830,17 +831,30 @@ msgstr "Chargement…"
 msgid "No result, press Enter to add"
 msgstr "Aucun résultat, appuyez sur Entrée pour ajouter"
 
+#: src/templates/partials/media_items/media_item.html:38
+msgid "Read the review"
+msgstr "Lire la critique"
+
 #: src/templates/partials/media_items/media_list.html:9
-msgid "No media found."
-msgstr "Aucun média trouvé."
+msgid "Your library is empty."
+msgstr "Votre bibliothèque est vide."
 
-#: src/templates/partials/media_items/media_review_clamped.html:8
-msgid "See more"
-msgstr "Voir plus"
+#: src/templates/partials/media_items/media_list.html:12
+msgid "Add your first media"
+msgstr "Ajouter votre premier média"
 
-#: src/templates/partials/media_items/media_review_full.html:7
-msgid "See less"
-msgstr "Voir moins"
+#: src/templates/partials/media_items/media_list.html:18
+msgid "No media matches these filters."
+msgstr "Aucun média ne correspond à ces filtres."
+
+#: src/templates/partials/media_items/media_list.html:21
+#: src/templates/partials/navigation/filters_drawer.html:208
+msgid "Clear filters"
+msgstr "Vider les filtres"
+
+#: src/templates/partials/media_items/media_review_modal.html:36
+msgid "Open the media page"
+msgstr "Ouvrir la fiche"
 
 #: src/templates/partials/media_items/score/media_score_ring_inner.html:10
 #: src/templates/partials/stats/covers_page.html:17
@@ -901,10 +915,6 @@ msgstr "Couverture"
 #: src/templates/partials/navigation/filters_drawer.html:202
 msgid "Apply"
 msgstr "Appliquer"
-
-#: src/templates/partials/navigation/filters_drawer.html:208
-msgid "Clear filters"
-msgstr "Vider les filtres"
 
 #: src/templates/partials/navigation/sidebar_nav.html:40
 msgid "By status"
@@ -993,6 +1003,15 @@ msgstr "Série"
 #: src/templates/registration/login.html:37
 msgid "Password"
 msgstr "Mot de passe"
+
+#~ msgid "No media found."
+#~ msgstr "Aucun média trouvé."
+
+#~ msgid "See more"
+#~ msgstr "Voir plus"
+
+#~ msgid "See less"
+#~ msgstr "Voir moins"
 
 #, python-format
 #~ msgid "Invalid view mode: %(mode)s"

@@ -55,6 +55,8 @@ def build_media_context(request):
     return {
         "media_list": page_obj.object_list,
         "page_obj": page_obj,
+        # Tells an empty library apart from filters that match nothing
+        "library_is_empty": not paginator.count and not Media.objects.exists(),
         "sort_field": sort_field,
         "sort": sort,
         "contributor": contributor,

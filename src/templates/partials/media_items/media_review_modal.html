@@ -1,0 +1,38 @@
+{% load i18n %}
+{% load media_tags %}
+{# Content of the reading modal of the media list: the full review of a media #}
+<div class="flex items-start justify-between gap-4 mb-4">
+  <div class="min-w-0">
+    <h3 class="text-xl font-bold">
+      {{ media.title }}
+      {% if media.pub_year %}<span class="font-normal opacity-70">({{ media.pub_year }})</span>{% endif %}
+    </h3>
+    {% if media.contributors.all %}
+      <div class="text-sm opacity-80">{% include "partials/media_items/media_contributors.html" %}</div>
+    {% endif %}
+  </div>
+  <form method="dialog">
+    <button class="btn btn-ghost btn-sm btn-circle" aria-label="{% translate "Close" %}">{% lucide "x" %}</button>
+  </form>
+</div>
+<div class="flex flex-wrap items-center gap-4 mb-4">
+  {% include "partials/media_items/score/media_score_ring.html" with score=media.score label=media.get_score_display size="lg" %}
+  {% include "partials/media_items/media_status_badge.html" %}
+  {% if media.review_date %}
+    <span class="flex items-center gap-1 text-sm opacity-70">
+      {% lucide "calendar" size="16" %}
+      {{ media.review_date|partial_date }}
+    </span>
+  {% endif %}
+</div>
+<div class="review-text">{{ media.review_rendered|safe }}</div>
+<div class="modal-action">
+  <a href="{% url 'media_edit' media.pk %}" class="btn btn-ghost">
+    {% lucide "square-pen" %}
+    {% translate "Edit" %}
+  </a>
+  <a href="{% url 'media_detail' media.pk %}" class="btn btn-primary">
+    {% lucide "arrow-right" %}
+    {% translate "Open the media page" %}
+  </a>
+</div>

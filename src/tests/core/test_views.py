@@ -425,102 +425,53 @@ def test_filter_review_from_includes_less_precise_dates(logged_in_client, media_
     assert {m.title for m in from_march_2nd.context["media_list"]} == {"March 2nd"}
 
 
-def test_media_review_clamped_returns_partial(logged_in_client, db):
-    """Clamped review view returns the clamped partial template."""
-    media = Media.objects.create(
-        title="Test Media",
-        media_type="BOOK",
-        review="This is a test review with some content that could be truncated.",
-    )
-    response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
+def test_media_review_modal_shows_the_full_review(logged_in_client, media_factory):
+    """The review modal shows the whole rendered review, with links to edit the media and to its page."""
+    media = media_factory(review="**Bold text** " + "word " * 80, score=8)
 
-    assert response.status_code == 200
-    assert "partials/media_items/media_review_clamped.html" in [t.name for t in response.templates]
-    assert "media" in response.context
-    assert response.context["media"] == media
+    response = logged_in_client.get(reverse("media_review_htmx", kwargs={"pk": media.pk}))
+    content = response.content.decode()
 
-
-def test_media_review_clamped_with_short_review(logged_in_client, db):
-    """Clamped review with short text doesn't show 'See more' button."""
-    media = Media.objects.create(
-        title="Test Media",
-        media_type="BOOK",
-        review="Short review",
-    )
-    response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
-
-    content = response.content.decode("utf-8")
-    # With less than 50 words, the 'See more' button should not appear
-    assert "See more" not in content
-
-
-def test_media_review_clamped_with_long_review(logged_in_client, db):
-    """Clamped review with long text shows 'See more' button."""
-    long_review = " ".join(["word"] * 55)
-    media = Media.objects.create(
-        title="Test Media",
-        media_type="BOOK",
-        review=long_review,
-    )
-    response = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": media.pk}))
-
-    content = response.content.decode("utf-8")
-    # With more than 50 words, the 'See more' button should appear
-    assert "See more" in content
-
-
-def test_media_review_full_returns_partial(logged_in_client, db):
-    """Full review view returns the full partial template."""
-    media = Media.objects.create(
-        title="Test Media",
-        media_type="BOOK",
-        review="This is a test review.",
-    )
-    response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
-
-    assert response.status_code == 200
-    assert "partials/media_items/media_review_full.html" in [t.name for t in response.templates]
-    assert "media" in response.context
-    assert response.context["media"] == media
-
-
-def test_media_review_full_shows_see_less_button(logged_in_client, db):
-    """Full review view shows 'See less' button."""
-    media = Media.objects.create(
-        title="Test Media",
-        media_type="BOOK",
-        review="Some review content",
-    )
-    response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
-
-    content = response.content.decode("utf-8")
-    assert "See less" in content
-
-
-def test_media_review_renders_html_safely(logged_in_client, db):
-    """Review views render HTML content from review_rendered field."""
-    media = Media.objects.create(
-        title="Test Media",
-        media_type="BOOK",
-        review="**Bold text**",
-    )
-    # After save, review_rendered should contain HTML
-    media.refresh_from_db()
-
-    response = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": media.pk}))
-    content = response.content.decode("utf-8")
-
-    # The rendered HTML should be present in the response
     assert "<strong>Bold text</strong>" in content
+    assert content.count("word") == 80
+    assert f'href="{reverse("media_edit", args=[media.pk])}"' in content
+    assert f'href="{reverse("media_detail", args=[media.pk])}"' in content
 
 
-def test_media_review_nonexistent_media_returns_404(logged_in_client):
-    """Accessing review views with nonexistent media returns 404."""
-    response_clamped = logged_in_client.get(reverse("media_review_clamped_htmx", kwargs={"pk": 99999}))
-    response_full = logged_in_client.get(reverse("media_review_full_htmx", kwargs={"pk": 99999}))
+def test_media_review_modal_of_missing_media_returns_404(logged_in_client, db):
+    """The review modal of a media that does not exist is not found."""
+    response = logged_in_client.get(reverse("media_review_htmx", kwargs={"pk": 99999}))
 
-    assert response_clamped.status_code == 404
-    assert response_full.status_code == 404
+    assert response.status_code == 404
+
+
+def test_media_card_opens_its_review_in_the_modal(logged_in_client, media_factory):
+    """A card shows a plain text excerpt of the review, which opens the full review in the modal."""
+    media = media_factory(review="**Bold text** and more.")
+
+    content = logged_in_client.get(reverse("home")).content.decode()
+
+    assert f'hx-get="{reverse("media_review_htmx", args=[media.pk])}"' in content
+    assert "Bold text and more." in content
+    assert "<strong>Bold text</strong>" not in content
+
+
+def test_empty_library_invites_to_add_a_first_media(logged_in_client, db):
+    """With no media at all, the list invites to add one."""
+    content = logged_in_client.get(reverse("home")).content.decode()
+
+    assert "Add your first media" in content
+    assert "Clear filters</a>" not in content
+
+
+def test_empty_results_offer_to_clear_the_filters(logged_in_client, media_factory):
+    """When filters or a search match nothing, the list offers to clear them."""
+    media_factory(title="Dune")
+
+    content = logged_in_client.get(reverse("home"), {"search": "nothing matches"}).content.decode()
+
+    assert "Add your first media" not in content
+    assert re.search(r'href="/"[^>]*>\s*(<svg[\s\S]*?</svg>)?\s*Clear filters', content)
 
 
 def test_backup_manage_displays_page(logged_in_client):

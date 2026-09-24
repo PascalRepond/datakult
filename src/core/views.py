@@ -682,17 +682,10 @@ def musicbrainz_search_htmx(request):
 
 
 @login_required
-def media_review_clamped_htmx(request, pk):
-    """HTMX view: return clamped review for a media item (for table cell collapse)."""
+def media_review_htmx(request, pk):
+    """HTMX view: return the full review of a media item, for the reading modal of the media list."""
     media = get_object_or_404(Media, pk=pk)
-    return render(request, "partials/media_items/media_review_clamped.html", {"media": media})
-
-
-@login_required
-def media_review_full_htmx(request, pk):
-    """HTMX view: return full review for a media item (for table cell expansion)."""
-    media = get_object_or_404(Media, pk=pk)
-    return render(request, "partials/media_items/media_review_full.html", {"media": media})
+    return render(request, "partials/media_items/media_review_modal.html", {"media": media})
 
 
 @login_required

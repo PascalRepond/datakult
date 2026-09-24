@@ -3,10 +3,23 @@
   {% if page_obj %}
     <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 mt-4"
          id="media-container">{% include "partials/media_items/media_list_page.html" %}</div>
+  {% elif library_is_empty %}
+    <div class="flex flex-col items-center gap-4 py-16 text-center">
+      {% lucide "library" size="48" class="opacity-40" %}
+      <p class="text-base-content/70">{% translate "Your library is empty." %}</p>
+      <a href="{% url 'media_import' %}" class="btn btn-primary">
+        {% lucide "plus" %}
+        {% translate "Add your first media" %}
+      </a>
+    </div>
   {% else %}
-    <div role="alert" class="alert mt-3">
-      {% lucide "info" class="text-info" %}
-      <span>{% translate "No media found." %}</span>
+    <div class="flex flex-col items-center gap-4 py-16 text-center">
+      {% lucide "search-x" size="48" class="opacity-40" %}
+      <p class="text-base-content/70">{% translate "No media matches these filters." %}</p>
+      <a href="{% url 'home' %}" class="btn btn-outline">
+        {% lucide "funnel-x" %}
+        {% translate "Clear filters" %}
+      </a>
     </div>
   {% endif %}
 </div>

@@ -146,4 +146,11 @@
   {# Save view modal #}
   {% include "partials/saved_views/save_view_modal.html" %}
   {% include "partials/media_items/media_list.html" %}
+  {# Reading modal, filled with the full review of a card #}
+  <dialog id="review-modal" class="modal">
+    <div class="modal-box max-w-2xl" id="review-modal-content"></div>
+    <form method="dialog" class="modal-backdrop">
+      <button>{% translate "Close" %}</button>
+    </form>
+  </dialog>
 {% endblock content %}
