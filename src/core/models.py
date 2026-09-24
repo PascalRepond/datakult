@@ -279,6 +279,7 @@ class SavedView(models.Model):
     filter_statuses = models.JSONField(default=list, blank=True)
     filter_scores = models.JSONField(default=list, blank=True)
     filter_contributor_id = models.IntegerField(null=True, blank=True)
+    filter_tag_id = models.IntegerField(null=True, blank=True)
     filter_review_from = models.CharField(max_length=20, blank=True, default="")
     filter_review_to = models.CharField(max_length=20, blank=True, default="")
     filter_has_review = models.CharField(max_length=10, blank=True, default="")
@@ -307,6 +308,7 @@ class SavedView(models.Model):
         ]
         optional_filters = [
             ("contributor", self.filter_contributor_id),
+            ("tag", self.filter_tag_id),
             ("review_from", self.filter_review_from),
             ("review_to", self.filter_review_to),
             ("has_review", self.filter_has_review),

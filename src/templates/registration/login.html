@@ -1,26 +1,47 @@
 {% extends "base/base_auth.html" %}
 {% load i18n %}
+{% load static %}
 {% block title %}
   {% translate "Log in" %} - Datakult
 {% endblock title %}
 {% block content %}
-  <div class="relative flex justify-center items-center h-[80vh] overflow-hidden px-4">
+  <div class="flex flex-col justify-center items-center gap-6 min-h-[80vh] px-4">
+    <div class="flex items-center gap-3">
+      <img src="{% static 'images/bookshelf.png' %}"
+           alt=""
+           class="w-10 h-10">
+      <span class="text-3xl font-bold text-primary">Datakult</span>
+    </div>
     <form method="post" class="w-full max-w-sm">
       {% csrf_token %}
       <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-full border p-4 sm:p-8 gap-4">
         <legend class="fieldset-legend text-xl">{% translate "Log in" %}</legend>
-        <input type="username"
-               class="input w-full"
-               placeholder="{% translate "Username" %}"
-               id="inputUsername"
-               name="username"
-               required />
-        <input type="password"
-               class="input w-full"
-               id="inputPassword"
-               placeholder="{% translate "Password" %}"
-               name="password"
-               required />
+        {% if form.non_field_errors %}
+          <div role="alert" class="alert alert-error">
+            {% lucide "circle-alert" %}
+            <span>{{ form.non_field_errors.0 }}</span>
+          </div>
+        {% endif %}
+        <div>
+          <label class="label mb-1" for="inputUsername">{% translate "Username" %}</label>
+          <input type="text"
+                 class="input w-full"
+                 id="inputUsername"
+                 name="username"
+                 value="{{ form.username.value|default:'' }}"
+                 autocomplete="username"
+                 autofocus
+                 required />
+        </div>
+        <div>
+          <label class="label mb-1" for="inputPassword">{% translate "Password" %}</label>
+          <input type="password"
+                 class="input w-full"
+                 id="inputPassword"
+                 name="password"
+                 autocomplete="current-password"
+                 required />
+        </div>
         <button type="submit" class="btn btn-primary mt-4 w-full">{% translate "Log in" %}</button>
       </fieldset>
     </form>

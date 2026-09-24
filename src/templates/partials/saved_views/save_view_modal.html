@@ -19,17 +19,14 @@
         </label>
         <label class="label text-sm">{% translate "Enter the name of an existing view to update it." %}</label>
       </div>
-      {# Include all current filters and settings as hidden fields #}
-      {% for type_val in filters.type %}<input type="hidden" name="type" value="{{ type_val }}" />{% endfor %}
-      {% for status_val in filters.status %}<input type="hidden" name="status" value="{{ status_val }}" />{% endfor %}
-      {% for score_val in filters.score %}<input type="hidden" name="score" value="{{ score_val }}" />{% endfor %}
-      {% if contributor %}<input type="hidden" name="contributor" value="{{ contributor.id }}" />{% endif %}
-      {% if filters.review_from %}<input type="hidden" name="review_from" value="{{ filters.review_from }}" />{% endif %}
-      {% if filters.review_to %}<input type="hidden" name="review_to" value="{{ filters.review_to }}" />{% endif %}
-      {% if filters.has_review %}<input type="hidden" name="has_review" value="{{ filters.has_review }}" />{% endif %}
-      {% if filters.has_cover %}<input type="hidden" name="has_cover" value="{{ filters.has_cover }}" />{% endif %}
-      <input type="hidden" name="sort" value="{{ sort }}" />
-      <input type="hidden" name="view_mode" value="{{ view_mode }}" />
+      {# Carry every non-empty query parameter (filters, search, sort), except the page #}
+      {% for key, values in request.GET.lists %}
+        {% if key != "page" %}
+          {% for value in values %}
+            {% if value %}<input type="hidden" name="{{ key }}" value="{{ value }}" />{% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
       <div class="modal-action">
         <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
         <label for="save-view-modal" class="btn">{% translate "Cancel" %}</label>

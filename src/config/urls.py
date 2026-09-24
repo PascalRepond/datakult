@@ -1,9 +1,12 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth.views import LoginView
 from django.http import HttpResponse, HttpResponseNotFound
 from django.urls import include, path, re_path
 from django.views.static import serve
+
+from accounts.forms import LoginForm
 
 
 def service_worker(_request):
@@ -20,6 +23,7 @@ urlpatterns = [
     path("service-worker.js", service_worker, name="service_worker"),
     path("", include("core.urls")),
     path("accounts/", include("accounts.urls")),
+    path("accounts/login/", LoginView.as_view(authentication_form=LoginForm), name="login"),
     path("accounts/", include("django.contrib.auth.urls")),
     path("admin/", admin.site.urls),
     path("markdownfield/", include("markdownfield.urls")),

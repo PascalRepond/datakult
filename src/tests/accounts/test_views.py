@@ -117,3 +117,25 @@ def test_set_language_get_not_allowed(logged_in_client):
 
     # require_POST returns 405 Method Not Allowed for GET
     assert response.status_code == 405
+
+
+def test_login_shows_short_error_on_wrong_credentials(client, user):
+    """A failed login shows a short error instead of silently reloading the form."""
+    response = client.post(reverse("login"), {"username": "testuser", "password": "wrong"})
+
+    assert "Invalid credentials." in response.content.decode()
+
+
+def test_login_fields_support_password_managers(client, db):
+    """The login fields declare their autocomplete purpose."""
+    content = client.get(reverse("login")).content.decode()
+
+    assert 'autocomplete="username"' in content
+    assert 'autocomplete="current-password"' in content
+
+
+def test_login_page_declares_the_active_language(client, db):
+    """The html lang attribute of the login page follows the language of the request."""
+    response = client.get(reverse("login"), HTTP_ACCEPT_LANGUAGE="fr")
+
+    assert '<html lang="fr">' in response.content.decode()

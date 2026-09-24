@@ -4,15 +4,17 @@ Tests for core.views module.
 These tests verify the behavior of views using pytest-django.
 """
 
+import re
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import pytest
 from django.contrib.messages import get_messages
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.template.loader import render_to_string
 from django.urls import reverse
 
-from core.models import Agent, Media, SavedView
+from core.models import Agent, Media, SavedView, Tag
 from core.utils import create_backup
 from core.views import STATS_COVERS_PER_PAGE
 
@@ -1384,3 +1386,75 @@ def test_stats_score_bars_link_to_filtered_home(logged_in_client, media_factory)
     bar = response.context["score_distribution"][3]
     assert bar["label"] == 4
     assert _home_count(logged_in_client, bar["url"]) == bar["count"] == 2
+
+
+def test_saved_view_save_stores_tag(logged_in_client, user, db):
+    """The tag filter is stored with the saved view and restored in its URL."""
+    tag = Tag.objects.create(name="Favourites")
+
+    response = logged_in_client.post(reverse("saved_view_save"), {"view_name": "Tagged", "tag": str(tag.pk)})
+
+    saved_view = SavedView.objects.get(user=user, name="Tagged")
+    assert saved_view.filter_tag_id == tag.pk
+    assert f"tag={tag.pk}" in response.url
+
+
+def test_saved_view_rejects_nonexistent_tag(logged_in_client, user, db):
+    """A saved view pointing to a missing tag is rejected."""
+    logged_in_client.post(reverse("saved_view_save"), {"view_name": "Broken", "tag": "99999"})
+
+    assert not SavedView.objects.filter(user=user, name="Broken").exists()
+
+
+def test_save_view_modal_keeps_current_query_parameters(rf, user):
+    """The save view form carries every non-empty query parameter, except the page."""
+    request = rf.get("/", {"tag": "3", "search": "dune", "type": ["BOOK", "FILM"], "contributor": "", "page": "2"})
+    request.user = user
+
+    html = render_to_string("partials/saved_views/save_view_modal.html", request=request)
+
+    for name, value in [("tag", "3"), ("search", "dune"), ("type", "BOOK"), ("type", "FILM")]:
+        assert f'name="{name}" value="{value}"' in html
+    assert 'name="page"' not in html
+    assert 'name="contributor"' not in html
+
+
+@pytest.mark.parametrize(("count", "label"), [(0, "0 items"), (1, "1 item"), (2, "2 items")])
+def test_index_media_count_is_pluralized(logged_in_client, media_factory, count, label):
+    """The media counter uses the singular form only for one item."""
+    for _ in range(count):
+        media_factory()
+
+    response = logged_in_client.get(reverse("home"))
+
+    assert re.search(rf"\b{label}\b(?!s)", response.content.decode())
+
+
+def test_pages_declare_the_active_language(logged_in_client):
+    """The html lang attribute follows the language of the request."""
+    response = logged_in_client.get(reverse("home"), HTTP_ACCEPT_LANGUAGE="fr")
+
+    assert '<html lang="fr">' in response.content.decode()
+
+
+def test_backup_page_shows_each_message_once(logged_in_client, monkeypatch):
+    """A message raised before the backup page is displayed only once, as a toast."""
+
+    def failing_backup(*args, **kwargs):
+        msg = "Disk full"
+        raise OSError(msg)
+
+    monkeypatch.setattr("core.views.create_backup", failing_backup)
+
+    response = logged_in_client.get(reverse("backup_export"), follow=True)
+
+    assert response.content.decode().count("Disk full") == 1
+
+
+def test_saved_view_delete_asks_for_confirmation(logged_in_client, user):
+    """Deleting a saved view from the sidebar asks for a confirmation first."""
+    SavedView.objects.create(user=user, name="Old view")
+
+    response = logged_in_client.get(reverse("home"))
+
+    assert "hx-confirm" in response.content.decode()

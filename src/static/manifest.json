@@ -1,11 +1,11 @@
 {
   "name": "Datakult",
   "short_name": "Datakult",
-  "description": "Application de gestion de médias",
+  "description": "Track and rate the media you consume",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1d232a",
-  "theme_color": "#1d232a",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
   "icons": [
     {
       "src": "/static/images/icons/icon-192.png",

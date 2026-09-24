@@ -1,6 +1,6 @@
 from django import forms
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from markdownfield.widgets import MDEWidget
 
 from .models import Media
@@ -60,7 +60,7 @@ class MediaForm(forms.ModelForm):
             "review_date": forms.TextInput(
                 attrs={
                     "class": "input validator w-full",
-                    "placeholder": _("YYYY, MM-YYYY, or YYYY-MM-DD"),
+                    "placeholder": _("YYYY, YYYY-MM, or YYYY-MM-DD"),
                 }
             ),
             "cover": CoverImageWidget(attrs={"class": "file-input file-input-ghost w-full max-w-xs"}),

@@ -1,27 +1,15 @@
-{% load static tailwind_tags %}
-{% load django_htmx %}
+{% load static %}
 {% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
   <head>
     <title>
       {% block title %}
         Datakult
       {% endblock title %}
     </title>
-    <meta charset="UTF-8" />
-    <meta name="description"
-          content="Review and analyse the media and culture that you consume.">
-    <meta name="keywords" content="Media tracker, reviews, metacritic">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <link rel="icon"
-          type="image/png"
-          href="{% static 'images/bookshelf.png' %}" />
-    <link rel="manifest" href="{% static 'manifest.json' %}" />
-    <meta name="theme-color" content="#1d232a" />
-    {% tailwind_css %}
-    {% htmx_script %}
+    {% include "partials/common/head.html" %}
     {% block extra_css %}
     {% endblock extra_css %}
     {% block head_js %}

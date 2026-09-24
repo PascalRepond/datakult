@@ -11,25 +11,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Handle cover file input to clear TMDB poster when a file is selected
-  const coverInput = document.getElementById('id_cover');
-  const tmdbPosterUrlInput = document.getElementById('tmdb-poster-url-input');
-  const tmdbPosterPreview = document.getElementById('tmdb-poster-preview');
+  // Handle cover file input to clear the imported cover when a file is selected
+  const coverInput = document.getElementById('input-cover');
+  const importCoverUrlInput = document.getElementById('import-cover-url');
+  const importPosterPreview = document.getElementById('import-poster-preview');
 
   if (coverInput) {
     coverInput.addEventListener('change', () => {
       if (coverInput.files && coverInput.files.length > 0) {
-        // Clear the TMDB poster URL so the uploaded file takes precedence
-        if (tmdbPosterUrlInput) {
-          tmdbPosterUrlInput.value = '';
+        // Clear the imported cover URL so the uploaded file takes precedence
+        if (importCoverUrlInput) {
+          importCoverUrlInput.value = '';
         }
         // Update preview to show the selected file instead
-        if (tmdbPosterPreview) {
+        if (importPosterPreview) {
           const file = coverInput.files[0];
           const reader = new FileReader();
           reader.onload = (e) => {
-            tmdbPosterPreview.src = e.target.result;
-            tmdbPosterPreview.alt = file.name;
+            importPosterPreview.src = e.target.result;
+            importPosterPreview.alt = file.name;
           };
           reader.readAsDataURL(file);
         }

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-23 19:46+0200\n"
+"POT-Creation-Date: 2026-09-24 19:56+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,6 +15,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: src/accounts/forms.py:36
+msgid "Invalid credentials."
+msgstr "Identifiants invalides."
 
 #: src/accounts/views.py:29
 msgid "Profile updated."
@@ -38,8 +42,8 @@ msgid "YYYY"
 msgstr "AAAA"
 
 #: src/core/forms.py:63
-msgid "YYYY, MM-YYYY, or YYYY-MM-DD"
-msgstr "AAAA, MM-AAAA, ou AAAA-MM-JJ"
+msgid "YYYY, YYYY-MM, or YYYY-MM-DD"
+msgstr "AAAA, AAAA-MM ou AAAA-MM-JJ"
 
 #: src/core/models.py:44
 #, python-format
@@ -224,7 +228,7 @@ msgid "Adored"
 msgstr "Coup de cœur"
 
 #: src/core/models.py:234 src/templates/base/media_edit.html:244
-#: src/templates/base/media_index.html:73
+#: src/templates/base/media_index.html:77
 #: src/templates/partials/media_items/media_list.html:18
 #: src/templates/partials/navigation/filters_drawer.html:146
 msgid "Review date"
@@ -240,11 +244,11 @@ msgstr ""
 msgid "Cover image"
 msgstr "Image de couverture"
 
-#: src/core/models.py:294
+#: src/core/models.py:295
 msgid "Saved view"
 msgstr "Vue enregistrée"
 
-#: src/core/models.py:295
+#: src/core/models.py:296
 #: src/templates/partials/saved_views/saved_views_list.html:5
 msgid "Saved views"
 msgstr "Vues enregistrées"
@@ -278,114 +282,124 @@ msgstr "Télécharger la couverture :"
 msgid "Clear rating"
 msgstr "Retirer la note"
 
-#: src/core/views.py:481
+#: src/core/views.py:483
 #, python-format
 msgid "'%(title)s' deleted successfully"
 msgstr "'%(title)s' supprimé avec succès"
 
-#: src/core/views.py:711
+#: src/core/views.py:713
 #, python-format
 msgid "Backup creation failed: %(error)s"
 msgstr "Échec de la création du backup : %(error)s"
 
-#: src/core/views.py:722
+#: src/core/views.py:724
 msgid "No file selected"
 msgstr "Aucun fichier sélectionné"
 
-#: src/core/views.py:726
+#: src/core/views.py:728
 msgid "Invalid file format. Use a .tar.gz file"
 msgstr "Format de fichier invalide. Utilisez un fichier .tar.gz"
 
-#: src/core/views.py:741
+#: src/core/views.py:743
 msgid "Backup imported successfully! All data has been restored."
 msgstr "Backup importé avec succès ! Toutes les données ont été restaurées."
 
-#: src/core/views.py:750
+#: src/core/views.py:752
 #, python-format
 msgid "Backup import failed: %(error)s"
 msgstr "Échec de l'importation du backup : %(error)s"
 
-#: src/core/views.py:778
+#: src/core/views.py:780
 #, python-format
 msgid "Invalid media types: %(types)s"
 msgstr "Types de médias invalides : %(types)s"
 
-#: src/core/views.py:784
+#: src/core/views.py:786
 #, python-format
 msgid "Invalid statuses: %(statuses)s"
 msgstr "Statuts invalides : %(statuses)s"
 
-#: src/core/views.py:790
+#: src/core/views.py:792
 #, python-format
 msgid "Invalid scores: %(scores)s"
 msgstr "Scores invalides : %(scores)s"
 
-#: src/core/views.py:796
+#: src/core/views.py:798
 #, python-format
 msgid "Invalid sort field: %(sort)s"
 msgstr "Champ de tri invalide : %(sort)s"
 
-#: src/core/views.py:802
+#: src/core/views.py:804
 #, python-format
 msgid "Invalid view mode: %(mode)s"
 msgstr "Mode de vue invalide : %(mode)s"
 
-#: src/core/views.py:810
+#: src/core/views.py:808
 #, python-format
 msgid "Contributor does not exist: ID %(id)s"
 msgstr "Le contributeur n'existe pas : ID %(id)s"
 
-#: src/core/views.py:812
+#: src/core/views.py:808
 #, python-format
 msgid "Invalid contributor ID format: %(id)s"
 msgstr "Format d'ID de contributeur invalide : %(id)s"
 
-#: src/core/views.py:815
+#: src/core/views.py:809
+#, python-format
+msgid "Tag does not exist: ID %(id)s"
+msgstr "Le tag n'existe pas : ID %(id)s"
+
+#: src/core/views.py:809
+#, python-format
+msgid "Invalid tag ID format: %(id)s"
+msgstr "Format d'ID de tag invalide : %(id)s"
+
+#: src/core/views.py:821
 msgid "Start date"
 msgstr "Date de début"
 
-#: src/core/views.py:815
+#: src/core/views.py:821
 msgid "End date"
 msgstr "Date de fin"
 
-#: src/core/views.py:821
+#: src/core/views.py:827
 #, python-format
 msgid "Invalid %(label)s: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:824
+#: src/core/views.py:830
 msgid "Review filter"
 msgstr "Filtre de critique"
 
-#: src/core/views.py:824
+#: src/core/views.py:830
 msgid "Cover filter"
 msgstr "Filtre de couverture"
 
-#: src/core/views.py:827
+#: src/core/views.py:833
 #, python-format
 msgid "Invalid %(label)s value: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:841
+#: src/core/views.py:847
 msgid "View name is required"
 msgstr "Nom de la vue requis"
 
-#: src/core/views.py:872
+#: src/core/views.py:879
 #, python-format
 msgid "View '%(name)s' has been updated"
 msgstr "Vue '%(name)s' a été mise à jour"
 
-#: src/core/views.py:877
+#: src/core/views.py:884
 #, python-format
 msgid "View '%(name)s' saved successfully"
 msgstr "Vue '%(name)s' a été enregistrée avec succès"
 
-#: src/core/views.py:893
+#: src/core/views.py:900
 #, python-format
 msgid "View '%(name)s' deleted successfully"
 msgstr "Vue '%(name)s' supprimée avec succès"
 
-#: src/core/views.py:895
+#: src/core/views.py:902
 msgid "View not found"
 msgstr "Vue non trouvée"
 
@@ -399,7 +413,7 @@ msgid "Profile Information"
 msgstr "Informations du profil"
 
 #: src/templates/accounts/profile_edit.html:21
-#: src/templates/registration/login.html:14
+#: src/templates/registration/login.html:26
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
@@ -453,70 +467,70 @@ msgstr "Confirmer le nouveau mot de passe"
 msgid "Backup Management"
 msgstr "Gestion des sauvegardes"
 
-#: src/templates/base/backup_manage.html:30
+#: src/templates/base/backup_manage.html:19
 msgid "Export Backup"
 msgstr "Exporter la sauvegarde"
 
-#: src/templates/base/backup_manage.html:33
+#: src/templates/base/backup_manage.html:22
 msgid "Create a complete archive of all your data (database + media files)."
 msgstr ""
 "Créer une archive complète de toutes vos données (base de données + fichiers "
 "médias)."
 
-#: src/templates/base/backup_manage.html:38
+#: src/templates/base/backup_manage.html:27
 msgid "Backup contents:"
 msgstr "Contenu de la sauvegarde :"
 
-#: src/templates/base/backup_manage.html:41
+#: src/templates/base/backup_manage.html:30
 msgid "All database data"
 msgstr "Toutes les données de la base de données"
 
-#: src/templates/base/backup_manage.html:42
+#: src/templates/base/backup_manage.html:31
 msgid "All media files (cover images)"
 msgstr "Tous les fichiers médias (images de couverture)"
 
-#: src/templates/base/backup_manage.html:43
+#: src/templates/base/backup_manage.html:32
 msgid "Metadata (version, creation date)"
 msgstr "Métadonnées (version, date de création)"
 
-#: src/templates/base/backup_manage.html:51
+#: src/templates/base/backup_manage.html:40
 msgid "Download Backup"
 msgstr "Télécharger la sauvegarde"
 
-#: src/templates/base/backup_manage.html:61
-#: src/templates/base/backup_manage.html:100
+#: src/templates/base/backup_manage.html:50
+#: src/templates/base/backup_manage.html:89
 msgid "Import Backup"
 msgstr "Importer la sauvegarde"
 
-#: src/templates/base/backup_manage.html:63
+#: src/templates/base/backup_manage.html:52
 msgid "Restore your data from a backup archive."
 msgstr "Restaurer vos données à partir d'une archive de sauvegarde."
 
-#: src/templates/base/backup_manage.html:74
+#: src/templates/base/backup_manage.html:63
 msgid "WARNING:"
 msgstr "ATTENTION :"
 
-#: src/templates/base/backup_manage.html:75
+#: src/templates/base/backup_manage.html:64
 msgid "Importing a backup will"
 msgstr "L'importation d'une sauvegarde va"
 
-#: src/templates/base/backup_manage.html:76
+#: src/templates/base/backup_manage.html:65
 msgid "DELETE ALL your current data"
 msgstr "SUPPRIMER TOUTES vos données actuelles"
 
-#: src/templates/base/backup_manage.html:77
+#: src/templates/base/backup_manage.html:66
 msgid "and replace it with the backup data."
 msgstr "et les remplacer par les données de la sauvegarde."
 
-#: src/templates/base/backup_manage.html:87
+#: src/templates/base/backup_manage.html:76
 msgid "Select a backup file (.tar.gz)"
 msgstr "Sélectionnez un fichier de sauvegarde (.tar.gz)"
 
-#: src/templates/base/backup_manage.html:109
+#: src/templates/base/backup_manage.html:98
 msgid "⚠️ WARNING: Destructive Action"
 msgstr "⚠️ ATTENTION : Action destructive"
 
-#: src/templates/base/backup_manage.html:109
+#: src/templates/base/backup_manage.html:98
 msgid ""
 "This action will DELETE ALL your current data and replace it with the backup "
 "data. Are you absolutely sure you want to continue?"
@@ -524,15 +538,15 @@ msgstr ""
 "Cette action va SUPPRIMER TOUTES vos données actuelles et les remplacer par "
 "les données de la sauvegarde. Êtes-vous absolument sûr de vouloir continuer ?"
 
-#: src/templates/base/backup_manage.html:109
+#: src/templates/base/backup_manage.html:98
 msgid "Yes, import backup"
 msgstr "Oui, importer la sauvegarde"
 
-#: src/templates/base/backup_manage.html:130
+#: src/templates/base/backup_manage.html:124
 msgid "Backup creation failed. Please try again."
 msgstr "Échec de la création de la sauvegarde. Veuillez réessayer."
 
-#: src/templates/base/backup_manage.html:130
+#: src/templates/base/backup_manage.html:124
 msgid "Unknown error"
 msgstr "Erreur inconnue"
 
@@ -567,7 +581,7 @@ msgid "Import"
 msgstr "Importer"
 
 #: src/templates/base/media_edit.html:46
-#: src/templates/partials/saved_views/save_view_modal.html:34
+#: src/templates/partials/saved_views/save_view_modal.html:31
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -597,7 +611,7 @@ msgid "Type to search, press Enter to add"
 msgstr "Taper pour rechercher, presser Entrée pour ajouter"
 
 #: src/templates/base/media_edit.html:225
-#: src/templates/base/media_index.html:71
+#: src/templates/base/media_index.html:75
 #: src/templates/partials/navigation/filters_drawer.html:104
 msgid "Score"
 msgstr "Note"
@@ -611,6 +625,7 @@ msgid "Today"
 msgstr "Aujourd'hui"
 
 #: src/templates/base/media_edit.html:283
+#: src/templates/partials/saved_views/saved_views_list.html:22
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -670,60 +685,71 @@ msgstr "Ajouter manuellement"
 msgid "My media"
 msgstr "Mes médias"
 
-#: src/templates/base/media_index.html:14
-msgid "items"
-msgstr "éléments"
+#: src/templates/base/media_index.html:12
+#, python-format
+msgid "%(counter)s item"
+msgid_plural "%(counter)s items"
+msgstr[0] "%(counter)s élément"
+msgstr[1] "%(counter)s éléments"
 
-#: src/templates/base/media_index.html:16
-msgid "item"
-msgstr "élément"
-
-#: src/templates/base/media_index.html:42
+#: src/templates/base/media_index.html:41
+#: src/templates/base/media_index.html:52
 msgid "Search"
 msgstr "Recherche"
 
-#: src/templates/base/media_index.html:49
+#: src/templates/base/media_index.html:48
 msgid "Clear search"
 msgstr "Vider la recherche"
 
-#: src/templates/base/media_index.html:75
+#: src/templates/base/media_index.html:63
+#: src/templates/base/media_index.html:64
+msgid "Reverse sort order"
+msgstr "Inverser l'ordre de tri"
+
+#: src/templates/base/media_index.html:73
+msgid "Sort by"
+msgstr "Trier par"
+
+#: src/templates/base/media_index.html:79
 msgid "Creation date"
 msgstr "Date de création"
 
-#: src/templates/base/media_index.html:77
+#: src/templates/base/media_index.html:81
 msgid "Update date"
 msgstr "Date de modification"
 
-#: src/templates/base/media_index.html:83
+#: src/templates/base/media_index.html:87
+#: src/templates/base/media_index.html:89
 #: src/templates/partials/navigation/filters_drawer.html:18
 msgid "Filters"
 msgstr "Filtres"
 
-#: src/templates/base/media_index.html:89
+#: src/templates/base/media_index.html:94
+#: src/templates/base/media_index.html:96
 msgid "Add"
 msgstr "Ajouter"
 
-#: src/templates/base/media_index.html:117
+#: src/templates/base/media_index.html:124
 #: src/templates/partials/navigation/filters_drawer.html:175
 msgid "No review"
 msgstr "Pas de critique"
 
-#: src/templates/base/media_index.html:119
+#: src/templates/base/media_index.html:126
 #: src/templates/partials/navigation/filters_drawer.html:173
 msgid "Has review"
 msgstr "Avec critique"
 
-#: src/templates/base/media_index.html:125
+#: src/templates/base/media_index.html:132
 #: src/templates/partials/navigation/filters_drawer.html:190
 msgid "No cover"
 msgstr "Pas de couverture"
 
-#: src/templates/base/media_index.html:127
+#: src/templates/base/media_index.html:134
 #: src/templates/partials/navigation/filters_drawer.html:188
 msgid "Has cover"
 msgstr "Avec couverture"
 
-#: src/templates/base/media_index.html:143
+#: src/templates/base/media_index.html:150
 msgid "Save view"
 msgstr "Enregistrer la vue"
 
@@ -783,7 +809,7 @@ msgid "Back"
 msgstr "Retour"
 
 #: src/templates/partials/common/confirm_modal.html:19
-#: src/templates/partials/saved_views/save_view_modal.html:35
+#: src/templates/partials/saved_views/save_view_modal.html:32
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -793,7 +819,7 @@ msgid "Confirm"
 msgstr "Confirmer"
 
 #: src/templates/partials/common/confirm_modal.html:31
-#: src/templates/partials/saved_views/save_view_modal.html:39
+#: src/templates/partials/saved_views/save_view_modal.html:36
 msgid "Close"
 msgstr "Fermer"
 
@@ -830,10 +856,12 @@ msgid "See less"
 msgstr "Voir moins"
 
 #: src/templates/partials/media_items/score/media_score_stars_inner.html:5
+#: src/templates/partials/stats/covers_page.html:17
 msgid "Score:"
 msgstr "Note :"
 
 #: src/templates/partials/media_items/score/media_score_stars_inner.html:5
+#: src/templates/partials/stats/covers_page.html:17
 msgid "out of 10"
 msgstr "sur 10"
 
@@ -927,9 +955,9 @@ msgid "Logout"
 msgstr "Déconnexion"
 
 #: src/templates/partials/navigation/sidebar_nav.html:149
-#: src/templates/registration/login.html:4
-#: src/templates/registration/login.html:11
-#: src/templates/registration/login.html:24
+#: src/templates/registration/login.html:5
+#: src/templates/registration/login.html:18
+#: src/templates/registration/login.html:45
 msgid "Log in"
 msgstr "Se connecter"
 
@@ -948,6 +976,11 @@ msgstr "Enregistrer la vue actuelle"
 #: src/templates/partials/saved_views/save_view_modal.html:20
 msgid "Enter the name of an existing view to update it."
 msgstr "Entrez le nom d'une vue existante pour la mettre à jour."
+
+#: src/templates/partials/saved_views/saved_views_list.html:13
+#, python-format
+msgid "Delete the view “%(name)s”?"
+msgstr "Supprimer la vue « %(name)s » ?"
 
 #: src/templates/partials/stats/covers_page.html:36
 msgid "Show more"
@@ -974,9 +1007,15 @@ msgstr "Année suivante"
 msgid "TV"
 msgstr "Série"
 
-#: src/templates/registration/login.html:21
+#: src/templates/registration/login.html:37
 msgid "Password"
 msgstr "Mot de passe"
+
+#~ msgid "items"
+#~ msgstr "éléments"
+
+#~ msgid "item"
+#~ msgstr "élément"
 
 #~ msgid "Back to Home"
 #~ msgstr "Retour à l'accueil"

@@ -4,6 +4,8 @@ Tests for core.forms module.
 These tests verify the behavior of the MediaForm.
 """
 
+from django.utils import translation
+
 from core.forms import MediaForm
 from core.models import Agent, Media
 
@@ -147,3 +149,19 @@ def test_form_accepts_all_scores(db):
         }
         form = MediaForm(data=data)
         assert form.is_valid(), f"Failed for score {score}: {form.errors}"
+
+
+def test_review_date_placeholder_shows_accepted_formats(db):
+    """The review date placeholder lists the formats the partial date field accepts."""
+    placeholder = str(MediaForm().fields["review_date"].widget.attrs["placeholder"])
+
+    assert "YYYY-MM" in placeholder
+    assert "MM-YYYY" not in placeholder
+
+
+def test_placeholders_follow_active_language(db):
+    """Placeholders are translated at render time, in the language of the request."""
+    with translation.override("fr"):
+        html = str(MediaForm()["pub_year"])
+
+    assert 'placeholder="AAAA"' in html

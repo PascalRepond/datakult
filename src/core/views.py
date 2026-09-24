@@ -803,15 +803,19 @@ def validate_saved_view_data(post_data):  # noqa: C901, PLR0912
     if view_mode not in valid_view_modes:
         errors.append(_("Invalid view mode: %(mode)s") % {"mode": view_mode})
 
-    # Validate contributor (if present)
-    contributor_id = post_data.get("contributor")
-    if contributor_id:
-        try:
-            contributor_id_int = int(contributor_id)
-            if not Agent.objects.filter(pk=contributor_id_int).exists():
-                errors.append(_("Contributor does not exist: ID %(id)s") % {"id": contributor_id})
-        except ValueError, TypeError:
-            errors.append(_("Invalid contributor ID format: %(id)s") % {"id": contributor_id})
+    # Validate contributor and tag (if present)
+    related_filters = [
+        ("contributor", Agent, _("Contributor does not exist: ID %(id)s"), _("Invalid contributor ID format: %(id)s")),
+        ("tag", Tag, _("Tag does not exist: ID %(id)s"), _("Invalid tag ID format: %(id)s")),
+    ]
+    for field_name, model_class, missing_msg, format_msg in related_filters:
+        object_id = post_data.get(field_name)
+        if object_id:
+            try:
+                if not model_class.objects.filter(pk=int(object_id)).exists():
+                    errors.append(missing_msg % {"id": object_id})
+            except ValueError, TypeError:
+                errors.append(format_msg % {"id": object_id})
 
     # Validate review dates (if present)
     for field_name, field_label in [("review_from", _("Start date")), ("review_to", _("End date"))]:
@@ -855,6 +859,7 @@ def saved_view_save(request):
         "filter_statuses": request.POST.getlist("status"),
         "filter_scores": request.POST.getlist("score"),
         "filter_contributor_id": request.POST.get("contributor") or None,
+        "filter_tag_id": request.POST.get("tag") or None,
         "filter_review_from": request.POST.get("review_from", ""),
         "filter_review_to": request.POST.get("review_to", ""),
         "filter_has_review": request.POST.get("has_review", ""),

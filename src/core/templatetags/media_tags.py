@@ -31,6 +31,7 @@ STATUS_CLASSES = {
 }
 
 FILTER_PARAMS = {
+    "tag",
     "contributor",
     "type",
     "status",

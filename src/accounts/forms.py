@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
@@ -27,6 +28,12 @@ class UserProfileForm(forms.ModelForm):
                     "hx-vals": f'{{"field_name": "{field_name}"}}',
                 }
             )
+
+
+class LoginForm(AuthenticationForm):
+    """Login form with a short error message on invalid credentials."""
+
+    error_messages = {**AuthenticationForm.error_messages, "invalid_login": _("Invalid credentials.")}
 
 
 class CustomPasswordChangeForm(PasswordChangeForm):

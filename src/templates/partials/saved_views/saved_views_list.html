@@ -5,23 +5,24 @@
     <span>{% translate "Saved views" %}</span>
   </li>
   {% for view in saved_views %}
-    <li class="group">
-      <a href="{{ view.get_filter_url }}"
-         class="flex items-center justify-between">
-        <span class="flex items-center gap-2">
-          {% lucide "bookmark" %}
-          {{ view.name }}
-        </span>
-        <form method="post"
-              action="{% url 'saved_view_delete' view.id %}"
-              class="inline"
-              onsubmit="event.stopPropagation();">
-          {% csrf_token %}
-          <button type="submit"
-                  class="btn btn-ghost btn-xs btn-circle opacity-0 group-hover:opacity-100 transition-opacity"
-                  onclick="event.stopPropagation();">{% lucide "trash-2" size="14" %}</button>
-        </form>
+    <li class="group flex-row flex-nowrap items-center">
+      <a href="{{ view.get_filter_url }}" class="flex-1 min-w-0">
+        {% lucide "bookmark" %}
+        <span class="truncate">{{ view.name }}</span>
       </a>
+      {% blocktranslate asvar confirm_message with name=view.name %}Delete the view “{{ name }}”?{% endblocktranslate %}
+      <form method="post"
+            action="{% url 'saved_view_delete' view.id %}"
+            class="p-0 hover:bg-transparent"
+            hx-boost="true"
+            hx-confirm="{{ confirm_message }}">
+        {% csrf_token %}
+        <button type="submit"
+                class="btn btn-ghost btn-xs btn-circle opacity-50 group-hover:opacity-100 focus-visible:opacity-100"
+                aria-label="{% translate "Delete" %} {{ view.name }}">
+          {% lucide "trash-2" size="14" %}
+        </button>
+      </form>
     </li>
   {% endfor %}
 {% endif %}

@@ -9,12 +9,11 @@
   <div class="flex items-baseline gap-4 my-4">
     <h1 class="text-4xl font-bold">{% translate "My media" %}</h1>
     <span class="text-sm text-base-content/70">
-      {{ page_obj.paginator.count }}
-      {% if page_obj.paginator.count > 1 %}
-        {% translate "items" %}
-      {% else %}
-        {% translate "item" %}
-      {% endif %}
+      {% blocktranslate trimmed count counter=page_obj.paginator.count %}
+        {{ counter }} item
+      {% plural %}
+        {{ counter }} items
+      {% endblocktranslate %}
     </span>
   </div>
   <div class="flex flex-col gap-4">
@@ -48,7 +47,9 @@
                class="btn btn-ghost btn-sm btn-circle"
                title="{% translate "Clear search" %}">{% lucide "x" %}</a>
           {% endif %}
-          <button type="submit" class="btn btn-ghost btn-sm btn-circle">{% lucide "search" size="16" %}</button>
+          <button type="submit"
+                  class="btn btn-ghost btn-sm btn-circle"
+                  aria-label="{% translate "Search" %}">{% lucide "search" size="16" %}</button>
         </label>
       </form>
       {# Right controls group #}
@@ -58,7 +59,9 @@
         {# Sort selector #}
         <div class="flex join items-center">
           <a href="?{% query_string request sort=sort|toggle_sort_direction %}"
-             class="btn join-item btn-sm sm:btn-md">
+             class="btn join-item btn-sm sm:btn-md"
+             aria-label="{% translate "Reverse sort order" %}"
+             title="{% translate "Reverse sort order" %}">
             {% if sort|slice:":1" == "-" %}
               {% lucide "arrow-down-narrow-wide" %}
             {% else %}
@@ -67,6 +70,7 @@
           </a>
           <select class="select join-item select-sm sm:select-md"
                   id="sort-field-select"
+                  aria-label="{% translate "Sort by" %}"
                   onchange="window.location.href = '?{% query_string_exclude request 'sort' 'sort_field' %}&sort=' + (this.value.startsWith('-') ? this.value : '{% if sort|slice:":1" == "-" %}-{% endif %}' + this.value)">
             <option value="score" {% if sort_field == 'score' %}selected{% endif %}>{% translate "Score" %}</option>
             <option value="review_date"
@@ -78,13 +82,16 @@
           </select>
         </div>
         {# Filters button - opens drawer #}
-        <label for="filters-drawer" class="btn btn-sm sm:btn-md" type="button">
+        <label for="filters-drawer"
+               class="btn btn-sm sm:btn-md"
+               aria-label="{% translate "Filters" %}">
           {% lucide "funnel" %}
           <span class="hidden sm:inline">{% translate "Filters" %}</span>
         </label>
         {# Add button #}
         <a href="{% url 'media_import' %}"
-           class="btn btn-primary btn-sm sm:btn-md">
+           class="btn btn-primary btn-sm sm:btn-md"
+           aria-label="{% translate "Add" %}">
           {% lucide "plus" %}
           <span class="hidden sm:inline">{% translate "Add" %}</span>
         </a>

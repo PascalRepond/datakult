@@ -387,3 +387,10 @@ def test_get_filter_url_excludes_empty_optional_filters(user, db):
 
     assert "contributor" not in url
     assert "review_from" not in url
+
+
+def test_get_filter_url_includes_tag(user, db):
+    """get_filter_url includes the tag filter when set."""
+    saved_view = SavedView.objects.create(user=user, name="Tagged", filter_tag_id=7)
+
+    assert "tag=7" in saved_view.get_filter_url()

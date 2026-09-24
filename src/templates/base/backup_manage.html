@@ -10,17 +10,6 @@
       {% include "partials/common/back_button.html" %}
       <h1 class="text-4xl font-bold">{% translate "Backup Management" %}</h1>
     </div>
-    <!-- Messages -->
-    {% if messages %}
-      <div class="mb-6">
-        {% for message in messages %}
-          <div role="alert"
-               class="alert {% if message.tags == 'error' %}alert-error {% elif message.tags == 'success' %}alert-success {% else %}alert-info {% endif %}mb-2">
-            <span>{{ message }}</span>
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Export Backup Card -->
       <div class="card bg-base-200 shadow-xl">
@@ -114,6 +103,11 @@
 
       try {
         const response = await fetch("{% url 'backup_export' %}");
+        // On failure the server redirects back here with an error message: show it instead of saving the page
+        if (response.redirected) {
+          window.location.href = response.url;
+          return;
+        }
         if (!response.ok) {
           throw new Error('Backup failed');
         }

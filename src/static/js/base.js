@@ -13,11 +13,8 @@ function initThemeSwitcher() {
         }
     };
 
-    // Initialize theme
+    // Activate the radio button of the current theme (applied early by the inline script in the head)
     const currentTheme = localStorage.getItem("theme") || "default";
-    applyTheme(currentTheme);
-
-    // Activate the radio button of the current theme
     const currentRadio = document.querySelector(`input[name="theme-sidebar"][value="${currentTheme}"]`);
     if (currentRadio) {
         currentRadio.checked = true;
