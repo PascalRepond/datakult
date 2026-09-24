@@ -1,4 +1,4 @@
 {% load media_tags %}
 {# Renders a status badge #}
 {# Parameters: media #}
-<span class="badge badge-soft {{ media.status|status_badge_class }}">{{ media.get_status_display }}</span>
+<span class="badge {{ media.status|status_badge_class }}">{{ media.get_status_display }}</span>
