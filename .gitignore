@@ -181,7 +181,7 @@ yarn-error.log*
 .ruff_cache/
 
 # LLMs
-.claude/
+.claude/settings.local.json
 
 # Docker
 docker/.env
