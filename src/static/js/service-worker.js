@@ -1,4 +1,4 @@
-const CACHE_NAME = 'datakult-v1';
+const CACHE_NAME = 'datakult-v2';
 const STATIC_ASSETS = [
   '/',
   '/static/manifest.json',
@@ -31,60 +31,33 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event: network-first strategy for HTML, cache-first for static assets
+// Fetch event: network-first for pages and static assets, so that updates show at once,
+// with the cache as a fallback when offline
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests
-  if (request.method !== 'GET') {
+  // Skip non-GET and cross-origin requests
+  if (request.method !== 'GET' || url.origin !== location.origin) {
     return;
   }
 
-  // Skip cross-origin requests
-  if (url.origin !== location.origin) {
+  const isPage = request.headers.get('Accept')?.includes('text/html');
+  if (!isPage && !url.pathname.startsWith('/static/')) {
     return;
   }
 
-  // For HTML pages: network-first (try network, fallback to cache)
-  if (request.headers.get('Accept')?.includes('text/html')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
-          }
-          return response;
-        })
-        .catch(() => {
-          // Fallback to cache if network fails
-          return caches.match(request);
-        })
-    );
-    return;
-  }
-
-  // For static assets: cache-first (try cache, fallback to network)
-  if (url.pathname.startsWith('/static/')) {
-    event.respondWith(
-      caches.match(request).then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        if (response.ok) {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+          });
         }
-        return fetch(request).then((response) => {
-          if (response.ok) {
-            const responseClone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, responseClone);
-            });
-          }
-          return response;
-        });
+        return response;
       })
-    );
-    return;
-  }
+      .catch(() => caches.match(request))
+  );
 });
