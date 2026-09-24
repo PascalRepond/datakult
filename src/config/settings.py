@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.forms",
     # Datakult
     "accounts",
     "core",
@@ -104,6 +105,9 @@ TEMPLATES = [
         },
     },
 ]
+
+# Render form widgets with the TEMPLATES engine, so that they can include project partials
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 WSGI_APPLICATION = "config.wsgi.application"
 

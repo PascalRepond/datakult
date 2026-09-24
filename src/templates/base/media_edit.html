@@ -3,9 +3,9 @@
 {% load static %}
 {% block title %}
   {% if media %}
-    {% translate "Edit" %} {{ media.title }} - Datakult
+    {% translate "Edit" %} {{ media.title }} — Datakult
   {% else %}
-    {% translate "Add media" %}
+    {% translate "Add media" %} — Datakult
   {% endif %}
 {% endblock title %}
 {% block extra_css %}
@@ -23,22 +23,21 @@
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {# Header #}
-      <div class="flex justify-between items-start gap-4 mb-6">
-        <div class="flex-1">
-          {% include "partials/common/back_button.html" %}
-          <h1 class="text-4xl font-bold">
-            {% if media %}
-              {% translate "Edit" %} {{ media.title }}
-            {% else %}
-              {% translate "Add media" %}
-            {% endif %}
-          </h1>
-        </div>
-        <div class="flex gap-2">
+      <div class="flex justify-between items-center gap-4 mb-6">
+        {% if media %}
+          {% translate "Edit" as edit_label %}
+          {% url 'media_detail' media.pk as detail_url %}
+          {% include "partials/common/page_header.html" with title=edit_label|add:" "|add:media.title back_url=detail_url %}
+        {% else %}
+          {% translate "Add media" as add_label %}
+          {% url 'home' as home_url %}
+          {% include "partials/common/page_header.html" with title=add_label back_url=home_url history_path=home_url %}
+        {% endif %}
+        <div class="flex gap-2 shrink-0">
           <a href="{% url 'media_import' %}{% if media %}?media_id={{ media.pk }}&media_type={{ media.media_type }}&title={{ media.title|urlencode }}{% endif %}"
              class="btn btn-outline btn-sm"
              title="{% translate 'Import metadata' %}">
-            {% lucide "download" class="w-4 h-4" %}
+            {% lucide "search" class="w-4 h-4" %}
             {% translate "Import" %}
           </a>
           <button type="submit" class="btn btn-primary">
@@ -56,7 +55,7 @@
         {# Left column - Cover and metadata #}
         <div class="md:col-span-1 space-y-4">
           {# Cover card #}
-          <div class="card bg-base-200 shadow-md">
+          <div class="card bg-base-200 border border-base-300">
             <div class="card-body p-4">
               <div class="form-control">
                 <label class="label" for="id_cover">
@@ -90,7 +89,7 @@
             </div>
           </div>
           {# Metadata card #}
-          <div class="card bg-base-200 shadow-md">
+          <div class="card bg-base-200 border border-base-300">
             <div class="card-body p-4 space-y-2">
               <div class="form-control">
                 <label class="label" for="id_title">
@@ -112,13 +111,7 @@
                   {% endfor %}
                   {# Imported contributors (pre-filled as new) #}
                   {% for name in import_contributors %}
-                    <span class="badge badge-lg badge-primary gap-2" data-name="{{ name }}">
-                      {{ name }}
-                      <button type="button"
-                              class="btn btn-ghost btn-xs btn-circle"
-                              data-action="remove-chip">✕</button>
-                      <input type="hidden" name="new_contributors" value="{{ name }}">
-                    </span>
+                    {% include "partials/common/chip.html" with icon="user" input_name="new_contributors" input_value=name %}
                   {% endfor %}
                 </div>
                 <div class="relative">
@@ -126,7 +119,7 @@
                          id="contributor_search"
                          name="contributor_search"
                          class="input w-full"
-                         placeholder="{% translate "Type to search, press Enter to add" %}"
+                         placeholder="{% translate "Search or add…" %}"
                          autocomplete="off"
                          hx-get="{% url 'agent_search_htmx' %}"
                          hx-trigger="keyup changed delay:300ms"
@@ -135,11 +128,9 @@
                   <div id="contributor-suggestions"
                        class="absolute top-full left-0 right-0 z-50 hidden"></div>
                 </div>
-                {% if form.contributors.errors %}
-                  <label class="label" id="error-contributors">
-                    <span class="label-text-alt text-error">{{ form.contributors.errors.0 }}</span>
-                  </label>
-                {% endif %}
+                <label class="label" id="error-contributors">
+                  {% if form.contributors.errors %}<span class="label-text-alt text-error">{{ form.contributors.errors.0 }}</span>{% endif %}
+                </label>
               </div>
               <div class="form-control">
                 <label class="label" for="id_tags">
@@ -152,13 +143,7 @@
                   {% endfor %}
                   {# Imported tags (pre-filled as new) #}
                   {% for name in import_tags %}
-                    <span class="badge badge-lg badge-secondary gap-2" data-name="{{ name }}">
-                      {{ name }}
-                      <button type="button"
-                              class="btn btn-ghost btn-xs btn-circle"
-                              data-action="remove-chip">✕</button>
-                      <input type="hidden" name="new_tags" value="{{ name }}">
-                    </span>
+                    {% include "partials/common/chip.html" with icon="tag" input_name="new_tags" input_value=name %}
                   {% endfor %}
                 </div>
                 <div class="relative">
@@ -166,7 +151,7 @@
                          id="tag_search"
                          name="tag_search"
                          class="input w-full"
-                         placeholder="{% translate 'Type to search, press Enter to add' %}"
+                         placeholder="{% translate "Search or add…" %}"
                          autocomplete="off"
                          hx-get="{% url 'tag_search_htmx' %}"
                          hx-trigger="keyup changed delay:300ms"
@@ -175,11 +160,9 @@
                   <div id="tag-suggestions"
                        class="absolute top-full left-0 right-0 z-50 hidden"></div>
                 </div>
-                {% if form.tags.errors %}
-                  <label class="label" id="error-tags">
-                    <span class="label-text-alt text-error">{{ form.tags.errors.0 }}</span>
-                  </label>
-                {% endif %}
+                <label class="label" id="error-tags">
+                  {% if form.tags.errors %}<span class="label-text-alt text-error">{{ form.tags.errors.0 }}</span>{% endif %}
+                </label>
               </div>
               <div class="form-control">
                 <label class="label" for="id_media_type">
@@ -218,7 +201,7 @@
         {# Right column - Personal data and review #}
         <div class="md:col-span-2 space-y-4">
           {# Personal data card #}
-          <div class="card bg-base-200 shadow-md">
+          <div class="card bg-base-200 border border-base-300">
             <div class="card-body p-4 space-y-2">
               <div class="form-control">
                 <label class="label" for="id_score">
@@ -261,7 +244,7 @@
             </div>
           </div>
           {# Review card #}
-          <div class="card bg-base-200 shadow-md">
+          <div class="card bg-base-200 border border-base-300">
             <div class="card-body p-4">
               <div class="form-control">
                 <label class="label" for="id_review">
@@ -276,7 +259,7 @@
           </div>
           {# Actions card #}
           {% if media %}
-            <div class="card bg-base-200 shadow-md">
+            <div class="card bg-base-200 border border-base-300">
               <div class="card-body p-4">
                 <label for="confirm-delete-modal" class="btn btn-error w-full">
                   {% lucide "trash" %}
@@ -288,6 +271,13 @@
         </div>
       </div>
     </form>
+    {# Chips added by typing a new name are cloned from these templates by media_edit.js #}
+    <template id="new-contributor-chip">
+      {% include "partials/common/chip.html" with icon="user" input_name="new_contributors" %}
+    </template>
+    <template id="new-tag-chip">
+      {% include "partials/common/chip.html" with icon="tag" input_name="new_tags" %}
+    </template>
     {% if media %}
       <form id="delete-form"
             class="hidden"

@@ -41,43 +41,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const chipInputs = [];
 
   // Generic chip input handler with optional HTMX autocomplete support
-  const initChipInput = ({ inputId, containerId, suggestionsId, hiddenInputName, badgeClass }) => {
+  const initChipInput = ({ inputId, containerId, suggestionsId, templateId }) => {
     const input = document.getElementById(inputId);
     const container = document.getElementById(containerId);
     const suggestions = suggestionsId ? document.getElementById(suggestionsId) : null;
-    if (!input || !container) return null;
+    const template = document.getElementById(templateId);
+    if (!input || !container || !template) return null;
 
     const chipExists = (name) => {
       const lower = name.trim().toLowerCase();
-      return Array.from(container.querySelectorAll('.badge')).some((badge) => {
-        const badgeName =
-          badge.dataset.name || badge.querySelector('span')?.textContent || badge.textContent;
-        return (badgeName || '').trim().toLowerCase() === lower;
-      });
+      return Array.from(container.querySelectorAll('.badge')).some(
+        (badge) => (badge.dataset.name || '').trim().toLowerCase() === lower
+      );
     };
 
+    // Clone the server-rendered chip template, so new chips look like the existing ones
     const addChip = (name) => {
       if (!name || chipExists(name)) return;
 
-      const chip = document.createElement('span');
-      chip.className = `badge badge-lg ${badgeClass} gap-2`;
+      const chip = template.content.firstElementChild.cloneNode(true);
       chip.dataset.name = name;
-
-      const text = document.createElement('span');
-      text.textContent = name;
-
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'btn btn-neutral btn-ghost btn-xs btn-circle';
-      btn.dataset.action = 'remove-chip';
-      btn.textContent = '✕';
-
-      const hidden = document.createElement('input');
-      hidden.type = 'hidden';
-      hidden.name = hiddenInputName;
-      hidden.value = name;
-
-      chip.append(text, btn, hidden);
+      chip.querySelector('.chip-name').textContent = name;
+      chip.querySelector('input[type="hidden"]').value = name;
+      const btn = chip.querySelector('[data-action="remove-chip"]');
+      btn.setAttribute('aria-label', `${btn.getAttribute('aria-label').trim()} ${name}`);
       container.appendChild(chip);
     };
 
@@ -95,19 +82,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Delegate chip removal
+    // Delegate chip removal (the hidden input goes with its chip)
     container.addEventListener('click', (evt) => {
       const btn = evt.target.closest('[data-action="remove-chip"]');
-      if (!btn) return;
-      const chip = btn.closest('.badge');
-      if (!chip) return;
-
-      const inputRefId = chip.dataset.inputId;
-      const hiddenInput = inputRefId
-        ? document.getElementById(inputRefId)
-        : chip.querySelector('input[type="hidden"]');
-      chip.remove();
-      hiddenInput?.remove();
+      btn?.closest('.badge')?.remove();
     });
 
     // Autocomplete dropdown behavior (if suggestions element exists)
@@ -131,8 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     inputId: 'tag_search',
     containerId: 'tags-chips',
     suggestionsId: 'tag-suggestions',
-    hiddenInputName: 'new_tags',
-    badgeClass: 'badge-secondary',
+    templateId: 'new-tag-chip',
   });
 
   // Initialize contributors chip input with autocomplete
@@ -140,8 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     inputId: 'contributor_search',
     containerId: 'contributors-chips',
     suggestionsId: 'contributor-suggestions',
-    hiddenInputName: 'new_contributors',
-    badgeClass: 'badge-primary',
+    templateId: 'new-contributor-chip',
   });
 
   // Single set of HTMX event handlers for all chip inputs
@@ -177,11 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const incomingChip = tmp.querySelector('span[data-id]');
         const incomingId = incomingChip?.dataset.id;
 
-        const incomingName =
-          incomingChip?.dataset.name ||
-          incomingChip?.querySelector('span')?.textContent ||
-          incomingChip?.textContent ||
-          '';
+        const incomingName = incomingChip?.dataset.name || '';
 
         const idExists = incomingId && container.querySelector(`span[data-id="${incomingId}"]`);
         const nameExists = incomingName && chipExists(incomingName);

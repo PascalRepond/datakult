@@ -126,7 +126,9 @@
                          value="{{ value }}"
                          class="checkbox checkbox-sm"
                          {% if value|stringformat:"d" in filters.score %}checked{% endif %} />
-                  <span class="label-text">{{ value }}⭐ - {{ label }}</span>
+                  <span class="label-text flex items-center gap-1">
+                    {{ value }}<span class="mask mask-star-2 bg-orange-400 w-3 h-3" aria-hidden="true"></span> - {{ label }}
+                  </span>
                 </label>
               {% endfor %}
               <label class="label cursor-pointer justify-start gap-2 hover:bg-base-200 rounded px-2">

@@ -2,17 +2,17 @@
 {% load static %}
 {% load i18n %}
 {% block title %}
-  {% translate "Backup Management" %} - Datakult
+  {% translate "Backup Management" %} — Datakult
 {% endblock title %}
 {% block content %}
   <div class="max-w-4xl mx-auto">
-    <div class="flex items-center gap-4 mb-8">
-      {% include "partials/common/back_button.html" %}
-      <h1 class="text-4xl font-bold">{% translate "Backup Management" %}</h1>
+    <div class="mb-8">
+      {% translate "Backup Management" as backup_label %}
+      {% include "partials/common/page_header.html" with title=backup_label %}
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Export Backup Card -->
-      <div class="card bg-base-200 shadow-xl">
+      <div class="card bg-base-200 border border-base-300">
         <div class="card-body">
           <h2 class="card-title">
             {% lucide "download" %}
@@ -43,7 +43,7 @@
         </div>
       </div>
       <!-- Import Backup Card -->
-      <div class="card bg-base-200 shadow-xl border-2 border-warning">
+      <div class="card bg-base-200 border-2 border-warning">
         <div class="card-body">
           <h2 class="card-title text-warning">
             {% lucide "import" %}
@@ -53,12 +53,7 @@
           <div class="divider"></div>
           <!-- Warning Alert -->
           <div role="alert" class="alert alert-warning">
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 class="h-6 w-6 shrink-0 stroke-current"
-                 fill="none"
-                 viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
+            {% lucide "triangle-alert" class="shrink-0" %}
             <div class="text-sm">
               <strong>{% translate "WARNING:" %}</strong>
               {% translate "Importing a backup will" %}
@@ -95,7 +90,7 @@
     </div>
   </div>
   {# Confirmation modal for backup import #}
-  {% include "partials/common/confirm_modal.html" with modal_id="confirm-import-modal" title=_("⚠️ WARNING: Destructive Action") message=_("This action will DELETE ALL your current data and replace it with the backup data. Are you absolutely sure you want to continue?") confirm_text=_("Yes, import backup") is_danger=True form_id="import-backup-form" %}
+  {% include "partials/common/confirm_modal.html" with modal_id="confirm-import-modal" title=_("Warning: destructive action") message=_("This action will DELETE ALL your current data and replace it with the backup data. Are you absolutely sure you want to continue?") confirm_text=_("Yes, import backup") is_danger=True form_id="import-backup-form" %}
   <script>
     async function downloadBackup(btn) {
       btn.classList.add('loading');

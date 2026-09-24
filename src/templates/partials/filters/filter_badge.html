@@ -3,12 +3,14 @@
    - label: Text to display in the badge
    - filter_name: Name of the filter (for data-filter attribute)
    - filter_value: Optional value (for multi-value filters like type, status, score)
+   - icon: Optional lucide icon of the filtered dimension
    - badge_id: Optional ID for the badge element
-- label_id: Optional ID for the label span element {% endcomment %}
+   - label_id: Optional ID for the label span element {% endcomment %}
 {% load i18n %}
-<div class="badge badge-secondary gap-1"
+<div class="badge badge-ghost gap-1"
      {% if filter_name %}data-filter="{{ filter_name }}"{% endif %}
      {% if badge_id %}id="{{ badge_id }}"{% endif %}>
+   {% if icon %}{% lucide icon size="14" %}{% endif %}
    <span {% if label_id %}id="{{ label_id }}"{% endif %}>{{ label }}</span>
    <button type="button"
            aria-label="{% translate "Remove" %}"

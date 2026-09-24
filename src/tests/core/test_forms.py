@@ -165,3 +165,12 @@ def test_placeholders_follow_active_language(db):
         html = str(MediaForm()["pub_year"])
 
     assert 'placeholder="AAAA"' in html
+
+
+def test_score_widget_shows_the_ring_of_the_current_score(db):
+    """The rating widget shows the same score ring as the rest of the app, for the current score only."""
+    html = str(MediaForm(initial={"score": 8})["score"])
+
+    assert "radial-progress" in html
+    assert 'data-score="8" class="hidden"' not in html
+    assert 'data-score="7" class="hidden"' in html

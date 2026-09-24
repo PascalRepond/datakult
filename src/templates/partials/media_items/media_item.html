@@ -4,7 +4,7 @@
 {% if view_mode == 'grid' %}
   {# Grid view - Cards #}
   {% for media in media_list %}
-    <div class="card bg-base-200 shadow-sm">
+    <div class="card bg-base-200 border border-base-300">
       <figure class="relative w-full h-64 bg-base-300">
         <a href="{% url 'media_detail' media.pk %}"
            class="w-full h-full flex items-center justify-center hover:opacity-90 transition-opacity">
@@ -31,25 +31,17 @@
             </a>
             {% if media.pub_year %}<span class="opacity-70">({{ media.pub_year }})</span>{% endif %}
             <div>{% include "partials/media_items/media_contributors.html" %}</div>
-            {% if media.tags.all %}
-              <div class="flex flex-wrap gap-1 mt-1">{% include "partials/media_items/media_tags.html" %}</div>
-            {% endif %}
           </div>
           {% include "partials/media_items/media_edit_button.html" %}
         </div>
         {% include "partials/media_items/media_status_badge.html" %}
-        {% if media.score %}
-          <div class="mt-2 hidden md:block">
-            {% include "partials/media_items/score/media_score_stars.html" with size="sm" show_badge=False %}
-          </div>
-          {% include "partials/media_items/score/media_score_badge.html" %}
-        {% endif %}
+        {% include "partials/media_items/score/media_score_ring.html" with score=media.score label=media.get_score_display %}
         {% if media.review %}
           <div id="review-cell-{{ media.id }}" class="text-sm review-text">
             {% include "partials/media_items/media_review_clamped.html" %}
           </div>
         {% endif %}
-        {% if media.review_date %}<div class="text-xs italic text-right">{{ media.review_date }}</div>{% endif %}
+        {% if media.review_date %}<div class="text-xs italic text-right">{{ media.review_date|partial_date }}</div>{% endif %}
       </div>
     </div>
   {% endfor %}
@@ -75,23 +67,16 @@
           {% if media.contributors.all %}
             <div class="text-sm opacity-70">{% include "partials/media_items/media_contributors.html" %}</div>
           {% endif %}
-          {% if media.tags.all %}
-            <div class="flex flex-wrap gap-1 mt-1">{% include "partials/media_items/media_tags.html" %}</div>
-          {% endif %}
-          {# Show badge on small screens only (hidden from md+) #}
+          {# Show the score here on small screens only (hidden from md+) #}
           {% if media.score %}
-            <div class="md:hidden shrink-0">{% include "partials/media_items/score/media_score_badge.html" with size="sm" %}</div>
+            <div class="md:hidden">{% include "partials/media_items/score/media_score_ring.html" with score=media.score label=media.get_score_display %}</div>
           {% endif %}
         </div>
       </td>
       {# Review #}
       <td class="align-top p-2 hidden md:table-cell">
         {% if media.score %}
-          {# Show only badge on medium screens, stars + badge on large screens #}
-          <div class="mb-2 hidden xl:block">
-            {% include "partials/media_items/score/media_score_stars.html" with size="sm" %}
-          </div>
-          <div class="mb-2 xl:hidden">{% include "partials/media_items/score/media_score_badge.html" with size="sm" %}</div>
+          <div class="mb-2">{% include "partials/media_items/score/media_score_ring.html" with score=media.score label=media.get_score_display %}</div>
         {% endif %}
         {% if media.review %}
           <div id="review-cell-{{ media.id }}" class="text-sm max-w-200 review-text">
@@ -104,7 +89,7 @@
       {# Review date #}
       <td class="align-top p-2 hidden lg:table-cell">
         {% if media.review_date %}
-          <span class="text-sm">{{ media.review_date }}</span>
+          <span class="text-sm">{{ media.review_date|partial_date }}</span>
         {% else %}
           <span class="text-sm opacity-50">—</span>
         {% endif %}

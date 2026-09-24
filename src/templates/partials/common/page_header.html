@@ -1,0 +1,12 @@
+{# Page title with an optional back link #}
+{# Parameters: title, title_note (optional, shown in brackets after the title), subtitle (optional), #}
+{# back_url and history_path (optional, see back_button.html) #}
+<div class="flex items-center gap-2 min-w-0">
+  {% if back_url %}
+    {% include "partials/common/back_button.html" with url=back_url %}
+  {% endif %}
+  <div class="min-w-0">
+    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold">{{ title }}{% if title_note %} <span class="font-normal opacity-70 text-lg sm:text-2xl">({{ title_note }})</span>{% endif %}</h1>
+    {% if subtitle %}<p class="text-sm text-base-content/70">{{ subtitle }}</p>{% endif %}
+  </div>
+</div>

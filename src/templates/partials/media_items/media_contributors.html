@@ -2,6 +2,7 @@
 {# Parameters: media #}
 {% load media_tags %}
 {% if media.contributors.all %}
+  {% lucide "user" size="14" class="inline align-[-2px] opacity-60" %}
   {% for contributor in media.contributors.all %}
     <a href="{% url 'home' %}?{% query_string request contributor=contributor.id %}"
        class="link link-hover contributor-link">{{ contributor.name }}</a>

@@ -1,0 +1,20 @@
+{% load i18n %}
+{% load media_tags %}
+{# Inner template of media_score_ring.html: a grey track under the score arc, the score in their centre #}
+<span class="inline-flex items-center gap-2 {{ extra_class }}">
+  <span class="inline-grid *:[grid-area:1/1] font-bold {{ number_class }}"
+        role="meter"
+        aria-valuemin="0"
+        aria-valuemax="10"
+        aria-valuenow="{{ score }}"
+        aria-label="{% translate 'Score:' %} {{ score }} {% translate 'out of 10' %}">
+    <span class="radial-progress text-base-content/15"
+          style="--value:100; {{ ring_style }}"
+          aria-hidden="true"></span>
+    <span class="radial-progress {{ score|score_color }}"
+          style="--value:{% widthratio score 1 10 %}; {{ ring_style }}"
+          aria-hidden="true"></span>
+    <span class="place-self-center" aria-hidden="true">{{ score }}</span>
+  </span>
+  {% if show_label != False %}<span class="text-sm">{{ label }}</span>{% endif %}
+</span>

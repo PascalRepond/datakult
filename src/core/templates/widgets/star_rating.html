@@ -14,7 +14,6 @@
         <button type="button"
                 class="mask mask-star-2 star-btn bg-orange-400"
                 data-score="{{ score }}"
-                data-label="{{ label }}"
                 aria-label="{{ label }}"
                 {% if widget.value and score <= widget.value|add:0 %}aria-current="true"{% endif %}></button>
       {% endfor %}
@@ -23,37 +22,19 @@
     <button type="button"
             class="star-clear-btn opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
             data-widget-name="{{ widget.name }}"
-            title="{% translate "Clear rating" %}">
-      <svg xmlns="http://www.w3.org/2000/svg"
-           class="h-5 w-5"
-           fill="none"
-           viewBox="0 0 24 24"
-           stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-      </svg>
+            title="{% translate "Clear rating" %}"
+            aria-label="{% translate "Clear rating" %}">
+      {% lucide "x" size="20" %}
     </button>
   </div>
-  {# Label display for hover/selected score - fixed height to prevent layout shift #}
-  <div class="star-label mt-1 h-6 flex items-center"
+  {# Score ring of the hovered or selected score, one rendered per score - fixed height to prevent layout shift #}
+  <div class="star-label mt-1 h-9 flex items-center"
        data-widget-name="{{ widget.name }}">
-    {% if widget.value %}
-      {% for score, label in score_choices %}
-        {% if widget.value|add:0 == score %}
-          <span class="badge badge-neutral gap-0">
-            <span class="score-number">{{ score }}</span>
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 viewBox="0 0 20 20"
-                 fill="currentColor"
-                 class="fill-orange-400 h-4"
-                 width="20"
-                 height="20">
-              <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
-            </svg>
-            <span class="score-label">{{ label }}</span>
-          </span>
-        {% endif %}
-      {% endfor %}
-    {% endif %}
+    {% for score, label in score_choices %}
+      <span data-score="{{ score }}"{% if widget.value|add:0 != score %} class="hidden"{% endif %}>
+        {% include "partials/media_items/score/media_score_ring.html" with score=score label=label %}
+      </span>
+    {% endfor %}
   </div>
 </div>
 <script>
@@ -80,19 +61,11 @@
     });
   }
 
-  // Update label badge display
-  function updateLabelBadge(score, label) {
-    if (score && label) {
-      labelDisplay.innerHTML = `<span class="badge badge-neutral gap-0">
-        <span class="score-number">${score}</span>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="fill-orange-400 h-4" width="20" height="20">
-          <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
-        </svg>
-        <span class="score-label">${label}</span>
-      </span>`;
-    } else {
-      labelDisplay.innerHTML = '';
-    }
+  // Show the score ring of the given score only
+  function updateLabel(score) {
+    labelDisplay.querySelectorAll('[data-score]').forEach((ring) => {
+      ring.classList.toggle('hidden', ring.dataset.score !== String(score));
+    });
   }
 
   // Handle star click
@@ -100,7 +73,6 @@
     star.addEventListener('click', function(e) {
       e.preventDefault();
       const score = this.dataset.score;
-      const label = this.dataset.label;
 
       // Update hidden input
       hiddenInput.value = score;
@@ -108,8 +80,8 @@
       // Update visual state
       updateStars(parseInt(score));
 
-      // Update label badge
-      updateLabelBadge(score, label);
+      // Show its score ring
+      updateLabel(score);
 
       // Trigger change event for HTMX validation
       hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -118,13 +90,12 @@
     // Handle hover
     star.addEventListener('mouseenter', function() {
       const score = parseInt(this.dataset.score);
-      const label = this.dataset.label;
 
       // Temporarily update stars appearance
       updateStars(score);
 
-      // Show label
-      updateLabelBadge(score, label);
+      // Show its score ring
+      updateLabel(score);
     });
   });
 
@@ -133,15 +104,8 @@
     const currentScore = hiddenInput.value ? parseInt(hiddenInput.value) : null;
     updateStars(currentScore);
 
-    // Restore label to selected value
-    if (currentScore) {
-      const selectedStar = ratingContainer.querySelector(`[data-score="${currentScore}"]`);
-      if (selectedStar) {
-        updateLabelBadge(currentScore, selectedStar.dataset.label);
-      }
-    } else {
-      updateLabelBadge(null, null);
-    }
+    // Restore the score ring of the selected value
+    updateLabel(currentScore);
   });
 
   // Handle clear button
@@ -154,8 +118,8 @@
     // Clear visual state
     updateStars(null);
 
-    // Clear label badge
-    updateLabelBadge(null, null);
+    // Hide the score ring
+    updateLabel(null);
 
     // Trigger change event for HTMX validation
     hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));

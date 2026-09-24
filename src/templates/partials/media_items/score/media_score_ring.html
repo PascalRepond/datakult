@@ -1,0 +1,14 @@
+{% load i18n %}
+{# Score as a ring filled in proportion to the score out of 10, with its verdict #}
+{# Parameters: score, label (its verdict), size ('sm' default, or 'lg'), show_label (default True), extra_class (optional) #}
+{% if score %}
+  {% if size == "lg" %}
+    {% with ring_style="--size:3.5rem; --thickness:5px" number_class="text-xl" %}
+      {% include "partials/media_items/score/media_score_ring_inner.html" %}
+    {% endwith %}
+  {% else %}
+    {% with ring_style="--size:2.25rem; --thickness:3px" number_class="text-sm" %}
+      {% include "partials/media_items/score/media_score_ring_inner.html" %}
+    {% endwith %}
+  {% endif %}
+{% endif %}

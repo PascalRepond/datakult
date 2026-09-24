@@ -1,8 +1,10 @@
 {% load i18n %}
-{% load lucide %}
-<button type="button"
-        onclick="history.length > 1 ? history.back() : window.location.href='{% url 'home' %}'"
-        class="btn btn-ghost btn-sm btn-circle"
-        aria-label="{% translate 'Back' %}">
-    {% lucide "arrow-left" %}
-</button>
+{# Back link to the parent page #}
+{# Parameters: url; history_path (optional): when coming from this path, go back in history instead, #}
+{# to find that page as it was left (filters, scroll position) #}
+<a href="{{ url }}"
+   class="btn btn-ghost btn-sm btn-circle shrink-0"
+   aria-label="{% translate 'Back' %}"
+   {% if history_path %}onclick="if (document.referrer && new URL(document.referrer).pathname === '{{ history_path }}') { history.back(); return false; }"{% endif %}>
+  {% lucide "arrow-left" %}
+</a>

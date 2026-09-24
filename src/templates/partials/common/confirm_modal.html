@@ -11,7 +11,10 @@
 <input type="checkbox" id="{{ modal_id }}" class="modal-toggle" />
 <div class="modal">
   <div class="modal-box">
-    <h3 class="font-bold text-lg {% if is_danger %}text-error{% endif %}">{{ title }}</h3>
+    <h3 class="font-bold text-lg flex items-center gap-2 {% if is_danger %}text-error{% endif %}">
+      {% if is_danger %}{% lucide "triangle-alert" %}{% endif %}
+      {{ title }}
+    </h3>
     <div class="py-4">
       {{ message }}{% if item_name %} <strong>{{ item_name }}</strong>?{% endif %}
     </div>

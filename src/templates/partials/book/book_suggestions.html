@@ -8,7 +8,7 @@
   <div class="space-y-2">
     {% for result in results %}
       <a href="{% if media_id %}{% url 'media_edit' pk=media_id %}{% else %}{% url 'media_add' %}{% endif %}?{% if result.source == 'googlebooks' %}googlebooks_id={{ result.volume_id }}{% else %}openlibrary_key={{ result.olid }}{% if result.year %}&year={{ result.year }}{% endif %}{% endif %}"
-         class="card bg-base-100 shadow hover:shadow-lg transition-shadow">
+         class="card bg-base-100 border border-base-300 hover:border-primary transition-colors">
         <div class="card-body p-3 flex-row items-center gap-4">
           {% if result.cover_url_small %}
             <img src="{{ result.cover_url_small }}"

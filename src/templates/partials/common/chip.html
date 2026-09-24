@@ -1,0 +1,14 @@
+{% load i18n %}
+{# Removable chip of a multi-value form field, carrying its value in a hidden input #}
+{# Parameters: name, icon, input_name, input_value, chip_id (optional, id of an existing object) #}
+<span class="badge badge-lg badge-outline gap-1 h-auto min-h-8 py-1 max-w-full"
+      data-name="{{ name }}"
+      {% if chip_id %}data-id="{{ chip_id }}"{% endif %}>
+  {% lucide icon size="14" class="shrink-0" %}
+  <span class="chip-name min-w-0 break-words leading-tight">{{ name }}</span>
+  <button type="button"
+          class="btn btn-ghost btn-xs btn-circle shrink-0"
+          data-action="remove-chip"
+          aria-label="{% translate 'Remove' %} {{ name }}">{% lucide "x" size="14" %}</button>
+  <input type="hidden" name="{{ input_name }}" value="{{ input_value }}" />
+</span>

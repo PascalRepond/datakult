@@ -3,18 +3,17 @@
 {% load static %}
 {% load media_tags %}
 {% block title %}
-  Datakult
+  {% translate "My media" %} — Datakult
 {% endblock title %}
 {% block content %}
-  <div class="flex items-baseline gap-4 my-4">
-    <h1 class="text-4xl font-bold">{% translate "My media" %}</h1>
-    <span class="text-sm text-base-content/70">
-      {% blocktranslate trimmed count counter=page_obj.paginator.count %}
-        {{ counter }} item
-      {% plural %}
-        {{ counter }} items
-      {% endblocktranslate %}
-    </span>
+  <div class="my-4">
+    {% blocktranslate trimmed count counter=page_obj.paginator.count asvar count_label %}
+      {{ counter }} item
+    {% plural %}
+      {{ counter }} items
+    {% endblocktranslate %}
+    {% translate "My media" as index_label %}
+    {% include "partials/common/page_header.html" with title=index_label subtitle=count_label %}
   </div>
   <div class="flex flex-col gap-4">
     {# Top bar with search and controls #}
@@ -101,22 +100,22 @@
     <div id="active-filters-badges" class="flex flex-wrap gap-2 items-center">
       {% if filters.type %}
         {% for type_val, type_label in filters.type_display %}
-          {% include "partials/filters/filter_badge.html" with label=type_label filter_name="type" filter_value=type_val %}
+          {% include "partials/filters/filter_badge.html" with label=type_label filter_name="type" filter_value=type_val icon="shapes" %}
         {% endfor %}
       {% endif %}
       {% if filters.status %}
         {% for status_val, status_label in filters.status_display %}
-          {% include "partials/filters/filter_badge.html" with label=status_label filter_name="status" filter_value=status_val %}
+          {% include "partials/filters/filter_badge.html" with label=status_label filter_name="status" filter_value=status_val icon="circle-dot" %}
         {% endfor %}
       {% endif %}
       {% if filters.score %}
         {% for score_val, score_label in filters.score_display %}
-          {% include "partials/filters/filter_badge.html" with label=score_label filter_name="score" filter_value=score_val %}
+          {% include "partials/filters/filter_badge.html" with label=score_label filter_name="score" filter_value=score_val icon="star" %}
         {% endfor %}
       {% endif %}
       {% if filters.review_from or filters.review_to %}
-        {% with review_label="📅 "|add:filters.review_from|default:""|add:" → "|add:filters.review_to|default:"" %}
-          {% include "partials/filters/filter_badge.html" with label=review_label filter_name="review" %}
+        {% with review_label=filters.review_from|default:"…"|add:" → "|add:filters.review_to|default:"…" %}
+          {% include "partials/filters/filter_badge.html" with label=review_label filter_name="review" icon="calendar" %}
         {% endwith %}
       {% endif %}
       {% if filters.has_review %}
@@ -125,7 +124,7 @@
         {% else %}
           {% translate "Has review" as has_review_label %}
         {% endif %}
-        {% include "partials/filters/filter_badge.html" with label=has_review_label filter_name="has_review" %}
+        {% include "partials/filters/filter_badge.html" with label=has_review_label filter_name="has_review" icon="message-square" %}
       {% endif %}
       {% if filters.has_cover %}
         {% if filters.has_cover == "empty" %}
@@ -133,13 +132,13 @@
         {% else %}
           {% translate "Has cover" as has_cover_label %}
         {% endif %}
-        {% include "partials/filters/filter_badge.html" with label=has_cover_label filter_name="has_cover" %}
+        {% include "partials/filters/filter_badge.html" with label=has_cover_label filter_name="has_cover" icon="image" %}
       {% endif %}
       {% if contributor %}
-        {% include "partials/filters/filter_badge.html" with label=contributor.name filter_name="contributor" badge_id="contributor-badge" label_id="contributor-badge-name" %}
+        {% include "partials/filters/filter_badge.html" with label=contributor.name filter_name="contributor" badge_id="contributor-badge" label_id="contributor-badge-name" icon="user" %}
       {% endif %}
       {% if tag %}
-        {% include "partials/filters/filter_badge.html" with label=tag.name filter_name="tag" badge_id="tag-badge" label_id="tag-badge-name" %}
+        {% include "partials/filters/filter_badge.html" with label=tag.name filter_name="tag" badge_id="tag-badge" label_id="tag-badge-name" icon="tag" %}
       {% endif %}
       {# Save view button - only shown when filters are active #}
       {% if filters.has_any or contributor or tag %}

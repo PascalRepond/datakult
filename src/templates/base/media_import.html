@@ -1,14 +1,20 @@
 {% extends "base/base.html" %}
 {% load i18n %}
 {% block title %}
-  {% translate "Import metadata" %} - Datakult
+  {% translate "Import metadata" %} — Datakult
 {% endblock title %}
 {% block content %}
   <div class="max-w-2xl mx-auto">
     {# Header #}
-    <div class="flex items-center gap-4 mb-6">
-      {% include "partials/common/back_button.html" %}
-      <h1 class="text-4xl font-bold">{% translate "Import metadata" %}</h1>
+    <div class="mb-6">
+      {% if media_id %}
+        {% url 'media_edit' media_id as back_url %}
+      {% else %}
+        {% url 'home' as back_url %}
+      {% endif %}
+      {% url 'home' as home_url %}
+      {% translate "Import metadata" as import_label %}
+      {% include "partials/common/page_header.html" with title=import_label back_url=back_url history_path=home_url %}
     </div>
     {# Source selector tabs #}
     <div class="tabs tabs-box mb-6">
@@ -46,7 +52,7 @@
              hx-on:click="document.getElementById('source-musicbrainz').classList.remove('hidden'); document.getElementById('source-tmdb').classList.add('hidden'); document.getElementById('source-igdb').classList.add('hidden'); document.getElementById('source-books').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
     </div>
     {# TMDB Search (Movies & TV) #}
-    <div id="source-tmdb" class="card bg-base-200 shadow-md mb-6{% if default_source and default_source != 'tmdb' %} hidden{% endif %}">
+    <div id="source-tmdb" class="card bg-base-200 border border-base-300 mb-6{% if default_source and default_source != 'tmdb' %} hidden{% endif %}">
       <div class="card-body p-4 space-y-3">
         <div class="flex items-center gap-2 mb-2">
           {% lucide "film" class="w-5 h-5" %}
@@ -88,7 +94,7 @@
       </div>
     </div>
     {# IGDB Search (Video games) #}
-    <div id="source-igdb" class="card bg-base-200 shadow-md mb-6{% if default_source != 'igdb' %} hidden{% endif %}">
+    <div id="source-igdb" class="card bg-base-200 border border-base-300 mb-6{% if default_source != 'igdb' %} hidden{% endif %}">
       <div class="card-body p-4 space-y-3">
         <div class="flex items-center gap-2 mb-2">
           {% lucide "gamepad-2" class="w-5 h-5" %}
@@ -118,7 +124,7 @@
     </div>
     {# Books Search (OpenLibrary + Google Books) #}
     <div id="source-books"
-         class="card bg-base-200 shadow-md mb-6{% if default_source != 'books' %} hidden{% endif %}">
+         class="card bg-base-200 border border-base-300 mb-6{% if default_source != 'books' %} hidden{% endif %}">
       <div class="card-body p-4 space-y-3">
         <div class="flex items-center gap-2 mb-2">
           {% lucide "book-open" class="w-5 h-5" %}
@@ -148,7 +154,7 @@
     </div>
     {# MusicBrainz Search (Music) #}
     <div id="source-musicbrainz"
-         class="card bg-base-200 shadow-md mb-6{% if default_source != 'musicbrainz' %} hidden{% endif %}">
+         class="card bg-base-200 border border-base-300 mb-6{% if default_source != 'musicbrainz' %} hidden{% endif %}">
       <div class="card-body p-4 space-y-3">
         <div class="flex items-center gap-2 mb-2">
           {% lucide "disc-3" class="w-5 h-5" %}

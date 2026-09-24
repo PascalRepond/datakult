@@ -1,13 +1,14 @@
 """Custom template tags for media-related functionality."""
 
 from django import template
+from django.utils import formats
 
 register = template.Library()
 
 
 MEDIA_TYPE_ICONS = {
     "BOOK": "book-open",
-    "GAME": "gamepad",
+    "GAME": "gamepad-2",
     "MUSIC": "disc-3",
     "COMIC": "book-image",
     "FILM": "film",
@@ -29,6 +30,14 @@ STATUS_CLASSES = {
     "PAUSED": "badge-warning",
     "DNF": "badge-error",
 }
+
+# Upper score bound of each verdict colour: disliked, mixed, enjoyed, loved
+SCORE_COLORS = (
+    (4, "text-red-500"),
+    (6, "text-amber-500"),
+    (8, "text-lime-500"),
+    (10, "text-emerald-500"),
+)
 
 FILTER_PARAMS = {
     "tag",
@@ -85,6 +94,33 @@ def status_badge_class(status):
     """
 
     return STATUS_CLASSES.get(status, "badge-ghost")
+
+
+@register.filter
+def score_color(score):
+    """
+    Return the text colour class of a score (1-10), from red for disliked media to green for loved ones.
+
+    Example usage:
+        <span class="radial-progress {{ media.score|score_color }}">
+    """
+    return next(color for bound, color in SCORE_COLORS if score <= bound)
+
+
+@register.filter
+def partial_date(value):
+    """
+    Format a partial date in the active language, down to its own precision.
+
+    Example usage:
+        {{ media.review_date|partial_date }}  ->  "12 mai 2024", "mai 2024" or "2024"
+    """
+    if not value:
+        return ""
+    if value.precisionYear():
+        return str(value.date.year)
+    date_format = "YEAR_MONTH_FORMAT" if value.precisionMonth() else "DATE_FORMAT"
+    return formats.date_format(value.date, date_format)
 
 
 @register.simple_tag
