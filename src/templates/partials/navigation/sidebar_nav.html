@@ -28,7 +28,7 @@
     </a>
   </li>
   <li>
-    <a href="{% url 'stats' %}"
+    <a href="{% url 'stats' %}?year={% now "Y" %}"
        class="{% if request.resolver_match.view_name == 'stats' %}menu-active{% endif %}">
       {% lucide "chart-column" %}
       {% translate "Statistics" %}

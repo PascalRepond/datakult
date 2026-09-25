@@ -1512,6 +1512,14 @@ def test_sidebar_marks_the_current_media_type(logged_in_client):
     ]
 
 
+@freeze_time("2026-09-25")
+def test_sidebar_stats_link_opens_the_current_year(logged_in_client):
+    """The statistics shortcut of the sidebar shows the current year."""
+    content = logged_in_client.get(reverse("home")).content.decode()
+
+    assert f'<a href="{reverse("stats")}?year=2026"' in content
+
+
 def test_index_always_shows_the_grid(logged_in_client, media):
     """The list view is gone: an old URL asking for it shows the grid."""
     content = logged_in_client.get(reverse("home"), {"view_mode": "list"}).content.decode()
