@@ -43,6 +43,30 @@ def _block_network(monkeypatch):
 
 
 @pytest.fixture
+def api_responses(monkeypatch, settings):
+    """
+    Answer the requests to the external APIs with the JSON set for their URL, without its query string.
+
+    The API keys of the sources are set, so that every client can be created. A URL without JSON cannot be reached.
+    """
+    from unittest.mock import MagicMock
+
+    settings.TMDB_API_KEY = settings.GOOGLE_BOOKS_API_KEY = "key"
+    settings.TWITCH_CLIENT_ID = settings.TWITCH_CLIENT_SECRET = "twitch"  # noqa: S105
+    responses = {}
+
+    def respond(session, method, url, **kwargs):
+        if (data := responses.get(url.split("?")[0])) is None:
+            raise requests.ConnectionError(url)
+        response = MagicMock(status_code=200)
+        response.json.return_value = data
+        return response
+
+    monkeypatch.setattr(requests.Session, "request", respond)
+    return responses
+
+
+@pytest.fixture
 def agent(db):
     """Create and return a sample Agent instance."""
     from core.models import Agent

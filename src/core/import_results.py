@@ -57,29 +57,28 @@ def from_igdb(result, media_id):
     )
 
 
-def from_googlebooks(result, media_id):
-    """Return a Google Books result, as the import page shows it."""
+def _from_book_source(result, badge, import_url):
+    """Return a book result of Google Books or OpenLibrary, badged with its source, as the import page shows it."""
     return ImportResult(
         title=result.title,
         year=result.year,
-        badge="Google Books",
-        import_url=_import_url(media_id, googlebooks_id=result.volume_id),
+        badge=badge,
+        import_url=import_url,
         placeholder_icon="book",
         cover_url=result.cover_url_small,
         byline=", ".join(result.authors),
     )
 
 
+def from_googlebooks(result, media_id):
+    """Return a Google Books result, as the import page shows it."""
+    return _from_book_source(result, "Google Books", _import_url(media_id, googlebooks_id=result.volume_id))
+
+
 def from_openlibrary(result, media_id):
     """Return an OpenLibrary result, as the import page shows it."""
-    return ImportResult(
-        title=result.title,
-        year=result.year,
-        badge="OpenLibrary",
-        import_url=_import_url(media_id, openlibrary_key=result.olid, year=result.year),
-        placeholder_icon="book",
-        cover_url=result.cover_url_small,
-        byline=", ".join(result.authors),
+    return _from_book_source(
+        result, "OpenLibrary", _import_url(media_id, openlibrary_key=result.olid, year=result.year)
     )
 
 

@@ -5,29 +5,37 @@ API Documentation: https://developer.themoviedb.org/docs
 """
 
 import logging
+import re
 from dataclasses import dataclass
 from typing import Literal
-from urllib.parse import urlencode, urljoin
+from urllib.parse import urljoin
 
-import requests
 from django.conf import settings
+
+from .base import MIN_QUERY_LENGTH, APIClient, APIError, extract_year
 
 logger = logging.getLogger(__name__)
 
 TMDB_BASE_URL = "https://api.themoviedb.org/3/"
 TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/"
 
-# Minimum query length for search
-MIN_QUERY_LENGTH = 2
-# Minimum date string length for year extraction (YYYY)
-MIN_DATE_LENGTH = 4
+# Fields of the title, the original title and the date, which differ between movies and TV shows
+TITLE_FIELDS = {
+    "movie": ("title", "original_title", "release_date"),
+    "tv": ("name", "original_name", "first_air_date"),
+}
 
 
-class TMDBError(Exception):
-    """Exception raised when TMDB API key is missing or invalid."""
+class TMDBError(APIError):
+    """Exception raised when the TMDB API key is missing."""
 
     def __init__(self) -> None:
         super().__init__("TMDB API key is required. Set TMDB_API_KEY in your environment.")
+
+
+def _image_url(cover_path: str | None, size: str) -> str | None:
+    """Return the URL of a TMDB image at one of its sizes, such as w500."""
+    return f"{TMDB_IMAGE_BASE_URL}{size}{cover_path}" if cover_path else None
 
 
 @dataclass
@@ -45,49 +53,37 @@ class TMDBResult:
     @property
     def cover_url(self) -> str | None:
         """Returns the full URL for the cover image (w500 size)."""
-        if self.cover_path:
-            return f"{TMDB_IMAGE_BASE_URL}w500{self.cover_path}"
-        return None
+        return _image_url(self.cover_path, "w500")
 
     @property
     def cover_url_small(self) -> str | None:
         """Returns a smaller cover URL for thumbnails (w185 size)."""
-        if self.cover_path:
-            return f"{TMDB_IMAGE_BASE_URL}w185{self.cover_path}"
-        return None
+        return _image_url(self.cover_path, "w185")
 
 
-class TMDBClient:
+class TMDBClient(APIClient):
     """Client for interacting with The Movie Database (TMDB) API."""
 
+    source_name = "TMDB"
+    cover_url_pattern = re.compile(re.escape(TMDB_IMAGE_BASE_URL))
+
     def __init__(self, api_key: str | None = None):
+        super().__init__()
         self.api_key = api_key or settings.TMDB_API_KEY
         if not self.api_key:
             raise TMDBError
 
-    def _request(self, endpoint: str, params: dict | None = None) -> dict:
+    def _get(self, endpoint: str, params: dict) -> dict:
         """Make a request to the TMDB API."""
-        params = params or {}
-        params["api_key"] = self.api_key
+        return self._request(urljoin(TMDB_BASE_URL, endpoint), params={**params, "api_key": self.api_key})
 
-        url = urljoin(TMDB_BASE_URL, endpoint)
-        full_url = f"{url}?{urlencode(params)}"
-
-        try:
-            response = requests.get(full_url, timeout=10)
-            response.raise_for_status()
-            return response.json()
-        except requests.RequestException:
-            logger.exception("TMDB API request failed")
-            raise
-
-    def search_multi(self, query: str, language: str = "fr-FR", page: int = 1) -> list[TMDBResult]:
+    def search_multi(self, query: str, language: str, page: int = 1) -> list[TMDBResult]:
         """
         Search for movies and TV shows.
 
         Args:
             query: The search query
-            language: Language for results (default: French)
+            language: Language for results
             page: Page number for pagination
 
         Returns:
@@ -96,7 +92,7 @@ class TMDBClient:
         if not query or len(query) < MIN_QUERY_LENGTH:
             return []
 
-        data = self._request(
+        data = self._get(
             "search/multi",
             {"query": query, "language": language, "page": page, "include_adult": False},
         )
@@ -104,26 +100,15 @@ class TMDBClient:
         results = []
         for item in data.get("results", []):
             media_type = item.get("media_type")
-            if media_type not in ("movie", "tv"):
+            if media_type not in TITLE_FIELDS:
                 continue
-
-            if media_type == "movie":
-                title = item.get("title", "")
-                original_title = item.get("original_title", "")
-                date_field = item.get("release_date", "")
-            else:
-                title = item.get("name", "")
-                original_title = item.get("original_name", "")
-                date_field = item.get("first_air_date", "")
-
-            year = int(date_field[:4]) if date_field and len(date_field) >= MIN_DATE_LENGTH else None
-
+            title_field, original_title_field, date_field = TITLE_FIELDS[media_type]
             results.append(
                 TMDBResult(
                     tmdb_id=item.get("id"),
-                    title=title,
-                    original_title=original_title,
-                    year=year,
+                    title=item.get(title_field, ""),
+                    original_title=item.get(original_title_field, ""),
+                    year=extract_year(item.get(date_field)),
                     overview=item.get("overview", ""),
                     cover_path=item.get("poster_path"),
                     media_type=media_type,
@@ -132,87 +117,35 @@ class TMDBClient:
 
         return results
 
-    def get_movie_details(self, movie_id: int, language: str = "fr-FR") -> dict:
-        """Get detailed information about a movie, including credits and production companies."""
-        return self._request(f"movie/{movie_id}", {"language": language, "append_to_response": "credits"})
-
-    def get_tv_details(self, tv_id: int, language: str = "fr-FR") -> dict:
-        """Get detailed information about a TV show, including credits and production companies."""
-        return self._request(f"tv/{tv_id}", {"language": language, "append_to_response": "credits"})
-
-    def get_full_details(self, tmdb_id: int, media_type: Literal["movie", "tv"], language: str = "fr-FR") -> dict:
+    def get_full_details(self, tmdb_id: int, media_type: Literal["movie", "tv"], language: str) -> dict:
         """
         Get full details for a movie or TV show including contributors.
 
         Returns a dict with:
-            - title, original_title, year, overview
-            - directors: list of director names
-            - production_companies: list of company names
+            - title, year
+            - contributors: directors, or creators of a TV show, then the main production companies
+            - genres: list of genre names
             - cover_url: full URL for cover image
-            - tmdb_url: URL to TMDB page
+            - source_url: URL to TMDB page
+            - media_type: "movie" or "tv"
         """
+        data = self._get(f"{media_type}/{tmdb_id}", {"language": language, "append_to_response": "credits"})
+        title_field, _original_title_field, date_field = TITLE_FIELDS[media_type]
         if media_type == "movie":
-            data = self.get_movie_details(tmdb_id, language)
-            title = data.get("title", "")
-            original_title = data.get("original_title", "")
-            date_field = data.get("release_date", "")
-            # Get directors from crew
-            crew = data.get("credits", {}).get("crew", [])
-            directors = [p["name"] for p in crew if p.get("job") == "Director"]
+            directors = [p["name"] for p in data.get("credits", {}).get("crew", []) if p.get("job") == "Director"]
         else:
-            data = self.get_tv_details(tmdb_id, language)
-            title = data.get("name", "")
-            original_title = data.get("original_name", "")
-            date_field = data.get("first_air_date", "")
-            # For TV shows, get creators instead of directors
             directors = [p["name"] for p in data.get("created_by", [])]
-
-        year = int(date_field[:4]) if date_field and len(date_field) >= MIN_DATE_LENGTH else None
-
-        # Get production companies
         production_companies = [c["name"] for c in data.get("production_companies", [])[:2]]
 
-        # Get genres
-        genres = [g["name"] for g in data.get("genres", [])]
-
-        # Build cover URL
-        cover_path = data.get("poster_path")
-        cover_url = f"{TMDB_IMAGE_BASE_URL}w500{cover_path}" if cover_path else None
-
-        # Build TMDB URL
-        tmdb_url = f"https://www.themoviedb.org/{media_type}/{tmdb_id}"
-
         return {
-            "title": title,
-            "original_title": original_title,
-            "year": year,
-            "overview": data.get("overview", ""),
-            "directors": directors,
-            "production_companies": production_companies,
-            "genres": genres,
-            "cover_url": cover_url,
-            "tmdb_url": tmdb_url,
+            "title": data.get(title_field, ""),
+            "year": extract_year(data.get(date_field)),
+            "contributors": directors + production_companies,
+            "genres": [g["name"] for g in data.get("genres", [])],
+            "cover_url": _image_url(data.get("poster_path"), "w500"),
+            "source_url": f"https://www.themoviedb.org/{media_type}/{tmdb_id}",
             "media_type": media_type,
         }
-
-    def download_cover(self, cover_url: str) -> bytes | None:
-        """Download cover image and return bytes."""
-        if not cover_url:
-            return None
-
-        # Validate URL is from TMDB image CDN
-        if not cover_url.startswith(TMDB_IMAGE_BASE_URL):
-            logger.warning("Invalid TMDB cover URL: %s", cover_url)
-            return None
-
-        try:
-            response = requests.get(cover_url, timeout=15)
-            response.raise_for_status()
-        except requests.RequestException:
-            logger.exception("Failed to download cover from %s", cover_url)
-            return None
-
-        return response.content
 
 
 def get_tmdb_client() -> TMDBClient | None:

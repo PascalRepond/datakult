@@ -10,23 +10,30 @@ Rate limiting: Please be respectful and limit requests to ~1/second.
 import logging
 import re
 from dataclasses import dataclass
-from urllib.parse import quote, urlencode, urljoin
+from urllib.parse import quote, urljoin
 
 import requests
+
+from .base import MIN_COVER_SIZE_BYTES, MIN_QUERY_LENGTH, APIClient
 
 logger = logging.getLogger(__name__)
 
 OPENLIBRARY_BASE_URL = "https://openlibrary.org/"
 OPENLIBRARY_COVERS_URL = "https://covers.openlibrary.org/"
 
-# Minimum query length for search
-MIN_QUERY_LENGTH = 2
-
 # Pattern for valid OpenLibrary cover URLs
 OPENLIBRARY_COVER_PATTERN = re.compile(r"^https://covers\.openlibrary\.org/[baw]/(?:id|olid|isbn)/[^/]+\.jpg$")
 
-# Minimum size in bytes to consider a cover valid (OpenLibrary returns 1x1 pixel placeholder)
-MIN_COVER_SIZE_BYTES = 1000
+
+def _cover_url(cover_id: int | None, size: str) -> str | None:
+    """Return the URL of a cover at one of the OpenLibrary sizes: S, M or L."""
+    return f"{OPENLIBRARY_COVERS_URL}b/id/{cover_id}-{size}.jpg" if cover_id else None
+
+
+def _author_names(doc: dict) -> list[str]:
+    """Return the authors of a search result, which may be given as a single name."""
+    authors = doc.get("author_name", [])
+    return authors if isinstance(authors, list) else [authors]
 
 
 @dataclass
@@ -39,8 +46,6 @@ class OpenLibraryResult:
     year: int | None
     cover_id: int | None
 
-    source: str = "openlibrary"
-
     @property
     def olid(self) -> str:
         """Extract the OpenLibrary ID from the work key."""
@@ -49,46 +54,25 @@ class OpenLibraryResult:
     @property
     def cover_url(self) -> str | None:
         """Returns the full URL for the cover image (medium size)."""
-        if self.cover_id:
-            return f"{OPENLIBRARY_COVERS_URL}b/id/{self.cover_id}-M.jpg"
-        return None
+        return _cover_url(self.cover_id, "M")
 
     @property
     def cover_url_small(self) -> str | None:
         """Returns a smaller cover URL for thumbnails."""
-        if self.cover_id:
-            return f"{OPENLIBRARY_COVERS_URL}b/id/{self.cover_id}-S.jpg"
-        return None
-
-    @property
-    def cover_url_large(self) -> str | None:
-        """Returns a larger cover URL."""
-        if self.cover_id:
-            return f"{OPENLIBRARY_COVERS_URL}b/id/{self.cover_id}-L.jpg"
-        return None
+        return _cover_url(self.cover_id, "S")
 
 
-class OpenLibraryClient:
-    """Client for interacting with the OpenLibrary API."""
+class OpenLibraryClient(APIClient):
+    """Client for interacting with the OpenLibrary API, which requires no authentication."""
 
-    def __init__(self):
-        # OpenLibrary doesn't require authentication
-        pass
+    source_name = "OpenLibrary"
+    cover_url_pattern = OPENLIBRARY_COVER_PATTERN
+    # OpenLibrary returns a 1x1 pixel placeholder for a missing cover
+    min_cover_size = MIN_COVER_SIZE_BYTES
 
-    def _request(self, endpoint: str, params: dict | None = None) -> dict:
+    def _get(self, endpoint: str, params: dict | None = None) -> dict:
         """Make a request to the OpenLibrary API."""
-        url = urljoin(OPENLIBRARY_BASE_URL, endpoint)
-        if params := params or {}:
-            url = f"{url}?{urlencode(params)}"
-
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-        except requests.RequestException:
-            logger.exception("OpenLibrary API request failed")
-            raise
-
-        return response.json()
+        return self._request(urljoin(OPENLIBRARY_BASE_URL, endpoint), params=params)
 
     def search_books(self, query: str, limit: int = 10) -> list[OpenLibraryResult]:
         """
@@ -104,7 +88,7 @@ class OpenLibraryClient:
         if not query or len(query) < MIN_QUERY_LENGTH:
             return []
 
-        data = self._request(
+        data = self._get(
             "search.json",
             {
                 "q": query,
@@ -113,25 +97,16 @@ class OpenLibraryClient:
             },
         )
 
-        results = []
-        for doc in data.get("docs", []):
-            # Get first cover ID if available
-            cover_id = doc.get("cover_i")
-
-            # Get authors list
-            authors = doc.get("author_name", [])
-
-            results.append(
-                OpenLibraryResult(
-                    work_key=doc.get("key", ""),
-                    title=doc.get("title", ""),
-                    authors=authors if isinstance(authors, list) else [authors],
-                    year=doc.get("first_publish_year"),
-                    cover_id=cover_id,
-                )
+        return [
+            OpenLibraryResult(
+                work_key=doc.get("key", ""),
+                title=doc.get("title", ""),
+                authors=_author_names(doc),
+                year=doc.get("first_publish_year"),
+                cover_id=doc.get("cover_i"),
             )
-
-        return results
+            for doc in data.get("docs", [])
+        ]
 
     def get_work_details(self, work_key: str, first_publish_year: int | None = None) -> dict:
         """
@@ -142,29 +117,18 @@ class OpenLibraryClient:
             first_publish_year: Optional year from search results
 
         Returns a dict with:
-            - title, year, overview (description)
-            - authors: list of author names
+            - title, year
+            - contributors: list of author names
             - cover_url: full URL for cover image
-            - openlibrary_url: URL to OpenLibrary page
+            - source_url: URL to OpenLibrary page
+            - media_type: "book"
         """
         # Normalize to a bare OLID and escape it — work_key is user-supplied
         olid = quote(work_key.removeprefix("/works/"), safe="")
         work_key = f"/works/{olid}"
+        work_data = self._get(f"{work_key}.json")
 
-        # Fetch work details
-        work_data = self._request(f"{work_key}.json")
-
-        # Extract description
-        description = work_data.get("description", "")
-        if isinstance(description, dict):
-            description = description.get("value", "")
-
-        # Get cover IDs
-        cover_ids = work_data.get("covers", [])
-        cover_id = cover_ids[0] if cover_ids else None
-        cover_url = f"{OPENLIBRARY_COVERS_URL}b/id/{cover_id}-L.jpg" if cover_id else None
-
-        # Get authors - need to fetch each author
+        # Authors are only referenced by the work: each of them is fetched
         authors = []
         for author_ref in work_data.get("authors", []):
             author_key = None
@@ -174,77 +138,21 @@ class OpenLibraryClient:
 
             if author_key:
                 try:
-                    author_data = self._request(f"{author_key}.json")
+                    author_data = self._get(f"{author_key}.json")
                     if author_data.get("name"):
                         authors.append(author_data["name"])
                 except requests.RequestException:
                     logger.warning("Failed to fetch author: %s", author_key)
 
+        cover_ids = work_data.get("covers", [])
         return {
             "title": work_data.get("title", ""),
             "year": first_publish_year,
-            "overview": description,
-            "authors": authors,
             "contributors": authors,
-            "cover_url": cover_url,
-            "openlibrary_url": f"https://openlibrary.org{work_key}",
+            "cover_url": _cover_url(cover_ids[0] if cover_ids else None, "L"),
+            "source_url": f"https://openlibrary.org{work_key}",
             "media_type": "book",
         }
-
-    def get_book_by_isbn(self, isbn: str) -> dict | None:
-        """
-        Get book details by ISBN.
-
-        Args:
-            isbn: ISBN-10 or ISBN-13
-
-        Returns:
-            Book details dict or None if not found
-        """
-        # Clean ISBN (remove dashes and spaces) then escape for safe path interpolation
-        isbn = quote(re.sub(r"[\s-]", "", isbn), safe="")
-
-        try:
-            data = self._request(f"isbn/{isbn}.json")
-        except requests.RequestException:
-            return None
-
-        if not data:
-            return None
-
-        if (works := data.get("works", [])) and (work_key := works[0].get("key")):
-            details = self.get_work_details(work_key)
-            if (publish_date := data.get("publish_date", "")) and (
-                year_match := re.search(r"\b(1[89]\d{2}|20[0-2]\d)\b", publish_date)
-            ):
-                details["year"] = int(year_match[1])
-            return details
-
-        return None
-
-    def download_cover(self, cover_url: str) -> bytes | None:
-        """Download cover image and return bytes."""
-        if not cover_url:
-            return None
-
-        # Basic validation - ensure it's from OpenLibrary
-        if not OPENLIBRARY_COVER_PATTERN.match(cover_url):
-            logger.warning("Invalid OpenLibrary cover URL: %s", cover_url)
-            return None
-
-        try:
-            response = requests.get(cover_url, timeout=15)
-            response.raise_for_status()
-        except requests.RequestException:
-            logger.exception("Failed to download cover from %s", cover_url)
-            return None
-
-        # OpenLibrary returns a 1x1 pixel if cover doesn't exist
-        if len(response.content) < MIN_COVER_SIZE_BYTES:
-            logger.warning("Cover not available (placeholder returned): %s", cover_url)
-            return None
-
-        return response.content
 
 
 def get_openlibrary_client() -> OpenLibraryClient:
