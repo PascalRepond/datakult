@@ -6,26 +6,16 @@ These tests verify the backup-related management commands.
 
 import json
 import tarfile
-from io import BytesIO, StringIO
+from io import StringIO
 from pathlib import Path
 
 import pytest
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.core.serializers.base import DeserializationError
 
 from core.models import Media, SavedView
 from core.utils import create_backup
-
-
-def _write_archive(path, members):
-    """Write a .tar.gz archive holding the given files, from their names to their contents, and return its path."""
-    with tarfile.open(path, "w:gz") as tar:
-        for name, content in members.items():
-            info = tarfile.TarInfo(name=name)
-            info.size = len(content)
-            tar.addfile(info, BytesIO(content))
-    return path
+from tests.helpers import archive_bytes
 
 
 def test_export_writes_the_backup_where_asked(db, tmp_path):
@@ -104,14 +94,15 @@ def test_import_with_flush_replaces_data(media_factory, tmp_path):
 
 @pytest.mark.parametrize(
     ("members", "error"),
-    [({"metadata.json": b"{}"}, CommandError), ({"database.json": b"not json"}, DeserializationError)],
+    [({"metadata.json": b"{}"}, "database.json not found"), ({"database.json": b"not json"}, "Invalid database.json")],
     ids=["no database", "invalid database"],
 )
 def test_failed_import_with_flush_keeps_the_data(media, tmp_path, members, error):
-    """An import that fails leaves the data as it was, even when it was to flush it first."""
-    archive = _write_archive(tmp_path / "broken.tar.gz", members)
+    """An import that fails says why, and leaves the data as it was, even when it was to flush it first."""
+    archive = tmp_path / "broken.tar.gz"
+    archive.write_bytes(archive_bytes(members))
 
-    with pytest.raises(error):
+    with pytest.raises(CommandError, match=error):
         call_command("import_backup", str(archive), "--flush", stdout=StringIO())
 
     assert list(Media.objects.values_list("title", flat=True)) == ["Test Media"]
@@ -129,7 +120,8 @@ def test_import_restores_backup_with_removed_fields(saved_view_factory, tmp_path
         if obj["model"] == "core.savedview":
             obj["fields"]["view_mode"] = "list"
     members["database.json"] = json.dumps(database).encode()
-    old_backup = _write_archive(tmp_path / "old_backup.tar.gz", members)
+    old_backup = tmp_path / "old_backup.tar.gz"
+    old_backup.write_bytes(archive_bytes(members))
 
     call_command("import_backup", str(old_backup), "--flush", "--no-media", stdout=StringIO())
 
