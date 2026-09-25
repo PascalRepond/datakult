@@ -2,6 +2,86 @@
 
 <!-- version list -->
 
+## v1.9.0 (2026-09-25)
+
+### Bug Fixes
+
+- **import**: Search Google Books with an API key
+  ([`2475b58`](https://github.com/PascalRepond/datakult/commit/2475b581bf1de1f3114cd26b5a1da40a1788c0c8))
+
+- **pwa**: Serve fresh pages and static files
+  ([`7f649f6`](https://github.com/PascalRepond/datakult/commit/7f649f67564cd62a9e707625e48f2087378a27ae))
+
+- **tests**: Reset the language after each test
+  ([`4e5748a`](https://github.com/PascalRepond/datakult/commit/4e5748adb19deaa23ef90d0724e1265c64150e6a))
+
+- **theme**: Raise colour contrast to WCAG AA
+  ([`740dace`](https://github.com/PascalRepond/datakult/commit/740dace244f31220d610bca61ca1b7a09e343f34))
+
+- **ui**: Fix bugs found in the UI/UX review
+  ([`1d80db0`](https://github.com/PascalRepond/datakult/commit/1d80db06245a83b8ce403ba98067f7cfb889e9be))
+
+### Documentation
+
+- Keep only non-derivable rules in CLAUDE.md
+  ([`b4d0f84`](https://github.com/PascalRepond/datakult/commit/b4d0f845edde71fa94ba794b7d7a24ce4b630f5d))
+
+### Features
+
+- **detail**: Invite to rate and review media
+  ([`9f63191`](https://github.com/PascalRepond/datakult/commit/9f631919fe47238cc776374bf81a0ad1a0c98a4c))
+
+- **edit**: Keep form actions at hand
+  ([`71b80d8`](https://github.com/PascalRepond/datakult/commit/71b80d8b3671a4ba524f2b1c5d5907a6a5bad0cb))
+
+- **filters**: Apply filters as they change
+  ([`6216c9d`](https://github.com/PascalRepond/datakult/commit/6216c9dfd25661d484480e510679917167add8e8))
+
+- **import**: Search every source from one field
+  ([`ed85817`](https://github.com/PascalRepond/datakult/commit/ed85817d07d52628b2dc51057d4f116ef01cd1ad))
+
+- **list**: Link to the rest of long reviews
+  ([`ecc52e5`](https://github.com/PascalRepond/datakult/commit/ecc52e577ab3173a53e708ad5dd1c14b8c8ed466))
+
+- **list**: Read reviews in a modal
+  ([`bcc3cec`](https://github.com/PascalRepond/datakult/commit/bcc3cecdd7c13c42f9b14f03628699d61fff7451))
+
+- **list**: Refine the media cards
+  ([`b88c6c8`](https://github.com/PascalRepond/datakult/commit/b88c6c8fd80f8b23cf10c56c2dc35ba8b0004c67))
+
+- **list**: Show scores over the covers
+  ([`0c24877`](https://github.com/PascalRepond/datakult/commit/0c24877aa73210791ddeb08db8f3cf85712cc9c6))
+
+- **nav**: Make adding and navigating quicker
+  ([`1446413`](https://github.com/PascalRepond/datakult/commit/14464137fb468d01a1c47dd5b2f2bc1e390e5b06))
+
+- **ui**: Colour appreciated scores in green
+  ([`8f25d00`](https://github.com/PascalRepond/datakult/commit/8f25d005808ee0e9325eb620e7f830397661975c))
+
+- **ui**: Join scores and their verdicts
+  ([`8cf36dd`](https://github.com/PascalRepond/datakult/commit/8cf36ddb51437d75454479db50b79f45214087ae))
+
+- **ui**: Keep score rings neutral inside
+  ([`ac660a8`](https://github.com/PascalRepond/datakult/commit/ac660a8373e46c5425b7f4f2b1d64a5e3ed3c8da))
+
+- **ui**: Make the interface consistent
+  ([`54a2aa2`](https://github.com/PascalRepond/datakult/commit/54a2aa246405ebc01527e6208fb3ecdc83f5f53a))
+
+### Refactoring
+
+- **backup**: Drop the inline page scripts
+  ([`b3eea5e`](https://github.com/PascalRepond/datakult/commit/b3eea5e90c5693827c1366bba1349b4879b365f7))
+
+- **edit**: Serve the cover widget script
+  ([`1408ea3`](https://github.com/PascalRepond/datakult/commit/1408ea3e1495154eff4c554d1204620129d3950e))
+
+- **import**: Share one results template
+  ([`bd37a60`](https://github.com/PascalRepond/datakult/commit/bd37a60506692bebd6f9826ce02ad16b7da333ca))
+
+- **list**: Drop the list view
+  ([`b24cbf7`](https://github.com/PascalRepond/datakult/commit/b24cbf7370f13d1b9519b19d19408e1cf182897e))
+
+
 ## v1.8.0 (2026-09-23)
 
 ### Bug Fixes
