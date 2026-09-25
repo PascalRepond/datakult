@@ -6,6 +6,7 @@ See https://docs.pytest.org/en/stable/reference/fixtures.html
 """
 
 import pytest
+import requests
 from django.utils import translation
 
 
@@ -14,6 +15,29 @@ def _reset_language():
     """Deactivate the language that a test request activated, so that it does not leak into the next tests."""
     yield
     translation.deactivate()
+
+
+@pytest.fixture(autouse=True)
+def _isolate_media_root(settings, tmp_path):
+    """Store media files in a temporary directory, so that tests neither read nor write the real media files."""
+    settings.MEDIA_ROOT = tmp_path
+
+
+@pytest.fixture(autouse=True)
+def _fast_password_hasher(settings):
+    """Hash passwords with a fast hasher, as the default one makes every created user cost a noticeable delay."""
+    settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+
+
+@pytest.fixture(autouse=True)
+def _block_network(monkeypatch):
+    """Fail any test that would reach an external API instead of mocking it."""
+
+    def refuse(*args, **kwargs):
+        msg = "Tests must not reach the network: mock the external API"
+        raise RuntimeError(msg)
+
+    monkeypatch.setattr(requests.Session, "request", refuse)
 
 
 @pytest.fixture
@@ -77,13 +101,12 @@ def logged_in_client(client, user):
 
 
 @pytest.fixture
-def cover_png(settings, tmp_path):
-    """Return the bytes of a dark grey (#333333) PNG cover, storing media files in a temporary directory."""
+def cover_png():
+    """Return the bytes of a dark grey (#333333) PNG cover."""
     from io import BytesIO
 
     from PIL import Image
 
-    settings.MEDIA_ROOT = tmp_path
     output = BytesIO()
     Image.new("RGB", (400, 600), color="#333333").save(output, format="PNG")
     return output.getvalue()
