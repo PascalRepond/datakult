@@ -36,6 +36,9 @@ class Command(BaseCommand):
         output_dir = Path(options["output"]) if options["output"] else None
         filename = options["filename"]
         keep_count = options["keep"]
+        if keep_count is not None and keep_count < 1:
+            msg = "--keep must be at least 1"
+            raise CommandError(msg)
 
         self.stdout.write("Creating backup…")
 
@@ -49,9 +52,6 @@ class Command(BaseCommand):
 
             # Rotate old backups if --keep is specified
             if keep_count is not None:
-                if keep_count < 1:
-                    msg = "--keep must be at least 1"
-                    raise CommandError(msg)  # noqa: TRY301
                 self._rotate_backups(backup_path.parent, keep_count)
 
             return str(backup_path)

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import BinaryIO
 
 import django
 from django.conf import settings
@@ -49,44 +50,17 @@ def _add_bytes(tar, name: str, data: bytes) -> None:
     tar.addfile(info, fileobj=BytesIO(data))
 
 
-def create_backup(output_dir: Path | None = None, filename: str | None = None) -> Path:
+def backup_filename() -> str:
+    """Return the default name of a backup, timestamped to the microsecond to avoid collisions."""
+    return f"datakult_backup_{timezone.now():%Y%m%d_%H%M%S_%f}.tar.gz"
+
+
+def write_backup(fileobj: BinaryIO) -> None:
     """
-    Create a complete backup of the Datakult application.
+    Write a complete backup of the Datakult application to a binary file, as a compressed archive (.tar.gz).
 
-    This function creates a compressed archive (.tar.gz) containing:
-    - JSON dump of all database data
-    - All media files (cover images, etc.)
-
-    Args:
-        output_dir: Directory where to save the backup (default: auto-detected)
-        filename: Custom filename for the backup (default: datakult_backup_YYYYMMDD_HHMMSS_microseconds.tar.gz)
-
-    Returns:
-        Path to the created backup file
-
-    Raises:
-        Exception: If backup creation fails
+    The archive holds the metadata of the backup, a JSON dump of all database data and all media files.
     """
-    # Determine output directory
-    if output_dir is None:
-        # Default: use /app/data/backups in Docker, or ./backups locally
-        data_dir = settings.BASE_DIR.parent / "data"
-        output_dir = data_dir / "backups" if data_dir.exists() else settings.BASE_DIR / "backups"
-
-    # Create backup directory if it doesn't exist
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Generate filename with timestamp (including microseconds to avoid collisions)
-    now = timezone.now()
-    if filename is None:
-        timestamp = now.strftime("%Y%m%d_%H%M%S_%f")
-        filename = f"datakult_backup_{timestamp}.tar.gz"
-    elif not filename.endswith(".tar.gz"):
-        filename += ".tar.gz"
-
-    backup_path = output_dir / filename
-
-    # Step 1: Export database to JSON
     json_output = StringIO()
     call_command(
         "dumpdata",
@@ -95,14 +69,13 @@ def create_backup(output_dir: Path | None = None, filename: str | None = None) -
         stdout=json_output,
     )
     metadata = {
-        "created_at": now.isoformat(),
+        "created_at": timezone.now().isoformat(),
         "datakult_version": get_datakult_version(),
         "django_version": django.get_version(),
         "database_engine": settings.DATABASES["default"]["ENGINE"],
     }
 
-    # Step 2: Create the tar.gz archive
-    with tarfile.open(backup_path, "w:gz") as tar:
+    with tarfile.open(fileobj=fileobj, mode="w:gz") as tar:
         _add_bytes(tar, "metadata.json", json.dumps(metadata, indent=2).encode())
         _add_bytes(tar, "database.json", json_output.getvalue().encode())
 
@@ -111,4 +84,35 @@ def create_backup(output_dir: Path | None = None, filename: str | None = None) -
         if media_root.exists() and any(media_root.iterdir()):
             tar.add(media_root, arcname="media", recursive=True)
 
+
+def create_backup(output_dir: Path | None = None, filename: str | None = None) -> Path:
+    """
+    Create a file holding a complete backup of the Datakult application, as written by `write_backup`.
+
+    Args:
+        output_dir: Directory where to save the backup (default: auto-detected)
+        filename: Custom filename for the backup (default: given by `backup_filename`)
+
+    Returns:
+        Path to the created backup file
+    """
+    if output_dir is None:
+        # Default: use /app/data/backups in Docker, or ./backups locally
+        data_dir = settings.BASE_DIR.parent / "data"
+        output_dir = data_dir / "backups" if data_dir.exists() else settings.BASE_DIR / "backups"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    if filename is None:
+        filename = backup_filename()
+    elif not filename.endswith(".tar.gz"):
+        filename += ".tar.gz"
+
+    backup_path = output_dir / filename
+    try:
+        with backup_path.open("wb") as fileobj:
+            write_backup(fileobj)
+    except Exception:
+        # A partial backup would pass for a complete one, and could have older backups rotated out
+        backup_path.unlink(missing_ok=True)
+        raise
     return backup_path

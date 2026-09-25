@@ -2,10 +2,14 @@
 Tests for core.views.backup: the export and import of backups.
 """
 
+import json
 import re
+import tarfile
+from io import BytesIO
 
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management.base import CommandError
 from django.urls import reverse
 
 from core.models import Media
@@ -13,28 +17,30 @@ from core.utils import create_backup
 from tests.helpers import messages_of
 
 
-def test_backup_export_creates_and_downloads_backup(logged_in_client, media, monkeypatch, tmp_path):
-    """The backup export view creates and returns a backup file."""
-    # Write the backup to a temporary directory instead of the project's backups folder
-    monkeypatch.setattr("core.views.backup.create_backup", lambda: create_backup(output_dir=tmp_path))
+def test_backup_export_downloads_a_backup_left_nowhere_on_the_server(logged_in_client, media, settings, tmp_path):
+    """The exported backup holds the data, and is sent without leaving a copy among the backups of the server."""
+    settings.BASE_DIR = tmp_path / "app"
 
     response = logged_in_client.get(reverse("backup_export"))
 
-    assert len(list(tmp_path.glob("datakult_backup_*.tar.gz"))) == 1
+    with tarfile.open(fileobj=BytesIO(b"".join(response.streaming_content))) as tar:
+        database = json.loads(tar.extractfile("database.json").read())
+    assert [entry["fields"]["title"] for entry in database if entry["model"] == "core.media"] == ["Test Media"]
     # Django's FileResponse detects .tar.gz as gzip
     assert response["Content-Type"] == "application/gzip"
-    assert "attachment" in response["Content-Disposition"]
-    assert "datakult_backup_" in response["Content-Disposition"]
+    assert re.fullmatch(r'attachment; filename="datakult_backup_[\d_]+\.tar\.gz"', response["Content-Disposition"])
+    assert not list(tmp_path.rglob("*.tar.gz"))
 
 
-def test_backup_export_failure_is_reported_once(logged_in_client, monkeypatch):
+@pytest.mark.parametrize("error", [OSError, CommandError])
+def test_backup_export_failure_is_reported_once(logged_in_client, monkeypatch, error):
     """A failed export goes back to the backup page, where its error is shown only once, as a toast."""
 
-    def failing_backup():
+    def failing_backup(fileobj):
         msg = "Disk full"
-        raise OSError(msg)
+        raise error(msg)
 
-    monkeypatch.setattr("core.views.backup.create_backup", failing_backup)
+    monkeypatch.setattr("core.views.backup.write_backup", failing_backup)
 
     response = logged_in_client.get(reverse("backup_export"), follow=True)
 

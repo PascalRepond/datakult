@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 
 
 class Command(BaseCommand):
@@ -40,19 +41,20 @@ class Command(BaseCommand):
             tar.extractall(temp_path, filter="data")
 
     def _import_database(self, temp_path: Path, *, flush: bool) -> None:
-        """Import the database from the backup."""
-        if flush:
-            self.stdout.write("Flushing existing database…")
-            call_command("flush", interactive=False, verbosity=0)
-
+        """Import the database from the backup, leaving the current data untouched if it fails."""
         database_file = temp_path / "database.json"
         if not database_file.exists():
             msg = "database.json not found in backup archive"
             raise CommandError(msg)
 
-        self.stdout.write("Importing database…")
-        # Ignore the fields that older backups still hold but that have since been removed from the models
-        call_command("loaddata", str(database_file), verbosity=1, ignorenonexistent=True)
+        with transaction.atomic():
+            if flush:
+                self.stdout.write("Flushing existing database…")
+                call_command("flush", interactive=False, verbosity=0)
+
+            self.stdout.write("Importing database…")
+            # Ignore the fields that older backups still hold but that have since been removed from the models
+            call_command("loaddata", str(database_file), verbosity=1, ignorenonexistent=True)
 
     def _import_media(self, temp_path: Path) -> None:
         """Import media files from the backup."""

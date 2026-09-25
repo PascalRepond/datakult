@@ -172,10 +172,12 @@ docker exec datakult uv run /app/src/manage.py export_backup --keep=7
 docker exec datakult uv run /app/src/manage.py import_backup /app/data/backups/backup.tar.gz
 ```
 
-Backups are stored in:
+Backups created by `export_backup` are stored in:
 
 - **Local:** `src/backups/`
 - **Docker:** `/app/data/backups/` (mapped to `docker/datakult_data/backups/` on the host)
+
+Backups downloaded from the backup page of the app are not kept on the server.
 
 ### Automated Backups
 

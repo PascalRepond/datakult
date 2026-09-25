@@ -11,7 +11,7 @@ from django.http import FileResponse
 from django.shortcuts import redirect, render
 from django.utils.translation import gettext as _
 
-from core.utils import create_backup
+from core.utils import backup_filename, write_backup
 
 
 @login_required
@@ -22,15 +22,18 @@ def backup_manage(request):
 
 @login_required
 def backup_export(request):
-    """Export backup and download it."""
+    """Download a backup, written to a temporary file rather than kept on the server."""
+    # FileResponse closes the file once it is sent, which deletes it
+    archive = tempfile.TemporaryFile()  # noqa: SIM115
     try:
-        backup_path = create_backup()
-    except (OSError, tarfile.TarError) as e:
+        write_backup(archive)
+    except (OSError, CommandError, tarfile.TarError) as e:
+        archive.close()
         messages.error(request, _("Backup creation failed: %(error)s") % {"error": str(e)})
         return redirect("backup_manage")
 
-    # FileResponse closes the file once it is sent
-    return FileResponse(backup_path.open("rb"), as_attachment=True, filename=backup_path.name)
+    archive.seek(0)
+    return FileResponse(archive, as_attachment=True, filename=backup_filename())
 
 
 @login_required
