@@ -5,32 +5,20 @@ These tests verify the behavior of the profile edit view.
 Only tests custom functionality, not Django's built-in authentication.
 """
 
-from django.contrib.messages import get_messages
+import pytest
 from django.urls import reverse
 
-
-def test_profile_edit_accessible_when_logged_in(logged_in_client):
-    """The profile edit view is accessible when logged in."""
-    response = logged_in_client.get(reverse("accounts:profile_edit"))
-
-    assert response.status_code == 200
+from core.utils import get_datakult_version
+from tests.helpers import messages_of
 
 
-def test_profile_edit_displays_both_forms(logged_in_client):
-    """The view displays both profile and password forms."""
-    response = logged_in_client.get(reverse("accounts:profile_edit"))
-
-    assert response.status_code == 200
-    assert "profile_form" in response.context
-    assert "password_form" in response.context
-
-
-def test_profile_edit_prefills_user_data(logged_in_client, user):
-    """The profile form is prefilled with current user data."""
+def test_profile_edit_shows_both_forms_prefilled(logged_in_client, user):
+    """The profile page shows the password form, and the profile form filled with the user data."""
     response = logged_in_client.get(reverse("accounts:profile_edit"))
 
     assert response.context["profile_form"].initial["username"] == user.username
     assert response.context["profile_form"].initial["email"] == user.email
+    assert 'name="old_password"' in response.content.decode()
 
 
 def test_update_profile_success(logged_in_client, user):
@@ -54,8 +42,8 @@ def test_update_profile_success(logged_in_client, user):
     assert user.last_name == "Name"
 
 
-def test_change_password_success(logged_in_client, user):
-    """Submitting valid password data changes the password."""
+def test_change_password_replaces_the_old_one(logged_in_client, user):
+    """A valid password change sets the new password, after which the old one no longer works."""
     url = reverse("accounts:profile_edit")
     data = {
         "old_password": "testpass123",
@@ -76,47 +64,37 @@ def test_change_password_success(logged_in_client, user):
     assert response.context["password_form"].errors
 
 
-def test_set_language_changes_language(logged_in_client):
-    """POST with valid language code changes the language."""
-    response = logged_in_client.post(
-        reverse("accounts:set_language"),
-        {"language": "fr"},
-    )
+@pytest.mark.parametrize(
+    ("url_name", "data", "expected"),
+    [
+        ("accounts:validate_profile_field", {"field_name": "username", "username": "testuser"}, ""),
+        (
+            "accounts:validate_profile_field",
+            {"field_name": "email", "email": "not-an-email"},
+            '<span class="label-text-alt text-error">Enter a valid email address.</span>',
+        ),
+        (
+            "accounts:validate_password_field",
+            {"field_name": "new_password2", "new_password1": "newSecurePass456!", "new_password2": "other"},
+            '<span class="label-text-alt text-error">The two password fields didn\u2019t match.</span>',
+        ),
+        ("accounts:validate_password_field", {"field_name": "unknown"}, ""),
+    ],
+    ids=["valid", "invalid profile field", "invalid password field", "unknown field"],
+)
+def test_profile_fields_are_validated_one_at_a_time(logged_in_client, url_name, data, expected):
+    """The validation endpoints of the profile page return the error of the typed field only, if it has one."""
+    response = logged_in_client.post(reverse(url_name), data)
 
-    # Should redirect (default behavior of set_language)
-    assert response.status_code == 302
-
-
-def test_set_language_shows_success_message(logged_in_client):
-    """Setting language shows a success message."""
-    response = logged_in_client.post(
-        reverse("accounts:set_language"),
-        {"language": "fr"},
-        follow=True,
-    )
-
-    messages = list(get_messages(response.wsgi_request))
-    assert any(("lang" in str(m).lower()) for m in messages)
-
-
-def test_set_language_ignores_invalid_language(logged_in_client):
-    """Invalid language codes don't show success message."""
-    response = logged_in_client.post(
-        reverse("accounts:set_language"),
-        {"language": "invalid"},
-        follow=True,
-    )
-
-    messages = list(get_messages(response.wsgi_request))
-    assert all("lang" not in str(m).lower() for m in messages)
+    assert response.content.decode() == expected
 
 
-def test_set_language_get_not_allowed(logged_in_client):
-    """GET request is not allowed (require_POST decorator)."""
-    response = logged_in_client.get(reverse("accounts:set_language"))
+@pytest.mark.parametrize(("language", "confirmed"), [("fr", True), ("invalid", False)])
+def test_set_language_confirms_a_supported_language(logged_in_client, language, confirmed):
+    """Picking a supported language is confirmed by a message, and an unsupported one is not."""
+    response = logged_in_client.post(reverse("accounts:set_language"), {"language": language})
 
-    # require_POST returns 405 Method Not Allowed for GET
-    assert response.status_code == 405
+    assert ("Language preference updated." in messages_of(response)) is confirmed
 
 
 def test_login_shows_short_error_on_wrong_credentials(client, user):
@@ -145,4 +123,5 @@ def test_profile_shows_version_and_credits(logged_in_client):
     """The profile page tells the app version and credits the logo."""
     content = logged_in_client.get(reverse("accounts:profile_edit")).content.decode()
 
+    assert f"v{get_datakult_version()}" in content
     assert "Freepik" in content

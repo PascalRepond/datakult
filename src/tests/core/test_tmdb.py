@@ -6,85 +6,44 @@ These tests verify pure business logic without mocking API calls.
 
 import pytest
 
-from core.services.tmdb import (
-    MIN_QUERY_LENGTH,
-    TMDB_IMAGE_BASE_URL,
-    TMDBClient,
-    TMDBError,
-    TMDBResult,
+from core.services.tmdb import TMDB_IMAGE_BASE_URL, TMDBClient, TMDBError, TMDBResult
+
+
+def _result(cover_path):
+    return TMDBResult(
+        tmdb_id=123,
+        title="Test",
+        original_title="Test",
+        year=2024,
+        overview="",
+        cover_path=cover_path,
+        media_type="movie",
+    )
+
+
+@pytest.mark.parametrize(
+    ("cover_path", "cover_url", "cover_url_small"),
+    [
+        ("/abc123.jpg", f"{TMDB_IMAGE_BASE_URL}w500/abc123.jpg", f"{TMDB_IMAGE_BASE_URL}w185/abc123.jpg"),
+        (None, None, None),
+    ],
 )
+def test_cover_urls_are_built_from_the_cover_path(cover_path, cover_url, cover_url_small):
+    """A result has a large and a small cover URL when TMDB gives it a cover path, and none otherwise."""
+    result = _result(cover_path)
 
-
-def test_cover_url_builds_w500_url():
-    """cover_url constructs the correct w500 image URL."""
-    result = TMDBResult(
-        tmdb_id=123,
-        title="Test",
-        original_title="Test",
-        year=2024,
-        overview="",
-        cover_path="/abc123.jpg",
-        media_type="movie",
-    )
-
-    assert result.cover_url == f"{TMDB_IMAGE_BASE_URL}w500/abc123.jpg"
-
-
-def test_cover_url_returns_none_when_no_path():
-    """cover_url returns None when cover_path is None."""
-    result = TMDBResult(
-        tmdb_id=123,
-        title="Test",
-        original_title="Test",
-        year=2024,
-        overview="",
-        cover_path=None,
-        media_type="movie",
-    )
-
-    assert result.cover_url is None
-
-
-def test_cover_url_small_builds_w185_url():
-    """cover_url_small constructs the correct w185 thumbnail URL."""
-    result = TMDBResult(
-        tmdb_id=123,
-        title="Test",
-        original_title="Test",
-        year=2024,
-        overview="",
-        cover_path="/abc123.jpg",
-        media_type="movie",
-    )
-
-    assert result.cover_url_small == f"{TMDB_IMAGE_BASE_URL}w185/abc123.jpg"
+    assert (result.cover_url, result.cover_url_small) == (cover_url, cover_url_small)
 
 
 def test_raises_error_without_api_key(settings):
     """TMDBClient raises TMDBError when no API key is provided."""
     settings.TMDB_API_KEY = ""
 
-    with pytest.raises(TMDBError) as exc_info:
+    with pytest.raises(TMDBError, match="TMDB API key is required"):
         TMDBClient()
 
-    assert "TMDB API key is required" in str(exc_info.value)
 
-
-def test_search_returns_empty_for_short_query():
-    """search_multi returns empty list for queries shorter than MIN_QUERY_LENGTH."""
-    client = TMDBClient(api_key="test-key")
-
-    # Query too short - no API call should be made
-    result = client.search_multi("a")
-
-    assert result == []
-    assert len("a") < MIN_QUERY_LENGTH
-
-
-def test_search_returns_empty_for_empty_query():
-    """search_multi returns empty list for empty query."""
-    client = TMDBClient(api_key="test-key")
-
-    result = client.search_multi("")
-
-    assert result == []
+@pytest.mark.parametrize("query", ["", "a"])
+def test_search_returns_empty_for_short_query(query):
+    """A query shorter than two characters searches nothing."""
+    assert TMDBClient(api_key="test-key").search_multi(query) == []
