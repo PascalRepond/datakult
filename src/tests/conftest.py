@@ -6,6 +6,14 @@ See https://docs.pytest.org/en/stable/reference/fixtures.html
 """
 
 import pytest
+from django.utils import translation
+
+
+@pytest.fixture(autouse=True)
+def _reset_language():
+    """Deactivate the language that a test request activated, so that it does not leak into the next tests."""
+    yield
+    translation.deactivate()
 
 
 @pytest.fixture
