@@ -1,15 +1,12 @@
 {% load i18n %}
-{# Cover of a media, filling its positioned container: a blurred copy of the cover fills the space #}
-{# left around covers of another shape. Parameters: media, placeholder_class (optional, size of the placeholder icon) #}
+{# Cover of a media, filling its container: the colour of the cover, faded over the background of the container, #}
+{# fills the space left around covers of another shape #}
+{# Parameters: media, placeholder_class (optional, size of the placeholder icon) #}
 {% if media.cover %}
   <img src="{{ media.cover.url }}"
-       alt=""
-       aria-hidden="true"
-       class="absolute inset-0 w-full h-full object-cover scale-125 blur-xl opacity-70"
-       loading="lazy">
-  <img src="{{ media.cover.url }}"
        alt="{% translate "Cover of" %} {{ media.title }}"
-       class="relative w-full h-full object-contain"
+       class="w-full h-full object-contain bg-(--cover-color)/30"
+       {% if media.cover_color %}style="--cover-color: {{ media.cover_color }}"{% endif %}
        loading="lazy">
 {% else %}
   <div class="w-full h-full flex items-center justify-center text-base-content/30">

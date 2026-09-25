@@ -74,3 +74,16 @@ def logged_in_client(client, user):
     """Return a client with an authenticated user."""
     client.force_login(user)
     return client
+
+
+@pytest.fixture
+def cover_png(settings, tmp_path):
+    """Return the bytes of a dark grey (#333333) PNG cover, storing media files in a temporary directory."""
+    from io import BytesIO
+
+    from PIL import Image
+
+    settings.MEDIA_ROOT = tmp_path
+    output = BytesIO()
+    Image.new("RGB", (400, 600), color="#333333").save(output, format="PNG")
+    return output.getvalue()
