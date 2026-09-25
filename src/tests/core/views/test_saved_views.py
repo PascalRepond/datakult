@@ -2,6 +2,8 @@
 Tests for core.views.saved_views: the views saving the filters of the media list.
 """
 
+import re
+
 import pytest
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -116,12 +118,19 @@ def test_saved_view_delete_nonexistent_view(logged_in_client):
 
 
 def test_saved_view_delete_asks_for_confirmation(logged_in_client, saved_view_factory):
-    """Deleting a saved view from the sidebar asks for a confirmation first."""
-    saved_view_factory(name="Old view")
+    """Deleting a saved view from the sidebar is confirmed in a dialog, which then submits the form deleting it."""
+    view = saved_view_factory(name="Old view")
+    form_id = f"delete-view-{view.pk}"
 
-    response = logged_in_client.get(reverse("home"))
+    content = logged_in_client.get(reverse("home")).content.decode()
 
-    assert 'hx-confirm="Delete the view “Old view”?"' in response.content.decode()
+    dialog = re.search(rf'<dialog id="{form_id}-modal".*?</dialog>', content, re.DOTALL)[0]
+    delete_url = reverse("saved_view_delete", args=[view.pk])
+    assert re.search(rf'<form id="{form_id}"\s+method="post"\s+action="{delete_url}"', content)
+    assert re.search(rf'<button type="button"\s+commandfor="{form_id}-modal"\s+command="show-modal"', content)
+    assert re.search(rf'<button type="submit"\s+form="{form_id}"', dialog)
+    assert "Delete the view “Old view”?" in dialog
+    assert "hx-confirm" not in content
 
 
 def test_save_view_modal_keeps_current_query_parameters(rf, user):

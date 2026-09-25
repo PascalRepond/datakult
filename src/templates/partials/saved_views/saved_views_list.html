@@ -13,19 +13,27 @@
         {% lucide "bookmark" %}
         <span class="truncate">{{ view.name }}</span>
       </a>
-      {% blocktranslate asvar confirm_message with name=view.name %}Delete the view “{{ name }}”?{% endblocktranslate %}
-      <form method="post"
-            action="{% url 'saved_view_delete' view.id %}"
-            class="p-0 hover:bg-transparent"
-            hx-boost="true"
-            hx-confirm="{{ confirm_message }}">
-        {% csrf_token %}
-        <button type="submit"
-                class="btn btn-ghost btn-xs btn-circle opacity-50 group-hover:opacity-100 focus-visible:opacity-100"
-                aria-label="{% blocktranslate with name=view.name %}Delete {{ name }}{% endblocktranslate %}">
-          {% lucide "trash-2" size="14" %}
-        </button>
-      </form>
+      {# The confirmation dialog lies in the form, as a dialog in the menu item would be styled as one of its entries #}
+      {% with view_id=view.id|stringformat:"s" %}
+        {% with form_id="delete-view-"|add:view_id %}
+          <form id="{{ form_id }}"
+                method="post"
+                action="{% url 'saved_view_delete' view.id %}"
+                class="p-0 hover:bg-transparent"
+                hx-boost="true">
+            {% csrf_token %}
+            <button type="button"
+                    commandfor="{{ form_id }}-modal"
+                    command="show-modal"
+                    class="btn btn-ghost btn-xs btn-circle opacity-50 group-hover:opacity-100 focus-visible:opacity-100"
+                    aria-label="{% blocktranslate with name=view.name %}Delete {{ name }}{% endblocktranslate %}">
+              {% lucide "trash-2" size="14" %}
+            </button>
+            {% blocktranslate asvar confirm_message with name=view.name %}Delete the view “{{ name }}”?{% endblocktranslate %}
+            {% include "partials/common/confirm_modal.html" with modal_id=form_id|add:"-modal" form_id=form_id title=_("Delete saved view") message=confirm_message confirm_text=_("Yes, delete") is_danger=True %}
+          </form>
+        {% endwith %}
+      {% endwith %}
     </li>
   {% endfor %}
 {% endif %}
