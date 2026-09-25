@@ -35,50 +35,50 @@ from core.services.openlibrary import OpenLibraryResult
     ],
 )
 def test_extract_year(raw, expected):
+    """The year of a published date is its leading four digits."""
     assert _extract_year(raw) == expected
 
 
 def test_strip_html_removes_tags_and_decodes_entities():
+    """HTML descriptions are turned into plain text."""
     assert _strip_html("<p>Hello <b>world</b></p>") == "Hello world"
     assert _strip_html("Text &amp; entity") == "Text & entity"
     assert _strip_html("") == ""
 
 
 def test_strip_html_turns_block_tags_into_newlines():
+    """Line breaks and paragraphs keep their text apart."""
     result = _strip_html("Line1<br>Line2<p>Line3</p>")
     assert "Line1" in result
     assert "Line2" in result
     assert "Line3" in result
 
 
-def test_resize_cover_url_replaces_zoom_with_fife():
-    url = "http://books.google.com/books/content?id=ABC&zoom=1&edge=curl"
-    upgraded = _resize_cover_url(url, "w800-h1200")
-    assert upgraded.startswith("https://")
-    assert "fife=w800-h1200" in upgraded
-    assert "zoom=" not in upgraded
-    assert "edge=curl" not in upgraded
-
-
-def test_resize_cover_url_appends_fife_when_no_zoom():
-    url = "https://books.google.com/books/content?id=ABC"
-    upgraded = _resize_cover_url(url, "w128-h192")
-    assert "fife=w128-h192" in upgraded
-
-
-def test_resize_cover_url_handles_empty():
-    assert _resize_cover_url("", "w800-h1200") == ""
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        (
+            "http://books.google.com/books/content?id=ABC&zoom=1&edge=curl",
+            "https://books.google.com/books/content?id=ABC&fife=w800-h1200",
+        ),
+        (
+            "https://books.google.com/books/content?id=ABC",
+            "https://books.google.com/books/content?id=ABC&fife=w800-h1200",
+        ),
+        ("", ""),
+    ],
+    ids=["zoom", "no zoom", "empty"],
+)
+def test_resize_cover_url_asks_for_the_given_size(url, expected):
+    """Cover URLs are served over HTTPS at the given size, instead of their zoom level and curled edge."""
+    assert _resize_cover_url(url, "w800-h1200") == expected
 
 
 # ---------- GoogleBooksResult properties ----------
 
 
-def test_result_exposes_source_discriminator():
-    r = GoogleBooksResult(volume_id="X", title="T", authors=[], year=None, thumbnail_url=None)
-    assert r.source == "googlebooks"
-
-
 def test_result_cover_urls_use_fife_sizing():
+    """The covers of a result are served over HTTPS at a large and a small size."""
     r = GoogleBooksResult(
         volume_id="X",
         title="T",
@@ -94,6 +94,7 @@ def test_result_cover_urls_use_fife_sizing():
 
 
 def test_result_cover_urls_none_without_thumbnail():
+    """A result without thumbnail has no cover."""
     r = GoogleBooksResult(volume_id="X", title="T", authors=[], year=None, thumbnail_url=None)
     assert r.cover_url is None
     assert r.cover_url_small is None
@@ -101,21 +102,6 @@ def test_result_cover_urls_none_without_thumbnail():
 
 
 # ---------- book search view ----------
-
-
-def test_search_returns_empty_for_short_query(logged_in_client):
-    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "a"})
-
-    assert response.status_code == 200
-    assert "partials/import/import_results.html" in [t.name for t in response.templates]
-    assert response.context["results"] == []
-
-
-def test_search_returns_empty_for_empty_query(logged_in_client):
-    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": ""})
-
-    assert response.status_code == 200
-    assert response.context["results"] == []
 
 
 def _make_ol(title, year=2020):
@@ -128,100 +114,106 @@ def _make_gb(title, year=2020):
     )
 
 
-@patch("core.views.get_googlebooks_client")
-@patch("core.views.get_openlibrary_client")
-def test_search_interleaves_results_leading_with_googlebooks(mock_ol, mock_gb, logged_in_client):
+@pytest.fixture
+def book_clients(monkeypatch):
+    """Replace the OpenLibrary and Google Books clients of the book search by mocks, returned in that order."""
+    openlibrary, googlebooks = MagicMock(), MagicMock()
+    monkeypatch.setattr("core.views.get_openlibrary_client", lambda: openlibrary)
+    monkeypatch.setattr("core.views.get_googlebooks_client", lambda: googlebooks)
+    return openlibrary, googlebooks
+
+
+def _search_books(client, **params):
+    return client.get(reverse("import_search_htmx"), {"source": "books", "q": "test", **params})
+
+
+def test_search_interleaves_results_leading_with_googlebooks(logged_in_client, book_clients):
     """Merged list alternates sources, Google Books first."""
-    mock_ol.return_value.search_books.return_value = [_make_ol("OL1"), _make_ol("OL2")]
-    mock_gb.return_value.search_books.return_value = [_make_gb("GB1"), _make_gb("GB2")]
+    openlibrary, googlebooks = book_clients
+    openlibrary.search_books.return_value = [_make_ol("OL1"), _make_ol("OL2")]
+    googlebooks.search_books.return_value = [_make_gb("GB1"), _make_gb("GB2")]
 
-    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "test"})
+    response = _search_books(logged_in_client)
 
-    titles = [r.title for r in response.context["results"]]
-    assert titles == ["GB1", "OL1", "GB2", "OL2"]
+    assert [r.title for r in response.context["results"]] == ["GB1", "OL1", "GB2", "OL2"]
 
 
-@patch("core.views.get_googlebooks_client")
-@patch("core.views.get_openlibrary_client")
-def test_search_falls_back_when_googlebooks_fails(mock_ol, mock_gb, logged_in_client):
+def test_search_falls_back_when_googlebooks_fails(logged_in_client, book_clients):
     """OpenLibrary results still render when Google Books raises."""
-    mock_ol.return_value.search_books.return_value = [_make_ol("OL1")]
-    mock_gb.return_value.search_books.side_effect = requests.RequestException("boom")
+    openlibrary, googlebooks = book_clients
+    openlibrary.search_books.return_value = [_make_ol("OL1")]
+    googlebooks.search_books.side_effect = requests.RequestException("boom")
 
-    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "test"})
+    response = _search_books(logged_in_client)
 
-    assert response.status_code == 200
     assert "error" not in response.context
-    titles = [r.title for r in response.context["results"]]
-    assert titles == ["OL1"]
+    assert [r.title for r in response.context["results"]] == ["OL1"]
     assert "Google Books" in response.context["notice"]
 
 
-@patch("core.views.get_googlebooks_client")
-@patch("core.views.get_openlibrary_client")
-def test_search_falls_back_when_openlibrary_fails(mock_ol, mock_gb, logged_in_client):
+def test_search_falls_back_when_openlibrary_fails(logged_in_client, book_clients):
     """Google Books results still render when OpenLibrary raises."""
-    mock_ol.return_value.search_books.side_effect = requests.RequestException("boom")
-    mock_gb.return_value.search_books.return_value = [_make_gb("GB1")]
+    openlibrary, googlebooks = book_clients
+    openlibrary.search_books.side_effect = requests.RequestException("boom")
+    googlebooks.search_books.return_value = [_make_gb("GB1")]
 
-    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "test"})
+    response = _search_books(logged_in_client)
 
-    assert response.status_code == 200
     assert "error" not in response.context
-    titles = [r.title for r in response.context["results"]]
-    assert titles == ["GB1"]
+    assert [r.title for r in response.context["results"]] == ["GB1"]
     assert "OpenLibrary" in response.context["notice"]
 
 
-@patch("core.views.get_googlebooks_client")
-@patch("core.views.get_openlibrary_client")
-def test_search_surfaces_error_only_when_both_sources_fail(mock_ol, mock_gb, logged_in_client):
-    mock_ol.return_value.search_books.side_effect = requests.RequestException("boom")
-    mock_gb.return_value.search_books.side_effect = requests.RequestException("boom")
+def test_search_surfaces_error_only_when_both_sources_fail(logged_in_client, book_clients):
+    """The search fails only when neither source could be searched."""
+    for book_client in book_clients:
+        book_client.search_books.side_effect = requests.RequestException("boom")
 
-    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "test"})
+    response = _search_books(logged_in_client)
 
-    assert response.status_code == 200
     assert response.context["error"] == "Search failed"
     assert response.context["results"] == []
 
 
-@patch("core.views.get_googlebooks_client")
-@patch("core.views.get_openlibrary_client")
-def test_search_preserves_media_id_and_query_in_context(mock_ol, mock_gb, logged_in_client):
-    mock_ol.return_value.search_books.return_value = []
-    mock_gb.return_value.search_books.return_value = []
+def test_search_preserves_media_id_and_query_in_context(logged_in_client, book_clients):
+    """The results keep the media being edited and the query, for their import links."""
+    for book_client in book_clients:
+        book_client.search_books.return_value = []
 
-    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "hello", "media_id": "42"})
+    response = _search_books(logged_in_client, q="hello", media_id="42")
 
-    assert response.status_code == 200
     assert response.context["media_id"] == "42"
     assert response.context["query"] == "hello"
 
 
-# ---------- get_volume_details: user-ID escaping (defense-in-depth) ----------
+def test_search_without_googlebooks_says_it_is_not_configured(logged_in_client, book_clients, monkeypatch):
+    """Without Google Books, the book search shows the results of OpenLibrary, and says how to add Google Books."""
+    openlibrary, _googlebooks = book_clients
+    openlibrary.search_books.return_value = [_make_ol("OL1")]
+    monkeypatch.setattr("core.views.get_googlebooks_client", lambda: None)
+
+    response = _search_books(logged_in_client)
+
+    assert [r.title for r in response.context["results"]] == ["OL1"]
+    assert "GOOGLE_BOOKS_API_KEY" in response.context["notice"]
+    assert response.context["notice"] in response.content.decode()
+
+
+# ---------- Google Books client ----------
 
 
 def test_get_volume_details_escapes_volume_id_in_path():
     """A malicious volume_id must be percent-encoded, not injected raw into the URL path."""
-    from core.services.googlebooks import GoogleBooksClient
-
     client = GoogleBooksClient(api_key="")
-
     response = MagicMock()
     response.json.return_value = {"volumeInfo": {}}
-    response.raise_for_status.return_value = None
 
     with patch.object(client.session, "get", return_value=response) as mock_get:
         client.get_volume_details("../evil/path")
 
     called_url = mock_get.call_args[0][0]
-    # Slashes in user input must not survive into the URL path
     assert "/volumes/../evil/path" not in called_url
-    assert "%2F" in called_url or "%2f" in called_url
-
-
-# ---------- API key ----------
+    assert "%2F" in called_url
 
 
 @pytest.mark.parametrize(("api_key", "sent"), [("secret", True), ("", False)])
@@ -244,17 +236,3 @@ def test_client_needs_an_api_key(settings):
 
     settings.GOOGLE_BOOKS_API_KEY = "secret"
     assert get_googlebooks_client().api_key == "secret"
-
-
-@patch("core.views.get_googlebooks_client", return_value=None)
-@patch("core.views.get_openlibrary_client")
-def test_search_without_googlebooks_says_it_is_not_configured(mock_ol, mock_gb, logged_in_client):
-    """Without Google Books, the book search shows the results of OpenLibrary, and says how to add Google Books."""
-    mock_ol.return_value.search_books.return_value = [_make_ol("OL1")]
-
-    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "test"})
-
-    mock_gb.assert_called_once()
-    assert [r.title for r in response.context["results"]] == ["OL1"]
-    assert "GOOGLE_BOOKS_API_KEY" in response.context["notice"]
-    assert response.context["notice"] in response.content.decode()

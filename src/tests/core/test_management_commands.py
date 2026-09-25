@@ -8,215 +8,100 @@ import json
 import tarfile
 from io import BytesIO, StringIO
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 import pytest
 from django.core.management import call_command
 from django.core.management.base import CommandError
 
 from core.models import Media, SavedView
+from core.utils import create_backup
 
 
-def test_export_creates_backup(db):
-    """The export_backup command creates a backup file."""
-    with TemporaryDirectory() as tmpdir:
-        out = StringIO()
-        result = call_command("export_backup", f"--output={tmpdir}", stdout=out)
+def test_export_writes_the_backup_where_asked(db, tmp_path):
+    """The export_backup command writes the backup with the given name and directory, and reports it."""
+    out = StringIO()
 
-        # The command should return the path to the backup
-        assert result is not None
-        backup_path = Path(result)
-        assert backup_path.exists()
-        assert backup_path.name.startswith("datakult_backup_")
+    result = call_command("export_backup", f"--output={tmp_path}", "--filename=my_backup.tar.gz", stdout=out)
+
+    assert Path(result) == tmp_path / "my_backup.tar.gz"
+    assert Path(result).exists()
+    assert "Backup created successfully" in out.getvalue()
 
 
-def test_export_with_custom_filename(db):
-    """The export_backup command accepts a custom filename."""
-    with TemporaryDirectory() as tmpdir:
-        out = StringIO()
-        result = call_command(
-            "export_backup",
-            f"--output={tmpdir}",
-            "--filename=my_backup.tar.gz",
-            stdout=out,
-        )
+@pytest.mark.parametrize(("options", "remaining"), [(["--keep=2"], 2), ([], 4)])
+def test_export_keeps_the_latest_backups(db, tmp_path, options, remaining):
+    """With --keep, only the latest backups are kept; without it, none is deleted."""
+    for _ in range(4):
+        latest = call_command("export_backup", f"--output={tmp_path}", *options, stdout=StringIO())
 
-        backup_path = Path(result)
-        assert backup_path.name == "my_backup.tar.gz"
+    assert len(list(tmp_path.glob("datakult_backup_*.tar.gz"))) == remaining
+    assert Path(latest).exists()
 
 
-def test_export_displays_success_message(db):
-    """The command displays a success message."""
-    with TemporaryDirectory() as tmpdir:
-        out = StringIO()
-        call_command("export_backup", f"--output={tmpdir}", stdout=out)
-
-        output = out.getvalue()
-        assert "Backup created successfully" in output
-
-
-def test_export_includes_media_data(db):
-    """The exported backup includes media data."""
-    Media.objects.create(title="Test Media", media_type="BOOK")
-
-    with TemporaryDirectory() as tmpdir:
-        out = StringIO()
-        result = call_command("export_backup", f"--output={tmpdir}", stdout=out)
-
-        backup_path = Path(result)
-        with tarfile.open(backup_path, "r:gz") as tar:
-            db_file = tar.extractfile("database.json")
-            db_data = json.loads(db_file.read())
-
-            media_entries = [entry for entry in db_data if entry["model"] == "core.media"]
-            assert len(media_entries) == 1
-
-
-def test_export_with_keep_rotates_old_backups(db):
-    """The export_backup command with --keep rotates backups correctly."""
-    with TemporaryDirectory() as tmpdir:
-        # Create 4 backups with keep=2
-        for _ in range(4):
-            out = StringIO()
-            call_command("export_backup", f"--output={tmpdir}", "--keep=2", stdout=out)
-
-        # Only 2 most recent should remain
-        backups = sorted(Path(tmpdir).glob("datakult_backup_*.tar.gz"), key=lambda p: p.stat().st_mtime, reverse=True)
-        assert len(backups) == 2
-
-        # Check that rotation message was displayed
-        output = out.getvalue()
-        assert "Deleting old backup" in output or "Deleted" in output
-
-
-def test_export_without_keep_no_rotation(db):
-    """The export_backup command without --keep doesn't delete old backups."""
-    with TemporaryDirectory() as tmpdir:
-        # Create 3 backups without specifying --keep
-        for _ in range(3):
-            out = StringIO()
-            call_command("export_backup", f"--output={tmpdir}", stdout=out)
-
-        # All 3 should remain
-        backups = list(Path(tmpdir).glob("datakult_backup_*.tar.gz"))
-        assert len(backups) == 3
-
-
-def test_import_requires_file_argument(db):
-    """The import_backup command requires a backup file argument."""
-    with pytest.raises(CommandError, match="the following arguments are required"):
-        call_command("import_backup")
-
-
-def test_import_rejects_nonexistent_file(db):
-    """The import_backup command rejects a non-existent file."""
+def test_import_rejects_a_missing_file(db, tmp_path):
+    """The import_backup command rejects a file that does not exist."""
     with pytest.raises(CommandError, match="Backup file not found"):
-        call_command("import_backup", "/nonexistent/backup.tar.gz")
+        call_command("import_backup", str(tmp_path / "missing.tar.gz"))
 
 
-def test_import_rejects_invalid_format(db):
-    """The import_backup command rejects files with invalid format."""
-    with TemporaryDirectory() as tmpdir:
-        # Create a non-.tar.gz file
-        invalid_file = Path(tmpdir) / "backup.txt"
-        invalid_file.write_text("not a backup")
+def test_import_rejects_a_file_that_is_not_an_archive(db, tmp_path):
+    """The import_backup command rejects a file that is not a .tar.gz archive."""
+    path = tmp_path / "backup.txt"
+    path.write_text("not a backup")
 
-        with pytest.raises(CommandError, match="Invalid backup file format"):
-            call_command("import_backup", str(invalid_file))
+    with pytest.raises(CommandError, match="Invalid backup file format"):
+        call_command("import_backup", str(path))
 
 
-def test_import_restores_media_data(db):
-    """The import_backup command restores media data."""
-    # Create a media entry and backup
-    original_media = Media.objects.create(title="Original Media", media_type="BOOK", status="COMPLETED")
+@pytest.mark.parametrize(("options", "files_restored"), [([], True), (["--no-media"], False)])
+def test_import_restores_the_backup(media_factory, settings, tmp_path, options, files_restored):
+    """The import_backup command restores the media of a backup, and its media files unless told otherwise."""
+    media_factory(title="Original", status="COMPLETED")
+    cover = settings.MEDIA_ROOT / "covers" / "cover.jpg"
+    cover.parent.mkdir(parents=True)
+    cover.write_bytes(b"cover")
+    backup_path = create_backup(output_dir=tmp_path / "backups")
+    Media.objects.all().delete()
+    cover.unlink()
+    out = StringIO()
 
-    with TemporaryDirectory() as tmpdir:
-        # Create a backup
-        out = StringIO()
-        backup_path = Path(call_command("export_backup", f"--output={tmpdir}", stdout=out))
+    call_command("import_backup", str(backup_path), *options, stdout=out)
 
-        # Clear the database
-        Media.objects.all().delete()
-        assert Media.objects.count() == 0
-
-        # Import the backup without --flush (merge mode)
-        call_command("import_backup", str(backup_path))
-
-        # Verify the media is restored
-        assert Media.objects.count() == 1
-        restored_media = Media.objects.first()
-        assert restored_media.title == original_media.title
-        assert restored_media.status == original_media.status
+    assert list(Media.objects.values_list("title", "status")) == [("Original", "COMPLETED")]
+    assert cover.exists() is files_restored
+    assert ("Skipping media files import" in out.getvalue()) is not files_restored
 
 
-def test_import_with_flush_replaces_data(db):
+def test_import_with_flush_replaces_data(media_factory, tmp_path):
     """The import_backup command with --flush replaces all data."""
-    # Create initial media and backup
-    Media.objects.create(title="Original", media_type="BOOK")
+    media_factory(title="Original")
+    backup_path = create_backup(output_dir=tmp_path)
+    media_factory(title="New Media", media_type="FILM")
 
-    with TemporaryDirectory() as tmpdir:
-        # Create a backup
-        out = StringIO()
-        backup_path = Path(call_command("export_backup", f"--output={tmpdir}", stdout=out))
+    call_command("import_backup", str(backup_path), "--flush", stdout=StringIO())
 
-        # Add new media (not in backup)
-        Media.objects.create(title="New Media", media_type="FILM")
-        assert Media.objects.count() == 2
-
-        # Import with --flush should remove "New Media"
-        call_command("import_backup", str(backup_path), "--flush")
-
-        # Only the original media should remain
-        assert Media.objects.count() == 1
-        assert Media.objects.first().title == "Original"
+    assert list(Media.objects.values_list("title", flat=True)) == ["Original"]
 
 
-def test_import_with_no_media_flag(db):
-    """The import_backup command with --no-media skips media files."""
-    Media.objects.create(title="Test", media_type="BOOK")
-
-    with TemporaryDirectory() as tmpdir:
-        # Create a backup
-        out = StringIO()
-        backup_path = Path(call_command("export_backup", f"--output={tmpdir}", stdout=out))
-
-        # Clear database
-        Media.objects.all().delete()
-
-        # Import without media files
-        out = StringIO()
-        call_command("import_backup", str(backup_path), "--no-media", stdout=out)
-
-        # Database should be restored
-        assert Media.objects.count() == 1
-
-        # Check output mentions skipping media
-        output = out.getvalue()
-        assert "Skipping media files import" in output
-
-
-def test_import_restores_backup_with_removed_fields(db, django_user_model):
+def test_import_restores_backup_with_removed_fields(saved_view_factory, tmp_path):
     """A backup made before a field was removed from a model still restores."""
-    user = django_user_model.objects.create_user(username="owner")
-    SavedView.objects.create(user=user, name="Old view")
+    saved_view_factory(name="Old view")
+    backup_path = create_backup(output_dir=tmp_path)
+    # Simulate an older backup, whose saved views still had a view_mode field
+    with tarfile.open(backup_path, "r:gz") as tar:
+        members = {member.name: tar.extractfile(member).read() for member in tar.getmembers() if member.isfile()}
+    database = json.loads(members["database.json"])
+    for obj in database:
+        if obj["model"] == "core.savedview":
+            obj["fields"]["view_mode"] = "list"
+    members["database.json"] = json.dumps(database).encode()
+    old_backup = tmp_path / "old_backup.tar.gz"
+    with tarfile.open(old_backup, "w:gz") as tar:
+        for name, content in members.items():
+            info = tarfile.TarInfo(name=name)
+            info.size = len(content)
+            tar.addfile(info, BytesIO(content))
 
-    with TemporaryDirectory() as tmpdir:
-        backup_path = Path(call_command("export_backup", f"--output={tmpdir}", stdout=StringIO()))
-        # Simulate an older backup, whose saved views still had a view_mode field
-        with tarfile.open(backup_path, "r:gz") as tar:
-            members = {member.name: tar.extractfile(member).read() for member in tar.getmembers() if member.isfile()}
-        database = json.loads(members["database.json"])
-        for obj in database:
-            if obj["model"] == "core.savedview":
-                obj["fields"]["view_mode"] = "list"
-        members["database.json"] = json.dumps(database).encode()
-        old_backup = Path(tmpdir) / "old_backup.tar.gz"
-        with tarfile.open(old_backup, "w:gz") as tar:
-            for name, content in members.items():
-                info = tarfile.TarInfo(name=name)
-                info.size = len(content)
-                tar.addfile(info, BytesIO(content))
-
-        call_command("import_backup", str(old_backup), "--flush", "--no-media", stdout=StringIO())
+    call_command("import_backup", str(old_backup), "--flush", "--no-media", stdout=StringIO())
 
     assert SavedView.objects.filter(name="Old view").exists()

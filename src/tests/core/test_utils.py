@@ -6,148 +6,82 @@ These tests verify the utility functions used by the application.
 
 import json
 import tarfile
-from pathlib import Path
-from tempfile import TemporaryDirectory
+
+import pytest
 
 from core.models import Agent, Media
 from core.utils import create_backup, delete_orphan_agents_by_ids, get_datakult_version
 
 
-def test_deletes_orphan_agent(db):
-    """An agent with no media is deleted."""
-    orphan = Agent.objects.create(name="Orphan Agent")
-    orphan_id = orphan.pk
-
-    deleted_count = delete_orphan_agents_by_ids([orphan_id])
-
-    assert deleted_count == 1
-    assert not Agent.objects.filter(pk=orphan_id).exists()
-
-
-def test_keeps_agent_with_media(db):
-    """An agent linked to a media is not deleted."""
-    agent = Agent.objects.create(name="Active Agent")
-    media = Media.objects.create(title="Test Media", media_type="BOOK")
-    media.contributors.add(agent)
-
-    deleted_count = delete_orphan_agents_by_ids([agent.pk])
-
-    assert deleted_count == 0
-    assert Agent.objects.filter(pk=agent.pk).exists()
-
-
-def test_mixed_agents(db):
-    """Only orphan agents are deleted from a mixed list."""
+def test_deletes_only_orphan_agents(media_factory):
+    """Among the given agents, only those linked to no media are deleted."""
     orphan = Agent.objects.create(name="Orphan")
     active = Agent.objects.create(name="Active")
-    media = Media.objects.create(title="Test Media", media_type="BOOK")
-    media.contributors.add(active)
+    media_factory(contributors=[active])
 
     deleted_count = delete_orphan_agents_by_ids([orphan.pk, active.pk])
 
     assert deleted_count == 1
-    assert not Agent.objects.filter(pk=orphan.pk).exists()
-    assert Agent.objects.filter(pk=active.pk).exists()
+    assert list(Agent.objects.values_list("name", flat=True)) == ["Active"]
 
 
-def test_empty_list(db):
-    """Returns 0 when given an empty list."""
-    deleted_count = delete_orphan_agents_by_ids([])
-
-    assert deleted_count == 0
-
-
-def test_nonexistent_ids(db):
-    """Handles non-existent IDs gracefully."""
-    deleted_count = delete_orphan_agents_by_ids([99999, 88888])
-
-    assert deleted_count == 0
-
-
-def test_handles_none_values(db):
-    """None values in the list are filtered out."""
+@pytest.mark.parametrize(
+    ("ids", "deleted"),
+    [
+        (lambda orphan: [], 0),
+        (lambda orphan: [99999, 88888], 0),
+        (lambda orphan: [None, orphan.pk, None], 1),
+        (lambda orphan: [orphan.pk] * 3, 1),
+    ],
+    ids=["empty", "missing", "none values", "duplicates"],
+)
+def test_orphan_agents_are_counted_once(db, ids, deleted):
+    """Missing and empty ids are skipped, and an orphan agent given several times is counted once."""
     orphan = Agent.objects.create(name="Orphan")
 
-    deleted_count = delete_orphan_agents_by_ids([None, orphan.pk, None])
-
-    assert deleted_count == 1
+    assert delete_orphan_agents_by_ids(ids(orphan)) == deleted
 
 
-def test_handles_duplicate_ids(db):
-    """Duplicate IDs are handled correctly."""
-    orphan = Agent.objects.create(name="Orphan")
+@pytest.mark.parametrize(
+    ("pyproject", "expected"), [('[project]\nversion = "1.2.3"\n', "1.2.3"), ("not = valid = toml", "unknown")]
+)
+def test_version_is_read_from_pyproject(settings, tmp_path, pyproject, expected):
+    """The version is the one of pyproject.toml, or unknown when it cannot be parsed."""
+    settings.BASE_DIR = tmp_path / "src"
+    (tmp_path / "pyproject.toml").write_text(pyproject)
 
-    deleted_count = delete_orphan_agents_by_ids([orphan.pk, orphan.pk, orphan.pk])
-
-    assert deleted_count == 1
-
-
-def test_returns_version_string():
-    """The function returns a version string."""
-    version = get_datakult_version()
-
-    assert isinstance(version, str)
-    assert version != ""
+    assert get_datakult_version() == expected
 
 
-def test_version_format_or_unknown():
-    """The version is either in semver format or 'unknown'."""
-    version = get_datakult_version()
+def test_version_is_unknown_without_pyproject(settings, tmp_path):
+    """Without pyproject.toml, the version is unknown."""
+    settings.BASE_DIR = tmp_path / "src"
 
-    # Should be either a version number (e.g., "0.1.0") or "unknown"
-    assert version == "unknown" or version[0].isdigit()
+    assert get_datakult_version() == "unknown"
 
 
-def test_creates_complete_backup(db):
+def test_creates_complete_backup(db, tmp_path):
     """A backup file is created with all expected content."""
-    # Create a media entry to verify data backup
     Media.objects.create(title="Test Media", media_type="BOOK")
 
-    with TemporaryDirectory() as tmpdir:
-        backup_path = create_backup(output_dir=Path(tmpdir))
+    backup_path = create_backup(output_dir=tmp_path)
 
-        # Verify file creation
-        assert backup_path.exists()
-        assert backup_path.suffix == ".gz"
-        assert backup_path.name.startswith("datakult_backup_")
-
-        # Verify archive contents
-        with tarfile.open(backup_path, "r:gz") as tar:
-            # Check metadata.json exists and has correct structure
-            assert "metadata.json" in tar.getnames()
-            metadata_file = tar.extractfile("metadata.json")
-            metadata = json.loads(metadata_file.read())
-            assert "created_at" in metadata
-            assert "datakult_version" in metadata
-            assert "django_version" in metadata
-            assert "database_engine" in metadata
-
-            # Check database.json exists and contains media data
-            assert "database.json" in tar.getnames()
-            db_file = tar.extractfile("database.json")
-            db_data = json.loads(db_file.read())
-            media_entries = [entry for entry in db_data if entry["model"] == "core.media"]
-            assert len(media_entries) == 1
-            assert media_entries[0]["fields"]["title"] == "Test Media"
+    assert backup_path.name.startswith("datakult_backup_")
+    assert backup_path.name.endswith(".tar.gz")
+    with tarfile.open(backup_path, "r:gz") as tar:
+        metadata = json.loads(tar.extractfile("metadata.json").read())
+        assert {"created_at", "datakult_version", "django_version", "database_engine"} <= metadata.keys()
+        db_data = json.loads(tar.extractfile("database.json").read())
+        media_entries = [entry for entry in db_data if entry["model"] == "core.media"]
+        assert [entry["fields"]["title"] for entry in media_entries] == ["Test Media"]
 
 
-def test_custom_filename_with_extension_handling(db):
-    """Custom filenames work correctly with automatic .tar.gz extension."""
-    with TemporaryDirectory() as tmpdir:
-        # Test with full extension
-        backup_path1 = create_backup(output_dir=Path(tmpdir), filename="custom_backup.tar.gz")
-        assert backup_path1.name == "custom_backup.tar.gz"
+@pytest.mark.parametrize("filename", ["custom", "custom.tar.gz"])
+def test_backup_gets_a_custom_name_in_a_new_directory(db, tmp_path, filename):
+    """A backup can be named, gets the .tar.gz extension if it lacks it, and creates its directory."""
+    output_dir = tmp_path / "new_dir" / "backups"
 
-        # Test without extension - should be added automatically
-        backup_path2 = create_backup(output_dir=Path(tmpdir), filename="custom")
-        assert backup_path2.name == "custom.tar.gz"
+    backup_path = create_backup(output_dir=output_dir, filename=filename)
 
-
-def test_creates_output_directory(db):
-    """The output directory is created if it doesn't exist."""
-    with TemporaryDirectory() as tmpdir:
-        output_dir = Path(tmpdir) / "new_dir" / "backups"
-        backup_path = create_backup(output_dir=output_dir)
-
-        assert output_dir.exists()
-        assert backup_path.exists()
+    assert backup_path == output_dir / "custom.tar.gz"
+    assert backup_path.exists()
