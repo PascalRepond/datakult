@@ -170,3 +170,25 @@ def test_confirm_modal_submits_the_form_it_confirms():
     assert re.search(r'<button type="submit"\s+form="delete"', html)
     assert len(re.findall(r'commandfor="confirm"\s+command="close"', html)) == 2
     assert "<form" not in html
+
+
+@pytest.mark.parametrize(
+    ("url_name", "triggers"),
+    [
+        ("home", {"input changed delay:300ms from:#search-input"}),
+        ("media_import", {"input changed delay:300ms from:#import-query"}),
+        ("media_add", {"input changed delay:300ms", "input changed delay:500ms"}),
+        ("accounts:profile_edit", {"input changed delay:500ms"}),
+    ],
+)
+def test_typing_triggers_requests_once_it_pauses(logged_in_client, url_name, triggers):
+    """Typed or pasted text is searched 300 ms after typing pauses, and a field is validated 500 ms after."""
+    content = logged_in_client.get(reverse(url_name)).content.decode()
+
+    typing = {
+        event.strip()
+        for trigger in re.findall(r'hx-trigger="([^"]*)"', content)
+        for event in trigger.split(",")
+        if event.strip().startswith(("input", "keyup", "keydown"))
+    }
+    assert typing == triggers
