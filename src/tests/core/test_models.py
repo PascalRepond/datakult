@@ -5,15 +5,20 @@ These tests verify custom behavior of the Agent and Media models.
 Only application-specific logic is tested here, not Django ORM basics.
 """
 
+import importlib
 from io import BytesIO
 
 import pytest
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import connection
+from django.db.migrations.executor import MigrationExecutor
 from freezegun import freeze_time
 from PIL import Image
 
-from core.models import MAX_FILE_SIZE_MB, Media, SavedView, compress_image
+from core.models import MAX_FILE_SIZE_MB, Media, SavedView, compress_image, dominant_color
 
 
 def test_agent_str_representation(agent):
@@ -236,6 +241,51 @@ def test_compress_image_supported_formats():
     assert result_png.format == "JPEG"
     assert result_png.width <= 800
     assert result_png.height <= 800
+
+
+def test_dominant_color_is_the_most_common_colour():
+    """The dominant colour of an image is the one covering most of it, as a hex string."""
+    img = Image.new("RGB", (100, 100), color="#333333")
+    img.paste((0, 0, 255), (0, 0, 40, 40))
+    img_io = BytesIO()
+    img.save(img_io, format="PNG")
+
+    assert dominant_color(img_io) == "#333333"
+
+
+def test_dominant_color_of_an_unreadable_file_is_empty():
+    """A file that is not an image has no dominant colour."""
+    assert dominant_color(BytesIO(b"not an image")) == ""
+
+
+def test_media_cover_color_picked_from_uploaded_cover(db, cover_png):
+    """Saving a media with a new cover keeps the colour of that cover."""
+    media = Media(title="Test", media_type="BOOK", cover=SimpleUploadedFile("cover.png", cover_png))
+    media.save()
+
+    assert media.cover_color == "#333333"
+
+
+def test_media_cover_color_cleared_with_its_cover(db):
+    """Removing the cover of a media clears its colour."""
+    media = Media.objects.create(title="Test", media_type="BOOK", cover="covers/cover.jpg", cover_color="#333333")
+    media.cover = None
+    media.save()
+
+    assert media.cover_color == ""
+
+
+def test_migration_picks_colour_of_existing_covers(db, cover_png):
+    """The migration adding the cover colour picks it for the covers already stored."""
+    name = default_storage.save("covers/cover.png", ContentFile(cover_png))
+    media = Media.objects.create(title="Test", media_type="BOOK", cover=name)
+    migration = importlib.import_module("core.migrations.0014_media_cover_color")
+    state = MigrationExecutor(connection).loader.project_state(("core", "0014_media_cover_color"))
+
+    migration.populate_cover_color(state.apps, None)
+
+    media.refresh_from_db()
+    assert media.cover_color == "#333333"
 
 
 def test_saved_view_str_representation(user, db):

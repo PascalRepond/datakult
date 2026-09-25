@@ -37,6 +37,15 @@ def test_index_displays_media_list(logged_in_client, media):
     assert "media_list" in response.context
 
 
+def test_index_fills_cover_frames_with_their_colour(logged_in_client, db):
+    """The colour of a cover fills the space left around it in its card."""
+    Media.objects.create(title="Test", media_type="MUSIC", cover="covers/cover.jpg", cover_color="#333333")
+
+    response = logged_in_client.get(reverse("home"))
+
+    assert 'style="--cover-color: #333333"' in response.content.decode()
+
+
 def test_index_includes_saved_views_in_context(logged_in_client, user, db):
     """The index view includes saved_views in the context for authenticated users."""
     SavedView.objects.create(user=user, name="View 1")
@@ -160,6 +169,21 @@ def test_media_edit_removes_contributor_cleans_orphan(logged_in_client, db):
     logged_in_client.post(reverse("media_edit", kwargs={"pk": media.pk}), data)
 
     assert not Agent.objects.filter(pk=agent.pk).exists()
+
+
+def test_media_edit_import_cover_keeps_its_colour(logged_in_client, media, cover_png, monkeypatch):
+    """A cover imported from an external source keeps its colour."""
+    monkeypatch.setattr("core.views._download_cover", lambda _url: cover_png)
+    data = {
+        "title": media.title,
+        "media_type": media.media_type,
+        "status": media.status,
+        "import_cover_url": "https://image.tmdb.org/t/p/w500/cover.jpg",
+    }
+    logged_in_client.post(reverse("media_edit", kwargs={"pk": media.pk}), data)
+
+    media.refresh_from_db()
+    assert media.cover_color == "#333333"
 
 
 def test_media_delete_post_deletes_media(logged_in_client, media):

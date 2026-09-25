@@ -28,7 +28,7 @@ from . import stats as media_stats
 from .filters import DEFAULT_SORT, SORT_OPTIONS
 from .forms import MediaForm
 from .import_results import from_googlebooks, from_igdb, from_musicbrainz, from_openlibrary, from_tmdb
-from .models import Agent, Media, SavedView, Tag
+from .models import Agent, Media, SavedView, Tag, dominant_color
 from .queries import build_media_context
 from .services.googlebooks import get_googlebooks_client
 from .services.igdb import get_igdb_client
@@ -239,7 +239,9 @@ def _handle_import_cover(request, instance):
     cover_url = request.POST.get("import_cover_url")
     if cover_url and not request.FILES.get("cover") and (cover_bytes := _download_cover(cover_url)):
         filename = f"{instance.title[:50].replace('/', '_')}.jpg"
-        instance.cover.save(filename, ContentFile(cover_bytes), save=False)
+        cover = ContentFile(cover_bytes)
+        instance.cover_color = dominant_color(cover)
+        instance.cover.save(filename, cover, save=False)
 
 
 _COVER_SOURCES = (

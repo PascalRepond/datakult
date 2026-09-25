@@ -94,6 +94,19 @@ def compress_image(image, max_size=(800, 800), quality=85):
             output.close()
 
 
+def dominant_color(image):
+    """Return the most common colour of an image as a hex string, or an empty string if it cannot be read."""
+    try:
+        with Image.open(image) as img:
+            img.thumbnail((64, 64))
+            palette = img.convert("RGB").quantize(colors=8)
+    except OSError, Image.DecompressionBombError:
+        return ""
+    _count, index = max(palette.getcolors())
+    red, green, blue = palette.getpalette()[index * 3 : index * 3 + 3]
+    return f"#{red:02x}{green:02x}{blue:02x}"
+
+
 class Agent(models.Model):
     """Model for an agent entity that can be contributor for a media."""
 
@@ -242,13 +255,15 @@ class Media(models.Model):
         blank=True,
         null=True,
     )
+    # Fills the space left around a cover whose shape differs from its frame
+    cover_color = models.CharField(max_length=7, blank=True, default="", editable=False)
 
     def __str__(self):
         return self.title
 
     def save(self, *args, **kwargs):
         """
-        Override save to compress cover image before saving.
+        Override save to compress cover image before saving, and keep the colour of the cover.
 
         This method detects new file uploads by checking for the _file attribute
         set by Django's file handling. This avoids unnecessary compression on
@@ -257,7 +272,10 @@ class Media(models.Model):
         # Only compress if a new file was uploaded (has _file attribute)
         if self.cover and hasattr(self.cover, "_file") and self.cover._file:  # noqa: SLF001
             compressed = compress_image(self.cover)
+            self.cover_color = dominant_color(compressed)
             self.cover.save(self.cover.name, compressed, save=False)
+        elif not self.cover:
+            self.cover_color = ""
 
         super().save(*args, **kwargs)
 
