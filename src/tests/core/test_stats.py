@@ -7,7 +7,7 @@ These tests verify the aggregations used by the statistics dashboard.
 import pytest
 
 from core import stats
-from core.models import Media
+from core.models import Media, MediaType
 
 
 @pytest.fixture
@@ -74,7 +74,7 @@ def test_count_per_type_lists_every_type(media_factory, all_media):
 
     result = stats.count_per_type(all_media)
 
-    assert [row["media_type"] for row in result] == [key for key, _ in Media.media_type.field.choices]
+    assert [row["media_type"] for row in result] == MediaType.values
     counts = {row["media_type"]: row["count"] for row in result}
     assert (counts["BOOK"], counts["FILM"], counts["GAME"]) == (1, 2, 0)
     assert result[0]["label"] == "Book"

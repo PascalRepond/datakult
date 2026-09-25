@@ -5,7 +5,7 @@ from urllib.parse import parse_qsl, urlsplit
 from django import template
 from django.utils import formats
 
-from core.models import Media
+from core.models import MediaType
 
 register = template.Library()
 
@@ -263,4 +263,4 @@ def media_types():
     Example usage:
         {% media_types as types %}
     """
-    return Media.media_type.field.choices
+    return MediaType.choices

@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import translation
 
 from core.forms import MediaForm
-from core.models import Media
+from core.models import Score
 from tests.helpers import media_form_data
 
 
@@ -56,7 +56,7 @@ def test_score_widget_lists_every_verdict(db):
     unrated = str(MediaForm()["score"])
 
     assert rated.count('type="radio"') == 11
-    for label in dict(Media.score.field.choices).values():
+    for label in Score.labels:
         assert str(label) in rated
     assert re.search(r'type="radio"\s+name="score"\s+value="8"[^>]*\schecked', rated)
     assert re.search(r'type="radio"\s+name="score"\s+value=""[^>]*\schecked', unrated)

@@ -28,7 +28,7 @@ from . import stats as media_stats
 from .filters import DEFAULT_SORT, SORT_OPTIONS
 from .forms import MediaForm
 from .import_results import from_googlebooks, from_igdb, from_musicbrainz, from_openlibrary, from_tmdb
-from .models import Agent, Media, SavedView, Tag
+from .models import Agent, Media, MediaType, SavedView, Score, Status, Tag
 from .queries import build_media_context
 from .services.googlebooks import get_googlebooks_client
 from .services.igdb import get_igdb_client
@@ -86,7 +86,7 @@ def _stats_filters(request):
         int(value) if len(value) <= MAX_YEAR_LENGTH and value.isdecimal() and MINYEAR <= int(value) < MAXYEAR else None
     )
     media_type = request.GET.get("type")
-    if media_type not in dict(Media.media_type.field.choices):
+    if media_type not in MediaType.values:
         media_type = None
     return year, media_type, media_stats.filter_by_year(media_stats.rated_media(), year)
 
@@ -142,7 +142,7 @@ def stats(request):
         "previous_year": previous_year,
         "next_year": next_year,
         "media_type": media_type,
-        "media_type_label": dict(Media.media_type.field.choices).get(media_type),
+        "media_type_label": dict(MediaType.choices).get(media_type),
         "type_counts": type_counts,
         "overview": media_stats.overview(media),
         "covers": _stats_covers_page(media),
@@ -829,19 +829,17 @@ def validate_saved_view_data(post_data):  # noqa: C901, PLR0912
     errors = []
 
     # Validate media types against model choices
-    valid_types = [choice[0] for choice in Media.media_type.field.choices]
-    invalid_types = [t for t in post_data.getlist("type") if t not in valid_types]
+    invalid_types = [t for t in post_data.getlist("type") if t not in MediaType.values]
     if invalid_types:
         errors.append(_("Invalid media types: %(types)s") % {"types": ", ".join(invalid_types)})
 
     # Validate statuses against model choices
-    valid_statuses = [choice[0] for choice in Media.status.field.choices]
-    invalid_statuses = [s for s in post_data.getlist("status") if s not in valid_statuses]
+    invalid_statuses = [s for s in post_data.getlist("status") if s not in Status.values]
     if invalid_statuses:
         errors.append(_("Invalid statuses: %(statuses)s") % {"statuses": ", ".join(invalid_statuses)})
 
     # Validate scores against model choices + "none"
-    valid_scores = [str(choice[0]) for choice in Media.score.field.choices] + ["none"]
+    valid_scores = [str(score) for score in Score.values] + ["none"]
     invalid_scores = [s for s in post_data.getlist("score") if s not in valid_scores]
     if invalid_scores:
         errors.append(_("Invalid scores: %(scores)s") % {"scores": ", ".join(invalid_scores)})
