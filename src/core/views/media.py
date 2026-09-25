@@ -187,6 +187,7 @@ def agent_search_htmx(request):
     return _search_by_name(request, Agent, "partials/contributors/contributors_suggestions.html", "agents")
 
 
+@require_POST
 @login_required
 def agent_select_htmx(request):
     """HTMX view: return the chip of the picked contributor."""
@@ -199,6 +200,7 @@ def tag_search_htmx(request):
     return _search_by_name(request, Tag, "partials/tags/tag_suggestions.html", "tags")
 
 
+@require_POST
 @login_required
 def tag_select_htmx(request):
     """HTMX view: return the chip of the picked tag."""
