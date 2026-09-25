@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 21:28+0200\n"
+"POT-Creation-Date: 2026-09-25 22:31+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -252,7 +252,7 @@ msgid "Adored"
 msgstr "Coup de cœur"
 
 #: src/core/models.py:138
-#: src/templates/partials/saved_views/save_view_modal.html:13
+#: src/templates/partials/saved_views/save_view_modal.html:12
 msgid "Name"
 msgstr "Nom"
 
@@ -371,25 +371,25 @@ msgstr "Remplacer la couverture :"
 msgid "Upload cover:"
 msgstr "Télécharger la couverture :"
 
-#: src/core/views/backup.py:29
+#: src/core/views/backup.py:32
 #, python-format
 msgid "Backup creation failed: %(error)s"
 msgstr "Échec de la création du backup : %(error)s"
 
-#: src/core/views/backup.py:44
+#: src/core/views/backup.py:47
 msgid "No file selected"
 msgstr "Aucun fichier sélectionné"
 
-#: src/core/views/backup.py:47
+#: src/core/views/backup.py:50
 msgid "Invalid file format. Use a .tar.gz file"
 msgstr "Format de fichier invalide. Utilisez un fichier .tar.gz"
 
-#: src/core/views/backup.py:58
+#: src/core/views/backup.py:61
 #, python-format
 msgid "Backup import failed: %(error)s"
 msgstr "Échec de l'importation du backup : %(error)s"
 
-#: src/core/views/backup.py:61
+#: src/core/views/backup.py:64
 msgid "Backup imported successfully! All data has been restored."
 msgstr "Backup importé avec succès ! Toutes les données ont été restaurées."
 
@@ -710,33 +710,34 @@ msgstr "Définir à aujourd'hui"
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: src/templates/base/media_edit.html:152
 #: src/templates/base/media_edit.html:154
+#: src/templates/base/media_edit.html:156
 msgid "Delete"
 msgstr "Supprimer"
 
-#: src/templates/base/media_edit.html:158
-#: src/templates/partials/common/confirm_modal.html:21
-#: src/templates/partials/saved_views/save_view_modal.html:32
+#: src/templates/base/media_edit.html:160
+#: src/templates/partials/common/confirm_modal.html:24
+#: src/templates/partials/saved_views/save_view_modal.html:31
 msgid "Cancel"
 msgstr "Annuler"
 
-#: src/templates/base/media_edit.html:161
-#: src/templates/partials/saved_views/save_view_modal.html:31
+#: src/templates/base/media_edit.html:163
+#: src/templates/partials/saved_views/save_view_modal.html:30
 msgid "Save"
 msgstr "Enregistrer"
 
-#: src/templates/base/media_edit.html:181
+#: src/templates/base/media_edit.html:183
 msgid "Delete Media"
 msgstr "Supprimer le média"
 
-#: src/templates/base/media_edit.html:181
+#: src/templates/base/media_edit.html:183
 msgid ""
 "Are you sure you want to delete this media? This action cannot be undone."
 msgstr ""
 "Êtes-vous sûr de vouloir supprimer ce média ? Cette action est irréversible."
 
-#: src/templates/base/media_edit.html:181
+#: src/templates/base/media_edit.html:183
+#: src/templates/partials/saved_views/saved_views_list.html:33
 msgid "Yes, delete"
 msgstr "Oui, supprimer"
 
@@ -795,16 +796,16 @@ msgstr "Pas de couverture"
 msgid "Has cover"
 msgstr "Avec couverture"
 
-#: src/templates/base/media_index.html:130
+#: src/templates/base/media_index.html:133
 msgid "Save view"
 msgstr "Enregistrer la vue"
 
-#: src/templates/base/media_index.html:141
-#: src/templates/partials/common/confirm_modal.html:33
+#: src/templates/base/media_index.html:144
+#: src/templates/partials/common/confirm_modal.html:35
 #: src/templates/partials/media_items/media_review_modal.html:15
 #: src/templates/partials/navigation/filters_drawer.html:8
 #: src/templates/partials/navigation/filters_drawer.html:15
-#: src/templates/partials/saved_views/save_view_modal.html:36
+#: src/templates/partials/saved_views/save_view_modal.html:38
 msgid "Close"
 msgstr "Fermer"
 
@@ -865,7 +866,6 @@ msgstr "Supprimer %(name)s"
 msgid "Search or add…"
 msgstr "Rechercher ou ajouter…"
 
-#: src/templates/partials/common/confirm_modal.html:24
 #: src/templates/partials/common/confirm_modal.html:28
 msgid "Confirm"
 msgstr "Confirmer"
@@ -990,23 +990,27 @@ msgstr "Déconnexion"
 msgid "Log in"
 msgstr "Se connecter"
 
-#: src/templates/partials/saved_views/save_view_modal.html:8
+#: src/templates/partials/saved_views/save_view_modal.html:7
 msgid "Save current view"
 msgstr "Enregistrer la vue actuelle"
 
-#: src/templates/partials/saved_views/save_view_modal.html:20
+#: src/templates/partials/saved_views/save_view_modal.html:19
 msgid "Enter the name of an existing view to update it."
 msgstr "Entrez le nom d'une vue existante pour la mettre à jour."
 
-#: src/templates/partials/saved_views/saved_views_list.html:16
+#: src/templates/partials/saved_views/saved_views_list.html:29
+#, python-format
+msgid "Delete %(name)s"
+msgstr "Supprimer %(name)s"
+
+#: src/templates/partials/saved_views/saved_views_list.html:32
 #, python-format
 msgid "Delete the view “%(name)s”?"
 msgstr "Supprimer la vue « %(name)s » ?"
 
-#: src/templates/partials/saved_views/saved_views_list.html:25
-#, python-format
-msgid "Delete %(name)s"
-msgstr "Supprimer %(name)s"
+#: src/templates/partials/saved_views/saved_views_list.html:33
+msgid "Delete saved view"
+msgstr "Supprimer la vue enregistrée"
 
 #: src/templates/partials/stats/covers_page.html:32
 msgid "Show more"

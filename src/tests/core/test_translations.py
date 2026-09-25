@@ -36,6 +36,7 @@ def test_list_page_is_translated(french_client, dune, saved_view_factory):
         'aria-label="Ouvrir la barre latérale"',
         'aria-label="Fermer la barre latérale"',
         'aria-label="Supprimer Livres"',
+        "Supprimer la vue enregistrée",
         'aria-label="Modifier Dune"',
         'alt="Couverture de Dune"',
         'aria-label="Note : 7 sur 10"',
