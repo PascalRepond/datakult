@@ -1,0 +1,11 @@
+{# Radio of a theme, in the theme menu of the sidebar. Parameters: value (the name of the theme), label #}
+<li>
+  <label class="flex items-center gap-2 cursor-pointer">
+    <input type="radio"
+           name="theme-sidebar"
+           class="theme-controller radio radio-sm"
+           aria-label="{{ label }}"
+           value="{{ value }}" />
+    <span>{{ label }}</span>
+  </label>
+</li>

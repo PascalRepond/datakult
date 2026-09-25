@@ -4,7 +4,6 @@
 {# - modal_id: Unique modal ID #}
 {# - title: Modal title #}
 {# - message: Confirmation message #}
-{# - item_name: Optional item name to display in bold within the message #}
 {# - confirm_text: Confirm button text (optional, default: "Confirm") #}
 {# - is_danger: Boolean for danger style (optional, default: False) #}
 {# - form_id: Form ID to submit (optional) #}
@@ -16,7 +15,7 @@
       {{ title }}
     </h3>
     <div class="py-4">
-      {{ message }}{% if item_name %} <strong>{{ item_name }}</strong>?{% endif %}
+      {{ message }}
     </div>
     <div class="modal-action">
       <label for="{{ modal_id }}" class="btn">{% translate "Cancel" %}</label>

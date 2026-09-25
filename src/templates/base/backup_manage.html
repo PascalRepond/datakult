@@ -2,7 +2,7 @@
 {% load static %}
 {% load i18n %}
 {% block title %}
-  {% translate "Backup Management" %} — Datakult
+  {% translate "Backup Management" %}
 {% endblock title %}
 {% block extra_js %}
   <script src="{% static 'js/backup_manage.js' %}"></script>
@@ -14,8 +14,8 @@
       {% include "partials/common/page_header.html" with title=backup_label %}
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Export Backup Card -->
-      <div class="card bg-base-200 border border-base-300">
+      {# Export Backup Card #}
+      <div class="card panel">
         <div class="card-body">
           <h2 class="card-title">
             {% lucide "download" %}
@@ -45,7 +45,7 @@
           </div>
         </div>
       </div>
-      <!-- Import Backup Card -->
+      {# Import Backup Card #}
       <div class="card bg-base-200 border-2 border-warning">
         <div class="card-body">
           <h2 class="card-title text-warning">
@@ -54,7 +54,7 @@
           </h2>
           <p class="text-sm opacity-70">{% translate "Restore your data from a backup archive." %}</p>
           <div class="divider"></div>
-          <!-- Warning Alert -->
+          {# Warning Alert #}
           <div role="alert" class="alert alert-warning">
             {% lucide "triangle-alert" class="shrink-0" %}
             <div class="text-sm">
@@ -69,14 +69,14 @@
                 action="{% url 'backup_import' %}"
                 enctype="multipart/form-data">
             {% csrf_token %}
-            <div class="form-control w-full">
+            <div class="w-full">
               <label class="label">
-                <span class="label-text">{% translate "Select a backup file (.tar.gz)" %}</span>
+                <span>{% translate "Select a backup file (.tar.gz)" %}</span>
               </label>
               <input type="file"
                      name="backup_file"
                      accept=".tar.gz,.gz"
-                     class="file-input file-input-bordered w-full"
+                     class="file-input w-full"
                      required />
             </div>
             <div class="card-actions justify-end mt-4">

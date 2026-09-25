@@ -1,0 +1,9 @@
+{# A form field, with its label above it and its error below it #}
+{# Parameters: field, label, class and id (optional, of the block), unmarked (optional: no asterisk if required) #}
+<div{% if class %} class="{{ class }}"{% endif %}{% if id %} id="{{ id }}"{% endif %}>
+  <label class="label" for="{{ field.id_for_label }}">
+    {% include "partials/common/field_label.html" %}
+  </label>
+  {{ field }}
+  {% include "partials/common/field_error_slot.html" %}
+</div>

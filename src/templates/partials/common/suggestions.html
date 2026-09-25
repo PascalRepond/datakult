@@ -1,0 +1,22 @@
+{% load i18n %}
+{# Objects found while typing in a field of chips, each added as a chip when picked #}
+{# Parameters: objects, select_url, kind (singular name of the objects, naming their search and its suggestions), #}
+{# chips_id (the chips the picked object is added to), hover_class #}
+{% if objects %}
+  <div class="mt-1 bg-base-100 shadow-xl rounded-lg border border-base-300 max-h-60 overflow-y-auto">
+    {% for object in objects %}
+      <a class="block px-4 py-3 {{ hover_class }} cursor-pointer transition-colors"
+         hx-post="{{ select_url }}"
+         hx-vals='{"id": "{{ object.pk }}"}'
+         hx-target="#{{ chips_id }}"
+         hx-swap="beforeend"
+         hx-on::after-request="document.getElementById('{{ kind }}-suggestions').innerHTML = ''; document.getElementById('{{ kind }}-suggestions').classList.add('hidden'); document.getElementById('{{ kind }}_search').value = '';"
+         href="#"
+         onclick="return false;">{{ object.name }}</a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="mt-1 bg-base-100 shadow-xl rounded-lg border border-base-300 px-4 py-2 text-sm text-base-content/70">
+    {% translate "No result, press Enter to add" %}
+  </div>
+{% endif %}

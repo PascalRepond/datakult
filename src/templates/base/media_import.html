@@ -2,9 +2,9 @@
 {% load i18n %}
 {% block title %}
   {% if media_id %}
-    {% translate "Import metadata" %} — Datakult
+    {% translate "Import metadata" %}
   {% else %}
-    {% translate "Add media" %} — Datakult
+    {% translate "Add media" %}
   {% endif %}
 {% endblock title %}
 {% block fab %}
@@ -30,7 +30,7 @@
     </div>
     {# One search for every source: picking another source searches it with the same query #}
     <form id="import-search"
-          class="group card bg-base-200 border border-base-300 mb-6"
+          class="group card panel mb-6"
           hx-get="{% url 'import_search_htmx' %}"
           hx-trigger="submit, change[target.name !== 'q'], input changed delay:400ms from:#import-query, search from:#import-query{% if default_query %}, load{% endif %}"
           hx-sync="this:replace"

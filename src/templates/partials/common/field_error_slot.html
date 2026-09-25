@@ -1,0 +1,7 @@
+{# Place of the error of a form field, below it: filled when the form is shown again, or by the live validation #}
+{# Parameters: field #}
+<label class="label" id="error-{{ field.name }}">
+  {% if field.errors %}
+    {% include "partials/common/field_error.html" with error=field.errors.0 %}
+  {% endif %}
+</label>

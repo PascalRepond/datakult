@@ -1,14 +1,12 @@
 {% load i18n %}
 {# Cover input with a preview of the current cover or of the chosen file, driven by js/cover_input.js #}
-<div id="cover-widget-{{ widget.name }}"
-     class="cover-widget p-4 bg-base-200 rounded-lg">
+<div class="cover-widget p-4 bg-base-200 rounded-lg">
   <div class="flex items-start gap-4">
     {# Preview area (existing or new cover) #}
-    <div class="shrink-0 relative" id="preview-container-{{ widget.name }}">
+    <div class="shrink-0 relative">
       {% if widget.is_initial %}
         {# Existing cover with delete button #}
-        <div id="existing-preview-{{ widget.name }}"
-             class="relative group"
+        <div class="relative group"
              data-preview="existing">
           <img src="{{ widget.value.url }}"
                alt="{% translate "Current cover" %}"
@@ -26,8 +24,7 @@
         </div>
       {% endif %}
       {# New cover preview (hidden by default, replaces existing when shown) #}
-      <div id="new-preview-{{ widget.name }}"
-           class="hidden relative group"
+      <div class="hidden relative group"
            data-preview="new">
         <img alt="{% translate "New cover preview" %}"
              class="w-24 h-32 object-cover rounded-lg shadow-md"
@@ -41,8 +38,7 @@
                 aria-label="{% translate "Remove" %}">{% lucide "x" size="12" %}</button>
       </div>
       {# Placeholder when no cover (existing or new) #}
-      <div id="no-preview-{{ widget.name }}"
-           data-preview="none"
+      <div data-preview="none"
            class="{% if widget.is_initial %}hidden{% endif %} w-24 h-32 bg-base-300 rounded-lg flex items-center justify-center">
         {% lucide "image" size="32" class="opacity-30" %}
       </div>
@@ -58,7 +54,7 @@
       {% endif %}
       {# File input #}
       <div>
-        <label class="label-text text-sm mb-1 block">
+        <label class="text-sm mb-1 block">
           {% if widget.is_initial %}
             {% translate "Replace cover:" %}
           {% else %}

@@ -1,83 +1,61 @@
-{% load static %}
+{% extends "base/root.html" %}
 {% load i18n %}
-{% get_current_language as LANGUAGE_CODE %}
-<!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}">
-  <head>
-    <title>
-      {% block title %}
-        Datakult
-      {% endblock title %}
-    </title>
-    {% include "partials/common/head.html" %}
-    {% block extra_css %}
-    {% endblock extra_css %}
-    {% block head_js %}
-    {% endblock head_js %}
-  </head>
-  <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-    <!-- Toast container for messages -->
-    <div class="toast toast-top toast-end z-50">
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} shadow-lg relative pr-12"
-               role="alert">
-            <span>{{ message }}</span>
-            <button onclick="this.parentElement.remove()"
-                    class="btn btn-ghost btn-sm btn-circle absolute top-2 right-2">{% lucide "x" %}</button>
-          </div>
-        {% endfor %}
-      {% endif %}
-    </div>
-    <!-- Drawer layout: sidebar on desktop, hamburger menu on mobile -->
-    <div class="drawer lg:drawer-open">
-      <!-- Hidden checkbox to control drawer state -->
-      <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" />
-      <!-- Main content area -->
-      <div class="drawer-content flex flex-col">
-        <!-- Minimal top navbar (mobile hamburger only) -->
-        <div class="navbar bg-base-100 border-b border-base-300 lg:hidden">
-          <!-- Hamburger button (mobile only) -->
-          <div class="flex-none">
-            <label for="sidebar-drawer"
-                   aria-label="Open sidebar"
-                   class="btn btn-square btn-ghost">{% lucide "menu" %}</label>
-          </div>
-          <!-- Logo (mobile only) -->
-          <div class="flex-1">
-            <a href="{% url 'home' %}"
-               class="btn btn-ghost text-xl text-primary gap-2">
-              <img src="{% static 'images/bookshelf.png' %}"
-                   alt=""
-                   class="w-6 h-6">
-              Datakult
-            </a>
-          </div>
+{% block body %}
+  {# Toast container for messages #}
+  <div class="toast toast-top toast-end z-50">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} shadow-lg relative pr-12"
+             role="alert">
+          <span>{{ message }}</span>
+          <button onclick="this.parentElement.remove()"
+                  class="btn btn-ghost btn-sm btn-circle absolute top-2 right-2">{% lucide "x" %}</button>
         </div>
-        <!-- Page content -->
-        <div class="p-4 lg:p-8 xl:p-12">
-          {% block content %}
-          {% endblock content %}
+      {% endfor %}
+    {% endif %}
+  </div>
+  {# Drawer layout: sidebar on desktop, hamburger menu on mobile #}
+  <div class="drawer lg:drawer-open">
+    {# Hidden checkbox to control drawer state #}
+    <input id="sidebar-drawer" type="checkbox" class="drawer-toggle" />
+    {# Main content area #}
+    <div class="drawer-content flex flex-col">
+      {# Minimal top navbar (mobile hamburger only) #}
+      <div class="navbar bg-base-100 border-b border-base-300 lg:hidden">
+        {# Hamburger button (mobile only) #}
+        <div class="flex-none">
+          <label for="sidebar-drawer"
+                 aria-label="Open sidebar"
+                 class="btn btn-square btn-ghost">{% lucide "menu" %}</label>
         </div>
-        {# Floating add button on mobile, where the sidebar is hidden (left out of the forms) #}
-        {% block fab %}
-          <div class="fab z-30 lg:hidden">
-            <a href="{% url 'media_import' %}"
-               class="btn btn-lg btn-circle btn-primary"
-               aria-label="{% translate "Add media" %}">{% lucide "plus" %}</a>
-          </div>
-        {% endblock fab %}
+        {# Logo (mobile only) #}
+        <div class="flex-1">
+          <a href="{% url 'home' %}"
+             class="btn btn-ghost text-xl text-primary gap-2">
+            {% include "partials/common/logo.html" with image_class="w-6 h-6" %}
+          </a>
+        </div>
       </div>
-      <!-- Sidebar drawer -->
-      <div class="drawer-side z-40">
-        <label for="sidebar-drawer"
-               aria-label="Close sidebar"
-               class="drawer-overlay"></label>
-        {% include 'partials/navigation/sidebar_nav.html' %}
+      {# Page content #}
+      <div class="p-4 lg:p-8 xl:p-12">
+        {% block content %}
+        {% endblock content %}
       </div>
+      {# Floating add button on mobile, where the sidebar is hidden (left out of the forms) #}
+      {% block fab %}
+        <div class="fab z-30 lg:hidden">
+          <a href="{% url 'media_import' %}"
+             class="btn btn-lg btn-circle btn-primary"
+             aria-label="{% translate "Add media" %}">{% lucide "plus" %}</a>
+        </div>
+      {% endblock fab %}
     </div>
-    <script src="{% static 'js/base.js' %}"></script>
-    {% block extra_js %}
-    {% endblock extra_js %}
-  </body>
-</html>
+    {# Sidebar drawer #}
+    <div class="drawer-side z-40">
+      <label for="sidebar-drawer"
+             aria-label="Close sidebar"
+             class="drawer-overlay"></label>
+      {% include 'partials/navigation/sidebar_nav.html' %}
+    </div>
+  </div>
+{% endblock body %}

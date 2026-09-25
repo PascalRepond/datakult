@@ -1,10 +1,9 @@
 {% extends "base/base.html" %}
 {% load i18n %}
 {% load l10n %}
-{% load lucide %}
 {% load media_tags %}
 {% block title %}
-  {% translate "Statistics" %} — Datakult
+  {% translate "Statistics" %}
 {% endblock title %}
 {% block content %}
   <div class="max-w-4xl mx-auto">
@@ -18,10 +17,10 @@
         {% include "partials/common/page_header.html" with title=stats_label %}
         <div class="ml-auto">{% include "partials/stats/year_picker.html" %}</div>
       </div>
-      <!-- Rated media per type, used as a filter (click the active one again to clear it) -->
+      {# Rated media per type, used as a filter (click the active one again to clear it) #}
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6" hx-boost="true">
         {% for row in type_counts %}
-          <a href="{% url 'stats' %}?{% if row.media_type == media_type %}{% query_string request type=None %}{% else %}{% query_string request type=row.media_type %}{% endif %}" class="card bg-base-200 border border-base-300 hover:bg-base-300 transition-colors {% if row.media_type == media_type %}ring-2 ring-primary{% elif not row.count %}opacity-50{% endif %}" {% if row.media_type == media_type %}aria-current="true"{% endif %}>
+          <a href="{% url 'stats' %}?{% if row.media_type == media_type %}{% query_string request type=None %}{% else %}{% query_string request type=row.media_type %}{% endif %}" class="card panel hover:bg-base-300 transition-colors {% if row.media_type == media_type %}ring-2 ring-primary{% elif not row.count %}opacity-50{% endif %}" {% if row.media_type == media_type %}aria-current="true"{% endif %}>
             <div class="card-body p-4 gap-1">
               <div class="flex items-center gap-2 text-sm">
                 {% media_icon row.media_type size="sm" %}
@@ -35,8 +34,8 @@
           </a>
         {% endfor %}
       </div>
-      <!-- Rated media covers -->
-      <div class="card bg-base-200 border border-base-300 mb-6">
+      {# Rated media covers #}
+      <div class="card panel mb-6">
         <div class="card-body">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 class="card-title">
@@ -60,8 +59,8 @@
           {% endif %}
         </div>
       </div>
-      <!-- Score distribution -->
-      <div class="card bg-base-200 border border-base-300 mb-6">
+      {# Score distribution #}
+      <div class="card panel mb-6">
         <div class="card-body">
           <h2 class="card-title">
             {% lucide "star" %}
@@ -71,8 +70,8 @@
         </div>
       </div>
       {% if per_month %}
-        <!-- Rated per month (selected year) -->
-        <div class="card bg-base-200 border border-base-300">
+        {# Rated per month (selected year) #}
+        <div class="card panel">
           <div class="card-body">
             <h2 class="card-title">
               {% lucide "calendar" %}
@@ -82,8 +81,8 @@
           </div>
         </div>
       {% else %}
-        <!-- Rated per year (all years); its bars filter this page on their year and scroll back to the top -->
-        <div class="card bg-base-200 border border-base-300"
+        {# Rated per year (all years); its bars filter this page on their year and scroll back to the top #}
+        <div class="card panel"
              hx-boost="true"
              hx-swap="outerHTML show:window:top">
           <div class="card-body">

@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById(containerId);
     const suggestions = suggestionsId ? document.getElementById(suggestionsId) : null;
     const template = document.getElementById(templateId);
-    if (!input || !container || !template) return null;
+    if (!input || !container || !template) return;
 
     const chipExists = (name) => {
       const lower = name.trim().toLowerCase();
@@ -99,9 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    const instance = { input, container, suggestions, addChip, chipExists };
-    chipInputs.push(instance);
-    return instance;
+    chipInputs.push({ input, container, suggestions, chipExists });
   };
 
   // Initialize tags chip input with autocomplete
@@ -121,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Single set of HTMX event handlers for all chip inputs
-  if (window.htmx && chipInputs.length > 0) {
+  if (chipInputs.length > 0) {
     document.body.addEventListener('htmx:afterSwap', (evt) => {
       const target = evt.detail?.target || evt.target;
       for (const { suggestions } of chipInputs) {

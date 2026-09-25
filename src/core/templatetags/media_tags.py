@@ -1,12 +1,12 @@
 """Custom template tags for media-related functionality."""
 
-from urllib.parse import parse_qsl, urlsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit
 
 from django import template
 from django.http import QueryDict
 from django.utils import formats
 
-from core.models import MediaType
+from core.models import MediaType, Status
 
 register = template.Library()
 
@@ -44,6 +44,9 @@ SCORE_COLORS = (
     (8, "text-green-500"),
     (10, "text-emerald-600"),
 )
+
+# Status shortcuts of the sidebar: the statuses each one lists, completed media along with the unfinished ones
+STATUS_SHORTCUTS = [(Status.PLANNED,), (Status.IN_PROGRESS,), (Status.PAUSED,), (Status.COMPLETED, Status.DNF)]
 
 FILTER_PARAMS = {
     "tag",
@@ -232,3 +235,22 @@ def media_types():
         {% media_types as types %}
     """
     return MediaType.choices
+
+
+@register.simple_tag
+def status_shortcuts(request):
+    """
+    Return the status shortcuts of the sidebar: their label, icon and query, and whether the list shows them.
+
+    Example usage:
+        {% status_shortcuts request as shortcuts %}
+    """
+    return [
+        {
+            "label": statuses[0].label,
+            "icon": status_icon(statuses[0]),
+            "query": urlencode([("status", status) for status in statuses]),
+            "active": filter_matches(request, "status", *statuses),
+        }
+        for statuses in STATUS_SHORTCUTS
+    ]
