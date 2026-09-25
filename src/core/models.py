@@ -16,8 +16,10 @@ from markdownfield.validators import VALIDATOR_STANDARD
 from partial_date import PartialDateField
 from PIL import Image, ImageOps
 
-# Security limits for image processing, on top of the decompression bomb limit of PIL
+# Security limits for image processing
 MAX_FILE_SIZE_MB = 10  # Maximum file size in megabytes
+# Maximum number of pixels (~9500x9500), the default limit of PIL, beyond which it only warns up to twice as many
+MAX_IMAGE_PIXELS = 89_478_485
 ALLOWED_IMAGE_TYPES = {"JPEG", "PNG", "GIF", "BMP", "WEBP"}
 
 # Error of django-partial-date, which ships no translation: listed for makemessages to extract it with the app strings
@@ -53,6 +55,9 @@ def compress_image(image, max_size=(800, 800), quality=85):
                     _("Unsupported image format: %(format)s. Allowed: %(allowed)s")
                     % {"format": img.format, "allowed": ", ".join(ALLOWED_IMAGE_TYPES)}
                 )
+            # The size is read from the header, before the image is decoded
+            if img.width * img.height > MAX_IMAGE_PIXELS:
+                raise ValidationError(_("Image is too large (possible decompression bomb attack)."))
             compressed = ImageOps.exif_transpose(img)
 
             # Flatten transparent images on a white background, as JPEG has no transparency

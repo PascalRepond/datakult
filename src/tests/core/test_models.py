@@ -51,6 +51,15 @@ def test_compress_image_file_size_validation():
         compress_image(oversized_file)
 
 
+def test_compress_image_rejects_images_of_too_many_pixels(monkeypatch):
+    """Images of more pixels than the limit are rejected before being decoded, where PIL would only warn."""
+    monkeypatch.setattr("core.models.MAX_IMAGE_PIXELS", 100 * 100)
+
+    compress_image(BytesIO(image_bytes((100, 100))))
+    with pytest.raises(ValidationError, match="too large"):
+        compress_image(BytesIO(image_bytes((101, 100))))
+
+
 def test_compress_image_invalid_file():
     """Invalid or corrupted files are rejected."""
     with pytest.raises(ValidationError, match="Invalid or corrupted image file"):
