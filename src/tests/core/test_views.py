@@ -679,6 +679,19 @@ def test_sidebar_marks_the_current_media_type(logged_in_client):
     assert shortcuts == [(value, "menu-active" if value == "FILM" else "") for value in MediaType.values]
 
 
+DISPLAY_UTILITIES = {"block", "inline-block", "inline", "flex", "inline-flex", "grid", "inline-grid", "contents"}
+
+
+@pytest.mark.parametrize("url_name", ["home", "media_add", "stats"])
+def test_closed_dropdown_menus_leave_the_page(logged_in_client, url_name):
+    """A dropdown menu sets no display, which would keep it on the page while closed, invisible but clickable."""
+    content = logged_in_client.get(reverse(url_name)).content.decode()
+
+    menus = [classes.split() for classes in re.findall(r'class="(dropdown-content[^"]*)"', content)]
+    assert menus
+    assert [classes for classes in menus if DISPLAY_UTILITIES & set(classes)] == []
+
+
 @freeze_time("2026-09-25")
 def test_sidebar_stats_link_opens_the_current_year(logged_in_client):
     """The statistics shortcut of the sidebar shows the current year."""
