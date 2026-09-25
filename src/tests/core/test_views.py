@@ -1637,3 +1637,14 @@ def test_import_page_has_one_search_for_every_source(logged_in_client, media_fac
     assert re.search(r'name="q"[^>]*value="Hades"', content)
     assert content.count('name="source"') == 4
     assert re.search(r'name="source"\s+value="igdb"[^>]*\schecked', content)
+
+
+def test_backup_page_has_no_inline_script(logged_in_client):
+    """The backup page exports through a plain link, and leaves the import check to a static script."""
+    content = logged_in_client.get(reverse("backup_manage")).content.decode()
+    body = content.split("</head>")[1]
+
+    assert re.search(rf'<a href="{reverse("backup_export")}"', body)
+    assert "js/backup_manage.js" in body
+    assert "<script>" not in body
+    assert not re.search(r"\sonclick=", body)

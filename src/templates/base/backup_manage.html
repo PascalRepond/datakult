@@ -4,6 +4,9 @@
 {% block title %}
   {% translate "Backup Management" %} — Datakult
 {% endblock title %}
+{% block extra_js %}
+  <script src="{% static 'js/backup_manage.js' %}"></script>
+{% endblock extra_js %}
 {% block content %}
   <div class="max-w-4xl mx-auto">
     <div class="mb-8">
@@ -33,12 +36,12 @@
             </ul>
           </div>
           <div class="card-actions justify-end mt-4">
-            <button id="export-backup-btn"
-                    class="btn btn-primary"
-                    onclick="downloadBackup(this)">
+            {# The archive comes as an attachment, so the browser downloads it and stays here; #}
+            {# on failure, the server redirects back here with an error message #}
+            <a href="{% url 'backup_export' %}" class="btn btn-primary">
               {% lucide "download" %}
               {% translate "Download Backup" %}
-            </button>
+            </a>
           </div>
         </div>
       </div>
@@ -78,7 +81,8 @@
             </div>
             <div class="card-actions justify-end mt-4">
               <button type="button"
-                      onclick="this.form.checkValidity() && (document.getElementById('confirm-import-modal').checked = true) || this.form.reportValidity()"
+                      data-action="confirm-import"
+                      data-modal="confirm-import-modal"
                       class="btn btn-warning">
                 {% lucide "import" %}
                 {% translate "Import Backup" %}
@@ -91,36 +95,4 @@
   </div>
   {# Confirmation modal for backup import #}
   {% include "partials/common/confirm_modal.html" with modal_id="confirm-import-modal" title=_("Warning: destructive action") message=_("This action will DELETE ALL your current data and replace it with the backup data. Are you absolutely sure you want to continue?") confirm_text=_("Yes, import backup") is_danger=True form_id="import-backup-form" %}
-  <script>
-    async function downloadBackup(btn) {
-      btn.classList.add('loading');
-      btn.disabled = true;
-
-      try {
-        const response = await fetch("{% url 'backup_export' %}");
-        // On failure the server redirects back here with an error message: show it instead of saving the page
-        if (response.redirected) {
-          window.location.href = response.url;
-          return;
-        }
-        if (!response.ok) {
-          throw new Error('Backup failed');
-        }
-        const blob = await response.blob();
-        const filename = response.headers.get('Content-Disposition')?.match(/filename="?(.+?)"?$/)?.[1] || 'backup.tar.gz';
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        link.click();
-        URL.revokeObjectURL(url);
-      } catch (error) {
-        console.error('Backup failed:', error);
-        alert("{% translate 'Backup creation failed. Please try again.' %}\n\n" + (error.message || "{% translate 'Unknown error' %}"));
-      } finally {
-        btn.classList.remove('loading');
-        btn.disabled = false;
-      }
-    }
-  </script>
 {% endblock content %}

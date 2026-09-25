@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 12:22+0200\n"
+"POT-Creation-Date: 2026-09-25 12:34+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,11 +54,11 @@ msgstr "Moins bonnes notes"
 msgid "Not rated"
 msgstr "Non noté"
 
-#: src/core/forms.py:56
+#: src/core/forms.py:59
 msgid "YYYY"
 msgstr "AAAA"
 
-#: src/core/forms.py:62
+#: src/core/forms.py:65
 msgid "YYYY, YYYY-MM, or YYYY-MM-DD"
 msgstr "AAAA, AAAA-MM ou AAAA-MM-JJ"
 
@@ -265,31 +265,31 @@ msgstr "Vue enregistrée"
 msgid "Saved views"
 msgstr "Vues enregistrées"
 
-#: src/core/templates/widgets/cover_input.html:11
+#: src/core/templates/widgets/cover_input.html:14
 msgid "Current cover"
 msgstr "Couverture actuelle"
 
-#: src/core/templates/widgets/cover_input.html:20
-#: src/core/templates/widgets/cover_input.html:21
+#: src/core/templates/widgets/cover_input.html:23
+#: src/core/templates/widgets/cover_input.html:24
 msgid "Delete cover"
 msgstr "Supprimer la couverture"
 
-#: src/core/templates/widgets/cover_input.html:27
+#: src/core/templates/widgets/cover_input.html:32
 msgid "New cover preview"
 msgstr "Nouvelle couverture"
 
-#: src/core/templates/widgets/cover_input.html:35
-#: src/core/templates/widgets/cover_input.html:36
+#: src/core/templates/widgets/cover_input.html:40
+#: src/core/templates/widgets/cover_input.html:41
 #: src/templates/partials/common/chip.html:12
 #: src/templates/partials/filters/filter_badge.html:17
 msgid "Remove"
 msgstr "Supprimer"
 
-#: src/core/templates/widgets/cover_input.html:57
+#: src/core/templates/widgets/cover_input.html:63
 msgid "Replace cover:"
 msgstr "Remplacer la couverture :"
 
-#: src/core/templates/widgets/cover_input.html:59
+#: src/core/templates/widgets/cover_input.html:65
 msgid "Upload cover:"
 msgstr "Télécharger la couverture :"
 
@@ -489,74 +489,74 @@ msgid "Logo icon by Freepik - Flaticon"
 msgstr "Icône du logo par Freepik - Flaticon"
 
 #: src/templates/base/backup_manage.html:5
-#: src/templates/base/backup_manage.html:10
+#: src/templates/base/backup_manage.html:13
 msgid "Backup Management"
 msgstr "Gestion des sauvegardes"
 
-#: src/templates/base/backup_manage.html:19
+#: src/templates/base/backup_manage.html:22
 msgid "Export Backup"
 msgstr "Exporter la sauvegarde"
 
-#: src/templates/base/backup_manage.html:22
+#: src/templates/base/backup_manage.html:25
 msgid "Create a complete archive of all your data (database + media files)."
 msgstr ""
 "Créer une archive complète de toutes vos données (base de données + fichiers "
 "médias)."
 
-#: src/templates/base/backup_manage.html:27
+#: src/templates/base/backup_manage.html:30
 msgid "Backup contents:"
 msgstr "Contenu de la sauvegarde :"
 
-#: src/templates/base/backup_manage.html:30
+#: src/templates/base/backup_manage.html:33
 msgid "All database data"
 msgstr "Toutes les données de la base de données"
 
-#: src/templates/base/backup_manage.html:31
+#: src/templates/base/backup_manage.html:34
 msgid "All media files (cover images)"
 msgstr "Tous les fichiers médias (images de couverture)"
 
-#: src/templates/base/backup_manage.html:32
+#: src/templates/base/backup_manage.html:35
 msgid "Metadata (version, creation date)"
 msgstr "Métadonnées (version, date de création)"
 
-#: src/templates/base/backup_manage.html:40
+#: src/templates/base/backup_manage.html:43
 msgid "Download Backup"
 msgstr "Télécharger la sauvegarde"
 
-#: src/templates/base/backup_manage.html:50
-#: src/templates/base/backup_manage.html:84
+#: src/templates/base/backup_manage.html:53
+#: src/templates/base/backup_manage.html:88
 msgid "Import Backup"
 msgstr "Importer la sauvegarde"
 
-#: src/templates/base/backup_manage.html:52
+#: src/templates/base/backup_manage.html:55
 msgid "Restore your data from a backup archive."
 msgstr "Restaurer vos données à partir d'une archive de sauvegarde."
 
-#: src/templates/base/backup_manage.html:58
+#: src/templates/base/backup_manage.html:61
 msgid "WARNING:"
 msgstr "ATTENTION :"
 
-#: src/templates/base/backup_manage.html:59
+#: src/templates/base/backup_manage.html:62
 msgid "Importing a backup will"
 msgstr "L'importation d'une sauvegarde va"
 
-#: src/templates/base/backup_manage.html:60
+#: src/templates/base/backup_manage.html:63
 msgid "DELETE ALL your current data"
 msgstr "SUPPRIMER TOUTES vos données actuelles"
 
-#: src/templates/base/backup_manage.html:61
+#: src/templates/base/backup_manage.html:64
 msgid "and replace it with the backup data."
 msgstr "et les remplacer par les données de la sauvegarde."
 
-#: src/templates/base/backup_manage.html:71
+#: src/templates/base/backup_manage.html:74
 msgid "Select a backup file (.tar.gz)"
 msgstr "Sélectionnez un fichier de sauvegarde (.tar.gz)"
 
-#: src/templates/base/backup_manage.html:93
+#: src/templates/base/backup_manage.html:97
 msgid "Warning: destructive action"
 msgstr "Attention : action destructive"
 
-#: src/templates/base/backup_manage.html:93
+#: src/templates/base/backup_manage.html:97
 msgid ""
 "This action will DELETE ALL your current data and replace it with the backup "
 "data. Are you absolutely sure you want to continue?"
@@ -564,17 +564,9 @@ msgstr ""
 "Cette action va SUPPRIMER TOUTES vos données actuelles et les remplacer par "
 "les données de la sauvegarde. Êtes-vous absolument sûr de vouloir continuer ?"
 
-#: src/templates/base/backup_manage.html:93
+#: src/templates/base/backup_manage.html:97
 msgid "Yes, import backup"
 msgstr "Oui, importer la sauvegarde"
-
-#: src/templates/base/backup_manage.html:119
-msgid "Backup creation failed. Please try again."
-msgstr "Échec de la création de la sauvegarde. Veuillez réessayer."
-
-#: src/templates/base/backup_manage.html:119
-msgid "Unknown error"
-msgstr "Erreur inconnue"
 
 #: src/templates/base/base.html:67 src/templates/base/media_edit.html:8
 #: src/templates/base/media_edit.html:35 src/templates/base/media_import.html:7
@@ -974,6 +966,12 @@ msgstr "Série"
 #: src/templates/registration/login.html:37
 msgid "Password"
 msgstr "Mot de passe"
+
+#~ msgid "Backup creation failed. Please try again."
+#~ msgstr "Échec de la création de la sauvegarde. Veuillez réessayer."
+
+#~ msgid "Unknown error"
+#~ msgstr "Erreur inconnue"
 
 #~ msgid "Search..."
 #~ msgstr "Rechercher..."
