@@ -32,7 +32,7 @@
     <form id="import-search"
           class="group card panel mb-6"
           hx-get="{% url 'import_search_htmx' %}"
-          hx-trigger="submit, change[target.name !== 'q'], input changed delay:400ms from:#import-query, search from:#import-query{% if default_query %}, load{% endif %}"
+          hx-trigger="submit, change[target.name !== 'q'], input changed delay:300ms from:#import-query, search from:#import-query{% if default_query %}, load{% endif %}"
           hx-sync="this:replace"
           hx-target="#import-results"
           hx-indicator="#search-spinner">

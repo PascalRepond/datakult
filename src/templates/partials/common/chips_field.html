@@ -22,7 +22,7 @@
            placeholder="{% translate "Search or add…" %}"
            autocomplete="off"
            hx-get="{{ search_url }}"
-           hx-trigger="keyup changed delay:300ms"
+           hx-trigger="input changed delay:300ms"
            hx-target="#{{ kind }}-suggestions"
            hx-vals='js:{q: document.getElementById("{{ kind }}_search").value}' />
     <div id="{{ kind }}-suggestions"
