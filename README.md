@@ -68,6 +68,7 @@ A Django application to track and rate the media I consume: movies, TV shows, bo
    - `DJANGO_SUPERUSER_PASSWORD`: Use a secure password
    - `TMDB_API_KEY`: If you want to be able to import metadata from TMDB
    - `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET`: If you want to import metadata from IGDB
+   - `GOOGLE_BOOKS_API_KEY`: If you want to import metadata from Google Books, besides OpenLibrary (an API key of a Google Cloud project with the Books API enabled)
 
 4. Start the application:
    ```bash

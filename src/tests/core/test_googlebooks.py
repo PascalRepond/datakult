@@ -11,10 +11,12 @@ import requests
 from django.urls import reverse
 
 from core.services.googlebooks import (
+    GoogleBooksClient,
     GoogleBooksResult,
     _extract_year,
     _resize_cover_url,
     _strip_html,
+    get_googlebooks_client,
 )
 from core.services.openlibrary import OpenLibraryResult
 
@@ -152,6 +154,7 @@ def test_search_falls_back_when_googlebooks_fails(mock_ol, mock_gb, logged_in_cl
     assert "error" not in response.context
     titles = [r.title for r in response.context["results"]]
     assert titles == ["OL1"]
+    assert "Google Books" in response.context["notice"]
 
 
 @patch("core.views.get_googlebooks_client")
@@ -167,6 +170,7 @@ def test_search_falls_back_when_openlibrary_fails(mock_ol, mock_gb, logged_in_cl
     assert "error" not in response.context
     titles = [r.title for r in response.context["results"]]
     assert titles == ["GB1"]
+    assert "OpenLibrary" in response.context["notice"]
 
 
 @patch("core.views.get_googlebooks_client")
@@ -202,7 +206,7 @@ def test_get_volume_details_escapes_volume_id_in_path():
     """A malicious volume_id must be percent-encoded, not injected raw into the URL path."""
     from core.services.googlebooks import GoogleBooksClient
 
-    client = GoogleBooksClient()
+    client = GoogleBooksClient(api_key="")
 
     response = MagicMock()
     response.json.return_value = {"volumeInfo": {}}
@@ -215,3 +219,42 @@ def test_get_volume_details_escapes_volume_id_in_path():
     # Slashes in user input must not survive into the URL path
     assert "/volumes/../evil/path" not in called_url
     assert "%2F" in called_url or "%2f" in called_url
+
+
+# ---------- API key ----------
+
+
+@pytest.mark.parametrize(("api_key", "sent"), [("secret", True), ("", False)])
+def test_requests_carry_the_api_key(api_key, sent):
+    """The API key, when there is one, goes with every request, as Google Books refuses anonymous ones."""
+    client = GoogleBooksClient(api_key=api_key)
+    response = MagicMock()
+    response.json.return_value = {"items": []}
+
+    with patch.object(client.session, "get", return_value=response) as mock_get:
+        client.search_books("dune")
+
+    assert ("key=secret" in mock_get.call_args[0][0]) is sent
+
+
+def test_client_needs_an_api_key(settings):
+    """Without an API key, there is no Google Books client, as its requests would all be refused."""
+    settings.GOOGLE_BOOKS_API_KEY = ""
+    assert get_googlebooks_client() is None
+
+    settings.GOOGLE_BOOKS_API_KEY = "secret"
+    assert get_googlebooks_client().api_key == "secret"
+
+
+@patch("core.views.get_googlebooks_client", return_value=None)
+@patch("core.views.get_openlibrary_client")
+def test_search_without_googlebooks_says_it_is_not_configured(mock_ol, mock_gb, logged_in_client):
+    """Without Google Books, the book search shows the results of OpenLibrary, and says how to add Google Books."""
+    mock_ol.return_value.search_books.return_value = [_make_ol("OL1")]
+
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "test"})
+
+    mock_gb.assert_called_once()
+    assert [r.title for r in response.context["results"]] == ["OL1"]
+    assert "GOOGLE_BOOKS_API_KEY" in response.context["notice"]
+    assert response.context["notice"] in response.content.decode()

@@ -439,6 +439,8 @@ def _fetch_openlibrary_data(work_key: str, year: int | None = None) -> dict | No
 def _fetch_googlebooks_data(volume_id: str) -> dict | None:
     """Fetch Google Books data for pre-filling the form."""
     client = get_googlebooks_client()
+    if not client:
+        return None
 
     try:
         details = client.get_volume_details(volume_id)
@@ -665,11 +667,12 @@ def book_search_htmx(request):
         ol_future = executor.submit(
             _search_books_source, openlibrary.search_books, query, MAX_SEARCH_RESULTS, "OpenLibrary"
         )
-        gb_future = executor.submit(
+        # Without an API key, Google Books is not searched at all
+        gb_future = googlebooks and executor.submit(
             _search_books_source, googlebooks.search_books, query, MAX_SEARCH_RESULTS, "Google Books"
         )
         ol_results, ol_ok = ol_future.result()
-        gb_results, gb_ok = gb_future.result()
+        gb_results, gb_ok = gb_future.result() if gb_future else ([], False)
 
     # Google Books typically has richer metadata for modern fiction, so we lead with it
     merged = _interleave(gb_results, ol_results)[:MAX_SEARCH_RESULTS]
@@ -679,8 +682,15 @@ def book_search_htmx(request):
     ]
 
     context = {**base_context, "results": results}
+    # Tell when the results only come from one of the sources
     if not ol_ok and not gb_ok:
         context["error"] = "Search failed"
+    elif not googlebooks:
+        context["notice"] = _("Google Books is not searched, as it needs an API key: set GOOGLE_BOOKS_API_KEY.")
+    elif not (ol_ok and gb_ok):
+        context["notice"] = _("%(source)s could not be searched: the results only come from the other source.") % {
+            "source": "OpenLibrary" if not ol_ok else "Google Books"
+        }
 
     return render(request, IMPORT_RESULTS_TEMPLATE, context)
 

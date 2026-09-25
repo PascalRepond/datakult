@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 12:39+0200\n"
+"POT-Creation-Date: 2026-09-25 12:45+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -313,119 +313,132 @@ msgstr "Jeux vidéo"
 msgid "Books"
 msgstr "Livres"
 
-#: src/core/views.py:506
+#: src/core/views.py:508
 #, python-format
 msgid "'%(title)s' deleted successfully"
 msgstr "'%(title)s' supprimé avec succès"
 
-#: src/core/views.py:755
+#: src/core/views.py:689
+msgid ""
+"Google Books is not searched, as it needs an API key: set "
+"GOOGLE_BOOKS_API_KEY."
+msgstr "Google Books n'est pas interrogé, faute de clé d'API : définissez GOOGLE_BOOKS_API_KEY."
+
+#: src/core/views.py:691
+#, python-format
+msgid ""
+"%(source)s could not be searched: the results only come from the other "
+"source."
+msgstr "%(source)s n'a pas pu être interrogé : les résultats ne viennent que de l'autre source."
+
+#: src/core/views.py:765
 #, python-format
 msgid "Backup creation failed: %(error)s"
 msgstr "Échec de la création du backup : %(error)s"
 
-#: src/core/views.py:766
+#: src/core/views.py:776
 msgid "No file selected"
 msgstr "Aucun fichier sélectionné"
 
-#: src/core/views.py:770
+#: src/core/views.py:780
 msgid "Invalid file format. Use a .tar.gz file"
 msgstr "Format de fichier invalide. Utilisez un fichier .tar.gz"
 
-#: src/core/views.py:785
+#: src/core/views.py:795
 msgid "Backup imported successfully! All data has been restored."
 msgstr "Backup importé avec succès ! Toutes les données ont été restaurées."
 
-#: src/core/views.py:794
+#: src/core/views.py:804
 #, python-format
 msgid "Backup import failed: %(error)s"
 msgstr "Échec de l'importation du backup : %(error)s"
 
-#: src/core/views.py:822
+#: src/core/views.py:832
 #, python-format
 msgid "Invalid media types: %(types)s"
 msgstr "Types de médias invalides : %(types)s"
 
-#: src/core/views.py:828
+#: src/core/views.py:838
 #, python-format
 msgid "Invalid statuses: %(statuses)s"
 msgstr "Statuts invalides : %(statuses)s"
 
-#: src/core/views.py:834
+#: src/core/views.py:844
 #, python-format
 msgid "Invalid scores: %(scores)s"
 msgstr "Scores invalides : %(scores)s"
 
-#: src/core/views.py:839
+#: src/core/views.py:849
 #, python-format
 msgid "Invalid sort field: %(sort)s"
 msgstr "Champ de tri invalide : %(sort)s"
 
-#: src/core/views.py:843
+#: src/core/views.py:853
 #, python-format
 msgid "Contributor does not exist: ID %(id)s"
 msgstr "Le contributeur n'existe pas : ID %(id)s"
 
-#: src/core/views.py:843
+#: src/core/views.py:853
 #, python-format
 msgid "Invalid contributor ID format: %(id)s"
 msgstr "Format d'ID de contributeur invalide : %(id)s"
 
-#: src/core/views.py:844
+#: src/core/views.py:854
 #, python-format
 msgid "Tag does not exist: ID %(id)s"
 msgstr "Le tag n'existe pas : ID %(id)s"
 
-#: src/core/views.py:844
+#: src/core/views.py:854
 #, python-format
 msgid "Invalid tag ID format: %(id)s"
 msgstr "Format d'ID de tag invalide : %(id)s"
 
-#: src/core/views.py:856
+#: src/core/views.py:866
 msgid "Start date"
 msgstr "Date de début"
 
-#: src/core/views.py:856
+#: src/core/views.py:866
 msgid "End date"
 msgstr "Date de fin"
 
-#: src/core/views.py:862
+#: src/core/views.py:872
 #, python-format
 msgid "Invalid %(label)s: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:865
+#: src/core/views.py:875
 msgid "Review filter"
 msgstr "Filtre de critique"
 
-#: src/core/views.py:865
+#: src/core/views.py:875
 msgid "Cover filter"
 msgstr "Filtre de couverture"
 
-#: src/core/views.py:868
+#: src/core/views.py:878
 #, python-format
 msgid "Invalid %(label)s value: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:882
+#: src/core/views.py:892
 msgid "View name is required"
 msgstr "Nom de la vue requis"
 
-#: src/core/views.py:913
+#: src/core/views.py:923
 #, python-format
 msgid "View '%(name)s' has been updated"
 msgstr "Vue '%(name)s' a été mise à jour"
 
-#: src/core/views.py:918
+#: src/core/views.py:928
 #, python-format
 msgid "View '%(name)s' saved successfully"
 msgstr "Vue '%(name)s' a été enregistrée avec succès"
 
-#: src/core/views.py:934
+#: src/core/views.py:944
 #, python-format
 msgid "View '%(name)s' deleted successfully"
 msgstr "Vue '%(name)s' supprimée avec succès"
 
-#: src/core/views.py:936
+#: src/core/views.py:946
 msgid "View not found"
 msgstr "Vue non trouvée"
 
@@ -825,7 +838,7 @@ msgstr "Avec"
 msgid "Without"
 msgstr "Sans"
 
-#: src/templates/partials/import/import_results.html:48
+#: src/templates/partials/import/import_results.html:54
 msgid "No results found"
 msgstr "Aucun résultat trouvé"
 

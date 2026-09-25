@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from urllib.parse import quote, urlencode
 
 import requests
+from django.conf import settings
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
@@ -95,7 +96,8 @@ class GoogleBooksResult:
 class GoogleBooksClient:
     """Client for interacting with the Google Books API."""
 
-    def __init__(self):
+    def __init__(self, api_key: str):
+        self.api_key = api_key
         # Google Books frequently returns transient 5xx errors (especially 503
         # "backendFailed") even on valid queries. Retry a couple of times with
         # small backoff before giving up.
@@ -112,7 +114,9 @@ class GoogleBooksClient:
     def _request(self, endpoint: str, params: dict | None = None) -> dict:
         """Make a request to the Google Books API."""
         url = f"{GOOGLEBOOKS_BASE_URL}{endpoint}"
-        if params := params or {}:
+        # Google Books refuses anonymous requests, whose shared quota is exhausted
+        params = {**(params or {}), "key": self.api_key} if self.api_key else params
+        if params:
             url = f"{url}?{urlencode(params)}"
 
         try:
@@ -235,10 +239,13 @@ class GoogleBooksClient:
         return response.content
 
 
-def get_googlebooks_client() -> GoogleBooksClient:
+def get_googlebooks_client() -> GoogleBooksClient | None:
     """
     Factory function to get a Google Books client instance.
 
-    Google Books doesn't require authentication for searches, so this always returns a client.
+    Returns None if the API key is not configured, as Google Books refuses anonymous requests.
     """
-    return GoogleBooksClient()
+    if not settings.GOOGLE_BOOKS_API_KEY:
+        logger.warning("Google Books API key not configured")
+        return None
+    return GoogleBooksClient(api_key=settings.GOOGLE_BOOKS_API_KEY)
