@@ -1553,3 +1553,13 @@ def test_today_button_is_not_inside_a_label(logged_in_client, media):
     content = logged_in_client.get(reverse("media_edit", args=[media.pk])).content.decode()
 
     assert not re.search(r"<label(?:(?!</label>)[\s\S])*set-today-btn", content)
+
+
+def test_media_card_shows_its_score_but_not_its_status(rf, media_factory):
+    """A card shows the score and verdict of its media, and leaves its status to the media page."""
+    media = media_factory(status="PAUSED", score=8)
+
+    html = render_to_string("partials/media_items/media_item.html", {"media_list": [media], "request": rf.get("/")})
+
+    assert media.get_score_display() in html
+    assert media.get_status_display() not in html
