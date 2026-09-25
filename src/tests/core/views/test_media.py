@@ -544,6 +544,14 @@ def test_suggestions_add_the_picked_object_to_its_chips(logged_in_client, model,
     assert f'hx-target="#{chips_id}"' in content
 
 
+@pytest.mark.parametrize("url_name", ["agent_select_htmx", "tag_select_htmx"])
+def test_picking_a_suggestion_needs_a_post(logged_in_client, agent, url_name):
+    """A contributor or a tag is picked by the POST request of its suggestion, not by a link."""
+    response = logged_in_client.get(reverse(url_name), {"id": agent.pk})
+
+    assert response.status_code == 405
+
+
 def test_agent_select_returns_chip(logged_in_client, agent):
     """Selecting an agent returns the chip template."""
     response = logged_in_client.post(reverse("agent_select_htmx"), {"id": agent.pk})
