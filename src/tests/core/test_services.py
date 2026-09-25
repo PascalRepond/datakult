@@ -9,8 +9,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
-from core.services.base import extract_year
+from core.services.base import APIError, extract_year
 from core.services.openlibrary import OpenLibraryClient
+from core.services.tmdb import TMDBClient
 
 COVER_URL = "https://covers.openlibrary.org/b/id/42-L.jpg"
 COVER = b"cover" * 1000
@@ -71,3 +72,17 @@ def test_download_cover_without_a_cover_returns_nothing(response):
     cover, _get = _download(response)
 
     assert cover is None
+
+
+def test_api_errors_do_not_reveal_the_api_key(caplog):
+    """A failed request is reported without its URL, which holds the API key of the source."""
+    client = TMDBClient(api_key="SECRET")
+    url = "https://api.themoviedb.org/3/search/multi?api_key=SECRET&query=dune"
+    error = requests.HTTPError(f"403 Client Error: Forbidden for url: {url}", response=MagicMock(status_code=403))
+
+    with patch.object(client.session, "request", side_effect=error), pytest.raises(APIError) as raised:
+        client.search_multi("dune", language="en-US")
+
+    assert "SECRET" not in str(raised.value)
+    assert raised.value.__suppress_context__
+    assert "SECRET" not in caplog.text

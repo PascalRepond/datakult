@@ -15,7 +15,6 @@ import re
 import time
 from dataclasses import dataclass
 
-import requests
 from django.conf import settings
 
 from .base import MIN_QUERY_LENGTH, APIClient, APIError
@@ -114,9 +113,12 @@ class IGDBClient(APIClient):
                     "grant_type": "client_credentials",
                 },
             )
-        except requests.RequestException as e:
+        except APIError as e:
             msg = "Failed to authenticate with Twitch"
             raise IGDBError(msg) from e
+        if "access_token" not in data:
+            msg = "Twitch gave no access token"
+            raise IGDBError(msg)
 
         _token_cache["access_token"] = data["access_token"]
         _token_cache["expires_at"] = time.time() + data.get("expires_in", 3600)

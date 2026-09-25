@@ -4,6 +4,7 @@ Tests for core.views module.
 These tests verify the behavior of views using pytest-django.
 """
 
+import logging
 import re
 
 import pytest
@@ -1413,3 +1414,23 @@ def test_import_search_shows_the_results_of_the_source(logged_in_client, api_res
     response = logged_in_client.get(reverse("import_search_htmx"), {"source": source, "q": "dune"})
 
     assert [(result.title, result.year, result.byline) for result in response.context["results"]] == expected
+
+
+@pytest.mark.parametrize(
+    "responses", [{}, {"https://id.twitch.tv/oauth2/token": {"expires_in": 3600}}], ids=["unreachable", "no token"]
+)
+def test_import_search_without_a_twitch_token_fails_gracefully(logged_in_client, api_responses, responses):
+    """When Twitch gives no token for IGDB, the game search says it failed, rather than breaking the page."""
+    api_responses.update(responses)
+
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "igdb", "q": "dune"})
+
+    assert response.context["error"] == "Search failed"
+
+
+def test_import_search_failure_is_logged_once(logged_in_client, api_responses, caplog):
+    """A source that cannot be reached is logged once, by its client, rather than by every layer it goes through."""
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "musicbrainz", "q": "dune"})
+
+    assert response.context["error"] == "Search failed"
+    assert [record.levelname for record in caplog.records if record.levelno >= logging.WARNING] == ["WARNING"]

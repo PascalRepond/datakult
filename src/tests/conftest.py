@@ -47,12 +47,14 @@ def api_responses(monkeypatch, settings):
     """
     Answer the requests to the external APIs with the JSON set for their URL, without its query string.
 
-    The API keys of the sources are set, so that every client can be created. A URL without JSON cannot be reached.
+    The API keys of the sources are set, so that every client can be created, and no Twitch token is cached yet.
+    A URL without JSON cannot be reached.
     """
     from unittest.mock import MagicMock
 
     settings.TMDB_API_KEY = settings.GOOGLE_BOOKS_API_KEY = "key"
     settings.TWITCH_CLIENT_ID = settings.TWITCH_CLIENT_SECRET = "twitch"  # noqa: S105
+    monkeypatch.setattr("core.services.igdb._token_cache", {"access_token": None, "expires_at": 0})
     responses = {}
 
     def respond(session, method, url, **kwargs):

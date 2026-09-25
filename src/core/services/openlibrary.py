@@ -12,9 +12,7 @@ import re
 from dataclasses import dataclass
 from urllib.parse import quote, urljoin
 
-import requests
-
-from .base import MIN_COVER_SIZE_BYTES, MIN_QUERY_LENGTH, APIClient
+from .base import MIN_COVER_SIZE_BYTES, MIN_QUERY_LENGTH, APIClient, APIError
 
 logger = logging.getLogger(__name__)
 
@@ -141,7 +139,7 @@ class OpenLibraryClient(APIClient):
                     author_data = self._get(f"{author_key}.json")
                     if author_data.get("name"):
                         authors.append(author_data["name"])
-                except requests.RequestException:
+                except APIError:
                     logger.warning("Failed to fetch author: %s", author_key)
 
         cover_ids = work_data.get("covers", [])

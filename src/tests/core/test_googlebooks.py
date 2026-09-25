@@ -7,9 +7,9 @@ These tests verify application behavior, not the external API.
 from unittest.mock import MagicMock, patch
 
 import pytest
-import requests
 from django.urls import reverse
 
+from core.services.base import APIError
 from core.services.googlebooks import GoogleBooksClient, GoogleBooksResult, _resize_cover_url, get_googlebooks_client
 from core.services.openlibrary import OpenLibraryResult
 
@@ -103,7 +103,7 @@ def test_search_falls_back_when_googlebooks_fails(logged_in_client, book_clients
     """OpenLibrary results still render when Google Books raises."""
     openlibrary, googlebooks = book_clients
     openlibrary.search_books.return_value = [_make_ol("OL1")]
-    googlebooks.search_books.side_effect = requests.RequestException("boom")
+    googlebooks.search_books.side_effect = APIError("boom")
 
     response = _search_books(logged_in_client)
 
@@ -115,7 +115,7 @@ def test_search_falls_back_when_googlebooks_fails(logged_in_client, book_clients
 def test_search_falls_back_when_openlibrary_fails(logged_in_client, book_clients):
     """Google Books results still render when OpenLibrary raises."""
     openlibrary, googlebooks = book_clients
-    openlibrary.search_books.side_effect = requests.RequestException("boom")
+    openlibrary.search_books.side_effect = APIError("boom")
     googlebooks.search_books.return_value = [_make_gb("GB1")]
 
     response = _search_books(logged_in_client)
@@ -128,7 +128,7 @@ def test_search_falls_back_when_openlibrary_fails(logged_in_client, book_clients
 def test_search_surfaces_error_only_when_both_sources_fail(logged_in_client, book_clients):
     """The search fails only when neither source could be searched."""
     for book_client in book_clients:
-        book_client.search_books.side_effect = requests.RequestException("boom")
+        book_client.search_books.side_effect = APIError("boom")
 
     response = _search_books(logged_in_client)
 
