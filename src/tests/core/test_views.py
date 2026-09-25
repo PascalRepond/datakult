@@ -17,7 +17,7 @@ from PIL import Image
 
 from accounts import urls as accounts_urls
 from core import urls as core_urls
-from core.models import Agent, Media, SavedView, Tag
+from core.models import Agent, Media, MediaType, SavedView, Tag
 from core.utils import create_backup
 from core.views import IMPORT_SEARCHES, STATS_COVERS_PER_PAGE
 from tests.helpers import image_bytes, media_form_data, messages_of, titles
@@ -676,9 +676,7 @@ def test_sidebar_marks_the_current_media_type(logged_in_client):
     content = logged_in_client.get(reverse("home"), {"type": "FILM"}).content.decode()
 
     shortcuts = re.findall(r'<a href="/\?type=(\w+)"\s+class="([^"]*)"', content)
-    assert shortcuts == [
-        (value, "menu-active" if value == "FILM" else "") for value, _ in Media.media_type.field.choices
-    ]
+    assert shortcuts == [(value, "menu-active" if value == "FILM" else "") for value in MediaType.values]
 
 
 @freeze_time("2026-09-25")

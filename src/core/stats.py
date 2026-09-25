@@ -6,7 +6,7 @@ from django.db.models import Avg, Count
 from django.utils.dates import MONTHS_3
 from django.utils.text import capfirst
 
-from .models import Media
+from .models import Media, MediaType, Score
 
 
 def _with_pct(rows):
@@ -56,7 +56,7 @@ def count_per_type(media):
     counts = dict(media.values_list("media_type").annotate(count=Count("id")).order_by())
     return [
         {"media_type": media_type, "label": label, "count": counts.get(media_type, 0)}
-        for media_type, label in Media.media_type.field.choices
+        for media_type, label in MediaType.choices
     ]
 
 
@@ -76,9 +76,8 @@ def count_per_month(media, year):
 def score_distribution(media):
     """Count media per score from 1 to 10."""
     counts = dict(media.values_list("score").annotate(count=Count("id")).order_by())
-    labels = dict(Media.score.field.choices)
     return _with_pct(
-        [{"label": score, "title": labels[score], "count": counts.get(score, 0)} for score in range(1, 11)]
+        [{"label": score, "title": title, "count": counts.get(score, 0)} for score, title in Score.choices]
     )
 
 

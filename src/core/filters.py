@@ -8,7 +8,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from partial_date import PartialDate
 
-from .models import Agent, Media, Tag
+from .models import Agent, MediaType, Score, Status, Tag
 
 # Sort values, with a descending sign, and how they order the list
 SORT_OPTIONS = [
@@ -55,20 +55,20 @@ def extract_filters(request):
 
     # Add display names for active filters (as list of tuples: (value, label))
     if filters["type"]:
-        type_choices_dict = dict(Media.media_type.field.choices)
-        filters["type_display"] = [(t, type_choices_dict.get(t, t)) for t in filters["type"]]
+        type_labels = dict(MediaType.choices)
+        filters["type_display"] = [(t, type_labels.get(t, t)) for t in filters["type"]]
     if filters["status"]:
-        status_choices_dict = dict(Media.status.field.choices)
-        filters["status_display"] = [(s, status_choices_dict.get(s, s)) for s in filters["status"]]
+        status_labels = dict(Status.choices)
+        filters["status_display"] = [(s, status_labels.get(s, s)) for s in filters["status"]]
     if filters["score"]:
-        score_choices_dict = dict(Media.score.field.choices)
+        score_labels = dict(Score.choices)
         filters["score_display"] = []
         for s in filters["score"]:
             if s == "none":
                 filters["score_display"].append(("none", _("Not rated")))
             else:
                 try:
-                    filters["score_display"].append((s, score_choices_dict.get(int(s), s)))
+                    filters["score_display"].append((s, score_labels.get(int(s), s)))
                 except ValueError:
                     # Skip malformed score values from URL
                     continue
@@ -77,11 +77,11 @@ def extract_filters(request):
 
 
 def get_field_choices():
-    """Return choices for filter fields from the Media model."""
+    """Return the choices of the filter fields."""
     return {
-        "media_type_choices": Media.media_type.field.choices,
-        "status_choices": Media.status.field.choices,
-        "score_choices": Media.score.field.choices,
+        "media_type_choices": MediaType.choices,
+        "status_choices": Status.choices,
+        "score_choices": Score.choices,
     }
 
 

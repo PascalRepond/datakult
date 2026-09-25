@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from markdownfield.widgets import MDEWidget
 
-from .models import Media
+from .models import Media, Score
 
 
 class CoverImageWidget(forms.ClearableFileInput):
@@ -27,9 +27,7 @@ class ScorePickerWidget(forms.Widget):
         This allows the template to display the score ring and verdict (e.g., "Adored", "Loved") of each score.
         """
         context = super().get_context(name, value, attrs)
-        # Get the choices from the Media model's score field
-        score_field = Media._meta.get_field("score")  # noqa: SLF001
-        context["score_choices"] = score_field.choices
+        context["score_choices"] = Score.choices
         return context
 
 
