@@ -1563,3 +1563,41 @@ def test_media_card_shows_its_score_but_not_its_status(rf, media_factory):
 
     assert media.get_score_display() in html
     assert media.get_status_display() not in html
+
+
+def test_media_detail_invites_to_rate_and_review(logged_in_client, media_factory):
+    """A media page without score nor review links to the edit form, at the field to fill."""
+    media = media_factory()
+    edit = reverse("media_edit", args=[media.pk])
+
+    content = logged_in_client.get(reverse("media_detail", args=[media.pk])).content.decode()
+
+    assert f'href="{edit}#score-field"' in content
+    assert f'href="{edit}#review-field"' in content
+
+
+def test_media_detail_does_not_invite_to_fill_what_is_filled(logged_in_client, media_factory):
+    """A rated and reviewed media page has no invite to rate or review it."""
+    media = media_factory(score=7, review="Fine.")
+
+    content = logged_in_client.get(reverse("media_detail", args=[media.pk])).content.decode()
+
+    assert "#score-field" not in content
+    assert "#review-field" not in content
+
+
+def test_media_detail_names_its_external_link_by_domain(logged_in_client, media_factory):
+    """The external link of a media page shows the domain it leads to."""
+    media = media_factory(external_uri="https://www.themoviedb.org/movie/438631")
+
+    content = logged_in_client.get(reverse("media_detail", args=[media.pk])).content.decode()
+
+    assert re.search(r'href="https://www.themoviedb.org/movie/438631"[\s\S]*?themoviedb.org\s*</span>', content)
+
+
+def test_edit_form_has_the_anchors_of_the_invites(logged_in_client, media):
+    """The edit form has the anchors that the invites of the media page lead to."""
+    content = logged_in_client.get(reverse("media_edit", args=[media.pk])).content.decode()
+
+    assert 'id="score-field"' in content
+    assert 'id="review-field"' in content

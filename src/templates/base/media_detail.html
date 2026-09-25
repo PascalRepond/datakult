@@ -16,8 +16,8 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       {# Left column - Cover and metadata #}
       <div class="md:col-span-1 space-y-4">
-        {# Cover card #}
-        <div class="card bg-base-200 border border-base-300 overflow-hidden">
+        {# Cover card, narrowed on mobile so that the score and the review come sooner #}
+        <div class="card bg-base-200 border border-base-300 overflow-hidden w-full max-w-48 mx-auto md:max-w-none">
           <figure class="relative w-full aspect-2/3 bg-base-300 overflow-hidden">
             {% include "partials/media_items/cover_image.html" with placeholder_class="w-32 h-32" %}
           </figure>
@@ -44,9 +44,10 @@
               <a href="{{ media.external_uri }}"
                  target="_blank"
                  rel="noopener noreferrer"
-                 class="link link-primary text-sm flex items-center gap-2">
+                 class="link link-primary text-sm flex items-center gap-2"
+                 title="{% translate "External metadata" %}">
                 {% lucide "external-link" class="shrink-0" %}
-                <span class="truncate">{% translate "External metadata" %}</span>
+                <span class="truncate">{{ media.external_uri|domain }}</span>
               </a>
             {% endif %}
           </div>
@@ -58,7 +59,14 @@
         <div class="card bg-base-200 border border-base-300">
           <div class="card-body p-4">
             <div class="flex flex-col gap-4">
-              {% include "partials/media_items/score/media_score_ring.html" with score=media.score label=media.get_score_display size="lg" %}
+              {% if media.score %}
+                {% include "partials/media_items/score/media_score_ring.html" with score=media.score label=media.get_score_display size="lg" %}
+              {% else %}
+                <a href="{% url 'media_edit' media.pk %}#score-field" class="btn btn-outline btn-sm w-fit">
+                  {% lucide "star" size="16" %}
+                  {% translate "Rate" %}
+                </a>
+              {% endif %}
               {# Status and Review date #}
               <div class="flex flex-wrap gap-4 items-center">
                 <div class="flex items-center gap-2">{% include "partials/media_items/media_status_badge.html" %}</div>
@@ -72,13 +80,21 @@
             </div>
           </div>
         </div>
-        {# Review card #}
+        {# Review card, or an invite to write one #}
         {% if media.review %}
           <div class="card bg-base-200 border border-base-300">
             <div class="card-body">
               <div class="review-text">{{ media.review_rendered|safe }}</div>
             </div>
           </div>
+        {% else %}
+          <a href="{% url 'media_edit' media.pk %}#review-field"
+             class="card border-2 border-dashed border-base-300 hover:border-primary text-base-content/70 hover:text-primary transition-colors">
+            <div class="card-body items-center text-center">
+              {% lucide "message-square-plus" size="28" %}
+              <span class="font-medium">{% translate "Write a review" %}</span>
+            </div>
+          </a>
         {% endif %}
       </div>
     </div>

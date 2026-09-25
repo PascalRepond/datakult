@@ -12,7 +12,15 @@ from django.utils import translation
 from partial_date import PartialDate
 
 from core.models import Agent
-from core.templatetags.media_tags import has_filters, is_current_url, partial_date, score_color, status_icon, type_icon
+from core.templatetags.media_tags import (
+    domain,
+    has_filters,
+    is_current_url,
+    partial_date,
+    score_color,
+    status_icon,
+    type_icon,
+)
 
 
 @pytest.mark.parametrize(
@@ -173,3 +181,16 @@ def test_score_verdict_forms_one_pill_with_its_ring():
     for html in (with_label, ring_only):
         assert re.search(r'role="meter"', html)
         assert re.search(r'class="[^"]*bg-base-100[^"]*"\s+role="meter"', html)
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        ("https://www.themoviedb.org/movie/438631", "themoviedb.org"),
+        ("http://example.com:8000/page", "example.com"),
+        ("not a url", "not a url"),
+    ],
+)
+def test_domain(url, expected):
+    """The domain of a URL, without its www prefix, names an external link; anything else is kept as is."""
+    assert domain(url) == expected

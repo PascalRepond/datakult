@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 12:05+0200\n"
+"POT-Creation-Date: 2026-09-25 12:12+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -579,9 +579,17 @@ msgstr "Ajouter un média"
 msgid "Edit"
 msgstr "Modifier"
 
-#: src/templates/base/media_detail.html:49
+#: src/templates/base/media_detail.html:48
 msgid "External metadata"
 msgstr "Métadonnées externes"
+
+#: src/templates/base/media_detail.html:67
+msgid "Rate"
+msgstr "Noter"
+
+#: src/templates/base/media_detail.html:95
+msgid "Write a review"
+msgstr "Écrire une critique"
 
 #: src/templates/base/media_edit.html:41 src/templates/base/media_import.html:5
 #: src/templates/base/media_import.html:18
@@ -840,7 +848,7 @@ msgstr "Sans"
 msgid "Cover of"
 msgstr "Couverture de"
 
-#: src/templates/partials/media_items/media_item.html:47
+#: src/templates/partials/media_items/media_item.html:48
 msgid "Read more"
 msgstr "Lire la suite"
 

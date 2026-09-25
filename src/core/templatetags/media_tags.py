@@ -114,6 +114,18 @@ def score_color(score):
 
 
 @register.filter
+def domain(url):
+    """
+    Return the domain of a URL, without its www prefix, or the value itself when it has none.
+
+    Example usage:
+        {{ media.external_uri|domain }}  ->  "themoviedb.org"
+    """
+    host = urlsplit(url).hostname
+    return host.removeprefix("www.") if host else url
+
+
+@register.filter
 def partial_date(value):
     """
     Format a partial date in the active language, down to its own precision.
