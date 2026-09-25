@@ -12,9 +12,20 @@ from pathlib import Path
 import pytest
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.core.serializers.base import DeserializationError
 
 from core.models import Media, SavedView
 from core.utils import create_backup
+
+
+def _write_archive(path, members):
+    """Write a .tar.gz archive holding the given files, from their names to their contents, and return its path."""
+    with tarfile.open(path, "w:gz") as tar:
+        for name, content in members.items():
+            info = tarfile.TarInfo(name=name)
+            info.size = len(content)
+            tar.addfile(info, BytesIO(content))
+    return path
 
 
 def test_export_writes_the_backup_where_asked(db, tmp_path):
@@ -36,6 +47,14 @@ def test_export_keeps_the_latest_backups(db, tmp_path, options, remaining):
 
     assert len(list(tmp_path.glob("datakult_backup_*.tar.gz"))) == remaining
     assert Path(latest).exists()
+
+
+def test_export_refuses_to_keep_no_backup(db, tmp_path):
+    """--keep must keep at least one backup, which is checked before any backup is written."""
+    with pytest.raises(CommandError, match="--keep must be at least 1"):
+        call_command("export_backup", f"--output={tmp_path}", "--keep=0", stdout=StringIO())
+
+    assert list(tmp_path.glob("*.tar.gz")) == []
 
 
 def test_import_rejects_a_missing_file(db, tmp_path):
@@ -83,6 +102,21 @@ def test_import_with_flush_replaces_data(media_factory, tmp_path):
     assert list(Media.objects.values_list("title", flat=True)) == ["Original"]
 
 
+@pytest.mark.parametrize(
+    ("members", "error"),
+    [({"metadata.json": b"{}"}, CommandError), ({"database.json": b"not json"}, DeserializationError)],
+    ids=["no database", "invalid database"],
+)
+def test_failed_import_with_flush_keeps_the_data(media, tmp_path, members, error):
+    """An import that fails leaves the data as it was, even when it was to flush it first."""
+    archive = _write_archive(tmp_path / "broken.tar.gz", members)
+
+    with pytest.raises(error):
+        call_command("import_backup", str(archive), "--flush", stdout=StringIO())
+
+    assert list(Media.objects.values_list("title", flat=True)) == ["Test Media"]
+
+
 def test_import_restores_backup_with_removed_fields(saved_view_factory, tmp_path):
     """A backup made before a field was removed from a model still restores."""
     saved_view_factory(name="Old view")
@@ -95,12 +129,7 @@ def test_import_restores_backup_with_removed_fields(saved_view_factory, tmp_path
         if obj["model"] == "core.savedview":
             obj["fields"]["view_mode"] = "list"
     members["database.json"] = json.dumps(database).encode()
-    old_backup = tmp_path / "old_backup.tar.gz"
-    with tarfile.open(old_backup, "w:gz") as tar:
-        for name, content in members.items():
-            info = tarfile.TarInfo(name=name)
-            info.size = len(content)
-            tar.addfile(info, BytesIO(content))
+    old_backup = _write_archive(tmp_path / "old_backup.tar.gz", members)
 
     call_command("import_backup", str(old_backup), "--flush", "--no-media", stdout=StringIO())
 

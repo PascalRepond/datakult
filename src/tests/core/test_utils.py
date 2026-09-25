@@ -8,6 +8,7 @@ import json
 import tarfile
 
 import pytest
+from django.core.management.base import CommandError
 
 from core.models import Agent, Media
 from core.utils import create_backup, delete_orphan_agents_by_ids, get_datakult_version
@@ -85,3 +86,18 @@ def test_backup_gets_a_custom_name_in_a_new_directory(db, tmp_path, filename):
 
     assert backup_path == output_dir / "custom.tar.gz"
     assert backup_path.exists()
+
+
+def test_failed_backup_leaves_no_file(db, monkeypatch, tmp_path):
+    """A backup that fails leaves no partial file, which would pass for a backup."""
+
+    def failing_dump(*args, **kwargs):
+        msg = "Unable to serialize database"
+        raise CommandError(msg)
+
+    monkeypatch.setattr("core.utils.call_command", failing_dump)
+
+    with pytest.raises(CommandError):
+        create_backup(output_dir=tmp_path)
+
+    assert not list(tmp_path.glob("*.tar.gz"))
