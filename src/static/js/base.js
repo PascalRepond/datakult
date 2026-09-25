@@ -24,44 +24,25 @@ const DEFAULT_PARAMS = {
     'sort': '-review_date',
 };
 
+// A parameter is worth keeping unless it is empty or has its default value
+const isMeaningfulParam = ([key, value]) => value !== '' && DEFAULT_PARAMS[key] !== value;
+
+// Remove the empty and default pairs only, as a key may have other values
 function cleanUrlParameters() {
     const url = new URL(window.location);
-    const params = url.searchParams;
-    let needsCleanup = false;
+    const kept = [...url.searchParams].filter(isMeaningfulParam);
+    if (kept.length === url.searchParams.size) return;
 
-    // Build list of keys to delete (can't delete while iterating)
-    const keysToDelete = [];
-
-    for (const [key, value] of params.entries()) {
-        // Remove empty values
-        if (value === '' || value === null || value === undefined) {
-            keysToDelete.push(key);
-        }
-        // Remove default values
-        else if (DEFAULT_PARAMS[key] === value) {
-            keysToDelete.push(key);
-        }
-    }
-
-    // Delete marked keys
-    keysToDelete.forEach(key => {
-        params.delete(key);
-        needsCleanup = true;
-    });
-
-    // Update URL if cleanup was needed
-    if (needsCleanup) {
-        const newUrl = url.pathname + (params.toString() ? '?' + params.toString() : '');
-        window.history.replaceState({}, '', newUrl);
-    }
+    const query = new URLSearchParams(kept).toString();
+    window.history.replaceState({}, '', url.pathname + (query ? `?${query}` : ''));
 }
 
 // FILTER FORM
 // Leave empty and default parameters out of its requests, and so of the URLs they push
 document.body.addEventListener('htmx:configRequest', (event) => {
     if (event.detail.elt.id !== 'media-filters') return;
-    const formData = event.detail.formData;
-    const kept = [...formData.entries()].filter(([key, value]) => value !== '' && DEFAULT_PARAMS[key] !== value);
+    const {formData} = event.detail;
+    const kept = [...formData.entries()].filter(isMeaningfulParam);
     [...new Set(formData.keys())].forEach((key) => formData.delete(key));
     kept.forEach(([key, value]) => formData.append(key, value));
 });
@@ -98,7 +79,7 @@ document.body.addEventListener('click', (event) => {
 // Toggle input-error class based on HTMX validation response
 // (complements DaisyUI's validator class for server-side validation)
 document.body.addEventListener('htmx:afterSwap', function(event) {
-    const target = event.detail.target;
+    const {target} = event.detail;
 
     // Check if target is an error label (id starts with 'error-')
     if (target && target.id && target.id.startsWith('error-')) {

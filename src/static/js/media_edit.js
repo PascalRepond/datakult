@@ -7,33 +7,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (setTodayBtn && reviewDateInput) {
     setTodayBtn.addEventListener('click', () => {
-      reviewDateInput.value = new Date().toISOString().split('T')[0];
+      // The local date, where toISOString would give the UTC one
+      const today = new Date();
+      const pad = (number) => String(number).padStart(2, '0');
+      reviewDateInput.value = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
     });
   }
 
-  // Handle cover file input to clear the imported cover when a file is selected
-  const coverInput = document.getElementById('input-cover');
+  // A chosen cover file takes the place of the imported cover, which comes back once the file is removed
   const importCoverUrlInput = document.getElementById('import-cover-url');
   const importPosterPreview = document.getElementById('import-poster-preview');
 
-  if (coverInput) {
-    coverInput.addEventListener('change', () => {
-      if (coverInput.files && coverInput.files.length > 0) {
-        // Clear the imported cover URL so the uploaded file takes precedence
-        if (importCoverUrlInput) {
-          importCoverUrlInput.value = '';
-        }
-        // Update preview to show the selected file instead
-        if (importPosterPreview) {
-          const file = coverInput.files[0];
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            importPosterPreview.src = e.target.result;
-            importPosterPreview.alt = file.name;
-          };
-          reader.readAsDataURL(file);
-        }
-      }
+  if (importPosterPreview) {
+    const imported = { url: importCoverUrlInput.value, src: importPosterPreview.src, alt: importPosterPreview.alt };
+    document.addEventListener('cover:change', (event) => {
+      const chosen = event.detail;
+      importCoverUrlInput.value = chosen ? '' : imported.url;
+      importPosterPreview.src = chosen ? chosen.dataUrl : imported.src;
+      importPosterPreview.alt = chosen ? chosen.file.name : imported.alt;
     });
   }
 

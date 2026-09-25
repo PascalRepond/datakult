@@ -286,8 +286,8 @@ def test_filter_form_updates_the_page_in_place(logged_in_client):
     form = _filter_form(content)
 
     assert 'hx-push-url="true"' in form
-    target = re.search(r'hx-target="#([\w-]+)"', form).group(1)
-    oob_ids = re.search(r'hx-select-oob="([^"]+)"', form).group(1).replace("#", "").split(",")
+    target = re.search(r'hx-target="#([\w-]+)"', form)[1]
+    oob_ids = re.search(r'hx-select-oob="([^"]+)"', form)[1].replace("#", "").split(",")
     for element_id in [target, *oob_ids]:
         assert f'id="{element_id}"' in content
 
@@ -483,6 +483,15 @@ def test_today_button_is_not_inside_a_label(logged_in_client, media):
     assert not re.search(r"<label(?:(?!</label>)[\s\S])*set-today-btn", content)
 
 
+def test_cover_label_points_to_its_file_input(logged_in_client, media):
+    """The file input of the cover has a single id, the one its label points to."""
+    content = logged_in_client.get(reverse("media_edit", args=[media.pk])).content.decode()
+
+    file_input = re.search(r'<input type="file"[^>]*>', content)[0]
+    assert re.findall(r'\sid="([^"]*)"', file_input) == ["id_cover"]
+    assert '<label class="label" for="id_cover">' in content
+
+
 def test_edit_form_has_the_anchors_of_the_invites(logged_in_client, media):
     """The edit form has the anchors that the invites of the media page lead to."""
     content = logged_in_client.get(reverse("media_edit", args=[media.pk])).content.decode()
@@ -580,7 +589,7 @@ def test_media_detail_contributor_links_to_filtered_list(logged_in_client, media
     """Contributor links of the detail view lead to the list filtered on that contributor, as plain links."""
     content = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk})).content.decode()
 
-    link = re.search(r"<a [^>]*contributor-link[^>]*>", content).group(0)
+    link = re.search(r"<a [^>]*contributor-link[^>]*>", content)[0]
     assert f"contributor={agent.id}" in link
     assert "hx-" not in link
 
