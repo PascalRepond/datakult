@@ -1,0 +1,4 @@
+{% load static %}
+{# The logo and the name of the app. Parameters: image_class (the size of the logo), name_class (optional) #}
+<img src="{% static 'images/bookshelf.png' %}" alt="" class="{{ image_class }}">
+<span{% if name_class %} class="{{ name_class }}"{% endif %}>Datakult</span>

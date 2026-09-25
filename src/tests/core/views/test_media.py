@@ -517,6 +517,24 @@ def test_agent_search_limits_results(logged_in_client, db):
     assert len(response.context["agents"]) == 12
 
 
+@pytest.mark.parametrize(
+    ("model", "search", "select", "chips_id"),
+    [
+        (Agent, "agent_search_htmx", "agent_select_htmx", "contributors-chips"),
+        (Tag, "tag_search_htmx", "tag_select_htmx", "tags-chips"),
+    ],
+)
+def test_suggestions_add_the_picked_object_to_its_chips(logged_in_client, model, search, select, chips_id):
+    """A suggested contributor or tag, once picked, is added to the chips of its field."""
+    model.objects.create(name="Frank Herbert")
+
+    content = logged_in_client.get(reverse(search), {"q": "Frank"}).content.decode()
+
+    assert "Frank Herbert</a>" in content
+    assert f'hx-post="{reverse(select)}"' in content
+    assert f'hx-target="#{chips_id}"' in content
+
+
 def test_agent_select_returns_chip(logged_in_client, agent):
     """Selecting an agent returns the chip template."""
     response = logged_in_client.post(reverse("agent_select_htmx"), {"id": agent.pk})

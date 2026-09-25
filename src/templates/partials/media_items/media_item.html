@@ -2,7 +2,7 @@
 {% load media_tags %}
 {# This partial renders only the media cards, without their container #}
 {% for media in media_list %}
-  <div class="card bg-base-200 border border-base-300 hover:border-primary/50 transition-colors overflow-hidden">
+  <div class="card panel hover:border-primary/50 transition-colors overflow-hidden">
     <figure class="relative w-full h-64 bg-base-300 overflow-hidden">
       <a href="{% url 'media_detail' media.pk %}" class="block w-full h-full">
         {% include "partials/media_items/cover_image.html" %}

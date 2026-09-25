@@ -15,7 +15,7 @@
                aria-label="{% translate "Close" %}">{% lucide "x" %}</label>
       </div>
       <fieldset>
-        <legend class="font-medium mb-2 flex items-center gap-2">{% translate "Media type" %}</legend>
+        <legend class="filter-legend">{% translate "Media type" %}</legend>
         <div class="flex flex-wrap gap-1">
           {% for value, label in media_type_choices %}
             {% include "partials/filters/filter_toggle.html" with name="type" icon=value|type_icon selected=filters.type %}
@@ -23,7 +23,7 @@
         </div>
       </fieldset>
       <fieldset>
-        <legend class="font-medium mb-2 flex items-center gap-2">{% translate "Status" %}</legend>
+        <legend class="filter-legend">{% translate "Status" %}</legend>
         <div class="flex flex-wrap gap-1">
           {% for value, label in status_choices %}
             {% include "partials/filters/filter_toggle.html" with name="status" icon=value|status_icon selected=filters.status %}
@@ -31,7 +31,7 @@
         </div>
       </fieldset>
       <fieldset>
-        <legend class="font-medium mb-2 flex items-center gap-2">{% translate "Score" %}</legend>
+        <legend class="filter-legend">{% translate "Score" %}</legend>
         <div class="grid grid-cols-5 gap-1">
           {% for value, label in score_choices %}
             {% include "partials/filters/filter_toggle.html" with name="score" value=value|stringformat:"d" label=value title=label selected=filters.score %}
@@ -41,7 +41,7 @@
         </div>
       </fieldset>
       <fieldset class="flex flex-col gap-2">
-        <legend class="font-medium mb-2 flex items-center gap-2">{% translate "Review date" %}</legend>
+        <legend class="filter-legend">{% translate "Review date" %}</legend>
         <label class="input input-sm w-full">
           <span class="label">{% translate "From" %}</span>
           <input type="date" name="review_from" value="{{ filters.review_from }}" />

@@ -1,8 +1,5 @@
 // THEME SWITCHER
-// Delegated, as the sidebar holding the theme radios is swapped by the filter form
-document.addEventListener('change', (event) => {
-    if (event.target.name !== 'theme-sidebar') return;
-    const theme = event.target.value;
+function applyTheme(theme) {
     if (theme === 'default') {
         localStorage.removeItem('theme');
         document.documentElement.removeAttribute('data-theme');
@@ -10,7 +7,7 @@ document.addEventListener('change', (event) => {
         localStorage.setItem('theme', theme);
         document.documentElement.setAttribute('data-theme', theme);
     }
-});
+}
 
 // Check the radio of the current theme (applied early by the inline script in the head)
 function syncThemeRadios() {
@@ -69,9 +66,11 @@ document.body.addEventListener('htmx:configRequest', (event) => {
     kept.forEach(([key, value]) => formData.append(key, value));
 });
 
-// Close a dropdown of radios, such as the sort or the score picker, once a value is picked,
-// by moving the focus out of it
-document.body.addEventListener('change', (event) => {
+// Delegated, as the sidebar holding the theme radios is swapped by the filter form
+document.addEventListener('change', (event) => {
+    if (event.target.name === 'theme-sidebar') applyTheme(event.target.value);
+    // Close a dropdown of radios, such as the sort, the score or the theme picker, once a value is picked,
+    // by moving the focus out of it
     if (event.target.matches('.dropdown-content input[type="radio"]')) event.target.blur();
 });
 
@@ -135,9 +134,6 @@ function initToastMessages() {
 function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/service-worker.js')
-            .then((registration) => {
-                console.log('Service Worker registered with scope:', registration.scope);
-            })
             .catch((error) => {
                 console.error('Service Worker registration failed:', error);
             });

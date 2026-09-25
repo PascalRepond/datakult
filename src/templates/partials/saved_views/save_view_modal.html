@@ -8,7 +8,7 @@
     <h3 id="save-view-modal-title" class="text-lg font-bold">{% translate "Save current view" %}</h3>
     <form method="post" action="{% url 'saved_view_save' %}" class="py-4">
       {% csrf_token %}
-      <div class="form-control">
+      <div>
         <label class="floating-label">
           <span>{% translate "Name" %}</span>
           <input type="text"

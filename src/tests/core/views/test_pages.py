@@ -3,6 +3,7 @@ Tests of what every page shares: its access, its navigation and its sidebar.
 """
 
 import re
+from html import unescape
 
 import pytest
 from django.urls import reverse
@@ -29,6 +30,14 @@ def test_every_page_requires_login(client, db, url_name, kwargs):
 
     assert response.status_code == 302
     assert response.url.startswith(reverse("login"))
+
+
+@pytest.mark.parametrize(("url_name", "title"), [("home", "My media"), ("stats", "Statistics"), ("login", "Log in")])
+def test_page_titles_end_with_the_name_of_the_app(logged_in_client, url_name, title):
+    """The title of a page names the page, then the app."""
+    content = logged_in_client.get(reverse(url_name)).content.decode()
+
+    assert " ".join(re.search(r"<title>(.*?)</title>", content, re.DOTALL).group(1).split()) == f"{title} — Datakult"
 
 
 def test_pages_declare_the_active_language(logged_in_client):
@@ -91,6 +100,19 @@ def test_sidebar_marks_the_current_saved_view(logged_in_client, saved_view_facto
 
     assert re.search(rf'<a href="{re.escape(escape(view.get_filter_url()))}"\s+class="[^"]*menu-active', content)
     assert content.count("menu-active") == 1
+
+
+def test_sidebar_marks_the_current_status(logged_in_client):
+    """Each status has its shortcut in the sidebar, the one of completed media showing the unfinished ones too."""
+    content = logged_in_client.get(reverse("home"), {"status": ["COMPLETED", "DNF"]}).content.decode()
+
+    shortcuts = re.findall(r'<a href="/\?(status=[^"]+)"\s+class="([^"]*)"', content)
+    assert [(unescape(query), classes) for query, classes in shortcuts] == [
+        ("status=PLANNED", ""),
+        ("status=IN_PROGRESS", ""),
+        ("status=PAUSED", ""),
+        ("status=COMPLETED&status=DNF", "menu-active"),
+    ]
 
 
 def test_sidebar_marks_the_current_media_type(logged_in_client):

@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load media_tags %}
 {% block title %}
-  {{ media.title }} — Datakult
+  {{ media.title }}
 {% endblock title %}
 {% block content %}
   <div class="max-w-4xl mx-auto">
@@ -17,13 +17,13 @@
       {# Left column - Cover and metadata #}
       <div class="md:col-span-1 space-y-4">
         {# Cover card, narrowed on mobile so that the score and the review come sooner #}
-        <div class="card bg-base-200 border border-base-300 overflow-hidden w-full max-w-48 mx-auto md:max-w-none">
+        <div class="card panel overflow-hidden w-full max-w-48 mx-auto md:max-w-none">
           <figure class="relative w-full aspect-2/3 bg-base-300 overflow-hidden">
             {% include "partials/media_items/cover_image.html" with placeholder_class="w-32 h-32" %}
           </figure>
         </div>
         {# Metadata card #}
-        <div class="card bg-base-200 border border-base-300">
+        <div class="card panel">
           <div class="card-body p-4 space-y-3">
             {# Media type #}
             <div class="flex items-center gap-2">
@@ -56,7 +56,7 @@
       {# Right column - Personal data and review #}
       <div class="md:col-span-2 space-y-4">
         {# Personal data card #}
-        <div class="card bg-base-200 border border-base-300">
+        <div class="card panel">
           <div class="card-body p-4">
             <div class="flex flex-col gap-4">
               {% if media.score %}
@@ -82,7 +82,7 @@
         </div>
         {# Review card, or an invite to write one #}
         {% if media.review %}
-          <div class="card bg-base-200 border border-base-300">
+          <div class="card panel">
             <div class="card-body">
               <div class="review-text">{{ media.review_rendered|safe }}</div>
             </div>

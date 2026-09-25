@@ -3,9 +3,9 @@
 {% load static %}
 {% block title %}
   {% if media %}
-    {% translate "Edit" %} {{ media.title }} — Datakult
+    {% translate "Edit" %} {{ media.title }}
   {% else %}
-    {% translate "Add media" %} — Datakult
+    {% translate "Add media" %}
   {% endif %}
 {% endblock title %}
 {% block extra_css %}
@@ -48,28 +48,10 @@
              id="import-cover-url"
              value="{{ import_data.cover_url|default:'' }}">
       {# Title and type first: the two required fields, and the type decides where metadata is imported from #}
-      <div class="card bg-base-200 border border-base-300 mb-6">
+      <div class="card panel mb-6">
         <div class="card-body p-4 grid grid-cols-1 sm:grid-cols-3 gap-x-4">
-          <div class="form-control sm:col-span-2">
-            <label class="label" for="id_title">
-              {% include "partials/common/field_label.html" with label=_("Title") field=form.title %}
-            </label>
-            {{ form.title }}
-            <label class="label" id="error-title">
-              {% if form.title.errors %}<span class="label-text-alt text-error">{{ form.title.errors.0 }}</span>{% endif %}
-            </label>
-          </div>
-          <div class="form-control">
-            <label class="label" for="id_media_type">
-              {% include "partials/common/field_label.html" with label=_("Media type") field=form.media_type %}
-            </label>
-            {{ form.media_type }}
-            <label class="label" id="error-media_type">
-              {% if form.media_type.errors %}
-                <span class="label-text-alt text-error">{{ form.media_type.errors.0 }}</span>
-              {% endif %}
-            </label>
-          </div>
+          {% include "partials/common/form_field.html" with field=form.title label=_("Title") class="sm:col-span-2" %}
+          {% include "partials/common/form_field.html" with field=form.media_type label=_("Media type") %}
         </div>
       </div>
       {# Main content #}
@@ -77,9 +59,9 @@
         {# Left column - Cover and metadata #}
         <div class="md:col-span-1 space-y-4">
           {# Cover card #}
-          <div class="card bg-base-200 border border-base-300">
+          <div class="card panel">
             <div class="card-body p-4">
-              <div class="form-control">
+              <div>
                 <label class="label" for="id_cover">
                   {% include "partials/common/field_label.html" with label=_("Cover image") field=form.cover %}
                 </label>
@@ -104,127 +86,37 @@
                 {% else %}
                   {{ form.cover }}
                 {% endif %}
-                <label class="label" id="error-cover">
-                  {% if form.cover.errors %}<span class="label-text-alt text-error">{{ form.cover.errors.0 }}</span>{% endif %}
-                </label>
+                {% include "partials/common/field_error_slot.html" with field=form.cover %}
               </div>
             </div>
           </div>
           {# Metadata card #}
-          <div class="card bg-base-200 border border-base-300">
+          <div class="card panel">
             <div class="card-body p-4 space-y-2">
-              <div class="form-control">
-                <label class="label" for="id_contributors">
-                  {% include "partials/common/field_label.html" with label=_("Contributors") field=form.contributors %}
-                </label>
-                <div id="contributors-chips" class="flex flex-wrap gap-2 mb-2">
-                  {# Existing contributors (from database) #}
-                  {% for contributor in media.contributors.all %}
-                    {% include "partials/contributors/contributor_chip.html" with agent=contributor %}
-                  {% endfor %}
-                  {# Imported contributors (pre-filled as new) #}
-                  {% for name in import_contributors %}
-                    {% include "partials/common/chip.html" with icon="user" input_name="new_contributors" input_value=name %}
-                  {% endfor %}
-                </div>
-                <div class="relative">
-                  <input type="text"
-                         id="contributor_search"
-                         name="contributor_search"
-                         class="input w-full"
-                         placeholder="{% translate "Search or add…" %}"
-                         autocomplete="off"
-                         hx-get="{% url 'agent_search_htmx' %}"
-                         hx-trigger="keyup changed delay:300ms"
-                         hx-target="#contributor-suggestions"
-                         hx-vals='js:{q: document.getElementById("contributor_search").value}' />
-                  <div id="contributor-suggestions"
-                       class="absolute top-full left-0 right-0 z-50 hidden"></div>
-                </div>
-                <label class="label" id="error-contributors">
-                  {% if form.contributors.errors %}<span class="label-text-alt text-error">{{ form.contributors.errors.0 }}</span>{% endif %}
-                </label>
-              </div>
-              <div class="form-control">
-                <label class="label" for="id_tags">
-                  {% include "partials/common/field_label.html" with label=_("Tags") field=form.tags %}
-                </label>
-                <div id="tags-chips" class="flex flex-wrap gap-2 mb-2">
-                  {# Existing tags (from database) #}
-                  {% for tag in media.tags.all %}
-                    {% include "partials/tags/tag_chip.html" %}
-                  {% endfor %}
-                  {# Imported tags (pre-filled as new) #}
-                  {% for name in import_tags %}
-                    {% include "partials/common/chip.html" with icon="tag" input_name="new_tags" input_value=name %}
-                  {% endfor %}
-                </div>
-                <div class="relative">
-                  <input type="text"
-                         id="tag_search"
-                         name="tag_search"
-                         class="input w-full"
-                         placeholder="{% translate "Search or add…" %}"
-                         autocomplete="off"
-                         hx-get="{% url 'tag_search_htmx' %}"
-                         hx-trigger="keyup changed delay:300ms"
-                         hx-target="#tag-suggestions"
-                         hx-vals='js:{q: document.getElementById("tag_search").value}' />
-                  <div id="tag-suggestions"
-                       class="absolute top-full left-0 right-0 z-50 hidden"></div>
-                </div>
-                <label class="label" id="error-tags">
-                  {% if form.tags.errors %}<span class="label-text-alt text-error">{{ form.tags.errors.0 }}</span>{% endif %}
-                </label>
-              </div>
-              <div class="form-control">
-                <label class="label" for="id_pub_year">
-                  {% include "partials/common/field_label.html" with label=_("Release year") field=form.pub_year %}
-                </label>
-                {{ form.pub_year }}
-                <label class="label" id="error-pub_year">
-                  {% if form.pub_year.errors %}<span class="label-text-alt text-error">{{ form.pub_year.errors.0 }}</span>{% endif %}
-                </label>
-              </div>
-              <div class="form-control">
-                <label class="label" for="id_external_uri">
-                  {% include "partials/common/field_label.html" with label=_("External URI") field=form.external_uri %}
-                </label>
-                {{ form.external_uri }}
-                <label class="label" id="error-external_uri">
-                  {% if form.external_uri.errors %}
-                    <span class="label-text-alt text-error">{{ form.external_uri.errors.0 }}</span>
-                  {% endif %}
-                </label>
-              </div>
+              {% url 'agent_search_htmx' as agent_search_url %}
+              {% include "partials/common/chips_field.html" with field=form.contributors label=_("Contributors") objects=media.contributors.all imported=import_contributors icon="user" kind="contributor" search_url=agent_search_url %}
+              {% url 'tag_search_htmx' as tag_search_url %}
+              {% include "partials/common/chips_field.html" with field=form.tags label=_("Tags") objects=media.tags.all imported=import_tags icon="tag" kind="tag" search_url=tag_search_url %}
+              {% include "partials/common/form_field.html" with field=form.pub_year label=_("Release year") %}
+              {% include "partials/common/form_field.html" with field=form.external_uri label=_("External URI") %}
             </div>
           </div>
         </div>
         {# Right column - Personal data and review #}
         <div class="md:col-span-2 space-y-4">
           {# Personal data card #}
-          <div class="card bg-base-200 border border-base-300">
+          <div class="card panel">
             <div class="card-body p-4 space-y-2">
-              <div class="form-control scroll-mt-4" id="score-field">
+              <div class="scroll-mt-4" id="score-field">
                 <span class="label">
                   {% include "partials/common/field_label.html" with label=_("Score") field=form.score %}
                 </span>
                 {{ form.score }}
-                <label class="label" id="error-score">
-                  {% if form.score.errors %}<span class="label-text-alt text-error">{{ form.score.errors.0 }}</span>{% endif %}
-                </label>
+                {% include "partials/common/field_error_slot.html" with field=form.score %}
               </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="form-control">
-                  <label class="label" for="id_status">
-                    {% include "partials/common/field_label.html" with label=_("Status") field=form.status %}
-                  </label>
-                  {{ form.status }}
-                  <label class="label" id="error-status">
-                    {% if form.status.errors %}<span class="label-text-alt text-error">{{ form.status.errors.0 }}</span>{% endif %}
-                  </label>
-                </div>
-                <div class="form-control">
+                {% include "partials/common/form_field.html" with field=form.status label=_("Status") %}
+                <div>
                   <div class="flex items-center justify-between">
                     <label class="label" for="id_review_date">
                       {% include "partials/common/field_label.html" with label=_("Review date") field=form.review_date %}
@@ -238,27 +130,15 @@
                     </button>
                   </div>
                   {{ form.review_date }}
-                  <label class="label" id="error-review_date">
-                    {% if form.review_date.errors %}
-                      <span class="label-text-alt text-error">{{ form.review_date.errors.0 }}</span>
-                    {% endif %}
-                  </label>
+                  {% include "partials/common/field_error_slot.html" with field=form.review_date %}
                 </div>
               </div>
             </div>
           </div>
           {# Review card #}
-          <div class="card bg-base-200 border border-base-300">
+          <div class="card panel">
             <div class="card-body p-4">
-              <div class="form-control scroll-mt-4" id="review-field">
-                <label class="label" for="id_review">
-                  {% include "partials/common/field_label.html" with label=_("Review") field=form.review %}
-                </label>
-                {{ form.review }}
-                <label class="label" id="error-review">
-                  {% if form.review.errors %}<span class="label-text-alt text-error">{{ form.review.errors.0 }}</span>{% endif %}
-                </label>
-              </div>
+              {% include "partials/common/form_field.html" with field=form.review label=_("Review") class="scroll-mt-4" id="review-field" %}
             </div>
           </div>
         </div>

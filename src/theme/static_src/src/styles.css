@@ -80,6 +80,19 @@
 @source "../../../core/**/*.py";
 @source "../../../accounts/**/*.py";
 
+/* Components of the templates, overridden by the utilities they come with */
+@layer components {
+  /* Surface of a card grouping content, such as a section of a form or a chart */
+  .panel {
+    @apply bg-base-200 border border-base-300;
+  }
+
+  /* Legend of a group of filters */
+  .filter-legend {
+    @apply font-medium mb-2 flex items-center gap-2;
+  }
+}
+
 /* Score picker: its button shows the pill of the checked score */
 .score-widget .score-current {
   @apply hidden;

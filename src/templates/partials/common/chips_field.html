@@ -1,0 +1,32 @@
+{% load i18n %}
+{# A field of objects picked by name as chips, with suggestions while typing and new names added with Enter #}
+{# Parameters: field, label, objects (those picked), imported (the names imported from a source, added as new), #}
+{# icon, kind (singular name of the objects, naming the search and its suggestions), search_url #}
+<div>
+  <label class="label" for="{{ field.id_for_label }}">
+    {% include "partials/common/field_label.html" %}
+  </label>
+  <div id="{{ field.name }}-chips" class="flex flex-wrap gap-2 mb-2">
+    {% for object in objects %}
+      {% include "partials/common/chip.html" with name=object.name input_name=field.name input_value=object.pk chip_id=object.pk %}
+    {% endfor %}
+    {% for imported_name in imported %}
+      {% include "partials/common/chip.html" with name=imported_name input_name="new_"|add:field.name input_value=imported_name %}
+    {% endfor %}
+  </div>
+  <div class="relative">
+    <input type="text"
+           id="{{ kind }}_search"
+           name="{{ kind }}_search"
+           class="input w-full"
+           placeholder="{% translate "Search or add…" %}"
+           autocomplete="off"
+           hx-get="{{ search_url }}"
+           hx-trigger="keyup changed delay:300ms"
+           hx-target="#{{ kind }}-suggestions"
+           hx-vals='js:{q: document.getElementById("{{ kind }}_search").value}' />
+    <div id="{{ kind }}-suggestions"
+         class="absolute top-full left-0 right-0 z-50 hidden"></div>
+  </div>
+  {% include "partials/common/field_error_slot.html" %}
+</div>
