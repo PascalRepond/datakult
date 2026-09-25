@@ -157,3 +157,15 @@ def test_contributors_are_separated_by_commas(rf, media_factory, agent):
 def test_type_icon(media_type, expected):
     """Each media type has its icon, and an unknown one a question mark."""
     assert type_icon(media_type) == expected
+
+
+def test_score_verdict_forms_one_pill_with_its_ring():
+    """With its verdict, the ring sits in a pill tinted with the colour of the score; alone, it has no pill."""
+    with_label = render_to_string("partials/media_items/score/media_score_ring.html", {"score": 8, "label": "Loved"})
+    ring_only = render_to_string(
+        "partials/media_items/score/media_score_ring.html", {"score": 8, "label": "Loved", "show_label": False}
+    )
+
+    assert re.search(r'class="[^"]*text-green-500[^"]*bg-current/10', with_label)
+    assert "bg-current/10" not in ring_only
+    assert "Loved" not in ring_only
