@@ -266,6 +266,14 @@ def test_media_cover_color_picked_from_uploaded_cover(db, cover_png):
     assert media.cover_color == "#333333"
 
 
+def test_media_uploaded_cover_named_as_jpeg(db, cover_png):
+    """An uploaded cover, compressed to JPEG whatever its format, gets the matching extension."""
+    media = Media(title="Test", media_type="BOOK", cover=SimpleUploadedFile("cover.png", cover_png))
+    media.save()
+
+    assert media.cover.name == "covers/cover.jpg"
+
+
 def test_media_cover_color_cleared_with_its_cover(db):
     """Removing the cover of a media clears its colour."""
     media = Media.objects.create(title="Test", media_type="BOOK", cover="covers/cover.jpg", cover_color="#333333")

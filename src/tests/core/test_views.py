@@ -5,6 +5,7 @@ These tests verify the behavior of views using pytest-django.
 """
 
 import re
+from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -16,6 +17,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import escape
 from freezegun import freeze_time
+from PIL import Image
 
 from core.models import Agent, Media, SavedView, Tag
 from core.utils import create_backup
@@ -171,8 +173,8 @@ def test_media_edit_removes_contributor_cleans_orphan(logged_in_client, db):
     assert not Agent.objects.filter(pk=agent.pk).exists()
 
 
-def test_media_edit_import_cover_keeps_its_colour(logged_in_client, media, cover_png, monkeypatch):
-    """A cover imported from an external source keeps its colour."""
+def test_media_edit_import_cover_is_compressed_with_its_colour(logged_in_client, media, cover_png, monkeypatch):
+    """A cover imported from an external source is compressed like an uploaded one, and keeps its colour."""
     monkeypatch.setattr("core.views._download_cover", lambda _url: cover_png)
     data = {
         "title": media.title,
@@ -183,7 +185,28 @@ def test_media_edit_import_cover_keeps_its_colour(logged_in_client, media, cover
     logged_in_client.post(reverse("media_edit", kwargs={"pk": media.pk}), data)
 
     media.refresh_from_db()
+    with Image.open(media.cover.path) as cover:
+        assert cover.format == "JPEG"
     assert media.cover_color == "#333333"
+
+
+@pytest.mark.parametrize("imported", [False, True])
+def test_media_edit_reports_cover_that_cannot_be_compressed(logged_in_client, media, monkeypatch, imported):
+    """A cover in a format that cannot be compressed, uploaded or imported, is reported on the form."""
+    tiff = BytesIO()
+    Image.new("RGB", (400, 600)).save(tiff, format="TIFF")
+    data = {"title": media.title, "media_type": media.media_type, "status": media.status}
+    if imported:
+        monkeypatch.setattr("core.views._download_cover", lambda _url: tiff.getvalue())
+        data["import_cover_url"] = "https://image.tmdb.org/t/p/w500/cover.jpg"
+    else:
+        data["cover"] = SimpleUploadedFile("cover.tiff", tiff.getvalue())
+
+    response = logged_in_client.post(reverse("media_edit", kwargs={"pk": media.pk}), data)
+
+    assert response.context["form"].has_error("cover")
+    media.refresh_from_db()
+    assert not media.cover
 
 
 def test_media_delete_post_deletes_media(logged_in_client, media):
