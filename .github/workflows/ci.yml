@@ -28,6 +28,10 @@ jobs:
       - name: Install Python dependencies
         run: uv sync --frozen --dev --no-group prod
 
+      # Compiling the translations needs msgfmt
+      - name: Install gettext
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gettext
+
       - name: Install Node.js dependencies
         run: npm ci
         working-directory: src/theme/static_src

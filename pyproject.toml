@@ -78,7 +78,7 @@ cmd = "./src/manage.py makemessages -l fr --ignore=theme/* --ignore=staticfiles/
 help = "Extract translatable strings for all supported locales"
 
 [tool.poe.tasks.compilemessages]
-cmd = "./src/manage.py compilemessages"
+cmd = "./src/manage.py compilemessages --ignore=.venv"
 help = "Compile .po translation files to .mo"
 
 # Tests and quality
@@ -119,7 +119,7 @@ sequence = ["update-python", "update-js"]
 help = "Upgrade all dependencies (Python and Node)"
 
 [tool.poe.tasks.ci]
-sequence = ["check-format", "lint", "audit-python", "audit-js", "test"]
+sequence = ["check-format", "lint", "audit-python", "audit-js", "compilemessages", "test"]
 help = "Run all quality checks (format, lint, security audits, tests)"
 
 # Release management
