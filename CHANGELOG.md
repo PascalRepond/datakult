@@ -2,6 +2,27 @@
 
 <!-- version list -->
 
+## v1.10.0 (2026-09-25)
+
+### Bug Fixes
+
+- **import**: Compress imported covers
+  ([`e1e6b38`](https://github.com/PascalRepond/datakult/commit/e1e6b38af6ca4afb8c675a9d617221e41675361e))
+
+### Features
+
+- **ui**: Add sidebar shortcuts by media type
+  ([`96d65a6`](https://github.com/PascalRepond/datakult/commit/96d65a6ec9b21bf31bbd9e5bb56b42e535915d72))
+
+- **ui**: Open statistics on the current year
+  ([`f2f07b2`](https://github.com/PascalRepond/datakult/commit/f2f07b29971884d57b3bd28952216ebda98582e7))
+
+### Performance Improvements
+
+- **ui**: Colour cover frames instead of blurring
+  ([`082df7b`](https://github.com/PascalRepond/datakult/commit/082df7b721dacfdda5ee0f8123b80c8eafde95e6))
+
+
 ## v1.9.1 (2026-09-25)
 
 ### Bug Fixes
