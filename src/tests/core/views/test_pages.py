@@ -37,7 +37,7 @@ def test_page_titles_end_with_the_name_of_the_app(logged_in_client, url_name, ti
     """The title of a page names the page, then the app."""
     content = logged_in_client.get(reverse(url_name)).content.decode()
 
-    assert " ".join(re.search(r"<title>(.*?)</title>", content, re.DOTALL).group(1).split()) == f"{title} — Datakult"
+    assert " ".join(re.search(r"<title>(.*?)</title>", content, re.DOTALL).group(1).split()) == f"{title} | Datakult"
 
 
 def test_pages_declare_the_active_language(logged_in_client):
