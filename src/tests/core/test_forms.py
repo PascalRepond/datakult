@@ -187,3 +187,13 @@ def test_form_saves_the_picked_score(db):
 
     assert MediaForm(data={**data, "score": "8"}).save().score == 8
     assert MediaForm(data={**data, "score": ""}).save().score is None
+
+
+def test_cover_widget_brings_its_script_as_form_media(db):
+    """The cover widget declares its script as form media, rather than inlining scripts and handlers."""
+    form = MediaForm()
+    html = str(form["cover"])
+
+    assert "<script" not in html
+    assert not re.search(r"\son(click|change)=", html)
+    assert "js/cover_input.js" in str(form.media)

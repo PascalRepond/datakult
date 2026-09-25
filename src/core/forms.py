@@ -11,6 +11,9 @@ class CoverImageWidget(forms.ClearableFileInput):
 
     template_name = "widgets/cover_input.html"
 
+    class Media:
+        js = ("js/cover_input.js",)
+
 
 class ScorePickerWidget(forms.Widget):
     """Dropdown of every score, shown with its ring and verdict, and of an unrated choice."""
