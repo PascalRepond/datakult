@@ -178,3 +178,53 @@ def apply_filters(queryset, filters):
     queryset = apply_score_filter(queryset, filters["score"])
     queryset = apply_date_and_content_filters(queryset, filters)
     return queryset, contributor, tag
+
+
+def _invalid_choices(params):
+    """Yield an error for each multi-valued filter holding values that are not among its choices."""
+    for name, valid_values, message, key in [
+        ("type", MediaType.values, _("Invalid media types: %(types)s"), "types"),
+        ("status", Status.values, _("Invalid statuses: %(statuses)s"), "statuses"),
+        ("score", [*map(str, Score.values), "none"], _("Invalid scores: %(scores)s"), "scores"),
+    ]:
+        if invalid := [value for value in params.getlist(name) if value not in valid_values]:
+            yield message % {key: ", ".join(invalid)}
+
+
+def _invalid_related_ids(params):
+    """Yield an error for the contributor or tag filter that is not the ID of an existing object."""
+    for name, model, missing_message, format_message in [
+        ("contributor", Agent, _("Contributor does not exist: ID %(id)s"), _("Invalid contributor ID format: %(id)s")),
+        ("tag", Tag, _("Tag does not exist: ID %(id)s"), _("Invalid tag ID format: %(id)s")),
+    ]:
+        if object_id := params.get(name):
+            try:
+                if not model.objects.filter(pk=int(object_id)).exists():
+                    yield missing_message % {"id": object_id}
+            except ValueError, TypeError:
+                yield format_message % {"id": object_id}
+
+
+def _invalid_dates(params):
+    """Yield an error for each bound of the review date filter that is not a partial date."""
+    for name, label in [("review_from", _("Start date")), ("review_to", _("End date"))]:
+        if date_value := params.get(name, "").strip():
+            try:
+                PartialDate(date_value)
+            except ValueError, TypeError, ValidationError:
+                yield _("Invalid %(label)s: %(value)s") % {"label": label, "value": date_value}
+
+
+def _invalid_presences(params):
+    """Yield an error for each review or cover filter that is neither empty nor filled."""
+    for name, label in [("has_review", _("Review filter")), ("has_cover", _("Cover filter"))]:
+        if (value := params.get(name, "")) and value not in {"empty", "filled"}:
+            yield _("Invalid %(label)s value: %(value)s") % {"label": label, "value": value}
+
+
+def filter_errors(params):
+    """Return the error messages of the invalid filters and sort among the parameters of a saved view."""
+    errors = list(_invalid_choices(params))
+    if (sort := params.get("sort", DEFAULT_SORT)) not in dict(SORT_OPTIONS):
+        errors.append(_("Invalid sort field: %(sort)s") % {"sort": sort})
+    return [*errors, *_invalid_related_ids(params), *_invalid_dates(params), *_invalid_presences(params)]
