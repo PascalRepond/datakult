@@ -1,4 +1,5 @@
 from io import BytesIO
+from pathlib import Path
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -273,7 +274,7 @@ class Media(models.Model):
         if self.cover and hasattr(self.cover, "_file") and self.cover._file:  # noqa: SLF001
             compressed = compress_image(self.cover)
             self.cover_color = dominant_color(compressed)
-            self.cover.save(self.cover.name, compressed, save=False)
+            self.cover.save(Path(self.cover.name).with_suffix(".jpg").name, compressed, save=False)
         elif not self.cover:
             self.cover_color = ""
 

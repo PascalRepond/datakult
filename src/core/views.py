@@ -28,7 +28,7 @@ from . import stats as media_stats
 from .filters import DEFAULT_SORT, SORT_OPTIONS
 from .forms import MediaForm
 from .import_results import from_googlebooks, from_igdb, from_musicbrainz, from_openlibrary, from_tmdb
-from .models import Agent, Media, SavedView, Tag, dominant_color
+from .models import Agent, Media, SavedView, Tag
 from .queries import build_media_context
 from .services.googlebooks import get_googlebooks_client
 from .services.igdb import get_igdb_client
@@ -235,13 +235,10 @@ def _process_new_tags(post_data):
 
 
 def _handle_import_cover(request, instance):
-    """Download and attach cover from import source if provided."""
+    """Download and attach cover from import source if provided, to be compressed like an upload on save."""
     cover_url = request.POST.get("import_cover_url")
     if cover_url and not request.FILES.get("cover") and (cover_bytes := _download_cover(cover_url)):
-        filename = f"{instance.title[:50].replace('/', '_')}.jpg"
-        cover = ContentFile(cover_bytes)
-        instance.cover_color = dominant_color(cover)
-        instance.cover.save(filename, cover, save=False)
+        instance.cover = ContentFile(cover_bytes, name=f"{instance.title[:50].replace('/', '_')}.jpg")
 
 
 _COVER_SOURCES = (
@@ -351,17 +348,21 @@ def media_edit(request, pk=None):
         if form.is_valid():
             instance = form.save(commit=False)
             _handle_import_cover(request, instance)
-            instance.save()
-            form.save_m2m()
+            try:
+                instance.save()
+            except DjangoValidationError as error:  # The cover, uploaded or imported, could not be compressed
+                form.add_error("cover", error)
+            else:
+                form.save_m2m()
 
-            # Cleanup orphan agents
-            after_contributor_ids = set(instance.contributors.values_list("pk", flat=True))
-            if removed_ids := before_contributor_ids - after_contributor_ids:
-                delete_orphan_agents_by_ids(removed_ids)
+                # Cleanup orphan agents
+                after_contributor_ids = set(instance.contributors.values_list("pk", flat=True))
+                if removed_ids := before_contributor_ids - after_contributor_ids:
+                    delete_orphan_agents_by_ids(removed_ids)
 
-            msg_key = "'%(title)s' updated successfully" if media else "'%(title)s' created successfully"
-            messages.success(request, _(msg_key) % {"title": instance.title})
-            return redirect("media_detail", pk=instance.pk)
+                msg_key = "'%(title)s' updated successfully" if media else "'%(title)s' created successfully"
+                messages.success(request, _(msg_key) % {"title": instance.title})
+                return redirect("media_detail", pk=instance.pk)
     else:
         import_data = _get_import_data_from_request(request)
         if import_data:
