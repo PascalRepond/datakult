@@ -67,15 +67,15 @@ def test_score_ring_shows_score_and_verdict():
         (1, "text-red-500"),
         (4, "text-red-500"),
         (5, "text-amber-500"),
-        (6, "text-amber-500"),
-        (7, "text-lime-500"),
-        (8, "text-lime-500"),
-        (9, "text-emerald-500"),
-        (10, "text-emerald-500"),
+        (6, "text-lime-500"),
+        (7, "text-green-500"),
+        (8, "text-green-500"),
+        (9, "text-emerald-600"),
+        (10, "text-emerald-600"),
     ],
 )
 def test_score_color_follows_the_verdict(score, expected):
-    """Scores are coloured by verdict: disliked, mixed, enjoyed, loved."""
+    """Scores are coloured by verdict, from red for disliked media to green as soon as they are appreciated."""
     assert score_color(score) == expected
 
 
@@ -83,7 +83,7 @@ def test_score_ring_is_coloured_by_score():
     """The score arc takes the colour of its verdict."""
     html = render_to_string("partials/media_items/score/media_score_ring.html", {"score": 9})
 
-    assert "text-emerald-500" in html
+    assert "text-emerald-600" in html
 
 
 def test_score_ring_without_score_renders_nothing():

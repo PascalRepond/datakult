@@ -33,12 +33,13 @@ STATUS_ICONS = {
     "DNF": "circle-x",
 }
 
-# Upper score bound of each verdict colour: disliked, mixed, enjoyed, loved
+# Upper score bound of each verdict colour: disliked, mixed, appreciated, enjoyed, loved
 SCORE_COLORS = (
     (4, "text-red-500"),
-    (6, "text-amber-500"),
-    (8, "text-lime-500"),
-    (10, "text-emerald-500"),
+    (5, "text-amber-500"),
+    (6, "text-lime-500"),
+    (8, "text-green-500"),
+    (10, "text-emerald-600"),
 )
 
 FILTER_PARAMS = {
