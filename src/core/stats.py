@@ -17,6 +17,11 @@ def _with_pct(rows):
     return rows
 
 
+def _count_by(media, field):
+    """Count media per value of `field`."""
+    return dict(media.values_list(field).annotate(count=Count("id")).order_by())
+
+
 def _review_dates(media):
     """Return the review dates (PartialDate) of `media`, skipping undated ones."""
     return media.filter(review_date__isnull=False).values_list("review_date", flat=True)
@@ -53,7 +58,7 @@ def adjacent_years(years, year):
 
 def count_per_type(media):
     """Count media for every media type, in the order of the model choices."""
-    counts = dict(media.values_list("media_type").annotate(count=Count("id")).order_by())
+    counts = _count_by(media, "media_type")
     return [
         {"media_type": media_type, "label": label, "count": counts.get(media_type, 0)}
         for media_type, label in MediaType.choices
@@ -75,7 +80,7 @@ def count_per_month(media, year):
 
 def score_distribution(media):
     """Count media per score from 1 to 10."""
-    counts = dict(media.values_list("score").annotate(count=Count("id")).order_by())
+    counts = _count_by(media, "score")
     return _with_pct(
         [{"label": score, "title": title, "count": counts.get(score, 0)} for score, title in Score.choices]
     )

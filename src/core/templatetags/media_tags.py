@@ -3,13 +3,14 @@
 from urllib.parse import parse_qsl, urlsplit
 
 from django import template
+from django.http import QueryDict
 from django.utils import formats
 
 from core.models import MediaType
 
 register = template.Library()
 
-
+UNKNOWN_ICON = "circle-question-mark"
 MEDIA_TYPE_ICONS = {
     "BOOK": "book-open",
     "GAME": "gamepad-2",
@@ -73,12 +74,9 @@ def media_icon(media_type, size="sm"):
         {% load media_tags %}
         {% media_icon media.media_type size="md" %}
     """
-
-    size_class = SIZE_CLASSES.get(size, "h-4")
-
     return {
         "icon_name": type_icon(media_type),
-        "size_class": size_class,
+        "size_class": SIZE_CLASSES.get(size, SIZE_CLASSES["sm"]),
     }
 
 
@@ -90,7 +88,7 @@ def type_icon(media_type):
     Example usage:
         {% lucide media.media_type|type_icon %}
     """
-    return MEDIA_TYPE_ICONS.get(media_type, "circle-question-mark")
+    return MEDIA_TYPE_ICONS.get(media_type, UNKNOWN_ICON)
 
 
 @register.filter
@@ -101,7 +99,7 @@ def status_icon(status):
     Example usage:
         {% lucide media.status|status_icon %}
     """
-    return STATUS_ICONS.get(status, "circle-question-mark")
+    return STATUS_ICONS.get(status, UNKNOWN_ICON)
 
 
 @register.filter
@@ -143,6 +141,11 @@ def partial_date(value):
     return formats.date_format(value.date, date_format)
 
 
+def _query(request):
+    """Return the query parameters of a request, or none when a template is rendered without one."""
+    return request.GET if hasattr(request, "GET") else QueryDict()
+
+
 @register.simple_tag
 def query_string(request, **kwargs):
     """
@@ -159,49 +162,17 @@ def query_string(request, **kwargs):
         <a href="?{% query_string request sort='-score' %}">Best first</a>
         <a href="?{% query_string request sort=None %}">Clear sort</a>
     """
-    if not hasattr(request, "GET"):
-        return ""
-
     # Start with a copy of current GET parameters (handles multi-value)
-    params = request.GET.copy()
+    params = _query(request).copy()
 
-    # Update with provided kwargs
     for key, value in kwargs.items():
         if value is None:
-            # Remove parameter
             params.pop(key, None)
         else:
             # Set parameter (replaces all values)
             params[key] = value
 
-    # Build query string
-    return params.urlencode() if params else ""
-
-
-@register.simple_tag
-def query_string_exclude(request, *exclude_keys):
-    """
-    Build a query string from current GET parameters, excluding specified keys.
-
-    Args:
-        request: The current request object
-        *exclude_keys: Parameter names to exclude
-
-    Returns:
-        Query string with all parameters except excluded ones
-
-    Example usage:
-        <a href="?{% query_string_exclude request 'page' %}">Without page</a>
-    """
-    if not hasattr(request, "GET"):
-        return ""
-
-    params = request.GET.copy()
-
-    for key in exclude_keys:
-        params.pop(key, None)
-
-    return params.urlencode() if params else ""
+    return params.urlencode()
 
 
 @register.simple_tag
@@ -218,9 +189,8 @@ def has_filters(request):
     Example usage:
         {% if has_filters request %}...{% endif %}
     """
-    if not hasattr(request, "GET"):
-        return False
-    return any((param in request.GET) and any(v != "" for v in request.GET.getlist(param)) for param in FILTER_PARAMS)
+    query = _query(request)
+    return any(any(query.getlist(param)) for param in FILTER_PARAMS)
 
 
 def _url_state(path, query):
@@ -250,9 +220,7 @@ def filter_matches(request, param, *expected_values):
         {% filter_matches request 'status' 'COMPLETED' 'DNF' as is_active %}
         {% if is_active %}...{% endif %}
     """
-    if not hasattr(request, "GET"):
-        return False
-    return set(request.GET.getlist(param)) == set(expected_values)
+    return set(_query(request).getlist(param)) == set(expected_values)
 
 
 @register.simple_tag
