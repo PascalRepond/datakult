@@ -1,6 +1,5 @@
 from django.urls import path
 
-from .htmx_validation import validate_media_field
 from .views import backup, imports, media, saved_views, stats
 
 urlpatterns = [
@@ -18,7 +17,7 @@ urlpatterns = [
     path("tags/search-htmx/", media.tag_search_htmx, name="tag_search_htmx"),
     path("tags/select-htmx/", media.tag_select_htmx, name="tag_select_htmx"),
     path("import-search/", imports.import_search_htmx, name="import_search_htmx"),
-    path("media/validate_field/", validate_media_field, name="media_validate_field"),
+    path("media/validate_field/", media.validate_media_field, name="media_validate_field"),
     path("media/<int:pk>/review/", media.media_review_htmx, name="media_review_htmx"),
     # Backup management
     path("backup/", backup.backup_manage, name="backup_manage"),

@@ -1,23 +1,14 @@
-from django.contrib.auth.decorators import login_required
+"""Validation of form fields while they are typed, through HTMX."""
+
 from django.http import HttpResponse
-from django.utils.html import escape
-from django.views.decorators.http import require_POST
+from django.template.loader import render_to_string
 
-from .forms import MediaForm
+FIELD_ERROR_TEMPLATE = "partials/common/field_error.html"
 
 
-def _validate_field_htmx(form, field_name):
-    """Helper to validate a single form field and return HTMX response."""
-    form.is_valid()  # Trigger validation
-    if field_name and field_name in form.fields and (errors := form.errors.get(field_name, [])):
-        return HttpResponse(f'<span class="label-text-alt text-error">{escape(errors[0])}</span>')
+def field_error_response(form, field_name):
+    """Validate a form, and return the first error of one of its fields rendered to show below it, if it has one."""
+    form.is_valid()
+    if field_name in form.fields and (errors := form.errors.get(field_name)):
+        return HttpResponse(render_to_string(FIELD_ERROR_TEMPLATE, {"error": errors[0]}))
     return HttpResponse("")
-
-
-@require_POST
-@login_required
-def validate_media_field(request):
-    """Validate a single MediaForm field via HTMX."""
-    form = MediaForm(request.POST, request.FILES)
-    field_name = request.POST.get("field_name")
-    return _validate_field_htmx(form, field_name)
