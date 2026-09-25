@@ -6,8 +6,10 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext as _
+from django.views.decorators.http import require_POST
 
 from core.forms import MediaForm
+from core.htmx_validation import field_error_response
 from core.models import Agent, Media, Tag
 from core.queries import build_media_context
 from core.utils import delete_orphan_agents_by_ids
@@ -139,6 +141,13 @@ def media_edit(request, pk=None):
         "import_tags": import_tags,
     }
     return render(request, "base/media_edit.html", context)
+
+
+@require_POST
+@login_required
+def validate_media_field(request):
+    """HTMX view: validate a field of the media form while it is typed."""
+    return field_error_response(MediaForm(request.POST, request.FILES), request.POST.get("field_name"))
 
 
 @login_required

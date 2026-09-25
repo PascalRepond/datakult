@@ -2,14 +2,13 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.utils import translation
-from django.utils.html import escape
 from django.utils.translation import gettext as _
-from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 from django.views.i18n import set_language as django_set_language
+
+from core.htmx_validation import field_error_response
 
 from .forms import CustomPasswordChangeForm, UserProfileForm
 
@@ -52,38 +51,22 @@ def profile_edit(request):
     )
 
 
-def _validate_field_htmx(form, field_name):
-    """Helper to validate a single form field and return HTMX response."""
-    form.is_valid()  # Trigger validation
-
-    if field_name and field_name in form.fields:
-        errors = form.errors.get(field_name, [])
-        if errors:
-            return HttpResponse(f'<span class="label-text-alt text-error">{escape(errors[0])}</span>')
-    return HttpResponse("")
-
-
 @require_POST
 @login_required
 def validate_profile_field(request):
     """Validate a single profile form field via HTMX."""
-    form = UserProfileForm(request.POST, instance=request.user)
-    field_name = request.POST.get("field_name")
-    return _validate_field_htmx(form, field_name)
+    return field_error_response(UserProfileForm(request.POST, instance=request.user), request.POST.get("field_name"))
 
 
 @require_POST
 @login_required
 def validate_password_field(request):
     """Validate a single password form field via HTMX."""
-    form = CustomPasswordChangeForm(request.user, request.POST)
-    field_name = request.POST.get("field_name")
-    return _validate_field_htmx(form, field_name)
+    return field_error_response(CustomPasswordChangeForm(request.user, request.POST), request.POST.get("field_name"))
 
 
 @require_POST
 @login_required
-@csrf_protect
 def set_language_view(request):
     """Custom wrapper to set language with a success message."""
     response = django_set_language(request)

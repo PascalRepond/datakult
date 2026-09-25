@@ -86,7 +86,7 @@ def test_profile_fields_are_validated_one_at_a_time(logged_in_client, url_name, 
     """The validation endpoints of the profile page return the error of the typed field only, if it has one."""
     response = logged_in_client.post(reverse(url_name), data)
 
-    assert response.content.decode() == expected
+    assert response.content.decode().strip() == expected
 
 
 @pytest.mark.parametrize(("language", "confirmed"), [("fr", True), ("invalid", False)])
