@@ -69,9 +69,10 @@ document.body.addEventListener('htmx:configRequest', (event) => {
     kept.forEach(([key, value]) => formData.append(key, value));
 });
 
-// Close the sort dropdown once a sort is picked, by moving the focus out of it
+// Close a dropdown of radios, such as the sort or the score picker, once a value is picked,
+// by moving the focus out of it
 document.body.addEventListener('change', (event) => {
-    if (event.target.name === 'sort') event.target.blur();
+    if (event.target.matches('.dropdown-content input[type="radio"]')) event.target.blur();
 });
 
 // Remove a filter from its badge: clear its fields in the filter form, which then updates the list

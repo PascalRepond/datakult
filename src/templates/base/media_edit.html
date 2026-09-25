@@ -26,32 +26,52 @@
       {% csrf_token %}
       {# Header #}
       <div class="flex justify-between items-center gap-4 mb-6">
+        {# No back link: the Cancel button of the action bar leads back #}
         {% if media %}
           {% translate "Edit" as edit_label %}
-          {% url 'media_detail' media.pk as detail_url %}
-          {% include "partials/common/page_header.html" with title=edit_label|add:" "|add:media.title back_url=detail_url %}
+          {% url 'media_detail' media.pk as cancel_url %}
+          {% include "partials/common/page_header.html" with title=edit_label|add:" "|add:media.title %}
         {% else %}
           {% translate "Add media" as add_label %}
-          {% url 'home' as home_url %}
-          {% include "partials/common/page_header.html" with title=add_label back_url=home_url history_path=home_url %}
+          {% url 'home' as cancel_url %}
+          {% include "partials/common/page_header.html" with title=add_label %}
         {% endif %}
-        <div class="flex gap-2 shrink-0">
-          <a href="{% url 'media_import' %}{% if media %}?media_id={{ media.pk }}&media_type={{ media.media_type }}&title={{ media.title|urlencode }}{% endif %}"
-             class="btn btn-outline btn-sm"
-             title="{% translate 'Import metadata' %}">
-            {% lucide "search" class="w-4 h-4" %}
-            {% translate "Import" %}
-          </a>
-          <button type="submit" class="btn btn-primary">
-            {% lucide "save" %}
-            {% translate "Save" %}
-          </button>
-        </div>
+        <a href="{% url 'media_import' %}{% if media %}?media_id={{ media.pk }}&media_type={{ media.media_type }}&title={{ media.title|urlencode }}{% endif %}"
+           class="btn btn-outline btn-sm shrink-0"
+           title="{% translate 'Import metadata' %}">
+          {% lucide "search" class="w-4 h-4" %}
+          {% translate "Import" %}
+        </a>
       </div>
       <input type="hidden"
              name="import_cover_url"
              id="import-cover-url"
              value="{{ import_data.cover_url|default:'' }}">
+      {# Title and type first: the two required fields, and the type decides where metadata is imported from #}
+      <div class="card bg-base-200 border border-base-300 mb-6">
+        <div class="card-body p-4 grid grid-cols-1 sm:grid-cols-3 gap-x-4">
+          <div class="form-control sm:col-span-2">
+            <label class="label" for="id_title">
+              {% include "partials/common/field_label.html" with label=_("Title") field=form.title %}
+            </label>
+            {{ form.title }}
+            <label class="label" id="error-title">
+              {% if form.title.errors %}<span class="label-text-alt text-error">{{ form.title.errors.0 }}</span>{% endif %}
+            </label>
+          </div>
+          <div class="form-control">
+            <label class="label" for="id_media_type">
+              {% include "partials/common/field_label.html" with label=_("Media type") field=form.media_type %}
+            </label>
+            {{ form.media_type }}
+            <label class="label" id="error-media_type">
+              {% if form.media_type.errors %}
+                <span class="label-text-alt text-error">{{ form.media_type.errors.0 }}</span>
+              {% endif %}
+            </label>
+          </div>
+        </div>
+      </div>
       {# Main content #}
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         {# Left column - Cover and metadata #}
@@ -93,15 +113,6 @@
           {# Metadata card #}
           <div class="card bg-base-200 border border-base-300">
             <div class="card-body p-4 space-y-2">
-              <div class="form-control">
-                <label class="label" for="id_title">
-                  {% include "partials/common/field_label.html" with label=_("Title") field=form.title %}
-                </label>
-                {{ form.title }}
-                <label class="label" id="error-title">
-                  {% if form.title.errors %}<span class="label-text-alt text-error">{{ form.title.errors.0 }}</span>{% endif %}
-                </label>
-              </div>
               <div class="form-control">
                 <label class="label" for="id_contributors">
                   {% include "partials/common/field_label.html" with label=_("Contributors") field=form.contributors %}
@@ -167,17 +178,6 @@
                 </label>
               </div>
               <div class="form-control">
-                <label class="label" for="id_media_type">
-                  {% include "partials/common/field_label.html" with label=_("Media type") field=form.media_type %}
-                </label>
-                {{ form.media_type }}
-                <label class="label" id="error-media_type">
-                  {% if form.media_type.errors %}
-                    <span class="label-text-alt text-error">{{ form.media_type.errors.0 }}</span>
-                  {% endif %}
-                </label>
-              </div>
-              <div class="form-control">
                 <label class="label" for="id_pub_year">
                   {% include "partials/common/field_label.html" with label=_("Release year") field=form.pub_year %}
                 </label>
@@ -206,9 +206,9 @@
           <div class="card bg-base-200 border border-base-300">
             <div class="card-body p-4 space-y-2">
               <div class="form-control">
-                <label class="label" for="id_score">
+                <span class="label">
                   {% include "partials/common/field_label.html" with label=_("Score") field=form.score %}
-                </label>
+                </span>
                 {{ form.score }}
                 <label class="label" id="error-score">
                   {% if form.score.errors %}<span class="label-text-alt text-error">{{ form.score.errors.0 }}</span>{% endif %}
@@ -225,8 +225,10 @@
                   </label>
                 </div>
                 <div class="form-control">
-                  <label class="label" for="id_review_date">
-                    <span>{% include "partials/common/field_label.html" with label=_("Review date") field=form.review_date %}</span>
+                  <div class="flex items-center justify-between">
+                    <label class="label" for="id_review_date">
+                      {% include "partials/common/field_label.html" with label=_("Review date") field=form.review_date %}
+                    </label>
                     <button type="button"
                             id="set-today-btn"
                             class="btn btn-xs btn-ghost gap-1"
@@ -234,7 +236,7 @@
                       {% lucide "calendar" size="16" %}
                       {% translate "Today" %}
                     </button>
-                  </label>
+                  </div>
                   {{ form.review_date }}
                   <label class="label" id="error-review_date">
                     {% if form.review_date.errors %}
@@ -259,17 +261,25 @@
               </div>
             </div>
           </div>
-          {# Actions card #}
-          {% if media %}
-            <div class="card bg-base-200 border border-base-300">
-              <div class="card-body p-4">
-                <label for="confirm-delete-modal" class="btn btn-error w-full">
-                  {% lucide "trash" %}
-                  {% translate "Delete" %}
-                </label>
-              </div>
-            </div>
-          {% endif %}
+        </div>
+      </div>
+      {# Actions, kept at hand at the bottom of the screen along the whole form #}
+      <div id="form-actions"
+           class="sticky bottom-4 z-20 mt-6 p-3 flex items-center gap-2 rounded-box border border-base-300 bg-base-100/90 backdrop-blur-sm shadow-lg">
+        {% if media %}
+          <label for="confirm-delete-modal"
+                 class="btn btn-ghost btn-sm text-error"
+                 aria-label="{% translate "Delete" %}">
+            {% lucide "trash-2" size="16" %}
+            <span class="hidden sm:inline">{% translate "Delete" %}</span>
+          </label>
+        {% endif %}
+        <div class="ml-auto flex gap-2">
+          <a href="{{ cancel_url }}" class="btn btn-ghost">{% translate "Cancel" %}</a>
+          <button type="submit" class="btn btn-primary">
+            {% lucide "save" %}
+            {% translate "Save" %}
+          </button>
         </div>
       </div>
     </form>

@@ -4,6 +4,8 @@ Tests for core.forms module.
 These tests verify the behavior of the MediaForm.
 """
 
+import re
+
 from django.utils import translation
 
 from core.forms import MediaForm
@@ -167,10 +169,21 @@ def test_placeholders_follow_active_language(db):
     assert 'placeholder="AAAA"' in html
 
 
-def test_score_widget_shows_the_ring_of_the_current_score(db):
-    """The rating widget shows the same score ring as the rest of the app, for the current score only."""
-    html = str(MediaForm(initial={"score": 8})["score"])
+def test_score_widget_lists_every_verdict(db):
+    """The score is picked among radios showing every verdict with its ring, and a radio to leave it unrated."""
+    rated = str(MediaForm(initial={"score": 8})["score"])
+    unrated = str(MediaForm()["score"])
 
-    assert "radial-progress" in html
-    assert 'data-score="8" class="hidden"' not in html
-    assert 'data-score="7" class="hidden"' in html
+    assert rated.count('type="radio"') == 11
+    for label in dict(Media.score.field.choices).values():
+        assert str(label) in rated
+    assert re.search(r'type="radio"\s+name="score"\s+value="8"[^>]*\schecked', rated)
+    assert re.search(r'type="radio"\s+name="score"\s+value=""[^>]*\schecked', unrated)
+
+
+def test_form_saves_the_picked_score(db):
+    """The score of the checked radio is saved, and the unrated radio clears it."""
+    data = {"title": "Rated", "media_type": "BOOK", "status": "PLANNED"}
+
+    assert MediaForm(data={**data, "score": "8"}).save().score == 8
+    assert MediaForm(data={**data, "score": ""}).save().score is None

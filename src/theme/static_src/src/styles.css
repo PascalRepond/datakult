@@ -80,17 +80,23 @@
 @source "../../../core/**/*.py";
 @source "../../../accounts/**/*.py";
 
-/* Star rating widget custom styles */
-.star-rating-widget .star-btn {
-  @apply cursor-pointer transition-all duration-150 ease-in-out;
+/* Score picker: its button shows the pill of the checked score */
+.score-widget .score-current {
+  @apply hidden;
 }
 
-.star-rating-widget .star-btn:hover {
-  @apply scale-110;
-}
-
-.star-rating-widget .star-btn:active {
-  @apply scale-95;
+.score-widget:has(input[value=""]:checked) .score-current[data-score=""],
+.score-widget:has(input[value="1"]:checked) .score-current[data-score="1"],
+.score-widget:has(input[value="2"]:checked) .score-current[data-score="2"],
+.score-widget:has(input[value="3"]:checked) .score-current[data-score="3"],
+.score-widget:has(input[value="4"]:checked) .score-current[data-score="4"],
+.score-widget:has(input[value="5"]:checked) .score-current[data-score="5"],
+.score-widget:has(input[value="6"]:checked) .score-current[data-score="6"],
+.score-widget:has(input[value="7"]:checked) .score-current[data-score="7"],
+.score-widget:has(input[value="8"]:checked) .score-current[data-score="8"],
+.score-widget:has(input[value="9"]:checked) .score-current[data-score="9"],
+.score-widget:has(input[value="10"]:checked) .score-current[data-score="10"] {
+  @apply inline-flex;
 }
 
 /* Form validation error styles */

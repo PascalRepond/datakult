@@ -1392,16 +1392,29 @@ def _back_url(response):
 
 
 def test_back_links_lead_to_the_parent_page(logged_in_client, media):
-    """Back links go up the hierarchy: detail to list, edit to detail, import to edit or list."""
+    """Back links go up the hierarchy: detail to list, import to edit or list."""
     home = reverse("home")
     detail = reverse("media_detail", args=[media.pk])
     edit = reverse("media_edit", args=[media.pk])
 
     assert _back_url(logged_in_client.get(detail)) == home
-    assert _back_url(logged_in_client.get(edit)) == detail
-    assert _back_url(logged_in_client.get(reverse("media_add"))) == home
     assert _back_url(logged_in_client.get(reverse("media_import"), {"media_id": media.pk})) == edit
     assert _back_url(logged_in_client.get(reverse("media_import"))) == home
+
+
+@pytest.mark.parametrize("url_name", ["media_edit", "media_add"])
+def test_forms_leave_through_cancel_rather_than_a_back_link(logged_in_client, media, url_name):
+    """The edit and add forms have no back link, which would double their Cancel button."""
+    args = [media.pk] if url_name == "media_edit" else []
+
+    assert _back_url(logged_in_client.get(reverse(url_name, args=args))) is None
+
+
+def test_media_card_links_to_its_edit_form(logged_in_client, media):
+    """Each card of the list links straight to the edit form of its media."""
+    content = logged_in_client.get(reverse("home")).content.decode()
+
+    assert f'href="{reverse("media_edit", args=[media.pk])}"' in content
 
 
 @pytest.mark.parametrize("url_name", ["stats", "backup_manage", "accounts:profile_edit"])
@@ -1512,3 +1525,31 @@ def test_invalid_contributor_is_not_counted_as_a_filter(logged_in_client, db):
     response = logged_in_client.get(reverse("home"), {"contributor": "99999"})
 
     assert response.context["active_filter_count"] == 0
+
+
+def test_edit_form_starts_with_title_and_type(logged_in_client, media):
+    """The title and the media type, the two required fields, come first in the edit form."""
+    content = logged_in_client.get(reverse("media_edit", args=[media.pk])).content.decode()
+
+    assert content.index('name="title"') < content.index('name="cover"')
+    assert content.index('name="media_type"') < content.index('name="cover"')
+
+
+@pytest.mark.parametrize("editing", [True, False])
+def test_edit_form_actions_lead_back_to_where_it_came_from(logged_in_client, media, editing):
+    """The action bar saves the form, or cancels back to the media page, or to the list for a new media."""
+    url = reverse("media_edit", args=[media.pk]) if editing else reverse("media_add")
+    content = logged_in_client.get(url).content.decode()
+    back = reverse("media_detail", args=[media.pk]) if editing else reverse("home")
+
+    bar = content[content.index('id="form-actions"') :]
+    assert re.search(rf'href="{back}"[^>]*>\s*Cancel', bar)
+    assert 'type="submit"' in bar
+    assert ('for="confirm-delete-modal"' in bar) is editing
+
+
+def test_today_button_is_not_inside_a_label(logged_in_client, media):
+    """The button setting the review date to today is not nested in the label of the field."""
+    content = logged_in_client.get(reverse("media_edit", args=[media.pk])).content.decode()
+
+    assert not re.search(r"<label(?:(?!</label>)[\s\S])*set-today-btn", content)

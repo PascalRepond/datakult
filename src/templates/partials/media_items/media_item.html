@@ -14,6 +14,10 @@
       <div class="absolute top-2 right-2 pointer-events-none">
         {% include "partials/media_items/media_status_badge.html" with extra_class="bg-base-100/80 backdrop-blur-sm border-0" %}
       </div>
+      <a href="{% url 'media_edit' media.pk %}"
+         class="absolute bottom-2 right-2 btn btn-sm btn-circle bg-base-100/80 hover:bg-base-100 backdrop-blur-sm border-0"
+         title="{% translate "Edit" %}"
+         aria-label="{% translate "Edit" %} {{ media.title }}">{% lucide "square-pen" size="16" %}</a>
     </figure>
     <div class="card-body p-3 gap-2">
       <div class="min-w-0">
