@@ -98,11 +98,11 @@ def test_result_cover_urls_none_without_thumbnail():
     assert r.cover_url_large is None
 
 
-# ---------- book_search_htmx view ----------
+# ---------- book search view ----------
 
 
 def test_search_returns_empty_for_short_query(logged_in_client):
-    response = logged_in_client.get(reverse("book_search_htmx"), {"q": "a"})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "a"})
 
     assert response.status_code == 200
     assert "partials/book/book_suggestions.html" in [t.name for t in response.templates]
@@ -110,7 +110,7 @@ def test_search_returns_empty_for_short_query(logged_in_client):
 
 
 def test_search_returns_empty_for_empty_query(logged_in_client):
-    response = logged_in_client.get(reverse("book_search_htmx"), {"q": ""})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": ""})
 
     assert response.status_code == 200
     assert response.context["results"] == []
@@ -133,7 +133,7 @@ def test_search_interleaves_results_leading_with_googlebooks(mock_ol, mock_gb, l
     mock_ol.return_value.search_books.return_value = [_make_ol("OL1"), _make_ol("OL2")]
     mock_gb.return_value.search_books.return_value = [_make_gb("GB1"), _make_gb("GB2")]
 
-    response = logged_in_client.get(reverse("book_search_htmx"), {"q": "test"})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "test"})
 
     titles = [r.title for r in response.context["results"]]
     assert titles == ["GB1", "OL1", "GB2", "OL2"]
@@ -146,7 +146,7 @@ def test_search_falls_back_when_googlebooks_fails(mock_ol, mock_gb, logged_in_cl
     mock_ol.return_value.search_books.return_value = [_make_ol("OL1")]
     mock_gb.return_value.search_books.side_effect = requests.RequestException("boom")
 
-    response = logged_in_client.get(reverse("book_search_htmx"), {"q": "test"})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "test"})
 
     assert response.status_code == 200
     assert "error" not in response.context
@@ -161,7 +161,7 @@ def test_search_falls_back_when_openlibrary_fails(mock_ol, mock_gb, logged_in_cl
     mock_ol.return_value.search_books.side_effect = requests.RequestException("boom")
     mock_gb.return_value.search_books.return_value = [_make_gb("GB1")]
 
-    response = logged_in_client.get(reverse("book_search_htmx"), {"q": "test"})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "test"})
 
     assert response.status_code == 200
     assert "error" not in response.context
@@ -175,7 +175,7 @@ def test_search_surfaces_error_only_when_both_sources_fail(mock_ol, mock_gb, log
     mock_ol.return_value.search_books.side_effect = requests.RequestException("boom")
     mock_gb.return_value.search_books.side_effect = requests.RequestException("boom")
 
-    response = logged_in_client.get(reverse("book_search_htmx"), {"q": "test"})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "test"})
 
     assert response.status_code == 200
     assert response.context["error"] == "Search failed"
@@ -188,7 +188,7 @@ def test_search_preserves_media_id_and_query_in_context(mock_ol, mock_gb, logged
     mock_ol.return_value.search_books.return_value = []
     mock_gb.return_value.search_books.return_value = []
 
-    response = logged_in_client.get(reverse("book_search_htmx"), {"q": "hello", "media_id": "42"})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "hello", "media_id": "42"})
 
     assert response.status_code == 200
     assert response.context["media_id"] == "42"

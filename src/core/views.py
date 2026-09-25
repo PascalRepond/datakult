@@ -16,11 +16,12 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.core.paginator import InvalidPage, Paginator
 from django.db import IntegrityError
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from partial_date import PartialDate
 
 from . import stats as media_stats
@@ -39,6 +40,22 @@ logger = logging.getLogger(__name__)
 
 # Search constants
 DEFAULT_TMDB_LANGUAGE = "en-US"
+# Metadata sources of the import page: value, tab label, icon
+IMPORT_SOURCES = [
+    ("tmdb", gettext_lazy("Movies & TV"), "clapperboard"),
+    ("igdb", gettext_lazy("Video games"), "gamepad-2"),
+    ("books", gettext_lazy("Books"), "book-open"),
+    ("musicbrainz", gettext_lazy("Music"), "disc-3"),
+]
+TMDB_LANGUAGES = [
+    ("en-US", "English"),
+    ("fr-FR", "Français"),
+    ("de-DE", "Deutsch"),
+    ("es-ES", "Español"),
+    ("it-IT", "Italiano"),
+    ("pt-PT", "Português"),
+    ("ja-JP", "日本語"),
+]
 MIN_SEARCH_QUERY_LENGTH = 2
 MAX_SEARCH_RESULTS = 15
 STATS_COVERS_PER_PAGE = 40
@@ -465,6 +482,9 @@ def media_import(request):
         "media_id": media_id,
         "default_source": default_source,
         "default_query": title,
+        "import_sources": IMPORT_SOURCES,
+        "tmdb_languages": TMDB_LANGUAGES,
+        "tmdb_language": DEFAULT_TMDB_LANGUAGE,
     }
     return render(request, "base/media_import.html", context)
 
@@ -687,6 +707,23 @@ def media_review_htmx(request, pk):
     """HTMX view: return the full review of a media item, for the reading modal of the media list."""
     media = get_object_or_404(Media, pk=pk)
     return render(request, "partials/media_items/media_review_modal.html", {"media": media})
+
+
+IMPORT_SEARCHES = {
+    "tmdb": tmdb_search_htmx,
+    "igdb": igdb_search_htmx,
+    "books": book_search_htmx,
+    "musicbrainz": musicbrainz_search_htmx,
+}
+
+
+@login_required
+def import_search_htmx(request):
+    """HTMX view: search the metadata source picked in the tabs of the import page."""
+    search = IMPORT_SEARCHES.get(request.GET.get("source"))
+    if search is None:
+        return HttpResponseBadRequest("Unknown import source")
+    return search(request)
 
 
 @login_required

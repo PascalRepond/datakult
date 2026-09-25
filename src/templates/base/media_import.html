@@ -28,174 +28,53 @@
         {% translate "Add manually" %}
       </a>
     </div>
-    {# Source selector tabs #}
-    <div class="tabs tabs-box mb-6">
-      <input type="radio"
-             name="import_source"
-             class="tab"
-             aria-label="{% translate 'Movies & TV' %}"
-             id="tab-tmdb"
-             {% if default_source == "tmdb" or not default_source %}checked{% endif %}
-             autocomplete="off"
-             hx-on:click="document.getElementById('source-tmdb').classList.remove('hidden'); document.getElementById('source-igdb').classList.add('hidden'); document.getElementById('source-books').classList.add('hidden'); document.getElementById('source-musicbrainz').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
-      <input type="radio"
-             name="import_source"
-             class="tab"
-             aria-label="{% translate 'Video games' %}"
-             id="tab-igdb"
-             {% if default_source == "igdb" %}checked{% endif %}
-             autocomplete="off"
-             hx-on:click="document.getElementById('source-igdb').classList.remove('hidden'); document.getElementById('source-tmdb').classList.add('hidden'); document.getElementById('source-books').classList.add('hidden'); document.getElementById('source-musicbrainz').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
-      <input type="radio"
-             name="import_source"
-             class="tab"
-             aria-label="{% translate 'Books' %}"
-             id="tab-books"
-             {% if default_source == "books" %}checked{% endif %}
-             autocomplete="off"
-             hx-on:click="document.getElementById('source-books').classList.remove('hidden'); document.getElementById('source-tmdb').classList.add('hidden'); document.getElementById('source-igdb').classList.add('hidden'); document.getElementById('source-musicbrainz').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
-      <input type="radio"
-             name="import_source"
-             class="tab"
-             aria-label="{% translate 'Music' %}"
-             id="tab-musicbrainz"
-             {% if default_source == "musicbrainz" %}checked{% endif %}
-             autocomplete="off"
-             hx-on:click="document.getElementById('source-musicbrainz').classList.remove('hidden'); document.getElementById('source-tmdb').classList.add('hidden'); document.getElementById('source-igdb').classList.add('hidden'); document.getElementById('source-books').classList.add('hidden'); document.getElementById('import-results').innerHTML='';">
-    </div>
-    {# TMDB Search (Movies & TV) #}
-    <div id="source-tmdb" class="card bg-base-200 border border-base-300 mb-6{% if default_source and default_source != 'tmdb' %} hidden{% endif %}">
-      <div class="card-body p-4 space-y-3">
-        <div class="flex items-center gap-2 mb-2">
-          {% lucide "film" class="w-5 h-5" %}
-          <span class="font-semibold">TMDB</span>
-          <span class="text-sm opacity-70">- {% translate "Movies & TV" %}</span>
+    {# One search for every source: picking another source searches it with the same query #}
+    <form id="import-search"
+          class="group card bg-base-200 border border-base-300 mb-6"
+          hx-get="{% url 'import_search_htmx' %}"
+          hx-trigger="submit, change[target.name !== 'q'], input changed delay:400ms from:#import-query, search from:#import-query{% if default_query %}, load{% endif %}"
+          hx-sync="this:replace"
+          hx-target="#import-results"
+          hx-indicator="#search-spinner">
+      {% if media_id %}<input type="hidden" name="media_id" value="{{ media_id }}" />{% endif %}
+      <div class="card-body p-4 gap-3">
+        <div class="tabs tabs-box shadow-none">
+          {% for value, label, icon in import_sources %}
+            <label class="tab gap-2 has-checked:tab-active">
+              <input type="radio"
+                     name="source"
+                     value="{{ value }}"
+                     class="sr-only"
+                     {% if value == default_source %}checked{% endif %} />
+              {% lucide icon size="16" %}
+              {{ label }}
+            </label>
+          {% endfor %}
         </div>
-        <div class="join w-full">
-          <input type="text"
-                 id="tmdb-query"
+        <label class="input w-full">
+          {% lucide "search" size="16" class="opacity-60" %}
+          <input type="search"
+                 id="import-query"
                  name="q"
-                 class="input join-item w-full"
-                 placeholder="{% translate 'Search...' %}"
+                 class="grow"
+                 placeholder="{% translate "Search…" %}"
+                 aria-label="{% translate "Search" %}"
                  value="{{ default_query }}"
-                 autocomplete="off"
-                 hx-get="{% url 'tmdb_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
-                 hx-trigger="keyup changed delay:400ms, search{% if default_query and default_source == 'tmdb' %}, load{% endif %}"
-                 hx-target="#import-results"
-                 hx-include="#tmdb-lang"
-                 hx-indicator="#search-spinner" />
-          <button type="button"
-                  class="btn btn-primary join-item"
-                  hx-get="{% url 'tmdb_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
-                  hx-include="#tmdb-query, #tmdb-lang"
-                  hx-target="#import-results"
-                  hx-indicator="#search-spinner">{% lucide "search" %}</button>
-        </div>
-        <div class="flex items-center gap-2">
+                 autocomplete="off" />
+        </label>
+        {# The metadata language only applies to TMDB #}
+        <div class="hidden group-has-[input[value=tmdb]:checked]:flex items-center gap-2">
           <label for="tmdb-lang" class="text-sm text-base-content/70">{% translate "Metadata language:" %}</label>
-          <select id="tmdb-lang" name="lang" class="select select-sm select-bordered">
-            <option value="en-US" selected>English</option>
-            <option value="fr-FR">Fran&ccedil;ais</option>
-            <option value="de-DE">Deutsch</option>
-            <option value="es-ES">Espa&ntilde;ol</option>
-            <option value="it-IT">Italiano</option>
-            <option value="pt-PT">Portugu&ecirc;s</option>
-            <option value="ja-JP">&#26085;&#26412;&#35486;</option>
+          <select id="tmdb-lang" name="lang" class="select select-sm">
+            {% for code, name in tmdb_languages %}
+              <option value="{{ code }}" {% if code == tmdb_language %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
           </select>
         </div>
       </div>
-    </div>
-    {# IGDB Search (Video games) #}
-    <div id="source-igdb" class="card bg-base-200 border border-base-300 mb-6{% if default_source != 'igdb' %} hidden{% endif %}">
-      <div class="card-body p-4 space-y-3">
-        <div class="flex items-center gap-2 mb-2">
-          {% lucide "gamepad-2" class="w-5 h-5" %}
-          <span class="font-semibold">IGDB</span>
-          <span class="text-sm opacity-70">- {% translate "Video games" %}</span>
-        </div>
-        <div class="join w-full">
-          <input type="text"
-                 id="igdb-query"
-                 name="q"
-                 class="input join-item w-full"
-                 placeholder="{% translate 'Search...' %}"
-                 value="{{ default_query }}"
-                 autocomplete="off"
-                 hx-get="{% url 'igdb_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
-                 hx-trigger="keyup changed delay:400ms, search{% if default_query and default_source == 'igdb' %}, load{% endif %}"
-                 hx-target="#import-results"
-                 hx-indicator="#search-spinner" />
-          <button type="button"
-                  class="btn btn-primary join-item"
-                  hx-get="{% url 'igdb_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
-                  hx-include="#igdb-query"
-                  hx-target="#import-results"
-                  hx-indicator="#search-spinner">{% lucide "search" %}</button>
-        </div>
-      </div>
-    </div>
-    {# Books Search (OpenLibrary + Google Books) #}
-    <div id="source-books"
-         class="card bg-base-200 border border-base-300 mb-6{% if default_source != 'books' %} hidden{% endif %}">
-      <div class="card-body p-4 space-y-3">
-        <div class="flex items-center gap-2 mb-2">
-          {% lucide "book-open" class="w-5 h-5" %}
-          <span class="font-semibold">{% translate "Books" %}</span>
-          <span class="text-sm opacity-70">- OpenLibrary + Google Books</span>
-        </div>
-        <div class="join w-full">
-          <input type="text"
-                 id="books-query"
-                 name="q"
-                 class="input join-item w-full"
-                 placeholder="{% translate 'Search...' %}"
-                 value="{{ default_query }}"
-                 autocomplete="off"
-                 hx-get="{% url 'book_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
-                 hx-trigger="keyup changed delay:400ms, search{% if default_query and default_source == 'books' %}, load{% endif %}"
-                 hx-target="#import-results"
-                 hx-indicator="#search-spinner" />
-          <button type="button"
-                  class="btn btn-primary join-item"
-                  hx-get="{% url 'book_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
-                  hx-include="#books-query"
-                  hx-target="#import-results"
-                  hx-indicator="#search-spinner">{% lucide "search" %}</button>
-        </div>
-      </div>
-    </div>
-    {# MusicBrainz Search (Music) #}
-    <div id="source-musicbrainz"
-         class="card bg-base-200 border border-base-300 mb-6{% if default_source != 'musicbrainz' %} hidden{% endif %}">
-      <div class="card-body p-4 space-y-3">
-        <div class="flex items-center gap-2 mb-2">
-          {% lucide "disc-3" class="w-5 h-5" %}
-          <span class="font-semibold">MusicBrainz</span>
-          <span class="text-sm opacity-70">- {% translate "Music albums" %}</span>
-        </div>
-        <div class="join w-full">
-          <input type="text"
-                 id="musicbrainz-query"
-                 name="q"
-                 class="input join-item w-full"
-                 placeholder="{% translate 'Search...' %}"
-                 value="{{ default_query }}"
-                 autocomplete="off"
-                 hx-get="{% url 'musicbrainz_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
-                 hx-trigger="keyup changed delay:400ms, search{% if default_query and default_source == 'musicbrainz' %}, load{% endif %}"
-                 hx-target="#import-results"
-                 hx-indicator="#search-spinner" />
-          <button type="button"
-                  class="btn btn-primary join-item"
-                  hx-get="{% url 'musicbrainz_search_htmx' %}{% if media_id %}?media_id={{ media_id }}{% endif %}"
-                  hx-include="#musicbrainz-query"
-                  hx-target="#import-results"
-                  hx-indicator="#search-spinner">{% lucide "search" %}</button>
-        </div>
-      </div>
-    </div>
-    {# Loading indicator #}
-    <div id="search-spinner" class="htmx-indicator text-center py-8">
+    </form>
+    {# Loading indicator, only laid out during a search so that it leaves no gap above the results #}
+    <div id="search-spinner" class="htmx-indicator hidden [&.htmx-request]:block text-center py-8">
       <span class="loading loading-spinner loading-lg"></span>
     </div>
     {# Results #}

@@ -17,10 +17,7 @@ urlpatterns = [
     path("agents/select-htmx/", views.agent_select_htmx, name="agent_select_htmx"),
     path("tags/search-htmx/", views.tag_search_htmx, name="tag_search_htmx"),
     path("tags/select-htmx/", views.tag_select_htmx, name="tag_select_htmx"),
-    path("tmdb-search/", views.tmdb_search_htmx, name="tmdb_search_htmx"),
-    path("igdb-search/", views.igdb_search_htmx, name="igdb_search_htmx"),
-    path("book-search/", views.book_search_htmx, name="book_search_htmx"),
-    path("musicbrainz-search/", views.musicbrainz_search_htmx, name="musicbrainz_search_htmx"),
+    path("import-search/", views.import_search_htmx, name="import_search_htmx"),
     path("media/validate_field/", validate_media_field, name="media_validate_field"),
     path("media/<int:pk>/review/", views.media_review_htmx, name="media_review_htmx"),
     # Backup management

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 12:12+0200\n"
+"POT-Creation-Date: 2026-09-25 12:22+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -123,7 +123,7 @@ msgstr "Livre"
 msgid "Video game"
 msgstr "Jeu vidéo"
 
-#: src/core/models.py:167 src/templates/base/media_import.html:60
+#: src/core/models.py:167 src/core/views.py:48
 msgid "Music"
 msgstr "Musique"
 
@@ -293,119 +293,131 @@ msgstr "Remplacer la couverture :"
 msgid "Upload cover:"
 msgstr "Télécharger la couverture :"
 
-#: src/core/views.py:484
+#: src/core/views.py:45
+msgid "Movies & TV"
+msgstr "Films & séries"
+
+#: src/core/views.py:46
+msgid "Video games"
+msgstr "Jeux vidéo"
+
+#: src/core/views.py:47
+msgid "Books"
+msgstr "Livres"
+
+#: src/core/views.py:504
 #, python-format
 msgid "'%(title)s' deleted successfully"
 msgstr "'%(title)s' supprimé avec succès"
 
-#: src/core/views.py:707
+#: src/core/views.py:744
 #, python-format
 msgid "Backup creation failed: %(error)s"
 msgstr "Échec de la création du backup : %(error)s"
 
-#: src/core/views.py:718
+#: src/core/views.py:755
 msgid "No file selected"
 msgstr "Aucun fichier sélectionné"
 
-#: src/core/views.py:722
+#: src/core/views.py:759
 msgid "Invalid file format. Use a .tar.gz file"
 msgstr "Format de fichier invalide. Utilisez un fichier .tar.gz"
 
-#: src/core/views.py:737
+#: src/core/views.py:774
 msgid "Backup imported successfully! All data has been restored."
 msgstr "Backup importé avec succès ! Toutes les données ont été restaurées."
 
-#: src/core/views.py:746
+#: src/core/views.py:783
 #, python-format
 msgid "Backup import failed: %(error)s"
 msgstr "Échec de l'importation du backup : %(error)s"
 
-#: src/core/views.py:774
+#: src/core/views.py:811
 #, python-format
 msgid "Invalid media types: %(types)s"
 msgstr "Types de médias invalides : %(types)s"
 
-#: src/core/views.py:780
+#: src/core/views.py:817
 #, python-format
 msgid "Invalid statuses: %(statuses)s"
 msgstr "Statuts invalides : %(statuses)s"
 
-#: src/core/views.py:786
+#: src/core/views.py:823
 #, python-format
 msgid "Invalid scores: %(scores)s"
 msgstr "Scores invalides : %(scores)s"
 
-#: src/core/views.py:791
+#: src/core/views.py:828
 #, python-format
 msgid "Invalid sort field: %(sort)s"
 msgstr "Champ de tri invalide : %(sort)s"
 
-#: src/core/views.py:795
+#: src/core/views.py:832
 #, python-format
 msgid "Contributor does not exist: ID %(id)s"
 msgstr "Le contributeur n'existe pas : ID %(id)s"
 
-#: src/core/views.py:795
+#: src/core/views.py:832
 #, python-format
 msgid "Invalid contributor ID format: %(id)s"
 msgstr "Format d'ID de contributeur invalide : %(id)s"
 
-#: src/core/views.py:796
+#: src/core/views.py:833
 #, python-format
 msgid "Tag does not exist: ID %(id)s"
 msgstr "Le tag n'existe pas : ID %(id)s"
 
-#: src/core/views.py:796
+#: src/core/views.py:833
 #, python-format
 msgid "Invalid tag ID format: %(id)s"
 msgstr "Format d'ID de tag invalide : %(id)s"
 
-#: src/core/views.py:808
+#: src/core/views.py:845
 msgid "Start date"
 msgstr "Date de début"
 
-#: src/core/views.py:808
+#: src/core/views.py:845
 msgid "End date"
 msgstr "Date de fin"
 
-#: src/core/views.py:814
+#: src/core/views.py:851
 #, python-format
 msgid "Invalid %(label)s: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:817
+#: src/core/views.py:854
 msgid "Review filter"
 msgstr "Filtre de critique"
 
-#: src/core/views.py:817
+#: src/core/views.py:854
 msgid "Cover filter"
 msgstr "Filtre de couverture"
 
-#: src/core/views.py:820
+#: src/core/views.py:857
 #, python-format
 msgid "Invalid %(label)s value: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:834
+#: src/core/views.py:871
 msgid "View name is required"
 msgstr "Nom de la vue requis"
 
-#: src/core/views.py:865
+#: src/core/views.py:902
 #, python-format
 msgid "View '%(name)s' has been updated"
 msgstr "Vue '%(name)s' a été mise à jour"
 
-#: src/core/views.py:870
+#: src/core/views.py:907
 #, python-format
 msgid "View '%(name)s' saved successfully"
 msgstr "Vue '%(name)s' a été enregistrée avec succès"
 
-#: src/core/views.py:886
+#: src/core/views.py:923
 #, python-format
 msgid "View '%(name)s' deleted successfully"
 msgstr "Vue '%(name)s' supprimée avec succès"
 
-#: src/core/views.py:888
+#: src/core/views.py:925
 msgid "View not found"
 msgstr "Vue non trouvée"
 
@@ -673,35 +685,19 @@ msgstr "Oui, supprimer"
 msgid "Add manually"
 msgstr "Ajouter manuellement"
 
-#: src/templates/base/media_import.html:36
-#: src/templates/base/media_import.html:72
-msgid "Movies & TV"
-msgstr "Films & séries"
+#: src/templates/base/media_import.html:60
+#: src/templates/base/media_index.html:37
+msgid "Search…"
+msgstr "Rechercher…"
 
-#: src/templates/base/media_import.html:44
-#: src/templates/base/media_import.html:114
-msgid "Video games"
-msgstr "Jeux vidéo"
+#: src/templates/base/media_import.html:61
+#: src/templates/base/media_index.html:38
+msgid "Search"
+msgstr "Recherche"
 
-#: src/templates/base/media_import.html:52
-#: src/templates/base/media_import.html:143
-msgid "Books"
-msgstr "Livres"
-
-#: src/templates/base/media_import.html:79
-#: src/templates/base/media_import.html:121
-#: src/templates/base/media_import.html:151
-#: src/templates/base/media_import.html:181
-msgid "Search..."
-msgstr "Rechercher..."
-
-#: src/templates/base/media_import.html:95
+#: src/templates/base/media_import.html:67
 msgid "Metadata language:"
 msgstr "Langue des métadonnées"
-
-#: src/templates/base/media_import.html:174
-msgid "Music albums"
-msgstr "Albums"
 
 #: src/templates/base/media_index.html:6 src/templates/base/media_index.html:15
 msgid "My media"
@@ -713,14 +709,6 @@ msgid "%(counter)s item"
 msgid_plural "%(counter)s items"
 msgstr[0] "%(counter)s élément"
 msgstr[1] "%(counter)s éléments"
-
-#: src/templates/base/media_index.html:37
-msgid "Search…"
-msgstr "Rechercher…"
-
-#: src/templates/base/media_index.html:38
-msgid "Search"
-msgstr "Recherche"
 
 #: src/templates/base/media_index.html:49
 msgid "Sort by"
@@ -986,6 +974,12 @@ msgstr "Série"
 #: src/templates/registration/login.html:37
 msgid "Password"
 msgstr "Mot de passe"
+
+#~ msgid "Search..."
+#~ msgstr "Rechercher..."
+
+#~ msgid "Music albums"
+#~ msgstr "Albums"
 
 #~ msgid "Clear rating"
 #~ msgstr "Retirer la note"

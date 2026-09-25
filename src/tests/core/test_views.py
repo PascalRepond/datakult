@@ -1601,3 +1601,39 @@ def test_edit_form_has_the_anchors_of_the_invites(logged_in_client, media):
 
     assert 'id="score-field"' in content
     assert 'id="review-field"' in content
+
+
+@pytest.mark.parametrize(
+    ("source", "template"),
+    [
+        ("tmdb", "partials/tmdb/tmdb_suggestions.html"),
+        ("igdb", "partials/igdb/igdb_suggestions.html"),
+        ("books", "partials/book/book_suggestions.html"),
+        ("musicbrainz", "partials/musicbrainz/musicbrainz_suggestions.html"),
+    ],
+)
+def test_import_search_uses_the_picked_source(logged_in_client, source, template):
+    """The single search of the import page searches the source picked in its tabs."""
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": source, "q": "a"})
+
+    assert template in [t.name for t in response.templates]
+
+
+@pytest.mark.parametrize("params", [{"q": "dune"}, {"source": "unknown", "q": "dune"}])
+def test_import_search_rejects_an_unknown_source(logged_in_client, params):
+    """A search without a known source is a bad request."""
+    assert logged_in_client.get(reverse("import_search_htmx"), params).status_code == 400
+
+
+def test_import_page_has_one_search_for_every_source(logged_in_client, media_factory):
+    """The import page has a single search field, and picks the source of the media type."""
+    media = media_factory(media_type="GAME", title="Hades")
+
+    content = logged_in_client.get(
+        reverse("media_import"), {"media_id": media.pk, "media_type": "GAME", "title": "Hades"}
+    ).content.decode()
+
+    assert content.count('name="q"') == 1
+    assert re.search(r'name="q"[^>]*value="Hades"', content)
+    assert content.count('name="source"') == 4
+    assert re.search(r'name="source"\s+value="igdb"[^>]*\schecked', content)

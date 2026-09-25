@@ -14,7 +14,7 @@ from core.services.musicbrainz import MusicBrainzResult
 
 def test_returns_empty_for_short_query(logged_in_client):
     """Returns empty results for queries shorter than minimum length."""
-    response = logged_in_client.get(reverse("musicbrainz_search_htmx"), {"q": "a"})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "musicbrainz", "q": "a"})
 
     assert response.status_code == 200
     assert "partials/musicbrainz/musicbrainz_suggestions.html" in [t.name for t in response.templates]
@@ -23,7 +23,7 @@ def test_returns_empty_for_short_query(logged_in_client):
 
 def test_returns_empty_for_empty_query(logged_in_client):
     """Returns empty results for empty query."""
-    response = logged_in_client.get(reverse("musicbrainz_search_htmx"), {"q": ""})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "musicbrainz", "q": ""})
 
     assert response.status_code == 200
     assert response.context["results"] == []
@@ -45,7 +45,7 @@ def test_returns_search_results(mock_get_client, logged_in_client):
     ]
     mock_get_client.return_value = mock_client
 
-    response = logged_in_client.get(reverse("musicbrainz_search_htmx"), {"q": "abbey road"})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "musicbrainz", "q": "abbey road"})
 
     assert response.status_code == 200
     assert len(response.context["results"]) == 1
@@ -60,7 +60,7 @@ def test_handles_api_error_gracefully(mock_get_client, logged_in_client):
     mock_client.search_releases.side_effect = requests.RequestException("API Error")
     mock_get_client.return_value = mock_client
 
-    response = logged_in_client.get(reverse("musicbrainz_search_htmx"), {"q": "test query"})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "musicbrainz", "q": "test query"})
 
     assert response.status_code == 200
     assert "error" in response.context
@@ -69,7 +69,7 @@ def test_handles_api_error_gracefully(mock_get_client, logged_in_client):
 
 def test_preserves_media_id_in_context(logged_in_client):
     """Preserves media_id in context for editing existing media."""
-    response = logged_in_client.get(reverse("musicbrainz_search_htmx"), {"q": "", "media_id": "42"})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "musicbrainz", "q": "", "media_id": "42"})
 
     assert response.status_code == 200
     assert response.context["media_id"] == "42"
@@ -82,7 +82,7 @@ def test_preserves_query_in_context(mock_get_client, logged_in_client):
     mock_client.search_releases.return_value = []
     mock_get_client.return_value = mock_client
 
-    response = logged_in_client.get(reverse("musicbrainz_search_htmx"), {"q": "test"})
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "musicbrainz", "q": "test"})
 
     assert response.status_code == 200
     assert response.context["query"] == "test"
