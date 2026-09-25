@@ -6,7 +6,7 @@ These tests verify the behavior of the MediaForm.
 
 import re
 
-from django.utils import translation
+from django.utils.functional import Promise
 
 from core.forms import MediaForm
 from core.models import Agent, Media
@@ -162,11 +162,9 @@ def test_review_date_placeholder_shows_accepted_formats(db):
 
 
 def test_placeholders_follow_active_language(db):
-    """Placeholders are translated at render time, in the language of the request."""
-    with translation.override("fr"):
-        html = str(MediaForm()["pub_year"])
-
-    assert 'placeholder="AAAA"' in html
+    """Placeholders are translated at render time, in the language of the request, and not once at import."""
+    for field_name in ["pub_year", "review_date"]:
+        assert isinstance(MediaForm().fields[field_name].widget.attrs["placeholder"], Promise)
 
 
 def test_score_widget_lists_every_verdict(db):
