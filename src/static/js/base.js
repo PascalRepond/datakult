@@ -95,21 +95,17 @@ document.body.addEventListener('htmx:afterSwap', function(event) {
 });
 
 // TOAST MESSAGES
-// Auto-dismiss toast messages after 5 seconds
-function initToastMessages() {
-    const toastContainer = document.querySelector('.toast');
-    if (!toastContainer) return;
-
-    const alerts = toastContainer.querySelectorAll('.alert');
-    alerts.forEach((alert) => {
-        // Auto-dismiss after 5 seconds
+// Auto-dismiss toast messages after 5 seconds, whether they come with the page or with the body that a boosted
+// request swaps in: htmx fires htmx:load on the body once the page is loaded, then on every element it swaps in
+document.body.addEventListener('htmx:load', (event) => {
+    event.detail.elt.querySelectorAll('.toast .alert').forEach((alert) => {
         setTimeout(() => {
             alert.style.transition = 'opacity 0.3s ease-out';
             alert.style.opacity = '0';
             setTimeout(() => alert.remove(), 300);
         }, 5000);
     });
-}
+});
 
 // SERVICE WORKER REGISTRATION
 function registerServiceWorker() {
@@ -125,7 +121,6 @@ function registerServiceWorker() {
 document.addEventListener('DOMContentLoaded', function() {
     syncThemeRadios();
     cleanUrlParameters();
-    initToastMessages();
     registerServiceWorker();
 });
 document.body.addEventListener('htmx:afterSettle', syncThemeRadios);
