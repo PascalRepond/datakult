@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.9.1 (2026-09-25)
+
+### Bug Fixes
+
+- **tests**: Check placeholders without catalogs
+  ([`45b5adb`](https://github.com/PascalRepond/datakult/commit/45b5adb25745ff0745adde7afdb21bbc5ee1ea9c))
+
+
 ## v1.9.0 (2026-09-25)
 
 ### Bug Fixes
