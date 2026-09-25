@@ -30,6 +30,7 @@ from .forms import MediaForm
 from .import_results import from_googlebooks, from_igdb, from_musicbrainz, from_openlibrary, from_tmdb
 from .models import Agent, Media, MediaType, SavedView, Score, Status, Tag
 from .queries import build_media_context
+from .services.base import MIN_QUERY_LENGTH
 from .services.googlebooks import get_googlebooks_client
 from .services.igdb import get_igdb_client
 from .services.musicbrainz import get_musicbrainz_client
@@ -57,7 +58,6 @@ TMDB_LANGUAGES = [
     ("pt-PT", "Português"),
     ("ja-JP", "日本語"),
 ]
-MIN_SEARCH_QUERY_LENGTH = 2
 MAX_SEARCH_RESULTS = 15
 STATS_COVERS_PER_PAGE = 40
 IMPORT_RESULTS_TEMPLATE = "partials/import/import_results.html"
@@ -280,21 +280,11 @@ def _build_import_initial_data(import_data: dict, media=None) -> dict:
     else:
         media_type = ""
 
-    # Determine external URI
-    external_uri = (
-        import_data.get("tmdb_url")
-        or import_data.get("igdb_url")
-        or import_data.get("openlibrary_url")
-        or import_data.get("googlebooks_url")
-        or import_data.get("musicbrainz_url")
-        or ""
-    )
-
     initial_data = {
         "title": import_data.get("title", ""),
         "pub_year": import_data.get("year"),
         "media_type": media_type,
-        "external_uri": external_uri,
+        "external_uri": import_data.get("source_url", ""),
     }
     if media:
         # Keep existing values for fields user may have customized
@@ -405,9 +395,6 @@ def _fetch_tmdb_data(tmdb_id: str, media_type: str, language: str = DEFAULT_TMDB
         logger.exception("Failed to fetch TMDB data for %s/%s", media_type, tmdb_id)
         return None
 
-    # Combine directors and production companies
-    contributors = details.get("directors", []) + details.get("production_companies", [])
-    details["contributors"] = contributors
     return details
 
 
@@ -571,7 +558,7 @@ def tmdb_search_htmx(request):
 
     base_context = {"results": [], "media_id": media_id, "lang": lang, "query": query}
 
-    if len(query) < MIN_SEARCH_QUERY_LENGTH:
+    if len(query) < MIN_QUERY_LENGTH:
         return render(request, IMPORT_RESULTS_TEMPLATE, base_context)
 
     client = get_tmdb_client()
@@ -607,7 +594,7 @@ def igdb_search_htmx(request):
 
     base_context = {"results": [], "media_id": media_id, "query": query}
 
-    if len(query) < MIN_SEARCH_QUERY_LENGTH:
+    if len(query) < MIN_QUERY_LENGTH:
         return render(request, IMPORT_RESULTS_TEMPLATE, base_context)
 
     client = get_igdb_client()
@@ -660,7 +647,7 @@ def book_search_htmx(request):
 
     base_context = {"results": [], "media_id": media_id, "query": query}
 
-    if len(query) < MIN_SEARCH_QUERY_LENGTH:
+    if len(query) < MIN_QUERY_LENGTH:
         return render(request, IMPORT_RESULTS_TEMPLATE, base_context)
 
     openlibrary = get_openlibrary_client()
@@ -678,11 +665,10 @@ def book_search_htmx(request):
         gb_results, gb_ok = gb_future.result() if gb_future else ([], False)
 
     # Google Books typically has richer metadata for modern fiction, so we lead with it
-    merged = _interleave(gb_results, ol_results)[:MAX_SEARCH_RESULTS]
-    results = [
-        (from_googlebooks if result.source == "googlebooks" else from_openlibrary)(result, media_id)
-        for result in merged
-    ]
+    results = _interleave(
+        [from_googlebooks(result, media_id) for result in gb_results],
+        [from_openlibrary(result, media_id) for result in ol_results],
+    )[:MAX_SEARCH_RESULTS]
 
     context = {**base_context, "results": results}
     # Tell when the results only come from one of the sources
@@ -706,7 +692,7 @@ def musicbrainz_search_htmx(request):
 
     base_context = {"results": [], "media_id": media_id, "query": query}
 
-    if len(query) < MIN_SEARCH_QUERY_LENGTH:
+    if len(query) < MIN_QUERY_LENGTH:
         return render(request, IMPORT_RESULTS_TEMPLATE, base_context)
 
     client = get_musicbrainz_client()

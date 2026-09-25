@@ -1152,3 +1152,264 @@ def test_import_search_waits_for_a_longer_query(logged_in_client, source, query)
     assert "partials/import/import_results.html" in [t.name for t in response.templates]
     assert response.context["results"] == []
     assert response.context["media_id"] == "42"
+
+
+IMPORTS = {
+    "tmdb movie": (
+        {"tmdb_id": "438631", "media_type": "movie", "lang": "fr-FR"},
+        {
+            "https://api.themoviedb.org/3/movie/438631": {
+                "title": "Dune",
+                "original_title": "Dune",
+                "release_date": "2021-09-15",
+                "credits": {
+                    "crew": [{"name": "Denis Villeneuve", "job": "Director"}, {"name": "Eric", "job": "Writer"}]
+                },
+                "production_companies": [{"name": "Legendary"}, {"name": "Warner"}, {"name": "Villeneuve Films"}],
+                "genres": [{"name": "Science Fiction"}],
+                "poster_path": "/dune.jpg",
+            }
+        },
+        {
+            "initial": {
+                "title": "Dune",
+                "pub_year": 2021,
+                "media_type": "FILM",
+                "external_uri": "https://www.themoviedb.org/movie/438631",
+            },
+            "import_contributors": ["Denis Villeneuve", "Legendary", "Warner"],
+            "import_tags": ["Science Fiction"],
+            "cover_url": "https://image.tmdb.org/t/p/w500/dune.jpg",
+        },
+    ),
+    "tmdb tv": (
+        {"tmdb_id": "95396", "media_type": "tv"},
+        {
+            "https://api.themoviedb.org/3/tv/95396": {
+                "name": "Severance",
+                "first_air_date": "2022-02-18",
+                "created_by": [{"name": "Dan Erickson"}],
+                "genres": [{"name": "Drama"}],
+            }
+        },
+        {
+            "initial": {
+                "title": "Severance",
+                "pub_year": 2022,
+                "media_type": "TV",
+                "external_uri": "https://www.themoviedb.org/tv/95396",
+            },
+            "import_contributors": ["Dan Erickson"],
+            "import_tags": ["Drama"],
+            "cover_url": None,
+        },
+    ),
+    "igdb": (
+        {"igdb_id": "1"},
+        {
+            "https://id.twitch.tv/oauth2/token": {"access_token": "token", "expires_in": 3600},
+            "https://api.igdb.com/v4/games": [
+                {
+                    "name": "Hades",
+                    "first_release_date": 1600387200,
+                    "url": "https://www.igdb.com/games/hades",
+                    "cover": {"image_id": "co1"},
+                    "involved_companies": [
+                        {"company": {"name": "Supergiant"}, "developer": True, "publisher": True},
+                        {"company": {"name": "Publisher"}, "developer": False, "publisher": True},
+                    ],
+                    "genres": [{"name": "Roguelike"}],
+                }
+            ],
+        },
+        {
+            "initial": {
+                "title": "Hades",
+                "pub_year": 2020,
+                "media_type": "GAME",
+                "external_uri": "https://www.igdb.com/games/hades",
+            },
+            "import_contributors": ["Supergiant"],
+            "import_tags": ["Roguelike"],
+            "cover_url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co1.jpg",
+        },
+    ),
+    "google books": (
+        {"googlebooks_id": "vol1"},
+        {
+            "https://www.googleapis.com/books/v1/volumes/vol1": {
+                "volumeInfo": {
+                    "title": "Dune",
+                    "subtitle": "Deluxe Edition",
+                    "authors": ["Frank Herbert"],
+                    "publishedDate": "1965-08",
+                    "categories": ["Fiction"],
+                    "imageLinks": {"thumbnail": "http://books.google.com/books/content?id=vol1&zoom=1"},
+                    "canonicalVolumeLink": "https://books.google.com/books/about/Dune.html",
+                }
+            }
+        },
+        {
+            "initial": {
+                "title": "Dune: Deluxe Edition",
+                "pub_year": 1965,
+                "media_type": "BOOK",
+                "external_uri": "https://books.google.com/books/about/Dune.html",
+            },
+            "import_contributors": ["Frank Herbert"],
+            "import_tags": ["Fiction"],
+            "cover_url": "https://books.google.com/books/content?id=vol1&fife=w800-h1200",
+        },
+    ),
+    "openlibrary": (
+        {"openlibrary_key": "OL1W", "year": "1965"},
+        {
+            "https://openlibrary.org/works/OL1W.json": {
+                "title": "Dune",
+                "covers": [42],
+                "authors": [{"author": {"key": "/authors/OL2A"}}],
+            },
+            "https://openlibrary.org/authors/OL2A.json": {"name": "Frank Herbert"},
+        },
+        {
+            "initial": {
+                "title": "Dune",
+                "pub_year": 1965,
+                "media_type": "BOOK",
+                "external_uri": "https://openlibrary.org/works/OL1W",
+            },
+            "import_contributors": ["Frank Herbert"],
+            "import_tags": [],
+            "cover_url": "https://covers.openlibrary.org/b/id/42-L.jpg",
+        },
+    ),
+    "musicbrainz": (
+        {"musicbrainz_id": "abc-123"},
+        {
+            "https://musicbrainz.org/ws/2/release/abc-123": {
+                "title": "Abbey Road",
+                "date": "1969-09-26",
+                "artist-credit": [{"name": "The Beatles"}],
+                "genres": [{"name": "rock"}],
+                "tags": [{"name": "rock"}, {"name": "pop"}],
+            }
+        },
+        {
+            "initial": {
+                "title": "Abbey Road",
+                "pub_year": 1969,
+                "media_type": "MUSIC",
+                "external_uri": "https://musicbrainz.org/release/abc-123",
+            },
+            "import_contributors": ["The Beatles"],
+            "import_tags": ["rock", "pop"],
+            "cover_url": "https://coverartarchive.org/release/abc-123/front-500",
+        },
+    ),
+}
+
+
+@pytest.mark.parametrize(("params", "responses", "expected"), IMPORTS.values(), ids=IMPORTS.keys())
+def test_import_fills_the_form_with_the_metadata_of_the_source(
+    logged_in_client, api_responses, params, responses, expected
+):
+    """Importing from a source fills the form, and suggests its contributors, tags and cover."""
+    api_responses.update(responses)
+
+    response = logged_in_client.get(reverse("media_add"), params)
+
+    assert response.context["form"].initial == expected["initial"]
+    assert response.context["import_contributors"] == expected["import_contributors"]
+    assert response.context["import_tags"] == expected["import_tags"]
+    assert response.context["import_data"]["cover_url"] == expected["cover_url"]
+
+
+def test_import_into_a_media_keeps_its_review_and_contributors(logged_in_client, api_responses, media):
+    """Importing into a media keeps what was reviewed, and only suggests the contributors it does not have yet."""
+    params, responses, _expected = IMPORTS["tmdb tv"]
+    api_responses.update(responses)
+    api_responses["https://api.themoviedb.org/3/tv/95396"]["created_by"].append({"name": "test author"})
+    media.status, media.score, media.review = "COMPLETED", 8, "Unsettling."
+    media.save()
+
+    response = logged_in_client.get(reverse("media_edit", args=[media.pk]), params)
+
+    initial = response.context["form"].initial
+    assert (initial["title"], initial["status"], initial["score"], initial["review"]) == (
+        "Severance",
+        "COMPLETED",
+        8,
+        "Unsettling.",
+    )
+    assert response.context["import_contributors"] == ["Dan Erickson"]
+
+
+def test_import_that_fails_shows_an_empty_form(logged_in_client, api_responses):
+    """When the source cannot be reached, the form is shown empty rather than failing."""
+    response = logged_in_client.get(reverse("media_add"), {"musicbrainz_id": "unknown"})
+
+    assert response.context["import_data"] is None
+    assert not response.context["form"].initial
+
+
+SEARCHES = {
+    "tmdb": {
+        "https://api.themoviedb.org/3/search/multi": {
+            "results": [
+                {
+                    "media_type": "movie",
+                    "id": 1,
+                    "title": "Dune",
+                    "original_title": "Dune",
+                    "release_date": "2021-09-15",
+                },
+                {"media_type": "tv", "id": 2, "name": "Dune: Prophecy", "first_air_date": "2024-11-17"},
+                {"media_type": "person", "id": 3, "name": "Frank Herbert"},
+            ]
+        }
+    },
+    "igdb": {
+        "https://id.twitch.tv/oauth2/token": {"access_token": "token", "expires_in": 3600},
+        "https://api.igdb.com/v4/games": [{"id": 1, "name": "Dune: Spice Wars", "first_release_date": 1650931200}],
+    },
+    "books": {
+        "https://openlibrary.org/search.json": {
+            "docs": [
+                {"key": "/works/OL1W", "title": "Dune", "author_name": "Frank Herbert", "first_publish_year": 1965}
+            ]
+        },
+        "https://www.googleapis.com/books/v1/volumes": {
+            "items": [
+                {
+                    "id": "v1",
+                    "volumeInfo": {"title": "Dune Messiah", "authors": ["Frank Herbert"], "publishedDate": "1969"},
+                }
+            ]
+        },
+    },
+    "musicbrainz": {
+        "https://musicbrainz.org/ws/2/release": {
+            "releases": [
+                {"id": "m1", "title": "Dune (OST)", "date": "2021-09-03", "artist-credit": [{"name": "Hans Zimmer"}]}
+            ]
+        }
+    },
+}
+
+
+@pytest.mark.parametrize(
+    ("source", "expected"),
+    [
+        ("tmdb", [("Dune", 2021, ""), ("Dune: Prophecy", 2024, "")]),
+        ("igdb", [("Dune: Spice Wars", 2022, "")]),
+        ("books", [("Dune Messiah", 1969, "Frank Herbert"), ("Dune", 1965, "Frank Herbert")]),
+        ("musicbrainz", [("Dune (OST)", 2021, "Hans Zimmer")]),
+    ],
+)
+def test_import_search_shows_the_results_of_the_source(logged_in_client, api_responses, source, expected):
+    """A search shows the works found by the source, with their year and authors, leaving out anything else."""
+    api_responses.update(SEARCHES[source])
+
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": source, "q": "dune"})
+
+    assert [(result.title, result.year, result.byline) for result in response.context["results"]] == expected

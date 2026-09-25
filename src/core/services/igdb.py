@@ -11,11 +11,14 @@ To use this API, you need to:
 
 import datetime
 import logging
+import re
 import time
 from dataclasses import dataclass
 
 import requests
 from django.conf import settings
+
+from .base import MIN_QUERY_LENGTH, APIClient, APIError
 
 logger = logging.getLogger(__name__)
 
@@ -23,14 +26,11 @@ IGDB_BASE_URL = "https://api.igdb.com/v4/"
 TWITCH_AUTH_URL = "https://id.twitch.tv/oauth2/token"
 IGDB_IMAGE_BASE_URL = "https://images.igdb.com/igdb/image/upload/"
 
-# Minimum query length for search
-MIN_QUERY_LENGTH = 2
-
 # Cache for access token (simple in-memory cache)
 _token_cache: dict = {"access_token": None, "expires_at": 0}
 
 
-class IGDBError(Exception):
+class IGDBError(APIError):
     """Exception raised when IGDB API credentials are missing or invalid."""
 
 
@@ -56,17 +56,39 @@ def _get_image_url(image_id: str | None, size: str = "cover_big") -> str | None:
     return f"{IGDB_IMAGE_BASE_URL}t_{size}/{image_id}.jpg" if image_id else None
 
 
+def _cover_image_id(game: dict) -> str | None:
+    """Return the image ID of the cover of a game, if it has one."""
+    cover = game.get("cover", {})
+    return cover.get("image_id") if isinstance(cover, dict) else None
+
+
+def _release_year(game: dict) -> int | None:
+    """Return the year of the first release of a game, given as a Unix timestamp."""
+    timestamp = game.get("first_release_date")
+    return datetime.datetime.fromtimestamp(timestamp, tz=datetime.UTC).year if timestamp else None
+
+
+def _company_name(company_info: dict) -> str | None:
+    """Return the name of the company involved in a game."""
+    company = company_info.get("company", {})
+    return company.get("name") if isinstance(company, dict) else None
+
+
 def _escape_apicalypse_query(query: str) -> str:
     """Escape user input for Apicalypse queries."""
     return query.replace("\\", "\\\\").replace('"', '\\"').replace("\n", " ").strip()
 
 
-class IGDBClient:
+class IGDBClient(APIClient):
     """Client for interacting with the IGDB API."""
 
+    source_name = "IGDB"
+    cover_url_pattern = re.compile(re.escape(IGDB_IMAGE_BASE_URL))
+
     def __init__(self, client_id: str | None = None, client_secret: str | None = None):
-        self.client_id = client_id or getattr(settings, "TWITCH_CLIENT_ID", "")
-        self.client_secret = client_secret or getattr(settings, "TWITCH_CLIENT_SECRET", "")
+        super().__init__()
+        self.client_id = client_id or settings.TWITCH_CLIENT_ID
+        self.client_secret = client_secret or settings.TWITCH_CLIENT_SECRET
 
         if not self.client_id or not self.client_secret:
             msg = "TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET are required."
@@ -82,54 +104,36 @@ class IGDBClient:
         if _token_cache["access_token"] and _token_cache["expires_at"] > time.time() + 60:
             return _token_cache["access_token"]
 
-        # Request new token
         try:
-            response = requests.post(
+            data = self._request(
                 TWITCH_AUTH_URL,
+                method="POST",
                 params={
                     "client_id": self.client_id,
                     "client_secret": self.client_secret,
                     "grant_type": "client_credentials",
                 },
-                timeout=10,
             )
-            response.raise_for_status()
-            data = response.json()
-
-            _token_cache["access_token"] = data["access_token"]
-            _token_cache["expires_at"] = time.time() + data.get("expires_in", 3600)
-
         except requests.RequestException as e:
-            logger.exception("Failed to get Twitch access token")
             msg = "Failed to authenticate with Twitch"
             raise IGDBError(msg) from e
 
+        _token_cache["access_token"] = data["access_token"]
+        _token_cache["expires_at"] = time.time() + data.get("expires_in", 3600)
         return _token_cache["access_token"]
 
-    def _request(self, endpoint: str, body: str) -> list[dict]:
+    def _query(self, endpoint: str, body: str) -> list[dict]:
         """
         Make a request to the IGDB API.
 
         IGDB uses POST requests with a custom query language (Apicalypse).
         """
-        access_token = self._get_access_token()
-
         headers = {
             "Client-ID": self.client_id,
-            "Authorization": f"Bearer {access_token}",
+            "Authorization": f"Bearer {self._get_access_token()}",
             "Content-Type": "text/plain",
         }
-
-        url = f"{IGDB_BASE_URL}{endpoint}"
-
-        try:
-            response = requests.post(url, headers=headers, data=body, timeout=10)
-            response.raise_for_status()
-        except requests.RequestException:
-            logger.exception("IGDB API request failed")
-            raise
-
-        return response.json()
+        return self._request(f"{IGDB_BASE_URL}{endpoint}", method="POST", headers=headers, data=body)
 
     def search_games(self, query: str, limit: int = 10) -> list[IGDBResult]:
         """
@@ -154,114 +158,57 @@ class IGDBClient:
             limit {limit};
         """
 
-        data = self._request("games", body)
-
-        results = []
-        for item in data:
-            # Extract year from Unix timestamp
-            release_date = item.get("first_release_date")
-            year = None
-            if release_date:
-                year = datetime.datetime.fromtimestamp(release_date, tz=datetime.UTC).year
-
-            # Extract cover image ID
-            cover = item.get("cover", {})
-            cover_image_id = cover.get("image_id") if isinstance(cover, dict) else None
-
-            results.append(
-                IGDBResult(
-                    igdb_id=item.get("id"),
-                    name=item.get("name", ""),
-                    year=year,
-                    summary=item.get("summary", ""),
-                    cover_url=_get_image_url(cover_image_id, "cover_big"),
-                    cover_url_small=_get_image_url(cover_image_id, "cover_small"),
-                )
+        return [
+            IGDBResult(
+                igdb_id=item.get("id"),
+                name=item.get("name", ""),
+                year=_release_year(item),
+                summary=item.get("summary", ""),
+                cover_url=_get_image_url(_cover_image_id(item), "cover_big"),
+                cover_url_small=_get_image_url(_cover_image_id(item), "cover_small"),
             )
-
-        return results
+            for item in self._query("games", body)
+        ]
 
     def get_game_details(self, game_id: int) -> dict:
         """
         Get detailed information about a game.
 
         Returns a dict with:
-            - name, year, summary
-            - developers: list of developer names
-            - publishers: list of publisher names
+            - title, year
+            - contributors: list of developer names
             - genres: list of genre names
             - cover_url: full URL for cover image
-            - igdb_url: URL to IGDB page
+            - source_url: URL to IGDB page
+            - media_type: "game"
         """
         body = f"""
             fields name, first_release_date, summary, url,
                    cover.image_id,
-                   involved_companies.company.name, involved_companies.developer, involved_companies.publisher,
+                   involved_companies.company.name, involved_companies.developer,
                    genres.name;
             where id = {game_id};
         """
 
-        data = self._request("games", body)
+        data = self._query("games", body)
 
         if not data:
             return {}
 
         game = data[0]
-
-        if release_date := game.get("first_release_date"):
-            year = datetime.datetime.fromtimestamp(release_date, tz=datetime.UTC).year
-        else:
-            year = None
-        # Extract developers and publishers
-        developers = []
-        publishers = []
-        for company_info in game.get("involved_companies", []):
-            company = company_info.get("company", {})
-            company_name = company.get("name") if isinstance(company, dict) else None
-            if company_name:
-                if company_info.get("developer"):
-                    developers.append(company_name)
-                if company_info.get("publisher"):
-                    publishers.append(company_name)
-
-        # Extract genres
-        genres = [g.get("name") for g in game.get("genres", []) if g.get("name")]
-
-        # Extract cover
-        cover = game.get("cover", {})
-        cover_image_id = cover.get("image_id") if isinstance(cover, dict) else None
-
         return {
             "title": game.get("name", ""),
-            "year": year,
-            "overview": game.get("summary", ""),
-            "developers": developers,
-            "publishers": publishers,
-            "contributors": developers,  # Use developers as primary contributors
-            "genres": genres,
-            "cover_url": _get_image_url(cover_image_id, "cover_big"),
-            "igdb_url": game.get("url", f"https://www.igdb.com/games/{game_id}"),
+            "year": _release_year(game),
+            "contributors": [
+                name
+                for company_info in game.get("involved_companies", [])
+                if company_info.get("developer") and (name := _company_name(company_info))
+            ],
+            "genres": [g.get("name") for g in game.get("genres", []) if g.get("name")],
+            "cover_url": _get_image_url(_cover_image_id(game), "cover_big"),
+            "source_url": game.get("url", f"https://www.igdb.com/games/{game_id}"),
             "media_type": "game",
         }
-
-    def download_cover(self, cover_url: str) -> bytes | None:
-        """Download cover image and return bytes."""
-        if not cover_url:
-            return None
-
-        # Basic validation - ensure it's from IGDB
-        if not cover_url.startswith(IGDB_IMAGE_BASE_URL):
-            logger.warning("Invalid IGDB cover URL: %s", cover_url)
-            return None
-
-        try:
-            response = requests.get(cover_url, timeout=15)
-            response.raise_for_status()
-        except requests.RequestException:
-            logger.exception("Failed to download cover from %s", cover_url)
-            return None
-
-        return response.content
 
 
 def get_igdb_client() -> IGDBClient | None:
@@ -270,10 +217,7 @@ def get_igdb_client() -> IGDBClient | None:
 
     Returns None if the API credentials are not configured.
     """
-    client_id = getattr(settings, "TWITCH_CLIENT_ID", "")
-    client_secret = getattr(settings, "TWITCH_CLIENT_SECRET", "")
-
-    if not client_id or not client_secret:
+    if not settings.TWITCH_CLIENT_ID or not settings.TWITCH_CLIENT_SECRET:
         logger.warning("IGDB API credentials not configured")
         return None
 

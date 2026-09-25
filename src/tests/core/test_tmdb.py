@@ -46,4 +46,4 @@ def test_raises_error_without_api_key(settings):
 @pytest.mark.parametrize("query", ["", "a"])
 def test_search_returns_empty_for_short_query(query):
     """A query shorter than two characters searches nothing."""
-    assert TMDBClient(api_key="test-key").search_multi(query) == []
+    assert TMDBClient(api_key="test-key").search_multi(query, language="en-US") == []

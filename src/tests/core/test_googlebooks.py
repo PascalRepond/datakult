@@ -10,48 +10,10 @@ import pytest
 import requests
 from django.urls import reverse
 
-from core.services.googlebooks import (
-    GoogleBooksClient,
-    GoogleBooksResult,
-    _extract_year,
-    _resize_cover_url,
-    _strip_html,
-    get_googlebooks_client,
-)
+from core.services.googlebooks import GoogleBooksClient, GoogleBooksResult, _resize_cover_url, get_googlebooks_client
 from core.services.openlibrary import OpenLibraryResult
 
 # ---------- Pure helpers ----------
-
-
-@pytest.mark.parametrize(
-    ("raw", "expected"),
-    [
-        ("2020", 2020),
-        ("2020-05", 2020),
-        ("2020-05-12", 2020),
-        ("", None),
-        ("n/a", None),
-        ("published in 1999", None),  # only leading YYYY is matched
-    ],
-)
-def test_extract_year(raw, expected):
-    """The year of a published date is its leading four digits."""
-    assert _extract_year(raw) == expected
-
-
-def test_strip_html_removes_tags_and_decodes_entities():
-    """HTML descriptions are turned into plain text."""
-    assert _strip_html("<p>Hello <b>world</b></p>") == "Hello world"
-    assert _strip_html("Text &amp; entity") == "Text & entity"
-    assert _strip_html("") == ""
-
-
-def test_strip_html_turns_block_tags_into_newlines():
-    """Line breaks and paragraphs keep their text apart."""
-    result = _strip_html("Line1<br>Line2<p>Line3</p>")
-    assert "Line1" in result
-    assert "Line2" in result
-    assert "Line3" in result
 
 
 @pytest.mark.parametrize(
@@ -98,7 +60,6 @@ def test_result_cover_urls_none_without_thumbnail():
     r = GoogleBooksResult(volume_id="X", title="T", authors=[], year=None, thumbnail_url=None)
     assert r.cover_url is None
     assert r.cover_url_small is None
-    assert r.cover_url_large is None
 
 
 # ---------- book search view ----------
@@ -208,10 +169,10 @@ def test_get_volume_details_escapes_volume_id_in_path():
     response = MagicMock()
     response.json.return_value = {"volumeInfo": {}}
 
-    with patch.object(client.session, "get", return_value=response) as mock_get:
+    with patch.object(client.session, "request", return_value=response) as mock_request:
         client.get_volume_details("../evil/path")
 
-    called_url = mock_get.call_args[0][0]
+    called_url = mock_request.call_args.args[1]
     assert "/volumes/../evil/path" not in called_url
     assert "%2F" in called_url
 
@@ -223,10 +184,10 @@ def test_requests_carry_the_api_key(api_key, sent):
     response = MagicMock()
     response.json.return_value = {"items": []}
 
-    with patch.object(client.session, "get", return_value=response) as mock_get:
+    with patch.object(client.session, "request", return_value=response) as mock_request:
         client.search_books("dune")
 
-    assert ("key=secret" in mock_get.call_args[0][0]) is sent
+    assert (mock_request.call_args.kwargs["params"].get("key") == "secret") is sent
 
 
 def test_client_needs_an_api_key(settings):

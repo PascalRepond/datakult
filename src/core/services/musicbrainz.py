@@ -8,15 +8,11 @@ This API is free and does not require authentication.
 Rate limiting: 1 request per second with a proper User-Agent header.
 """
 
-import logging
 import re
 from dataclasses import dataclass
-from http import HTTPStatus
 from urllib.parse import quote
 
-import requests
-
-logger = logging.getLogger(__name__)
+from .base import MIN_COVER_SIZE_BYTES, MIN_QUERY_LENGTH, APIClient, extract_year
 
 MUSICBRAINZ_BASE_URL = "https://musicbrainz.org/ws/2/"
 COVERART_BASE_URL = "https://coverartarchive.org/"
@@ -24,27 +20,13 @@ COVERART_BASE_URL = "https://coverartarchive.org/"
 # User-Agent is required by MusicBrainz API
 USER_AGENT = "Datakult/1.0 (personal media tracker)"
 
-# Minimum query length for search
-MIN_QUERY_LENGTH = 2
-
 # Pattern for valid Cover Art Archive URLs
 COVERART_PATTERN = re.compile(r"^https://coverartarchive\.org/release/[a-f0-9-]+/")
-
-# Minimum size in bytes to consider a cover valid
-MIN_COVER_SIZE_BYTES = 1000
 
 
 def _extract_artists(data: dict) -> list[str]:
     """Extract artist names from artist-credit data."""
     return [ac["name"] for ac in data.get("artist-credit", []) if isinstance(ac, dict) and "name" in ac]
-
-
-def _extract_year(date_str: str) -> int | None:
-    """Extract year from a date string."""
-    if not date_str:
-        return None
-    year_match = re.match(r"(\d{4})", date_str)
-    return int(year_match[1]) if year_match else None
 
 
 def _extract_label(label_info: list) -> str | None:
@@ -64,6 +46,11 @@ def _extract_genres_and_tags(data: dict) -> list[str]:
     return genres
 
 
+def _cover_url(mbid: str, size: str) -> str | None:
+    """Return the URL of the front cover of a release, at one of the sizes of the Cover Art Archive."""
+    return f"{COVERART_BASE_URL}release/{mbid}/{size}" if mbid else None
+
+
 @dataclass
 class MusicBrainzResult:
     """Represents a search result from MusicBrainz."""
@@ -78,28 +65,23 @@ class MusicBrainzResult:
     @property
     def cover_url(self) -> str | None:
         """Returns the URL for the cover image (front, 500px)."""
-        if self.mbid:
-            return f"{COVERART_BASE_URL}release/{self.mbid}/front-500"
-        return None
+        return _cover_url(self.mbid, "front-500")
 
     @property
     def cover_url_small(self) -> str | None:
         """Returns a smaller cover URL for thumbnails (250px)."""
-        if self.mbid:
-            return f"{COVERART_BASE_URL}release/{self.mbid}/front-250"
-        return None
-
-    @property
-    def cover_url_large(self) -> str | None:
-        """Returns the full-size cover URL."""
-        return f"{COVERART_BASE_URL}release/{self.mbid}/front" if self.mbid else None
+        return _cover_url(self.mbid, "front-250")
 
 
-class MusicBrainzClient:
+class MusicBrainzClient(APIClient):
     """Client for interacting with the MusicBrainz API."""
 
+    source_name = "MusicBrainz"
+    cover_url_pattern = COVERART_PATTERN
+    min_cover_size = MIN_COVER_SIZE_BYTES
+
     def __init__(self):
-        self.session = requests.Session()
+        super().__init__()
         self.session.headers.update(
             {
                 "User-Agent": USER_AGENT,
@@ -107,21 +89,9 @@ class MusicBrainzClient:
             }
         )
 
-    def _request(self, endpoint: str, params: dict | None = None) -> dict:
+    def _get(self, endpoint: str, params: dict) -> dict:
         """Make a request to the MusicBrainz API."""
-        params = params or {}
-        params["fmt"] = "json"
-
-        url = f"{MUSICBRAINZ_BASE_URL}{endpoint}"
-
-        try:
-            response = self.session.get(url, params=params, timeout=10)
-            response.raise_for_status()
-        except requests.RequestException:
-            logger.exception("MusicBrainz API request failed")
-            raise
-
-        return response.json()
+        return self._request(f"{MUSICBRAINZ_BASE_URL}{endpoint}", params={**params, "fmt": "json"})
 
     def search_releases(self, query: str, limit: int = 10) -> list[MusicBrainzResult]:
         """
@@ -137,14 +107,14 @@ class MusicBrainzClient:
         if not query or len(query) < MIN_QUERY_LENGTH:
             return []
 
-        data = self._request("release", {"query": query, "limit": limit})
+        data = self._get("release", {"query": query, "limit": limit})
 
         return [
             MusicBrainzResult(
                 mbid=release.get("id", ""),
                 title=release.get("title", ""),
                 artists=_extract_artists(release),
-                year=_extract_year(release.get("date", "")),
+                year=extract_year(release.get("date")),
                 country=release.get("country"),
                 label=_extract_label(release.get("label-info", [])),
             )
@@ -159,88 +129,24 @@ class MusicBrainzClient:
             mbid: The MusicBrainz release ID
 
         Returns a dict with:
-            - title, year, overview
-            - artists: list of artist names
+            - title, year
+            - contributors: list of artist names
             - genres: list of genre/tag names
             - cover_url: full URL for cover image
-            - musicbrainz_url: URL to MusicBrainz page
+            - source_url: URL to MusicBrainz page
             - media_type: "music"
         """
-        data = self._request(f"release/{quote(mbid, safe='')}", {"inc": "artists+labels+tags+genres+release-groups"})
-
-        artists = _extract_artists(data)
-        year = _extract_year(data.get("date", ""))
-        genres = _extract_genres_and_tags(data)
-        label = _extract_label(data.get("label-info", []))
-
-        # Build overview/description
-        overview_parts = []
-        if label:
-            overview_parts.append(f"Label: {label}")
-        if country := data.get("country"):
-            overview_parts.append(f"Country: {country}")
-        if primary_type := data.get("release-group", {}).get("primary-type"):
-            overview_parts.append(f"Type: {primary_type}")
+        data = self._get(f"release/{quote(mbid, safe='')}", {"inc": "artists+labels+tags+genres+release-groups"})
 
         return {
             "title": data.get("title", ""),
-            "year": year,
-            "overview": " | ".join(overview_parts) if overview_parts else "",
-            "artists": artists,
-            "contributors": artists,
-            "genres": genres,
-            "cover_url": f"{COVERART_BASE_URL}release/{mbid}/front-500",
-            "musicbrainz_url": f"https://musicbrainz.org/release/{mbid}",
+            "year": extract_year(data.get("date")),
+            "contributors": _extract_artists(data),
+            "genres": _extract_genres_and_tags(data),
+            "cover_url": _cover_url(mbid, "front-500"),
+            "source_url": f"https://musicbrainz.org/release/{mbid}",
             "media_type": "music",
         }
-
-    def check_cover_exists(self, mbid: str) -> bool:
-        """
-        Check if a cover exists in the Cover Art Archive.
-
-        Args:
-            mbid: The MusicBrainz release ID
-
-        Returns:
-            True if cover exists, False otherwise
-        """
-        try:
-            response = self.session.head(
-                f"{COVERART_BASE_URL}release/{quote(mbid, safe='')}/front",
-                timeout=5,
-                allow_redirects=True,
-            )
-        except requests.RequestException:
-            return False
-        return response.status_code == HTTPStatus.OK
-
-    def download_cover(self, cover_url: str) -> bytes | None:
-        """Download cover image and return bytes."""
-        if not cover_url:
-            return None
-
-        # Basic validation - ensure it's from Cover Art Archive
-        if not COVERART_PATTERN.match(cover_url):
-            logger.warning("Invalid Cover Art Archive URL: %s", cover_url)
-            return None
-
-        try:
-            response = self.session.get(cover_url, timeout=15, allow_redirects=True)
-            # Cover Art Archive returns 404 if no cover exists
-            if response.status_code == HTTPStatus.NOT_FOUND:
-                logger.info("No cover art available for: %s", cover_url)
-                return None
-            response.raise_for_status()
-        except requests.RequestException:
-            logger.exception("Failed to download cover from %s", cover_url)
-            return None
-
-        # Check minimum size
-        if len(response.content) < MIN_COVER_SIZE_BYTES:
-            logger.warning("Cover too small (placeholder?): %s", cover_url)
-            return None
-
-        return response.content
 
 
 def get_musicbrainz_client() -> MusicBrainzClient:
