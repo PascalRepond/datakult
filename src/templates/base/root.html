@@ -6,6 +6,8 @@
   <head>
     <title>{% block title %}{% endblock title %} | Datakult</title>
     {% include "partials/common/head.html" %}
+    {# In the head, as htmx runs again the scripts of a body that a boosted request swaps #}
+    <script src="{% static 'js/base.js' %}" defer></script>
     {% block extra_css %}
     {% endblock extra_css %}
     {% block head_js %}
@@ -14,7 +16,6 @@
   <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
     {% block body %}
     {% endblock body %}
-    <script src="{% static 'js/base.js' %}"></script>
     {% block extra_js %}
     {% endblock extra_js %}
   </body>

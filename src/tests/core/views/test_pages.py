@@ -41,6 +41,15 @@ def test_page_titles_end_with_the_name_of_the_app(logged_in_client, url_name, ti
     assert " ".join(re.search(r"<title>(.*?)</title>", content, re.DOTALL)[1].split()) == f"{title} | Datakult"
 
 
+@pytest.mark.parametrize("url_name", ["home", "login"])
+def test_shared_script_is_left_out_of_the_body(logged_in_client, url_name):
+    """The script of every page is loaded once, in the head, as htmx runs again the scripts of a body it swaps."""
+    head, body = logged_in_client.get(reverse(url_name)).content.decode().split("</head>")
+
+    assert re.search(r'<script src="[^"]*js/base\.js" defer></script>', head)
+    assert "js/base.js" not in body
+
+
 def test_pages_declare_the_active_language(logged_in_client):
     """The html lang attribute follows the language of the request."""
     response = logged_in_client.get(reverse("home"), HTTP_ACCEPT_LANGUAGE="fr")
