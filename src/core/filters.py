@@ -5,23 +5,27 @@ import contextlib
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from partial_date import PartialDate
 
 from .models import Agent, Media, Tag
 
+# Sort values, with a descending sign, and how they order the list
+SORT_OPTIONS = [
+    ("-review_date", gettext_lazy("Recently rated")),
+    ("review_date", gettext_lazy("Oldest rated")),
+    ("-score", gettext_lazy("Best scores")),
+    ("score", gettext_lazy("Lowest scores")),
+]
+
+
+DEFAULT_SORT = "-review_date"
+
 
 def resolve_sorting(request):
-    """Return validated sorting info: selected field and normalized sort string (with sign)."""
-    default_field = "review_date"
-    sort = request.GET.get("sort") or request.GET.get("order_by") or f"-{default_field}"
-
-    raw_field = sort.lstrip("-")
-    valid_fields = {"created_at", "updated_at", "review_date", "score"}
-    sort_field = raw_field if raw_field in valid_fields else default_field
-
-    is_desc = sort.startswith("-")
-    normalized_sort = f"-{sort_field}" if is_desc else sort_field
-    return sort_field, normalized_sort
+    """Return the sort of the request when it is one of the sort options, else the default sort."""
+    sort = request.GET.get("sort") or request.GET.get("order_by")
+    return sort if sort in dict(SORT_OPTIONS) else DEFAULT_SORT
 
 
 def extract_filters(request):

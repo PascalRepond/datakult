@@ -3,9 +3,9 @@
 import contextlib
 
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import F, Q
 
-from .filters import apply_filters, extract_filters, get_field_choices, resolve_sorting
+from .filters import SORT_OPTIONS, apply_filters, extract_filters, get_field_choices, resolve_sorting
 from .models import Media
 
 
@@ -32,7 +32,7 @@ def build_media_context(request):
     Returns a context_dict ready for rendering.
     This consolidates the common logic used by index and load_more_media views.
     """
-    sort_field, sort = resolve_sorting(request)
+    sort = resolve_sorting(request)
     filters = extract_filters(request)
     search_query = request.GET.get("search", "").strip()
 
@@ -45,20 +45,36 @@ def build_media_context(request):
 
     # Apply filters and sorting
     queryset, contributor, tag = apply_filters(queryset, filters)
-    queryset = queryset.order_by(sort)
+    # Media without the sorted value come last, and media that tie on the sort come last updated first
+    field = F(sort.lstrip("-"))
+    order = field.desc(nulls_last=True) if sort.startswith("-") else field.asc(nulls_last=True)
+    queryset = queryset.order_by(order, "-updated_at")
 
     # Pagination: 20 items per page
     page_number = request.GET.get("page", 1)
     paginator = Paginator(queryset, 20)
     page_obj = paginator.get_page(page_number)
 
+    # One per filter badge
+    active_filter_count = (
+        len(filters["type"])
+        + len(filters["status"])
+        + len(filters["score"])
+        + bool(filters["review_from"] or filters["review_to"])
+        + bool(filters["has_review"])
+        + bool(filters["has_cover"])
+        + bool(contributor)
+        + bool(tag)
+    )
+
     return {
         "media_list": page_obj.object_list,
         "page_obj": page_obj,
         # Tells an empty library apart from filters that match nothing
         "library_is_empty": not paginator.count and not Media.objects.exists(),
-        "sort_field": sort_field,
         "sort": sort,
+        "sort_options": SORT_OPTIONS,
+        "active_filter_count": active_filter_count,
         "contributor": contributor,
         "tag": tag,
         "filters": filters,

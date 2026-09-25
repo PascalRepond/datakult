@@ -1,32 +1,24 @@
 // THEME SWITCHER
-function initThemeSwitcher() {
-    const htmlElement = document.documentElement;
-    const themeRadios = document.querySelectorAll('input[name="theme-sidebar"]');
+// Delegated, as the sidebar holding the theme radios is swapped by the filter form
+document.addEventListener('change', (event) => {
+    if (event.target.name !== 'theme-sidebar') return;
+    const theme = event.target.value;
+    if (theme === 'default') {
+        localStorage.removeItem('theme');
+        document.documentElement.removeAttribute('data-theme');
+    } else {
+        localStorage.setItem('theme', theme);
+        document.documentElement.setAttribute('data-theme', theme);
+    }
+});
 
-    const applyTheme = (theme) => {
-        if (theme === "default") {
-            localStorage.removeItem("theme");
-            htmlElement.removeAttribute("data-theme");
-        } else {
-            localStorage.setItem("theme", theme);
-            htmlElement.setAttribute("data-theme", theme);
-        }
-    };
-
-    // Activate the radio button of the current theme (applied early by the inline script in the head)
-    const currentTheme = localStorage.getItem("theme") || "default";
+// Check the radio of the current theme (applied early by the inline script in the head)
+function syncThemeRadios() {
+    const currentTheme = localStorage.getItem('theme') || 'default';
     const currentRadio = document.querySelector(`input[name="theme-sidebar"][value="${currentTheme}"]`);
     if (currentRadio) {
         currentRadio.checked = true;
     }
-
-    // Add event listener to each radio button
-    themeRadios.forEach((radio) => {
-        radio.addEventListener("change", (event) => {
-            const selectedTheme = event.target.value;
-            applyTheme(selectedTheme);
-        });
-    });
 }
 
 // CLEAN URL - Remove default/empty parameters from URL
@@ -67,34 +59,39 @@ function cleanUrlParameters() {
     }
 }
 
-// Handle badge removal - simple page reload with filter removed
-document.body.addEventListener('click', function(e) {
-    const btn = e.target.closest('.remove-filter-badge');
-    if (!btn) return;
-    e.preventDefault();
+// FILTER FORM
+// Leave empty and default parameters out of its requests, and so of the URLs they push
+document.body.addEventListener('htmx:configRequest', (event) => {
+    if (event.detail.elt.id !== 'media-filters') return;
+    const formData = event.detail.formData;
+    const kept = [...formData.entries()].filter(([key, value]) => value !== '' && DEFAULT_PARAMS[key] !== value);
+    [...new Set(formData.keys())].forEach((key) => formData.delete(key));
+    kept.forEach(([key, value]) => formData.append(key, value));
+});
 
-    const filterName = btn.dataset.filter;
-    const filterValue = btn.dataset.value;
+// Close the sort dropdown once a sort is picked, by moving the focus out of it
+document.body.addEventListener('change', (event) => {
+    if (event.target.name === 'sort') event.target.blur();
+});
 
-    // Build new URL without this filter value
-    const url = new URL(window.location);
-    const params = url.searchParams;
+// Remove a filter from its badge: clear its fields in the filter form, which then updates the list
+document.body.addEventListener('click', (event) => {
+    const btn = event.target.closest('.remove-filter-badge');
+    const form = document.getElementById('media-filters');
+    if (!btn || !form) return;
 
-    if (filterValue) {
-        // For multi-value filters (type, status, score)
-        const values = params.getAll(filterName).filter(v => v !== filterValue);
-        params.delete(filterName);
-        values.forEach(v => params.append(filterName, v));
-    } else if (filterName === 'review') {
-        // Special case for review date filter - remove both from and to
-        params.delete('review_from');
-        params.delete('review_to');
-    } else {
-        // For single-value filters
-        params.delete(filterName);
-    }
-
-    window.location.href = url.toString();
+    const { filter, value } = btn.dataset;
+    const names = filter === 'review' ? ['review_from', 'review_to'] : [filter];
+    names.forEach((name) => {
+        form.querySelectorAll(`[name="${name}"]`).forEach((field) => {
+            if (value && field.value !== value) return;
+            if (field.type === 'hidden') field.remove();
+            else if (field.type === 'checkbox') field.checked = false;
+            else if (field.type === 'radio') field.checked = field.value === '';
+            else field.value = '';
+        });
+    });
+    form.requestSubmit();
 });
 
 // FORM VALIDATION STYLING
@@ -146,50 +143,11 @@ function registerServiceWorker() {
     }
 }
 
-// MULTI-SELECT FILTER LABELS
-// Update dropdown labels to show count of selected items
-function initMultiSelectLabels() {
-    const filters = [
-        { name: 'type', labelId: 'type-filter-label' },
-        { name: 'status', labelId: 'status-filter-label' },
-        { name: 'score', labelId: 'score-filter-label' }
-    ];
-
-    filters.forEach(filter => {
-        const label = document.getElementById(filter.labelId);
-        if (!label) return;
-
-        // Find the dropdown container
-        const dropdown = label.closest('.dropdown');
-        if (!dropdown) return;
-
-        // Read localized strings from data attributes (with fallbacks)
-        const defaultText = label.dataset.defaultText || 'All';
-        const selectedText = label.dataset.selectedText || 'selected';
-
-        const checkboxes = dropdown.querySelectorAll(`input[name="${filter.name}"]`);
-
-        const updateLabel = () => {
-            const checkedCount = dropdown.querySelectorAll(`input[name="${filter.name}"]:checked`).length;
-            if (checkedCount === 0) {
-                label.textContent = defaultText;
-            } else {
-                label.textContent = `${checkedCount} ${selectedText}`;
-            }
-        };
-
-        // Add change listener to each checkbox
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateLabel);
-        });
-    });
-}
-
 // INITIALIZE ALL FEATURES ON DOM READY
 document.addEventListener('DOMContentLoaded', function() {
-    initThemeSwitcher();
+    syncThemeRadios();
     cleanUrlParameters();
     initToastMessages();
     registerServiceWorker();
-    initMultiSelectLabels();
 });
+document.body.addEventListener('htmx:afterSettle', syncThemeRadios);

@@ -1,0 +1,12 @@
+{# Toggle button of a filter value: a checkbox hidden in its label, which turns primary when checked #}
+{# Parameters: name, value, label, selected (the selected values), icon, title and extra_class (optional) #}
+<label class="btn btn-sm gap-1 has-checked:btn-primary has-focus-visible:outline-2 has-focus-visible:outline-offset-2 {{ extra_class }}"
+       {% if title %}title="{{ title }}"{% endif %}>
+  <input type="checkbox"
+         name="{{ name }}"
+         value="{{ value }}"
+         class="sr-only"
+         {% if value in selected %}checked{% endif %} />
+  {% if icon %}{% lucide icon size="14" %}{% endif %}
+  {{ label }}
+</label>

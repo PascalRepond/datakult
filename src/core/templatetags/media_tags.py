@@ -72,13 +72,23 @@ def media_icon(media_type, size="sm"):
         {% media_icon media.media_type size="md" %}
     """
 
-    icon_name = MEDIA_TYPE_ICONS.get(media_type, "circle-question-mark")
     size_class = SIZE_CLASSES.get(size, "h-4")
 
     return {
-        "icon_name": icon_name,
+        "icon_name": type_icon(media_type),
         "size_class": size_class,
     }
+
+
+@register.filter
+def type_icon(media_type):
+    """
+    Return the lucide icon of a media type.
+
+    Example usage:
+        {% lucide media.media_type|type_icon %}
+    """
+    return MEDIA_TYPE_ICONS.get(media_type, "circle-question-mark")
 
 
 @register.filter
@@ -178,26 +188,6 @@ def query_string_exclude(request, *exclude_keys):
         params.pop(key, None)
 
     return params.urlencode() if params else ""
-
-
-@register.filter
-def toggle_sort_direction(sort_value):
-    """
-    Toggle the direction of a sort parameter.
-
-    Args:
-        sort_value: Current sort value (e.g., '-review_date' or 'review_date')
-
-    Returns:
-        Sort value with inverted direction
-
-    Example usage:
-        {{ sort|toggle_sort_direction }}
-    """
-    if not sort_value:
-        return "review_date"
-
-    return sort_value[1:] if sort_value.startswith("-") else f"-{sort_value}"
 
 
 @register.simple_tag

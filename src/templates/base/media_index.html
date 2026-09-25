@@ -6,7 +6,7 @@
   {% translate "My media" %} — Datakult
 {% endblock title %}
 {% block content %}
-  <div class="my-4">
+  <div class="my-4" id="media-header">
     {% blocktranslate trimmed count counter=page_obj.paginator.count asvar count_label %}
       {{ counter }} item
     {% plural %}
@@ -15,136 +15,122 @@
     {% translate "My media" as index_label %}
     {% include "partials/common/page_header.html" with title=index_label subtitle=count_label %}
   </div>
-  <div class="flex flex-col gap-4">
-    {# Top bar with search and controls #}
+  {# Search, sort and filters form one form, which updates the list and the parts of the page depending on it #}
+  <form id="media-filters"
+        method="get"
+        action="{% url 'home' %}"
+        hx-get="{% url 'home' %}"
+        hx-trigger="submit, change[target.name && target.type !== 'search'], input changed delay:300ms from:#search-input, search from:#search-input"
+        hx-sync="this:replace"
+        hx-target="#media-list"
+        hx-select="#media-list"
+        hx-swap="outerHTML"
+        hx-select-oob="#media-header,#active-filters,#filters-count,#sort-label,#sidebar-nav"
+        hx-push-url="true">
+    {% if contributor %}<input type="hidden" name="contributor" value="{{ contributor.id }}" />{% endif %}
+    {% if tag %}<input type="hidden" name="tag" value="{{ tag.id }}" />{% endif %}
     <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">
-      {# Search bar - takes remaining space #}
-      <form method="get" action="{% url 'home' %}" class="flex-1 order-1">
-        {# Hidden fields to preserve current state #}
-        <input type="hidden" name="sort" value="{{ sort }}" />
-        <input type="hidden"
-               name="contributor"
-               value="{{ contributor.id|default:'' }}" />
-        <input type="hidden" name="tag" value="{{ tag.id|default:'' }}" />
-        {% for type_val in filters.type %}<input type="hidden" name="type" value="{{ type_val }}" />{% endfor %}
-        {% for status_val in filters.status %}<input type="hidden" name="status" value="{{ status_val }}" />{% endfor %}
-        {% for score_val in filters.score %}<input type="hidden" name="score" value="{{ score_val }}" />{% endfor %}
-        {% if filters.review_from %}<input type="hidden" name="review_from" value="{{ filters.review_from }}" />{% endif %}
-        {% if filters.review_to %}<input type="hidden" name="review_to" value="{{ filters.review_to }}" />{% endif %}
-        {% if filters.has_review %}<input type="hidden" name="has_review" value="{{ filters.has_review }}" />{% endif %}
-        {% if filters.has_cover %}<input type="hidden" name="has_cover" value="{{ filters.has_cover }}" />{% endif %}
-        <label class="input w-full flex items-center gap-2">
-          <input type="search"
-                 class="grow"
-                 placeholder="{% translate "Search" %}"
-                 name="search"
-                 value="{{ request.GET.search|default:'' }}"
-                 id="search-input" />
-          {% if request.GET.search %}
-            <a href="?{% query_string_exclude request 'search' %}"
-               class="btn btn-ghost btn-sm btn-circle"
-               title="{% translate "Clear search" %}">{% lucide "x" %}</a>
-          {% endif %}
-          <button type="submit"
-                  class="btn btn-ghost btn-sm btn-circle"
-                  aria-label="{% translate "Search" %}">{% lucide "search" size="16" %}</button>
-        </label>
-      </form>
-      {# Right controls group #}
-      <div class="flex gap-2 order-2 flex-wrap sm:flex-nowrap">
-        {# Sort selector #}
-        <div class="flex join items-center">
-          <a href="?{% query_string request sort=sort|toggle_sort_direction %}"
-             class="btn join-item btn-sm sm:btn-md"
-             aria-label="{% translate "Reverse sort order" %}"
-             title="{% translate "Reverse sort order" %}">
-            {% if sort|slice:":1" == "-" %}
-              {% lucide "arrow-down-narrow-wide" %}
-            {% else %}
-              {% lucide "arrow-up-wide-narrow" %}
-            {% endif %}
-          </a>
-          <select class="select join-item select-sm sm:select-md"
-                  id="sort-field-select"
-                  aria-label="{% translate "Sort by" %}"
-                  onchange="window.location.href = '?{% query_string_exclude request 'sort' 'sort_field' %}&sort=' + (this.value.startsWith('-') ? this.value : '{% if sort|slice:":1" == "-" %}-{% endif %}' + this.value)">
-            <option value="score" {% if sort_field == 'score' %}selected{% endif %}>{% translate "Score" %}</option>
-            <option value="review_date"
-                    {% if sort_field == 'review_date' %}selected{% endif %}>{% translate "Review date" %}</option>
-            <option value="created_at"
-                    {% if sort_field == 'created_at' %}selected{% endif %}>{% translate "Creation date" %}</option>
-            <option value="updated_at"
-                    {% if sort_field == 'updated_at' %}selected{% endif %}>{% translate "Update date" %}</option>
-          </select>
+      <label class="input w-full sm:flex-1 flex items-center gap-2">
+        {% lucide "search" size="16" class="opacity-60" %}
+        <input type="search"
+               class="grow"
+               placeholder="{% translate "Search…" %}"
+               aria-label="{% translate "Search" %}"
+               name="search"
+               value="{{ request.GET.search|default:'' }}"
+               id="search-input" />
+      </label>
+      <div class="flex gap-2">
+        {# Sort dropdown, like the year picker of the statistics: its options are radios of the form #}
+        <div class="dropdown dropdown-end flex-1 sm:flex-none">
+          <div tabindex="0" role="button" class="btn btn-sm sm:btn-md w-full sm:min-w-52 justify-between">
+            <span class="flex items-center gap-2">
+              {% lucide "arrow-down-wide-narrow" %}
+              <span class="sr-only">{% translate "Sort by" %}</span>
+              <span id="sort-label">{% for value, label in sort_options %}{% if value == sort %}{{ label }}{% endif %}{% endfor %}</span>
+            </span>
+            {% lucide "chevron-down" class="h-4 w-4 opacity-60" %}
+          </div>
+          <div tabindex="-1"
+               class="dropdown-content z-10 mt-2 w-56 p-2 bg-base-100 rounded-box shadow-xl flex flex-col gap-1">
+            {% for value, label in sort_options %}
+              <input type="radio"
+                     name="sort"
+                     value="{{ value }}"
+                     class="btn btn-sm btn-ghost justify-start"
+                     aria-label="{{ label }}"
+                     {% if value == sort %}checked{% endif %} />
+            {% endfor %}
+          </div>
         </div>
-        {# Filters button - opens drawer #}
         <label for="filters-drawer"
                class="btn btn-sm sm:btn-md"
                aria-label="{% translate "Filters" %}">
           {% lucide "funnel" %}
           <span class="hidden sm:inline">{% translate "Filters" %}</span>
+          <span id="filters-count"
+                class="badge badge-sm badge-primary{% if not active_filter_count %} hidden{% endif %}">
+            {{ active_filter_count }}
+          </span>
         </label>
       </div>
     </div>
-    {# Active filters badges #}
-    <div id="active-filters-badges" class="flex flex-wrap gap-2 items-center">
-      {% if filters.type %}
-        {% for type_val, type_label in filters.type_display %}
-          {% include "partials/filters/filter_badge.html" with label=type_label filter_name="type" filter_value=type_val icon="shapes" %}
-        {% endfor %}
+    {% include "partials/navigation/filters_drawer.html" %}
+  </form>
+  {# Active filters badges #}
+  <div id="active-filters" class="flex flex-wrap gap-2 items-center mt-4">
+    {% if filters.type %}
+      {% for type_val, type_label in filters.type_display %}
+        {% include "partials/filters/filter_badge.html" with label=type_label filter_name="type" filter_value=type_val icon=type_val|type_icon %}
+      {% endfor %}
+    {% endif %}
+    {% if filters.status %}
+      {% for status_val, status_label in filters.status_display %}
+        {% include "partials/filters/filter_badge.html" with label=status_label filter_name="status" filter_value=status_val icon=status_val|status_icon %}
+      {% endfor %}
+    {% endif %}
+    {% if filters.score %}
+      {% for score_val, score_label in filters.score_display %}
+        {% include "partials/filters/filter_badge.html" with label=score_label filter_name="score" filter_value=score_val icon="star" %}
+      {% endfor %}
+    {% endif %}
+    {% if filters.review_from or filters.review_to %}
+      {% with review_label=filters.review_from|default:"…"|add:" → "|add:filters.review_to|default:"…" %}
+        {% include "partials/filters/filter_badge.html" with label=review_label filter_name="review" icon="calendar" %}
+      {% endwith %}
+    {% endif %}
+    {% if filters.has_review %}
+      {% if filters.has_review == "empty" %}
+        {% translate "No review" as has_review_label %}
+      {% else %}
+        {% translate "Has review" as has_review_label %}
       {% endif %}
-      {% if filters.status %}
-        {% for status_val, status_label in filters.status_display %}
-          {% include "partials/filters/filter_badge.html" with label=status_label filter_name="status" filter_value=status_val icon="circle-dot" %}
-        {% endfor %}
+      {% include "partials/filters/filter_badge.html" with label=has_review_label filter_name="has_review" icon="message-square" %}
+    {% endif %}
+    {% if filters.has_cover %}
+      {% if filters.has_cover == "empty" %}
+        {% translate "No cover" as has_cover_label %}
+      {% else %}
+        {% translate "Has cover" as has_cover_label %}
       {% endif %}
-      {% if filters.score %}
-        {% for score_val, score_label in filters.score_display %}
-          {% include "partials/filters/filter_badge.html" with label=score_label filter_name="score" filter_value=score_val icon="star" %}
-        {% endfor %}
-      {% endif %}
-      {% if filters.review_from or filters.review_to %}
-        {% with review_label=filters.review_from|default:"…"|add:" → "|add:filters.review_to|default:"…" %}
-          {% include "partials/filters/filter_badge.html" with label=review_label filter_name="review" icon="calendar" %}
-        {% endwith %}
-      {% endif %}
-      {% if filters.has_review %}
-        {% if filters.has_review == "empty" %}
-          {% translate "No review" as has_review_label %}
-        {% else %}
-          {% translate "Has review" as has_review_label %}
-        {% endif %}
-        {% include "partials/filters/filter_badge.html" with label=has_review_label filter_name="has_review" icon="message-square" %}
-      {% endif %}
-      {% if filters.has_cover %}
-        {% if filters.has_cover == "empty" %}
-          {% translate "No cover" as has_cover_label %}
-        {% else %}
-          {% translate "Has cover" as has_cover_label %}
-        {% endif %}
-        {% include "partials/filters/filter_badge.html" with label=has_cover_label filter_name="has_cover" icon="image" %}
-      {% endif %}
-      {% if contributor %}
-        {% include "partials/filters/filter_badge.html" with label=contributor.name filter_name="contributor" badge_id="contributor-badge" label_id="contributor-badge-name" icon="user" %}
-      {% endif %}
-      {% if tag %}
-        {% include "partials/filters/filter_badge.html" with label=tag.name filter_name="tag" badge_id="tag-badge" label_id="tag-badge-name" icon="tag" %}
-      {% endif %}
-      {# Save view button - only shown when filters are active #}
-      {% if filters.has_any or contributor or tag %}
-        <label for="save-view-modal"
-               class="btn btn-sm btn-ghost gap-2"
-               type="button">
-          {% lucide "bookmark" %}
-          {% translate "Save view" %}
-        </label>
-      {% endif %}
-    </div>
+      {% include "partials/filters/filter_badge.html" with label=has_cover_label filter_name="has_cover" icon="image" %}
+    {% endif %}
+    {% if contributor %}
+      {% include "partials/filters/filter_badge.html" with label=contributor.name filter_name="contributor" badge_id="contributor-badge" label_id="contributor-badge-name" icon="user" %}
+    {% endif %}
+    {% if tag %}
+      {% include "partials/filters/filter_badge.html" with label=tag.name filter_name="tag" badge_id="tag-badge" label_id="tag-badge-name" icon="tag" %}
+    {% endif %}
+    {# Save view button - only shown when filters are active #}
+    {% if filters.has_any or contributor or tag %}
+      <label for="save-view-modal" class="btn btn-sm btn-ghost gap-2">
+        {% lucide "bookmark" %}
+        {% translate "Save view" %}
+      </label>
+    {% endif %}
+    {# Save view modal, here to be refreshed with the filters it saves #}
+    {% include "partials/saved_views/save_view_modal.html" %}
   </div>
-  {# Filters drawer #}
-  {% include "partials/navigation/filters_drawer.html" %}
-  {# Save view modal #}
-  {% include "partials/saved_views/save_view_modal.html" %}
   {% include "partials/media_items/media_list.html" %}
   {# Reading modal, filled with the full review of a card #}
   <dialog id="review-modal" class="modal">

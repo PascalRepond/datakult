@@ -12,7 +12,7 @@ from django.utils import translation
 from partial_date import PartialDate
 
 from core.models import Agent
-from core.templatetags.media_tags import has_filters, is_current_url, partial_date, score_color, status_icon
+from core.templatetags.media_tags import has_filters, is_current_url, partial_date, score_color, status_icon, type_icon
 
 
 @pytest.mark.parametrize(
@@ -149,3 +149,11 @@ def test_contributors_are_separated_by_commas(rf, media_factory, agent):
     html = render_to_string("partials/media_items/media_contributors.html", {"media": media, "request": rf.get("/")})
 
     assert re.search(r"</a>,\s+<a", html)
+
+
+@pytest.mark.parametrize(
+    ("media_type", "expected"), [("FILM", "film"), ("GAME", "gamepad-2"), ("UNKNOWN", "circle-question-mark")]
+)
+def test_type_icon(media_type, expected):
+    """Each media type has its icon, and an unknown one a question mark."""
+    assert type_icon(media_type) == expected

@@ -1,213 +1,66 @@
 {% load i18n %}
-{# Filters drawer - opens from the right side #}
+{% load media_tags %}
+{# Filters drawer, opening from the right. Its fields belong to the media-filters form, which applies them at once #}
 <div class="drawer drawer-end z-50">
-  <!-- Hidden checkbox to control drawer state -->
   <input id="filters-drawer" type="checkbox" class="drawer-toggle" />
-  <!-- Drawer side panel -->
   <div class="drawer-side">
-    <!-- Overlay -->
     <label for="filters-drawer"
-           aria-label="Close filters"
+           aria-label="{% translate "Close" %}"
            class="drawer-overlay"></label>
-    <!-- Filters panel content -->
-    <form method="get"
-          action="{% url 'home' %}"
-          class="bg-base-200 min-h-full w-80 p-4 flex flex-col gap-4">
-      {# Header #}
+    <div class="bg-base-200 min-h-full w-80 p-4 flex flex-col gap-5">
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-semibold">{% translate "Filters" %}</h2>
-        <label for="filters-drawer" class="btn btn-sm btn-circle btn-ghost">{% lucide "x" %}</label>
+        <label for="filters-drawer"
+               class="btn btn-sm btn-circle btn-ghost"
+               aria-label="{% translate "Close" %}">{% lucide "x" %}</label>
       </div>
-      {# Hidden fields to preserve sort, contributor, tag and search #}
-      <input type="hidden" name="sort" value="{{ sort }}" />
-      <input type="hidden"
-             name="contributor"
-             value="{{ contributor.id|default:'' }}" />
-      <input type="hidden"
-             name="tag"
-             value="{{ tag.id|default:'' }}" />
-      {% if request.GET.search %}<input type="hidden" name="search" value="{{ request.GET.search }}" />{% endif %}
-      {# Filters content #}
-      <div class="flex flex-col gap-3">
-        {# Media type filter #}
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">{% translate "Media type" %}</span>
-          </label>
-          <div class="dropdown dropdown-bottom w-full">
-            <label tabindex="0"
-                   class="select select-bordered select-sm w-full flex items-center justify-between cursor-pointer">
-              <span class="flex-1"
-                      id="type-filter-label"
-                      data-default-text="{% translate "All types" %}"
-                      data-selected-text="{% translate "selected" %}">
-                {% if filters.type %}
-                  {{ filters.type|length }} {% translate "selected" %}
-                {% else %}
-                  {% translate "All types" %}
-                {% endif %}
-              </span>
-            </label>
-            <div tabindex="0"
-                 class="dropdown-content z-10 menu p-2 shadow bg-base-100 rounded-box w-full mt-1 max-h-60 overflow-y-auto flex-nowrap">
-              {% for value, label in media_type_choices %}
-                <label class="label cursor-pointer justify-start gap-2 hover:bg-base-200 rounded px-2">
-                  <input type="checkbox"
-                         name="type"
-                         value="{{ value }}"
-                         class="checkbox checkbox-sm"
-                         {% if value in filters.type %}checked{% endif %} />
-                  <span class="label-text">{{ label }}</span>
-                </label>
-              {% endfor %}
-            </div>
-          </div>
+      <fieldset>
+        <legend class="font-medium mb-2 flex items-center gap-2">{% translate "Media type" %}</legend>
+        <div class="flex flex-wrap gap-1">
+          {% for value, label in media_type_choices %}
+            {% include "partials/filters/filter_toggle.html" with name="type" icon=value|type_icon selected=filters.type %}
+          {% endfor %}
         </div>
-        {# Status filter #}
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">{% translate "Status" %}</span>
-          </label>
-          <div class="dropdown dropdown-bottom w-full">
-            <label tabindex="0"
-                   class="select select-bordered select-sm w-full flex items-center justify-between cursor-pointer">
-              <span class="flex-1"
-                      id="status-filter-label"
-                      data-default-text="{% translate "All statuses" %}"
-                      data-selected-text="{% translate "selected" %}">
-                {% if filters.status %}
-                  {{ filters.status|length }} {% translate "selected" %}
-                {% else %}
-                  {% translate "All statuses" %}
-                {% endif %}
-              </span>
-            </label>
-            <div tabindex="0"
-                 class="dropdown-content z-10 menu p-2 shadow bg-base-100 rounded-box w-full mt-1 max-h-60 overflow-y-auto flex-nowrap">
-              {% for value, label in status_choices %}
-                <label class="label cursor-pointer justify-start gap-2 hover:bg-base-200 rounded px-2">
-                  <input type="checkbox"
-                         name="status"
-                         value="{{ value }}"
-                         class="checkbox checkbox-sm"
-                         {% if value in filters.status %}checked{% endif %} />
-                  <span class="label-text">{{ label }}</span>
-                </label>
-              {% endfor %}
-            </div>
-          </div>
+      </fieldset>
+      <fieldset>
+        <legend class="font-medium mb-2 flex items-center gap-2">{% translate "Status" %}</legend>
+        <div class="flex flex-wrap gap-1">
+          {% for value, label in status_choices %}
+            {% include "partials/filters/filter_toggle.html" with name="status" icon=value|status_icon selected=filters.status %}
+          {% endfor %}
         </div>
-        {# Score filter #}
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">{% translate "Score" %}</span>
-          </label>
-          <div class="dropdown dropdown-bottom w-full">
-            <label tabindex="0"
-                   class="select select-bordered select-sm w-full flex items-center justify-between cursor-pointer">
-              <span class="flex-1"
-                      id="score-filter-label"
-                      data-default-text="{% translate "All scores" %}"
-                      data-selected-text="{% translate "selected" %}">
-                {% if filters.score %}
-                  {{ filters.score|length }} {% translate "selected" %}
-                {% else %}
-                  {% translate "All scores" %}
-                {% endif %}
-              </span>
-            </label>
-            <div tabindex="0"
-                 class="dropdown-content z-10 menu p-2 shadow bg-base-100 rounded-box w-full mt-1 max-h-60 overflow-y-auto flex-nowrap">
-              {% for value, label in score_choices reversed %}
-                <label class="label cursor-pointer justify-start gap-2 hover:bg-base-200 rounded px-2">
-                  <input type="checkbox"
-                         name="score"
-                         value="{{ value }}"
-                         class="checkbox checkbox-sm"
-                         {% if value|stringformat:"d" in filters.score %}checked{% endif %} />
-                  <span class="label-text flex items-center gap-1">
-                    {{ value }}<span class="mask mask-star-2 bg-orange-400 w-3 h-3" aria-hidden="true"></span> - {{ label }}
-                  </span>
-                </label>
-              {% endfor %}
-              <label class="label cursor-pointer justify-start gap-2 hover:bg-base-200 rounded px-2">
-                <input type="checkbox"
-                       name="score"
-                       value="none"
-                       class="checkbox checkbox-sm"
-                       {% if "none" in filters.score %}checked{% endif %} />
-                <span class="label-text">{% translate "Not rated" %}</span>
-              </label>
-            </div>
-          </div>
+      </fieldset>
+      <fieldset>
+        <legend class="font-medium mb-2 flex items-center gap-2">{% translate "Score" %}</legend>
+        <div class="grid grid-cols-5 gap-1">
+          {% for value, label in score_choices %}
+            {% include "partials/filters/filter_toggle.html" with name="score" value=value|stringformat:"d" label=value title=label selected=filters.score %}
+          {% endfor %}
+          {% translate "Not rated" as not_rated_label %}
+          {% include "partials/filters/filter_toggle.html" with name="score" value="none" label=not_rated_label selected=filters.score extra_class="col-span-5" %}
         </div>
-        {# Review date range filter #}
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">{% translate "Review date" %}</span>
-          </label>
-          <div class="flex flex-col gap-2">
-            <input type="date"
-                   name="review_from"
-                   id="review-from"
-                   class="input input-bordered input-sm"
-                   placeholder="{% translate "From" %}"
-                   value="{{ filters.review_from }}" />
-            <input type="date"
-                   name="review_to"
-                   id="review-to"
-                   class="input input-bordered input-sm"
-                   placeholder="{% translate "To" %}"
-                   value="{{ filters.review_to }}" />
-          </div>
-        </div>
-        {# Has review filter #}
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">{% translate "Review" %}</span>
-          </label>
-          <select name="has_review"
-                  id="has-review"
-                  class="select select-bordered select-sm">
-            <option value="">{% translate "All" %}</option>
-            <option value="filled"
-                    {% if filters.has_review == 'filled' %}selected{% endif %}>{% translate "Has review" %}</option>
-            <option value="empty"
-                    {% if filters.has_review == 'empty' %}selected{% endif %}>{% translate "No review" %}</option>
-          </select>
-        </div>
-        {# Has cover filter #}
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text font-medium">{% translate "Cover" %}</span>
-          </label>
-          <select name="has_cover"
-                  id="has-cover"
-                  class="select select-bordered select-sm">
-            <option value="">{% translate "All" %}</option>
-            <option value="filled"
-                    {% if filters.has_cover == 'filled' %}selected{% endif %}>{% translate "Has cover" %}</option>
-            <option value="empty"
-                    {% if filters.has_cover == 'empty' %}selected{% endif %}>{% translate "No cover" %}</option>
-          </select>
-        </div>
-      </div>
-      {# Divider #}
-      <div class="divider"></div>
-      {# Actions #}
-      <div class="flex flex-col gap-2">
-        {# Apply filters button #}
-        <button type="submit" class="btn btn-primary btn-sm">
-          {% lucide "funnel" %}
-          {% translate "Apply" %}
-        </button>
-        {# Clear all filters button #}
-        <a href="{% url 'home' %}?sort={{ sort }}"
-           class="btn btn-sm btn-outline">
-          {% lucide "funnel-x" %}
-          {% translate "Clear filters" %}
-        </a>
-      </div>
-    </form>
+      </fieldset>
+      <fieldset class="flex flex-col gap-2">
+        <legend class="font-medium mb-2 flex items-center gap-2">{% translate "Review date" %}</legend>
+        <label class="input input-sm w-full">
+          <span class="label">{% translate "From" %}</span>
+          <input type="date" name="review_from" value="{{ filters.review_from }}" />
+        </label>
+        <label class="input input-sm w-full">
+          <span class="label">{% translate "To" %}</span>
+          <input type="date" name="review_to" value="{{ filters.review_to }}" />
+        </label>
+      </fieldset>
+      {% translate "Review" as review_legend %}
+      {% include "partials/filters/presence_filter.html" with name="has_review" legend=review_legend icon="message-square" value=filters.has_review %}
+      {% translate "Cover" as cover_legend %}
+      {% include "partials/filters/presence_filter.html" with name="has_cover" legend=cover_legend icon="image" value=filters.has_cover %}
+      <div class="divider my-0"></div>
+      <a href="{% url 'home' %}?sort={{ sort }}"
+         class="btn btn-sm btn-outline">
+        {% lucide "funnel-x" %}
+        {% translate "Clear filters" %}
+      </a>
+    </div>
   </div>
 </div>

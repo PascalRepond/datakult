@@ -14,6 +14,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import escape
+from freezegun import freeze_time
 
 from core.models import Agent, Media, SavedView, Tag
 from core.utils import create_backup
@@ -300,7 +301,6 @@ def test_default_sorting(logged_in_client):
     """Default sorting is by review_date descending."""
     response = logged_in_client.get(reverse("home"))
 
-    assert response.context["sort_field"] == "review_date"
     assert response.context["sort"] == "-review_date"
 
 
@@ -308,39 +308,50 @@ def test_custom_sorting(logged_in_client):
     """Custom sorting is applied."""
     response = logged_in_client.get(reverse("home"), {"sort": "score"})
 
-    assert response.context["sort_field"] == "score"
     assert response.context["sort"] == "score"
 
 
-def test_descending_sorting(logged_in_client):
-    """Descending sorting is applied."""
-    response = logged_in_client.get(reverse("home"), {"sort": "-review_date"})
+@pytest.mark.parametrize("sort", ["invalid_field", "-updated_at", "created_at"])
+def test_sort_outside_the_options_uses_default(logged_in_client, sort):
+    """A sort that is not one of the sort options, such as a removed one, falls back to the default sort."""
+    response = logged_in_client.get(reverse("home"), {"sort": sort})
 
-    assert response.context["sort_field"] == "review_date"
     assert response.context["sort"] == "-review_date"
 
 
-def test_invalid_sort_field_uses_default(logged_in_client):
-    """Invalid sort field falls back to default."""
-    response = logged_in_client.get(reverse("home"), {"sort": "invalid_field"})
+@pytest.mark.parametrize(
+    ("sort", "expected"),
+    [
+        ("-score", ["Great", "Poor", "Undated and unrated"]),
+        ("score", ["Poor", "Great", "Undated and unrated"]),
+        ("-review_date", ["Great", "Poor", "Undated and unrated"]),
+        ("review_date", ["Poor", "Great", "Undated and unrated"]),
+    ],
+)
+def test_media_without_the_sorted_value_come_last(logged_in_client, media_factory, sort, expected):
+    """Unrated or undated media come after the others, whatever the direction of the sort."""
+    media_factory(title="Undated and unrated")
+    media_factory(title="Poor", score=3, review_date="2020")
+    media_factory(title="Great", score=9, review_date="2024-05")
 
-    assert response.context["sort_field"] == "review_date"
+    response = logged_in_client.get(reverse("home"), {"sort": sort})
+
+    assert [media.title for media in response.context["media_list"]] == expected
 
 
-def test_sorting_by_updated_at(logged_in_client):
-    """Sorting by updated_at field works correctly."""
-    response = logged_in_client.get(reverse("home"), {"sort": "updated_at"})
+def test_media_without_sorted_value_are_sorted_by_last_update(logged_in_client, media_factory):
+    """Media that tie on the sort, such as unreviewed ones, come last updated first."""
+    with freeze_time("2026-01-01"):
+        older = media_factory(title="Older")
+    with freeze_time("2026-02-01"):
+        newer = media_factory(title="Newer")
 
-    assert response.context["sort_field"] == "updated_at"
-    assert response.context["sort"] == "updated_at"
+    response = logged_in_client.get(reverse("home"))
 
-
-def test_sorting_by_updated_at_descending(logged_in_client):
-    """Descending sorting by updated_at field works correctly."""
-    response = logged_in_client.get(reverse("home"), {"sort": "-updated_at"})
-
-    assert response.context["sort_field"] == "updated_at"
-    assert response.context["sort"] == "-updated_at"
+    assert list(response.context["media_list"]) == [newer, older]
+    with freeze_time("2026-03-01"):
+        older.save()
+    assert list(logged_in_client.get(reverse("home")).context["media_list"]) == [older, newer]
 
 
 def test_filter_by_type(logged_in_client, media_factory):
@@ -983,11 +994,12 @@ def test_saved_view_rejects_invalid_score(logged_in_client, user, db):
     assert not SavedView.objects.filter(user=user, name="Invalid Score View").exists()
 
 
-def test_saved_view_rejects_invalid_sort_field(logged_in_client, user, db):
-    """Saved view validation rejects invalid sort fields."""
+@pytest.mark.parametrize("sort", ["invalid_field", "-updated_at"])
+def test_saved_view_rejects_invalid_sort_field(logged_in_client, user, db, sort):
+    """Saved view validation rejects sorts that are not one of the sort options."""
     data = {
         "view_name": "Invalid Sort View",
-        "sort": "invalid_field",
+        "sort": sort,
     }
     logged_in_client.post(reverse("saved_view_save"), data)
 
@@ -1435,3 +1447,68 @@ def test_index_always_shows_the_grid(logged_in_client, media):
 
     assert 'id="media-container"' in content
     assert "<table" not in content
+
+
+def _filter_form(content):
+    """Return the HTML of the media filter form of a page."""
+    start = content.index('<form id="media-filters"')
+    return content[start : content.index("</form>", start)]
+
+
+def test_sort_options_are_explicit_and_valid(logged_in_client):
+    """The sort is chosen in one list of explicit options, each of which sorts the list as it says."""
+    response = logged_in_client.get(reverse("home"), {"sort": "-score"})
+
+    content = response.content.decode()
+    assert re.search(r'name="sort"\s+value="-score"[^>]*\schecked', content)
+    assert re.search(r'id="sort-label"[^>]*>\s*Best scores\s*<', content)
+    for value, _label in response.context["sort_options"]:
+        assert logged_in_client.get(reverse("home"), {"sort": value}).context["sort"] == value
+
+
+def test_filter_form_holds_search_sort_and_filters(logged_in_client, agent):
+    """Search, sort and filters belong to one form, so that none of them is lost when another changes."""
+    form = _filter_form(logged_in_client.get(reverse("home"), {"contributor": agent.pk}).content.decode())
+
+    for name in ["search", "sort", "type", "status", "score", "review_from", "has_review", "has_cover", "contributor"]:
+        assert f'name="{name}"' in form
+
+
+def test_filter_form_updates_the_page_in_place(logged_in_client):
+    """The filter form updates the list and the parts of the page that depend on the filters, and the URL."""
+    content = logged_in_client.get(reverse("home")).content.decode()
+    form = _filter_form(content)
+
+    assert 'hx-push-url="true"' in form
+    target = re.search(r'hx-target="#([\w-]+)"', form).group(1)
+    oob_ids = re.search(r'hx-select-oob="([^"]+)"', form).group(1).replace("#", "").split(",")
+    for element_id in [target, *oob_ids]:
+        assert f'id="{element_id}"' in content
+
+
+def test_filter_toggles_show_the_selected_values(logged_in_client):
+    """Selected filter values are shown as checked toggles."""
+    content = logged_in_client.get(
+        reverse("home"), {"type": "FILM", "status": "PAUSED", "score": "6", "has_review": "filled"}
+    ).content.decode()
+
+    for name, value in [("type", "FILM"), ("status", "PAUSED"), ("score", "6"), ("has_review", "filled")]:
+        assert re.search(rf'name="{name}"\s+value="{value}"[^>]*\schecked', content)
+    assert not re.search(r'name="type"\s+value="BOOK"[^>]*\schecked', content)
+
+
+def test_filters_button_counts_the_active_filters(logged_in_client, agent):
+    """The filters button shows how many filters are active, one per filter badge."""
+    params = {"type": ["BOOK", "FILM"], "status": "PLANNED", "has_cover": "filled", "contributor": agent.pk}
+
+    response = logged_in_client.get(reverse("home"), params)
+
+    assert response.context["active_filter_count"] == 5
+    assert re.search(r'id="filters-count"[^>]*>\s*5\s*<', response.content.decode())
+
+
+def test_invalid_contributor_is_not_counted_as_a_filter(logged_in_client, db):
+    """A contributor that does not exist filters nothing, and is not counted."""
+    response = logged_in_client.get(reverse("home"), {"contributor": "99999"})
+
+    assert response.context["active_filter_count"] == 0

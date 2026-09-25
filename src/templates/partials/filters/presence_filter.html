@@ -1,0 +1,29 @@
+{% load i18n %}
+{# Three-way filter on whether a field is filled: all, with or without #}
+{# Parameters: name (the filter parameter), legend, icon, value (the current value: "", "filled" or "empty") #}
+<fieldset>
+  <legend class="font-medium mb-2 flex items-center gap-2">
+    {% lucide icon size="16" class="opacity-60" %}
+    {{ legend }}
+  </legend>
+  <div class="join w-full">
+    <input type="radio"
+           name="{{ name }}"
+           value=""
+           class="join-item btn btn-sm flex-1"
+           aria-label="{% translate "All" %}"
+           {% if not value %}checked{% endif %} />
+    <input type="radio"
+           name="{{ name }}"
+           value="filled"
+           class="join-item btn btn-sm flex-1"
+           aria-label="{% translate "With" %}"
+           {% if value == "filled" %}checked{% endif %} />
+    <input type="radio"
+           name="{{ name }}"
+           value="empty"
+           class="join-item btn btn-sm flex-1"
+           aria-label="{% translate "Without" %}"
+           {% if value == "empty" %}checked{% endif %} />
+  </div>
+</fieldset>

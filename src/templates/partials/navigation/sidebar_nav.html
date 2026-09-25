@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load static %}
 {% load media_tags %}
-<ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+<ul id="sidebar-nav" class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
   <!-- Logo -->
   <li class="menu-title">
     <a href="{% url 'home' %}"
@@ -41,7 +41,7 @@
   </li>
   <li>
     {% status_filter_matches request 'PLANNED' as planned_active %}
-    <a href="{% url 'home' %}?status=PLANNED&sort=-updated_at"
+    <a href="{% url 'home' %}?status=PLANNED"
        class="{% if planned_active %}menu-active{% endif %}">
       {% lucide "clock" %}
       {% translate "Planned" %}
@@ -49,7 +49,7 @@
   </li>
   <li>
     {% status_filter_matches request 'IN_PROGRESS' as in_progress_active %}
-    <a href="{% url 'home' %}?status=IN_PROGRESS&sort=-updated_at"
+    <a href="{% url 'home' %}?status=IN_PROGRESS"
        class="{% if in_progress_active %}menu-active{% endif %}">
       {% lucide "play" %}
       {% translate "In progress" %}
@@ -57,7 +57,7 @@
   </li>
   <li>
     {% status_filter_matches request 'PAUSED' as paused_active %}
-    <a href="{% url 'home' %}?status=PAUSED&sort=-updated_at"
+    <a href="{% url 'home' %}?status=PAUSED"
        class="{% if paused_active %}menu-active{% endif %}">
       {% lucide "pause" %}
       {% translate "Paused" %}

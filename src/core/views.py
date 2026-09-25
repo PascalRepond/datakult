@@ -24,6 +24,7 @@ from django.utils.translation import gettext as _
 from partial_date import PartialDate
 
 from . import stats as media_stats
+from .filters import DEFAULT_SORT, SORT_OPTIONS
 from .forms import MediaForm
 from .models import Agent, Media, SavedView, Tag
 from .queries import build_media_context
@@ -784,10 +785,9 @@ def validate_saved_view_data(post_data):  # noqa: C901, PLR0912
     if invalid_scores:
         errors.append(_("Invalid scores: %(scores)s") % {"scores": ", ".join(invalid_scores)})
 
-    # Validate sort field against whitelist
-    sort = post_data.get("sort", "-review_date").lstrip("-")
-    valid_sorts = {"created_at", "updated_at", "review_date", "score"}
-    if sort not in valid_sorts:
+    # Validate sort against the sort options
+    sort = post_data.get("sort", DEFAULT_SORT)
+    if sort not in dict(SORT_OPTIONS):
         errors.append(_("Invalid sort field: %(sort)s") % {"sort": sort})
 
     # Validate contributor and tag (if present)
