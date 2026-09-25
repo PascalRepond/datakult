@@ -184,6 +184,10 @@ addopts = [
     "--tb=short",
     "--strict-markers",
 ]
+filterwarnings = [
+    # WhiteNoise serves the collected static files, which the tests neither need nor collect
+    "ignore:No directory at:UserWarning",
+]
 
 [tool.coverage.run]
 source = ["src"]

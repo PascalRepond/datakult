@@ -57,7 +57,7 @@ COPY scripts/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Compile translation messages
-RUN uv run ./src/manage.py compilemessages
+RUN uv run ./src/manage.py compilemessages --ignore=.venv
 
 # Collect static files with production settings
 # Set DEBUG=false to use CompressedManifestStaticFilesStorage during collectstatic
