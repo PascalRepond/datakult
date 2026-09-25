@@ -147,12 +147,14 @@
       <div id="form-actions"
            class="sticky bottom-4 z-20 mt-6 p-3 flex items-center gap-2 rounded-box border border-base-300 bg-base-100/90 backdrop-blur-sm shadow-lg">
         {% if media %}
-          <label for="confirm-delete-modal"
-                 class="btn btn-ghost btn-sm text-error"
-                 aria-label="{% translate "Delete" %}">
+          <button type="button"
+                  commandfor="confirm-delete-modal"
+                  command="show-modal"
+                  class="btn btn-ghost btn-sm text-error"
+                  aria-label="{% translate "Delete" %}">
             {% lucide "trash-2" size="16" %}
             <span class="hidden sm:inline">{% translate "Delete" %}</span>
-          </label>
+          </button>
         {% endif %}
         <div class="ml-auto flex gap-2">
           <a href="{{ cancel_url }}" class="btn btn-ghost">{% translate "Cancel" %}</a>

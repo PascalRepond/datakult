@@ -473,7 +473,7 @@ def test_edit_form_actions_lead_back_to_where_it_came_from(logged_in_client, med
     bar = content[content.index('id="form-actions"') :]
     assert re.search(rf'href="{back}"[^>]*>\s*Cancel', bar)
     assert 'type="submit"' in bar
-    assert ('for="confirm-delete-modal"' in bar) is editing
+    assert ('commandfor="confirm-delete-modal"' in bar) is editing
 
 
 def test_today_button_is_not_inside_a_label(logged_in_client, media):

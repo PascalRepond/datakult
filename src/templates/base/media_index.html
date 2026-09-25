@@ -125,10 +125,13 @@
     {% endif %}
     {# Save view button - only shown when filters are active #}
     {% if filters.has_any or contributor or tag %}
-      <label for="save-view-modal" class="btn btn-sm btn-ghost gap-2">
+      <button type="button"
+              commandfor="save-view-modal"
+              command="show-modal"
+              class="btn btn-sm btn-ghost gap-2">
         {% lucide "bookmark" %}
         {% translate "Save view" %}
-      </label>
+      </button>
     {% endif %}
     {# Save view modal, here to be refreshed with the filters it saves #}
     {% include "partials/saved_views/save_view_modal.html" %}

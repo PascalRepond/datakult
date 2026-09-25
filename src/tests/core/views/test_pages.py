@@ -6,6 +6,7 @@ import re
 from html import unescape
 
 import pytest
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import escape
 from freezegun import freeze_time
@@ -37,7 +38,7 @@ def test_page_titles_end_with_the_name_of_the_app(logged_in_client, url_name, ti
     """The title of a page names the page, then the app."""
     content = logged_in_client.get(reverse(url_name)).content.decode()
 
-    assert " ".join(re.search(r"<title>(.*?)</title>", content, re.DOTALL).group(1).split()) == f"{title} | Datakult"
+    assert " ".join(re.search(r"<title>(.*?)</title>", content, re.DOTALL)[1].split()) == f"{title} | Datakult"
 
 
 def test_pages_declare_the_active_language(logged_in_client):
@@ -52,7 +53,7 @@ def _back_url(response):
     match = re.search(
         r'<a href="([^"]*)"\s+class="btn btn-ghost btn-sm btn-circle shrink-0"', response.content.decode()
     )
-    return match and match.group(1)
+    return match and match[1]
 
 
 def test_back_links_lead_to_the_parent_page(logged_in_client, media):
@@ -133,7 +134,7 @@ def test_closed_dropdown_menus_leave_the_page(logged_in_client, url_name):
 
     menus = [classes.split() for classes in re.findall(r'class="(dropdown-content[^"]*)"', content)]
     assert menus
-    assert [classes for classes in menus if DISPLAY_UTILITIES & set(classes)] == []
+    assert not [classes for classes in menus if DISPLAY_UTILITIES & set(classes)]
 
 
 @freeze_time("2026-09-25")
@@ -142,3 +143,30 @@ def test_sidebar_stats_link_opens_the_current_year(logged_in_client):
     content = logged_in_client.get(reverse("home")).content.decode()
 
     assert f'<a href="{reverse("stats")}?year=2026"' in content
+
+
+@pytest.mark.parametrize(
+    ("url", "modal_id"),
+    [
+        (lambda media: reverse("media_edit", args=[media.pk]), "confirm-delete-modal"),
+        (lambda media: reverse("home") + "?type=BOOK", "save-view-modal"),
+    ],
+    ids=["delete media", "save view"],
+)
+def test_modals_are_dialogs_opened_by_their_button(logged_in_client, media, url, modal_id):
+    """A modal is a dialog, which a button of the page opens."""
+    content = logged_in_client.get(url(media)).content.decode()
+
+    assert re.search(rf'<dialog id="{modal_id}"\s+class="modal"', content)
+    assert re.search(rf'<button type="button"\s+commandfor="{modal_id}"\s+command="show-modal"', content)
+
+
+def test_confirm_modal_submits_the_form_it_confirms():
+    """The confirmation dialog submits the form it confirms, and closes by its cancel button or its backdrop."""
+    html = render_to_string(
+        "partials/common/confirm_modal.html", {"modal_id": "confirm", "form_id": "delete", "title": "", "message": ""}
+    )
+
+    assert re.search(r'<button type="submit"\s+form="delete"', html)
+    assert len(re.findall(r'commandfor="confirm"\s+command="close"', html)) == 2
+    assert "<form" not in html

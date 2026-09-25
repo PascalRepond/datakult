@@ -1,9 +1,8 @@
 {% load i18n %}
-<input type="checkbox" id="save-view-modal" class="modal-toggle" />
-<div class="modal"
-     role="dialog"
-     aria-modal="true"
-     aria-labelledby="save-view-modal-title">
+{# Dialog saving the current view, opened by a button with commandfor="save-view-modal" command="show-modal" #}
+<dialog id="save-view-modal"
+        class="modal"
+        aria-labelledby="save-view-modal-title">
   <div class="modal-box">
     <h3 id="save-view-modal-title" class="text-lg font-bold">{% translate "Save current view" %}</h3>
     <form method="post" action="{% url 'saved_view_save' %}" class="py-4">
@@ -29,9 +28,12 @@
       {% endfor %}
       <div class="modal-action">
         <button type="submit" class="btn btn-primary">{% translate "Save" %}</button>
-        <label for="save-view-modal" class="btn">{% translate "Cancel" %}</label>
+        <button type="button" class="btn" commandfor="save-view-modal" command="close">{% translate "Cancel" %}</button>
       </div>
     </form>
   </div>
-  <label class="modal-backdrop" for="save-view-modal">{% translate "Close" %}</label>
-</div>
+  <button type="button"
+          class="modal-backdrop"
+          commandfor="save-view-modal"
+          command="close">{% translate "Close" %}</button>
+</dialog>

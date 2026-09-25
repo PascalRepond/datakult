@@ -4,7 +4,7 @@ document.addEventListener('click', (event) => {
   if (!button) return;
 
   if (button.form.checkValidity()) {
-    document.getElementById(button.dataset.modal).checked = true;
+    document.getElementById(button.dataset.modal).showModal();
   } else {
     button.form.reportValidity();
   }
