@@ -2,6 +2,101 @@
 
 <!-- version list -->
 
+## v1.10.1 (2026-09-25)
+
+### Bug Fixes
+
+- Run base.js once and quiet the tooling
+  ([`4607b6b`](https://github.com/PascalRepond/datakult/commit/4607b6b82a3b044397736756bdbadb640a7c1d31))
+
+- **backup**: Report a backup with an invalid dump
+  ([`12cd5ee`](https://github.com/PascalRepond/datakult/commit/12cd5eeea7588cfa4aa655d40f60b751fdaaa6fc))
+
+- **backup**: Stop losing data and leaving files
+  ([`4ef0231`](https://github.com/PascalRepond/datakult/commit/4ef02310548e9d641115bb286c60a579ce141f38))
+
+- **i18n**: Translate the texts left in English
+  ([`4557a2f`](https://github.com/PascalRepond/datakult/commit/4557a2f29430c93dff981caa7e81ba410a9fcfd5))
+
+- **import**: Report API failures safely and once
+  ([`00a436a`](https://github.com/PascalRepond/datakult/commit/00a436aeb089e14dda922be84f2c2462a334f6b5))
+
+- **models**: Reject images of too many pixels
+  ([`4faa72b`](https://github.com/PascalRepond/datakult/commit/4faa72b9853afa885c74504ef766ff4328bed58f))
+
+- **ui**: Confirm view deletions in a dialog
+  ([`8696695`](https://github.com/PascalRepond/datakult/commit/869669560512d87b0369a899dbe6b89d7ea33df4))
+
+- **ui**: Dismiss the toasts of boosted pages
+  ([`2762e29`](https://github.com/PascalRepond/datakult/commit/2762e2969d3527d063239d9666e0ef92c25668c9))
+
+- **ui**: Keep closed dropdown menus off the page
+  ([`f9d48f4`](https://github.com/PascalRepond/datakult/commit/f9d48f44dee2288c92573c0e8ee2d2863107def1))
+
+- **ui**: Repair the cover field, date and URLs
+  ([`602b6e6`](https://github.com/PascalRepond/datakult/commit/602b6e6965da16631e56ad9403689a6f0b6883d1))
+
+- **ui**: Search as typed or pasted after 300 ms
+  ([`290ffd7`](https://github.com/PascalRepond/datakult/commit/290ffd7d23df2a1402fe9cd91965a48736e5af68))
+
+- **views**: Pick suggested chips by POST only
+  ([`1b8804b`](https://github.com/PascalRepond/datakult/commit/1b8804bd1b029765b90ec36ea9acbcfcc8d072bf))
+
+### Chores
+
+- Update dependencies
+  ([`b7f4192`](https://github.com/PascalRepond/datakult/commit/b7f41925ee8d70bc3c087312ca0cdeed0dcac3d9))
+
+### Code Style
+
+- Replace em-dash by `|` in titles
+  ([`2dbeeda`](https://github.com/PascalRepond/datakult/commit/2dbeeda77b13bed581e2c3c922ed1da78a4be0f0))
+
+### Continuous Integration
+
+- Compile the translations before the tests
+  ([`0b2d772`](https://github.com/PascalRepond/datakult/commit/0b2d772bb37bf22ac00b0dc6e65c69dd4ea2f4fc))
+
+### Performance Improvements
+
+- Disable image lazy loading
+  ([`e6a7a65`](https://github.com/PascalRepond/datakult/commit/e6a7a65deaab8f04613c523c30e06284aa7c136b))
+
+### Refactoring
+
+- **forms**: Share the live field validation
+  ([`a2e3e2f`](https://github.com/PascalRepond/datakult/commit/a2e3e2f9633ca91f1ff13458c1490d0db2576b11))
+
+- **models**: Name choices and share fields
+  ([`cb251c1`](https://github.com/PascalRepond/datakult/commit/cb251c1b0bb2279b190bc60ac1e0dcfbc2eb997d))
+
+- **services**: Share a client between APIs
+  ([`5afa13b`](https://github.com/PascalRepond/datakult/commit/5afa13bdc7f86770e64746557489ec2c6695d49c))
+
+- **ui**: Apply the theme by data-theme only
+  ([`8324dcc`](https://github.com/PascalRepond/datakult/commit/8324dccb5aecf45bdd88d0da2e4136b948cff1e7))
+
+- **ui**: Open the modals as dialogs
+  ([`23cd372`](https://github.com/PascalRepond/datakult/commit/23cd3722e0773af3c6dc6c864b7f55d29899aeca))
+
+- **ui**: Share markup repeated by templates
+  ([`bb6c853`](https://github.com/PascalRepond/datakult/commit/bb6c8531b13e9751013a0ccfbf29b2cbb9f2f9b5))
+
+- **views**: Split views into domain modules
+  ([`dc82ab6`](https://github.com/PascalRepond/datakult/commit/dc82ab6c9c188e85b79d3c0bd99bcac740e8d231))
+
+### Testing
+
+- Expect the new separator of page titles
+  ([`195aa99`](https://github.com/PascalRepond/datakult/commit/195aa995681541cd5a6396e9485ffc7ecd2bfe82))
+
+- Isolate media files and speed up the suite
+  ([`aa3a465`](https://github.com/PascalRepond/datakult/commit/aa3a46587416e520fc68d76aa232732f756fe51d))
+
+- Prune redundant tests and share fixtures
+  ([`e6d3d2a`](https://github.com/PascalRepond/datakult/commit/e6d3d2a3c1b37b6f8b568f9d3840a67ed4949921))
+
+
 ## v1.10.0 (2026-09-25)
 
 ### Bug Fixes
