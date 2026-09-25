@@ -445,15 +445,19 @@ def test_media_review_modal_of_missing_media_returns_404(logged_in_client, db):
     assert response.status_code == 404
 
 
-def test_media_card_opens_its_review_in_the_modal(logged_in_client, media_factory):
-    """A card shows a plain text excerpt of the review, which opens the full review in the modal."""
-    media = media_factory(review="**Bold text** and more.")
+def test_media_card_offers_to_read_more_of_a_long_review(logged_in_client, media_factory):
+    """A card shows a plain text excerpt of the review, cut when long and then opening the whole review in the modal."""
+    long_review = media_factory(review="**Bold text** " + "word " * 40)
+    short_review = media_factory(review="Short and cosy.")
 
     content = logged_in_client.get(reverse("home")).content.decode()
 
-    assert f'hx-get="{reverse("media_review_htmx", args=[media.pk])}"' in content
-    assert "Bold text and more." in content
+    assert f'hx-get="{reverse("media_review_htmx", args=[long_review.pk])}"' in content
+    assert f'hx-get="{reverse("media_review_htmx", args=[short_review.pk])}"' not in content
+    assert "Bold text word" in content
+    assert "word " * 20 not in content
     assert "<strong>Bold text</strong>" not in content
+    assert "Short and cosy." in content
 
 
 def test_empty_library_invites_to_add_a_first_media(logged_in_client, db):

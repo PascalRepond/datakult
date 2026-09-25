@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 22:11+0200\n"
+"POT-Creation-Date: 2026-09-25 10:45+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -829,9 +829,9 @@ msgstr "Aucun résultat, appuyez sur Entrée pour ajouter"
 msgid "Cover of"
 msgstr "Couverture de"
 
-#: src/templates/partials/media_items/media_item.html:35
-msgid "Read the review"
-msgstr "Lire la critique"
+#: src/templates/partials/media_items/media_item.html:41
+msgid "Read more"
+msgstr "Lire la suite"
 
 #: src/templates/partials/media_items/media_list.html:9
 msgid "Your library is empty."
@@ -1002,11 +1002,11 @@ msgstr "Série"
 msgid "Password"
 msgstr "Mot de passe"
 
+#~ msgid "Read the review"
+#~ msgstr "Lire la critique"
+
 #~ msgid "No media found."
 #~ msgstr "Aucun média trouvé."
-
-#~ msgid "See more"
-#~ msgstr "Voir plus"
 
 #~ msgid "See less"
 #~ msgstr "Voir moins"

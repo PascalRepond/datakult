@@ -29,15 +29,21 @@
       </div>
       {% include "partials/media_items/score/media_score_ring.html" with score=media.score label=media.get_score_display %}
       {% if media.review %}
-        {# Plain text excerpt of the review, opening the whole review in the reading modal of the list #}
-        <button type="button"
-                class="text-sm text-left line-clamp-4 border-l-2 border-base-content/20 hover:border-primary pl-2 cursor-pointer transition-colors"
-                title="{% translate "Read the review" %}"
-                hx-get="{% url 'media_review_htmx' media.pk %}"
-                hx-target="#review-modal-content"
-                hx-on::after-request="if (event.detail.successful) document.getElementById('review-modal').showModal()">
-          {{ media.review_rendered|striptags|truncatewords:60|safe }}
-        </button>
+        {% with excerpt=media.review_rendered|striptags %}
+          {# A long excerpt is cut to about four lines of the narrowest card, and opens the whole review in the modal #}
+          {% if excerpt|wordcount > 20 %}
+            <button type="button"
+                    class="group text-sm text-left cursor-pointer"
+                    hx-get="{% url 'media_review_htmx' media.pk %}"
+                    hx-target="#review-modal-content"
+                    hx-on::after-request="if (event.detail.successful) document.getElementById('review-modal').showModal()">
+              {{ excerpt|truncatewords:20|safe }}
+              <span class="link link-primary link-hover group-hover:underline font-medium whitespace-nowrap">{% translate "Read more" %}</span>
+            </button>
+          {% else %}
+            <p class="text-sm">{{ excerpt|safe }}</p>
+          {% endif %}
+        {% endwith %}
       {% endif %}
       {# Pushed to the bottom, so that dates line up across a row #}
       {% if media.review_date %}<div class="mt-auto text-xs text-right opacity-60">{{ media.review_date|partial_date }}</div>{% endif %}
