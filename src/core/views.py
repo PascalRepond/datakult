@@ -7,7 +7,6 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import MAXYEAR, MINYEAR
 from pathlib import Path
 
-import requests
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError as DjangoValidationError
@@ -30,7 +29,7 @@ from .forms import MediaForm
 from .import_results import from_googlebooks, from_igdb, from_musicbrainz, from_openlibrary, from_tmdb
 from .models import Agent, Media, MediaType, SavedView, Score, Status, Tag
 from .queries import build_media_context
-from .services.base import MIN_QUERY_LENGTH
+from .services.base import MIN_QUERY_LENGTH, APIError
 from .services.googlebooks import get_googlebooks_client
 from .services.igdb import get_igdb_client
 from .services.musicbrainz import get_musicbrainz_client
@@ -391,8 +390,7 @@ def _fetch_tmdb_data(tmdb_id: str, media_type: str, language: str = DEFAULT_TMDB
 
     try:
         details = client.get_full_details(int(tmdb_id), media_type, language=language)
-    except requests.RequestException, ValueError:
-        logger.exception("Failed to fetch TMDB data for %s/%s", media_type, tmdb_id)
+    except APIError, ValueError:
         return None
 
     return details
@@ -406,8 +404,7 @@ def _fetch_igdb_data(igdb_id: str) -> dict | None:
 
     try:
         details = client.get_game_details(int(igdb_id))
-    except requests.RequestException, ValueError:
-        logger.exception("Failed to fetch IGDB data for game %s", igdb_id)
+    except APIError, ValueError:
         return None
 
     return details
@@ -419,8 +416,7 @@ def _fetch_openlibrary_data(work_key: str, year: int | None = None) -> dict | No
 
     try:
         details = client.get_work_details(work_key, first_publish_year=year)
-    except requests.RequestException:
-        logger.exception("Failed to fetch OpenLibrary data for work %s", work_key)
+    except APIError:
         return None
 
     return details
@@ -434,8 +430,7 @@ def _fetch_googlebooks_data(volume_id: str) -> dict | None:
 
     try:
         details = client.get_volume_details(volume_id)
-    except requests.RequestException:
-        logger.exception("Failed to fetch Google Books data for volume %s", volume_id)
+    except APIError:
         return None
 
     return details
@@ -447,8 +442,7 @@ def _fetch_musicbrainz_data(mbid: str) -> dict | None:
 
     try:
         details = client.get_release_details(mbid)
-    except requests.RequestException:
-        logger.exception("Failed to fetch MusicBrainz data for release %s", mbid)
+    except APIError:
         return None
 
     return details
@@ -575,8 +569,7 @@ def tmdb_search_htmx(request):
             from_tmdb(result, media_id, lang)
             for result in client.search_multi(query, language=lang)[:MAX_SEARCH_RESULTS]
         ]
-    except requests.RequestException:
-        logger.exception("TMDB search failed")
+    except APIError:
         return render(
             request,
             IMPORT_RESULTS_TEMPLATE,
@@ -608,8 +601,7 @@ def igdb_search_htmx(request):
 
     try:
         results = [from_igdb(result, media_id) for result in client.search_games(query, limit=MAX_SEARCH_RESULTS)]
-    except requests.RequestException:
-        logger.exception("IGDB search failed")
+    except APIError:
         return render(
             request,
             IMPORT_RESULTS_TEMPLATE,
@@ -619,7 +611,7 @@ def igdb_search_htmx(request):
     return render(request, IMPORT_RESULTS_TEMPLATE, {**base_context, "results": results})
 
 
-def _search_books_source(search_fn, query: str, limit: int, source_name: str) -> tuple[list, bool]:
+def _search_books_source(search_fn, query: str, limit: int) -> tuple[list, bool]:
     """
     Run a book search. Returns (results, ok).
 
@@ -627,8 +619,7 @@ def _search_books_source(search_fn, query: str, limit: int, source_name: str) ->
     """
     try:
         return search_fn(query, limit=limit), True
-    except requests.RequestException:
-        logger.exception("%s search failed", source_name)
+    except APIError:
         return [], False
 
 
@@ -654,12 +645,10 @@ def book_search_htmx(request):
     googlebooks = get_googlebooks_client()
 
     with ThreadPoolExecutor(max_workers=2) as executor:
-        ol_future = executor.submit(
-            _search_books_source, openlibrary.search_books, query, MAX_SEARCH_RESULTS, "OpenLibrary"
-        )
+        ol_future = executor.submit(_search_books_source, openlibrary.search_books, query, MAX_SEARCH_RESULTS)
         # Without an API key, Google Books is not searched at all
         gb_future = googlebooks and executor.submit(
-            _search_books_source, googlebooks.search_books, query, MAX_SEARCH_RESULTS, "Google Books"
+            _search_books_source, googlebooks.search_books, query, MAX_SEARCH_RESULTS
         )
         ol_results, ol_ok = ol_future.result()
         gb_results, gb_ok = gb_future.result() if gb_future else ([], False)
@@ -701,8 +690,7 @@ def musicbrainz_search_htmx(request):
         results = [
             from_musicbrainz(result, media_id) for result in client.search_releases(query, limit=MAX_SEARCH_RESULTS)
         ]
-    except requests.RequestException:
-        logger.exception("MusicBrainz search failed")
+    except APIError:
         return render(
             request,
             IMPORT_RESULTS_TEMPLATE,

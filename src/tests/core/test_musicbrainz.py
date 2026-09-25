@@ -7,9 +7,9 @@ These tests verify the application behavior, not the external API.
 from unittest.mock import MagicMock
 
 import pytest
-import requests
 from django.urls import reverse
 
+from core.services.base import APIError
 from core.services.musicbrainz import MusicBrainzResult
 
 
@@ -45,7 +45,7 @@ def test_returns_search_results(logged_in_client, musicbrainz_client):
 
 def test_handles_api_error_gracefully(logged_in_client, musicbrainz_client):
     """Handles API errors gracefully and shows error message."""
-    musicbrainz_client.search_releases.side_effect = requests.RequestException("API Error")
+    musicbrainz_client.search_releases.side_effect = APIError("API Error")
 
     response = _search_music(logged_in_client, q="test query")
 

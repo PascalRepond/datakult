@@ -3,6 +3,7 @@
 import logging
 import re
 from http import HTTPStatus
+from urllib.parse import urlsplit
 
 import requests
 
@@ -37,15 +38,17 @@ class APIClient:
         self.session = requests.Session()
 
     def _request(self, url: str, method: str = "GET", **kwargs):
-        """Send a request to the API of the source, and return its JSON response."""
+        """Send a request to the API of the source, and return its JSON response, or raise an APIError."""
         try:
             response = self.session.request(method, url, timeout=API_TIMEOUT, **kwargs)
             response.raise_for_status()
-        except requests.RequestException:
-            logger.exception("%s API request failed", self.source_name)
-            raise
-
-        return response.json()
+            return response.json()
+        except requests.RequestException as error:
+            # The error would pass on the full URL, and so the API key its query may hold: only its path is told
+            reason = error.response.status_code if error.response is not None else type(error).__name__
+            message = f"{self.source_name} request to {urlsplit(url).path} failed: {reason}"
+            logger.warning(message)
+            raise APIError(message) from None
 
     def download_cover(self, cover_url: str) -> bytes | None:
         """Download a cover from the source, and return its bytes, or None when there is none."""
