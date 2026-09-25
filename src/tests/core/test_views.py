@@ -1493,13 +1493,23 @@ def test_add_media_is_reachable_from_every_page(logged_in_client, media):
 
 def test_sidebar_marks_the_current_saved_view(logged_in_client, user):
     """The saved view matching the current list is highlighted in the sidebar."""
-    view = SavedView.objects.create(user=user, name="Games", filter_types=["GAME"])
+    view = SavedView.objects.create(user=user, name="Games and books", filter_types=["GAME", "BOOK"])
     SavedView.objects.create(user=user, name="Books", filter_types=["BOOK"])
 
     content = logged_in_client.get(view.get_filter_url()).content.decode()
 
     assert re.search(rf'<a href="{re.escape(escape(view.get_filter_url()))}"\s+class="[^"]*menu-active', content)
     assert content.count("menu-active") == 1
+
+
+def test_sidebar_marks_the_current_media_type(logged_in_client):
+    """Each media type has its shortcut in the sidebar, highlighted when the list is filtered on it alone."""
+    content = logged_in_client.get(reverse("home"), {"type": "FILM"}).content.decode()
+
+    shortcuts = re.findall(r'<a href="/\?type=(\w+)"\s+class="([^"]*)"', content)
+    assert shortcuts == [
+        (value, "menu-active" if value == "FILM" else "") for value, _ in Media.media_type.field.choices
+    ]
 
 
 def test_index_always_shows_the_grid(logged_in_client, media):

@@ -14,6 +14,7 @@ from partial_date import PartialDate
 from core.models import Agent
 from core.templatetags.media_tags import (
     domain,
+    filter_matches,
     has_filters,
     is_current_url,
     partial_date,
@@ -37,6 +38,21 @@ from core.templatetags.media_tags import (
 def test_has_filters(rf, query, expected):
     """has_filters is true only when a filter parameter has a value."""
     assert has_filters(rf.get(f"/{query}")) is expected
+
+
+@pytest.mark.parametrize(
+    ("query", "param", "values", "expected"),
+    [
+        ("?type=FILM", "type", ["FILM"], True),
+        ("?type=FILM&status=PLANNED", "type", ["FILM"], True),
+        ("?type=FILM&type=BOOK", "type", ["FILM"], False),
+        ("?status=FILM", "type", ["FILM"], False),
+        ("?status=DNF&status=COMPLETED", "status", ["COMPLETED", "DNF"], True),
+    ],
+)
+def test_filter_matches(rf, query, param, values, expected):
+    """A filter matches when its parameter holds exactly the expected values, whatever the other filters."""
+    assert filter_matches(rf.get(f"/{query}"), param, *values) is expected
 
 
 @pytest.mark.parametrize(

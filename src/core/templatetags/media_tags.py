@@ -5,6 +5,8 @@ from urllib.parse import parse_qsl, urlsplit
 from django import template
 from django.utils import formats
 
+from core.models import Media
+
 register = template.Library()
 
 
@@ -240,23 +242,25 @@ def is_current_url(request, url):
 
 
 @register.simple_tag
-def status_filter_matches(request, *expected_statuses):
+def filter_matches(request, param, *expected_values):
     """
-    Check if the status filter exactly matches the expected statuses.
-
-    Args:
-        request: The current request object
-        *expected_statuses: One or more status values to check for
-
-    Returns:
-        True if status filter exactly matches expected values, False otherwise
+    Check if a filter parameter holds exactly the expected values.
 
     Example usage:
-        {% status_filter_matches request 'COMPLETED' 'DNF' as is_active %}
+        {% filter_matches request 'status' 'COMPLETED' 'DNF' as is_active %}
         {% if is_active %}...{% endif %}
     """
     if not hasattr(request, "GET"):
         return False
-    current_statuses = set(request.GET.getlist("status"))
-    expected_set = set(expected_statuses)
-    return current_statuses == expected_set
+    return set(request.GET.getlist(param)) == set(expected_values)
+
+
+@register.simple_tag
+def media_types():
+    """
+    Return the media types, as (value, label) pairs.
+
+    Example usage:
+        {% media_types as types %}
+    """
+    return Media.media_type.field.choices

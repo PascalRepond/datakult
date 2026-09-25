@@ -183,7 +183,7 @@ class Media(models.Model):
             "FILM": _("Film"),
             "TV": _("TV series"),
             "PERF": _("Show/performance"),
-            "BROADCAST": _("Broadcast (podcast, web series, etc.)"),
+            "BROADCAST": _("Broadcast"),
         },
     )
     external_uri = models.URLField(

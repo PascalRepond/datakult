@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 12:45+0200\n"
+"POT-Creation-Date: 2026-09-25 18:27+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -62,7 +62,7 @@ msgstr "AAAA"
 msgid "YYYY, YYYY-MM, or YYYY-MM-DD"
 msgstr "AAAA, AAAA-MM ou AAAA-MM-JJ"
 
-#: src/core/import_results.py:38 src/core/models.py:169
+#: src/core/import_results.py:38 src/core/models.py:183
 msgid "Film"
 msgstr "Film"
 
@@ -70,7 +70,7 @@ msgstr "Film"
 msgid "TV"
 msgstr "Série"
 
-#: src/core/import_results.py:52 src/core/models.py:166
+#: src/core/import_results.py:52 src/core/models.py:180
 msgid "Video game"
 msgstr "Jeu vidéo"
 
@@ -78,88 +78,88 @@ msgstr "Jeu vidéo"
 msgid "Album"
 msgstr "Album"
 
-#: src/core/models.py:44
+#: src/core/models.py:45
 #, python-format
 msgid "Image file size exceeds %(max_size)sMB limit."
 msgstr "La taille du fichier image dépasse la limite de %(max_size)sMo."
 
-#: src/core/models.py:60
+#: src/core/models.py:61
 #, python-format
 msgid "Unsupported image format: %(format)s. Allowed: %(allowed)s"
 msgstr "Format d'image non pris en charge : %(format)s. Autorisé : %(allowed)s"
 
-#: src/core/models.py:86
+#: src/core/models.py:87
 msgid "Image is too large (possible decompression bomb attack)."
 msgstr "Image trop grande (attaque par bombe de décompression possible)."
 
-#: src/core/models.py:88
+#: src/core/models.py:89
 msgid "Invalid or corrupted image file."
 msgstr "Fichier image invalide ou corrompu."
 
-#: src/core/models.py:103 src/core/models.py:123
+#: src/core/models.py:117 src/core/models.py:137
 #: src/templates/partials/saved_views/save_view_modal.html:13
 msgid "Name"
 msgstr "Nom"
 
-#: src/core/models.py:110
+#: src/core/models.py:124
 msgid "Agent"
 msgstr "Agent"
 
-#: src/core/models.py:111
+#: src/core/models.py:125
 msgid "Agents"
 msgstr "Agents"
 
-#: src/core/models.py:130
+#: src/core/models.py:144
 msgid "Tag"
 msgstr "Mot-clé"
 
-#: src/core/models.py:131 src/core/models.py:156
+#: src/core/models.py:145 src/core/models.py:170
 #: src/templates/base/media_edit.html:150
 msgid "Tags"
 msgstr "Mots-clés"
 
-#: src/core/models.py:143 src/templates/base/media_edit.html:55
+#: src/core/models.py:157 src/templates/base/media_edit.html:55
 msgid "Title"
 msgstr "Titre"
 
-#: src/core/models.py:150
+#: src/core/models.py:164
 msgid "Contributor"
 msgstr "Contributeur"
 
-#: src/core/models.py:161 src/templates/base/media_edit.html:64
+#: src/core/models.py:175 src/templates/base/media_edit.html:64
 #: src/templates/partials/navigation/filters_drawer.html:18
 msgid "Media type"
 msgstr "Type de média"
 
-#: src/core/models.py:165
+#: src/core/models.py:179
 msgid "Book"
 msgstr "Livre"
 
-#: src/core/models.py:167 src/core/views.py:49
+#: src/core/models.py:181 src/core/views.py:49
 msgid "Music"
 msgstr "Musique"
 
-#: src/core/models.py:168
+#: src/core/models.py:182
 msgid "Comic"
 msgstr "BD"
 
-#: src/core/models.py:170
+#: src/core/models.py:184
 msgid "TV series"
 msgstr "Série TV"
 
-#: src/core/models.py:171
+#: src/core/models.py:185
 msgid "Show/performance"
 msgstr "Spectacle/Performance"
 
-#: src/core/models.py:172
-msgid "Broadcast (podcast, web series, etc.)"
-msgstr "Diffusion (podcast, série web, etc.)"
+#: src/core/models.py:186
+msgid "Broadcast"
+msgstr "Émission"
 
-#: src/core/models.py:176 src/templates/base/media_edit.html:191
+#: src/core/models.py:190 src/templates/base/media_edit.html:191
 msgid "External URI"
 msgstr "URI externe"
 
-#: src/core/models.py:181
+#: src/core/models.py:195
 msgid ""
 "Link to an external page about this media (e.g., official site, IMDb, "
 "Goodreads, etc.)"
@@ -167,108 +167,108 @@ msgstr ""
 "Lien vers une page externe à propos de ce média (par exemple, site officiel, "
 "IMDb, Goodreads, etc.)"
 
-#: src/core/models.py:184 src/templates/base/media_edit.html:220
+#: src/core/models.py:198 src/templates/base/media_edit.html:220
 #: src/templates/partials/navigation/filters_drawer.html:26
 msgid "Status"
 msgstr "Statut"
 
-#: src/core/models.py:188 src/templates/partials/navigation/sidebar_nav.html:47
+#: src/core/models.py:202 src/templates/partials/navigation/sidebar_nav.html:45
 msgid "Planned"
 msgstr "Prévu"
 
-#: src/core/models.py:189 src/templates/partials/navigation/sidebar_nav.html:55
+#: src/core/models.py:203 src/templates/partials/navigation/sidebar_nav.html:53
 msgid "In progress"
 msgstr "En cours"
 
-#: src/core/models.py:190 src/templates/partials/navigation/sidebar_nav.html:71
+#: src/core/models.py:204 src/templates/partials/navigation/sidebar_nav.html:69
 msgid "Completed"
 msgstr "Terminé"
 
-#: src/core/models.py:191 src/templates/partials/navigation/sidebar_nav.html:63
+#: src/core/models.py:205 src/templates/partials/navigation/sidebar_nav.html:61
 msgid "Paused"
 msgstr "En pause"
 
-#: src/core/models.py:192
+#: src/core/models.py:206
 msgid "Did not finish"
 msgstr "Pas fini"
 
-#: src/core/models.py:197 src/templates/base/media_edit.html:182
+#: src/core/models.py:211 src/templates/base/media_edit.html:182
 msgid "Release year"
 msgstr "Année de sortie"
 
-#: src/core/models.py:201 src/core/models.py:202
+#: src/core/models.py:215 src/core/models.py:216
 msgid "Year must be between -4000 and 2200."
 msgstr "L'année doit être comprise entre -4000 et 2200."
 
-#: src/core/models.py:206 src/templates/base/media_edit.html:255
+#: src/core/models.py:220 src/templates/base/media_edit.html:255
 #: src/templates/partials/navigation/filters_drawer.html:54
 msgid "Review"
 msgstr "Critique"
 
-#: src/core/models.py:217
+#: src/core/models.py:231
 msgid "Review score"
 msgstr "Note de critique"
 
-#: src/core/models.py:221
+#: src/core/models.py:235
 msgid "Detested"
 msgstr "Haï"
 
-#: src/core/models.py:222
+#: src/core/models.py:236
 msgid "Hated"
 msgstr "Détesté"
 
-#: src/core/models.py:223
+#: src/core/models.py:237
 msgid "Disliked"
 msgstr "Pas aimé"
 
-#: src/core/models.py:224
+#: src/core/models.py:238
 msgid "Not appreciated"
 msgstr "Pas vraiment aimé"
 
-#: src/core/models.py:225
+#: src/core/models.py:239
 msgid "Moderately appreciated"
 msgstr "Moyennement apprécié"
 
-#: src/core/models.py:226
+#: src/core/models.py:240
 msgid "Appreciated"
 msgstr "Apprécié"
 
-#: src/core/models.py:227
+#: src/core/models.py:241
 msgid "Enjoyed"
 msgstr "Aimé"
 
-#: src/core/models.py:228
+#: src/core/models.py:242
 msgid "Really enjoyed"
 msgstr "Beaucoup aimé"
 
-#: src/core/models.py:229
+#: src/core/models.py:243
 msgid "Loved"
 msgstr "Adoré"
 
-#: src/core/models.py:230
+#: src/core/models.py:244
 msgid "Adored"
 msgstr "Coup de cœur"
 
-#: src/core/models.py:234 src/templates/base/media_edit.html:230
+#: src/core/models.py:248 src/templates/base/media_edit.html:230
 #: src/templates/partials/navigation/filters_drawer.html:44
 msgid "Review date"
 msgstr "Date de critique"
 
-#: src/core/models.py:237
+#: src/core/models.py:251
 msgid "Either a full date or just year and month, or only year."
 msgstr ""
 "Soit une date complète, soit seulement l'année et le mois, ou uniquement "
 "l'année."
 
-#: src/core/models.py:240 src/templates/base/media_edit.html:84
+#: src/core/models.py:254 src/templates/base/media_edit.html:84
 msgid "Cover image"
 msgstr "Image de couverture"
 
-#: src/core/models.py:294
+#: src/core/models.py:313
 msgid "Saved view"
 msgstr "Vue enregistrée"
 
-#: src/core/models.py:295
+#: src/core/models.py:314
 #: src/templates/partials/saved_views/saved_views_list.html:6
 msgid "Saved views"
 msgstr "Vues enregistrées"
@@ -313,132 +313,136 @@ msgstr "Jeux vidéo"
 msgid "Books"
 msgstr "Livres"
 
-#: src/core/views.py:508
+#: src/core/views.py:511
 #, python-format
 msgid "'%(title)s' deleted successfully"
 msgstr "'%(title)s' supprimé avec succès"
 
-#: src/core/views.py:689
+#: src/core/views.py:692
 msgid ""
 "Google Books is not searched, as it needs an API key: set "
 "GOOGLE_BOOKS_API_KEY."
-msgstr "Google Books n'est pas interrogé, faute de clé d'API : définissez GOOGLE_BOOKS_API_KEY."
+msgstr ""
+"Google Books n'est pas interrogé, faute de clé d'API : définissez "
+"GOOGLE_BOOKS_API_KEY."
 
-#: src/core/views.py:691
+#: src/core/views.py:694
 #, python-format
 msgid ""
 "%(source)s could not be searched: the results only come from the other "
 "source."
-msgstr "%(source)s n'a pas pu être interrogé : les résultats ne viennent que de l'autre source."
+msgstr ""
+"%(source)s n'a pas pu être interrogé : les résultats ne viennent que de "
+"l'autre source."
 
-#: src/core/views.py:765
+#: src/core/views.py:768
 #, python-format
 msgid "Backup creation failed: %(error)s"
 msgstr "Échec de la création du backup : %(error)s"
 
-#: src/core/views.py:776
+#: src/core/views.py:779
 msgid "No file selected"
 msgstr "Aucun fichier sélectionné"
 
-#: src/core/views.py:780
+#: src/core/views.py:783
 msgid "Invalid file format. Use a .tar.gz file"
 msgstr "Format de fichier invalide. Utilisez un fichier .tar.gz"
 
-#: src/core/views.py:795
+#: src/core/views.py:798
 msgid "Backup imported successfully! All data has been restored."
 msgstr "Backup importé avec succès ! Toutes les données ont été restaurées."
 
-#: src/core/views.py:804
+#: src/core/views.py:807
 #, python-format
 msgid "Backup import failed: %(error)s"
 msgstr "Échec de l'importation du backup : %(error)s"
 
-#: src/core/views.py:832
+#: src/core/views.py:835
 #, python-format
 msgid "Invalid media types: %(types)s"
 msgstr "Types de médias invalides : %(types)s"
 
-#: src/core/views.py:838
+#: src/core/views.py:841
 #, python-format
 msgid "Invalid statuses: %(statuses)s"
 msgstr "Statuts invalides : %(statuses)s"
 
-#: src/core/views.py:844
+#: src/core/views.py:847
 #, python-format
 msgid "Invalid scores: %(scores)s"
 msgstr "Scores invalides : %(scores)s"
 
-#: src/core/views.py:849
+#: src/core/views.py:852
 #, python-format
 msgid "Invalid sort field: %(sort)s"
 msgstr "Champ de tri invalide : %(sort)s"
 
-#: src/core/views.py:853
+#: src/core/views.py:856
 #, python-format
 msgid "Contributor does not exist: ID %(id)s"
 msgstr "Le contributeur n'existe pas : ID %(id)s"
 
-#: src/core/views.py:853
+#: src/core/views.py:856
 #, python-format
 msgid "Invalid contributor ID format: %(id)s"
 msgstr "Format d'ID de contributeur invalide : %(id)s"
 
-#: src/core/views.py:854
+#: src/core/views.py:857
 #, python-format
 msgid "Tag does not exist: ID %(id)s"
 msgstr "Le tag n'existe pas : ID %(id)s"
 
-#: src/core/views.py:854
+#: src/core/views.py:857
 #, python-format
 msgid "Invalid tag ID format: %(id)s"
 msgstr "Format d'ID de tag invalide : %(id)s"
 
-#: src/core/views.py:866
+#: src/core/views.py:869
 msgid "Start date"
 msgstr "Date de début"
 
-#: src/core/views.py:866
+#: src/core/views.py:869
 msgid "End date"
 msgstr "Date de fin"
 
-#: src/core/views.py:872
+#: src/core/views.py:875
 #, python-format
 msgid "Invalid %(label)s: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:875
+#: src/core/views.py:878
 msgid "Review filter"
 msgstr "Filtre de critique"
 
-#: src/core/views.py:875
+#: src/core/views.py:878
 msgid "Cover filter"
 msgstr "Filtre de couverture"
 
-#: src/core/views.py:878
+#: src/core/views.py:881
 #, python-format
 msgid "Invalid %(label)s value: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:892
+#: src/core/views.py:895
 msgid "View name is required"
 msgstr "Nom de la vue requis"
 
-#: src/core/views.py:923
+#: src/core/views.py:926
 #, python-format
 msgid "View '%(name)s' has been updated"
 msgstr "Vue '%(name)s' a été mise à jour"
 
-#: src/core/views.py:928
+#: src/core/views.py:931
 #, python-format
 msgid "View '%(name)s' saved successfully"
 msgstr "Vue '%(name)s' a été enregistrée avec succès"
 
-#: src/core/views.py:944
+#: src/core/views.py:947
 #, python-format
 msgid "View '%(name)s' deleted successfully"
 msgstr "Vue '%(name)s' supprimée avec succès"
 
-#: src/core/views.py:946
+#: src/core/views.py:949
 msgid "View not found"
 msgstr "Vue non trouvée"
 
@@ -592,7 +596,7 @@ msgstr "Oui, importer la sauvegarde"
 #: src/templates/base/base.html:67 src/templates/base/media_edit.html:8
 #: src/templates/base/media_edit.html:35 src/templates/base/media_import.html:7
 #: src/templates/base/media_import.html:22
-#: src/templates/partials/navigation/sidebar_nav.html:19
+#: src/templates/partials/navigation/sidebar_nav.html:18
 msgid "Add media"
 msgstr "Ajouter un média"
 
@@ -763,7 +767,7 @@ msgid "Close"
 msgstr "Fermer"
 
 #: src/templates/base/stats.html:7 src/templates/base/stats.html:17
-#: src/templates/partials/navigation/sidebar_nav.html:35
+#: src/templates/partials/navigation/sidebar_nav.html:34
 msgid "Statistics"
 msgstr "Statistiques"
 
@@ -826,7 +830,7 @@ msgid "No result, press Enter to add"
 msgstr "Aucun résultat, appuyez sur Entrée pour ajouter"
 
 #: src/templates/partials/filters/presence_filter.html:14
-#: src/templates/partials/navigation/sidebar_nav.html:28
+#: src/templates/partials/navigation/sidebar_nav.html:27
 msgid "All"
 msgstr "Tout"
 
@@ -842,7 +846,7 @@ msgstr "Sans"
 msgid "No results found"
 msgstr "Aucun résultat trouvé"
 
-#: src/templates/partials/media_items/cover_image.html:11
+#: src/templates/partials/media_items/cover_image.html:7
 msgid "Cover of"
 msgstr "Couverture de"
 
@@ -893,46 +897,50 @@ msgstr "À"
 msgid "Cover"
 msgstr "Couverture"
 
-#: src/templates/partials/navigation/sidebar_nav.html:40
+#: src/templates/partials/navigation/sidebar_nav.html:38
 msgid "By status"
 msgstr "Par statut"
 
-#: src/templates/partials/navigation/sidebar_nav.html:78
+#: src/templates/partials/navigation/sidebar_nav.html:73
+msgid "By type"
+msgstr "Par type"
+
+#: src/templates/partials/navigation/sidebar_nav.html:90
 msgid "Settings"
 msgstr "Paramètres"
 
-#: src/templates/partials/navigation/sidebar_nav.html:85
+#: src/templates/partials/navigation/sidebar_nav.html:97
 msgid "Profile"
 msgstr "Profil"
 
-#: src/templates/partials/navigation/sidebar_nav.html:92
+#: src/templates/partials/navigation/sidebar_nav.html:104
 msgid "Backups"
 msgstr "Sauvegardes"
 
-#: src/templates/partials/navigation/sidebar_nav.html:100
+#: src/templates/partials/navigation/sidebar_nav.html:112
 msgid "Theme"
 msgstr "Thème"
 
-#: src/templates/partials/navigation/sidebar_nav.html:109
-#: src/templates/partials/navigation/sidebar_nav.html:111
+#: src/templates/partials/navigation/sidebar_nav.html:121
+#: src/templates/partials/navigation/sidebar_nav.html:123
 msgid "System"
 msgstr "Système"
 
-#: src/templates/partials/navigation/sidebar_nav.html:119
-#: src/templates/partials/navigation/sidebar_nav.html:121
+#: src/templates/partials/navigation/sidebar_nav.html:131
+#: src/templates/partials/navigation/sidebar_nav.html:133
 msgid "Light"
 msgstr "Clair"
 
-#: src/templates/partials/navigation/sidebar_nav.html:129
-#: src/templates/partials/navigation/sidebar_nav.html:131
+#: src/templates/partials/navigation/sidebar_nav.html:141
+#: src/templates/partials/navigation/sidebar_nav.html:143
 msgid "Dark"
 msgstr "Sombre"
 
-#: src/templates/partials/navigation/sidebar_nav.html:145
+#: src/templates/partials/navigation/sidebar_nav.html:157
 msgid "Logout"
 msgstr "Déconnexion"
 
-#: src/templates/partials/navigation/sidebar_nav.html:151
+#: src/templates/partials/navigation/sidebar_nav.html:163
 #: src/templates/registration/login.html:5
 #: src/templates/registration/login.html:18
 #: src/templates/registration/login.html:45
@@ -976,6 +984,9 @@ msgstr "Année suivante"
 #: src/templates/registration/login.html:37
 msgid "Password"
 msgstr "Mot de passe"
+
+#~ msgid "Broadcast (podcast, web series, etc.)"
+#~ msgstr "Diffusion (podcast, série web, etc.)"
 
 #~ msgid "Backup creation failed. Please try again."
 #~ msgstr "Échec de la création de la sauvegarde. Veuillez réessayer."
@@ -1021,9 +1032,6 @@ msgstr "Mot de passe"
 
 #~ msgid "Update date"
 #~ msgstr "Date de modification"
-
-#~ msgid "All types"
-#~ msgstr "Tous les types"
 
 #~ msgid "selected"
 #~ msgstr "sélectionné"
