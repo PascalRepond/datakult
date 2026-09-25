@@ -10,6 +10,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_noop
 from markdownfield.models import MarkdownField, RenderedMarkdownField
 from markdownfield.validators import VALIDATOR_STANDARD
 from partial_date import PartialDateField
@@ -18,6 +19,9 @@ from PIL import Image, ImageOps
 # Security limits for image processing, on top of the decompression bomb limit of PIL
 MAX_FILE_SIZE_MB = 10  # Maximum file size in megabytes
 ALLOWED_IMAGE_TYPES = {"JPEG", "PNG", "GIF", "BMP", "WEBP"}
+
+# Error of django-partial-date, which ships no translation: listed for makemessages to extract it with the app strings
+gettext_noop("'%(value)s' is not a valid date string (YYYY, YYYY-MM, YYYY-MM-DD)")
 
 
 def compress_image(image, max_size=(800, 800), quality=85):

@@ -3,7 +3,7 @@
 {% load static %}
 {% block title %}
   {% if media %}
-    {% translate "Edit" %} {{ media.title }}
+    {% blocktranslate with title=media.title %}Edit {{ title }}{% endblocktranslate %}
   {% else %}
     {% translate "Add media" %}
   {% endif %}
@@ -28,9 +28,9 @@
       <div class="flex justify-between items-center gap-4 mb-6">
         {# No back link: the Cancel button of the action bar leads back #}
         {% if media %}
-          {% translate "Edit" as edit_label %}
+          {% blocktranslate asvar edit_label with title=media.title %}Edit {{ title }}{% endblocktranslate %}
           {% url 'media_detail' media.pk as cancel_url %}
-          {% include "partials/common/page_header.html" with title=edit_label|add:" "|add:media.title %}
+          {% include "partials/common/page_header.html" with title=edit_label %}
         {% else %}
           {% translate "Add media" as add_label %}
           {% url 'home' as cancel_url %}
@@ -163,12 +163,12 @@
         </div>
       </div>
     </form>
-    {# Chips added by typing a new name are cloned from these templates by media_edit.js #}
+    {# Chips added by typing a new name are cloned from these templates by media_edit.js, which fills in the {name} #}
     <template id="new-contributor-chip">
-      {% include "partials/common/chip.html" with icon="user" input_name="new_contributors" %}
+      {% include "partials/common/chip.html" with icon="user" input_name="new_contributors" name="{name}" %}
     </template>
     <template id="new-tag-chip">
-      {% include "partials/common/chip.html" with icon="tag" input_name="new_tags" %}
+      {% include "partials/common/chip.html" with icon="tag" input_name="new_tags" name="{name}" %}
     </template>
     {% if media %}
       <form id="delete-form"

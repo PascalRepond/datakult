@@ -13,7 +13,7 @@
     </div>
     <a href="{% url 'media_detail' media.pk %}"
        class="relative block"
-       aria-label="{{ media.title }}, {% translate 'Score:' %} {{ media.score }} {% translate 'out of 10' %}">
+       aria-label="{{ media.title }}, {% blocktranslate with score=media.score %}Score: {{ score }} out of 10{% endblocktranslate %}">
       {% include "partials/media_items/media_cover.html" %}
       {% include "partials/media_items/score/media_score_ring.html" with score=media.score show_label=False extra_class="absolute bottom-1 right-1 bg-base-100/90 rounded-full" %}
     </a>

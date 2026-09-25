@@ -98,7 +98,7 @@ def _search_source(request, get_client, search, not_configured="", **extra_conte
             try:
                 context["results"] = search(client, context["query"], context["media_id"])
             except APIError:
-                context["error"] = "Search failed"
+                context["error"] = _("Search failed")
     return render(request, IMPORT_RESULTS_TEMPLATE, context)
 
 
@@ -110,7 +110,7 @@ def _search_tmdb(request):
         found = client.search_multi(query, language=lang)[:MAX_SEARCH_RESULTS]
         return [from_tmdb(result, media_id, lang) for result in found]
 
-    return _search_source(request, get_tmdb_client, search, "TMDB API key not configured", lang=lang)
+    return _search_source(request, get_tmdb_client, search, _("TMDB API key not configured"), lang=lang)
 
 
 def _search_igdb(request):
@@ -119,7 +119,7 @@ def _search_igdb(request):
     def search(client, query, media_id):
         return [from_igdb(result, media_id) for result in client.search_games(query, limit=MAX_SEARCH_RESULTS)]
 
-    return _search_source(request, get_igdb_client, search, "IGDB API credentials not configured")
+    return _search_source(request, get_igdb_client, search, _("IGDB API credentials not configured"))
 
 
 def _search_musicbrainz(request):
@@ -179,7 +179,7 @@ def _search_books(request):
 
     # Tell when the results only come from one of the sources
     if not ol_ok and not gb_ok:
-        context["error"] = "Search failed"
+        context["error"] = _("Search failed")
     elif not googlebooks:
         context["notice"] = _("Google Books is not searched, as it needs an API key: set GOOGLE_BOOKS_API_KEY.")
     elif not (ol_ok and gb_ok):

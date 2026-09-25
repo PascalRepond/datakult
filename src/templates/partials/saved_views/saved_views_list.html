@@ -22,7 +22,7 @@
         {% csrf_token %}
         <button type="submit"
                 class="btn btn-ghost btn-xs btn-circle opacity-50 group-hover:opacity-100 focus-visible:opacity-100"
-                aria-label="{% translate "Delete" %} {{ view.name }}">
+                aria-label="{% blocktranslate with name=view.name %}Delete {{ name }}{% endblocktranslate %}">
           {% lucide "trash-2" size="14" %}
         </button>
       </form>
