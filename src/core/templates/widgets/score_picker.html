@@ -13,26 +13,29 @@
       {% endfor %}
       {% lucide "chevron-down" class="h-4 w-4 opacity-60 shrink-0" %}
     </div>
+    {# The menu itself sets no display, which would override its hiding while closed #}
     <div tabindex="-1"
-         class="dropdown-content z-20 mt-2 w-full p-2 bg-base-100 rounded-box shadow-xl flex flex-col gap-1">
-      <label class="flex items-center px-3 py-2 rounded-box cursor-pointer text-sm hover:bg-base-200 has-checked:bg-base-300 has-focus-visible:outline-2">
-        <input type="radio"
-               name="{{ widget.name }}"
-               value=""
-               class="sr-only"
-               {% if not widget.value %}checked{% endif %} />
-        {% translate "Not rated" %}
-      </label>
-      {% for score, label in score_choices %}
-        <label class="flex items-center p-1 rounded-box cursor-pointer hover:bg-base-200 has-checked:bg-base-300 has-focus-visible:outline-2">
+         class="dropdown-content z-20 mt-2 w-full p-2 bg-base-100 rounded-box shadow-xl">
+      <div class="flex flex-col gap-1">
+        <label class="flex items-center px-3 py-2 rounded-box cursor-pointer text-sm hover:bg-base-200 has-checked:bg-base-300 has-focus-visible:outline-2">
           <input type="radio"
                  name="{{ widget.name }}"
-                 value="{{ score }}"
+                 value=""
                  class="sr-only"
-                 {% if widget.value|add:0 == score %}checked{% endif %} />
-          {% include "partials/media_items/score/media_score_ring.html" with score=score label=label %}
+                 {% if not widget.value %}checked{% endif %} />
+          {% translate "Not rated" %}
         </label>
-      {% endfor %}
+        {% for score, label in score_choices %}
+          <label class="flex items-center p-1 rounded-box cursor-pointer hover:bg-base-200 has-checked:bg-base-300 has-focus-visible:outline-2">
+            <input type="radio"
+                   name="{{ widget.name }}"
+                   value="{{ score }}"
+                   class="sr-only"
+                   {% if widget.value|add:0 == score %}checked{% endif %} />
+            {% include "partials/media_items/score/media_score_ring.html" with score=score label=label %}
+          </label>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>

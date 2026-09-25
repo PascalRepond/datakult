@@ -51,16 +51,19 @@
             </span>
             {% lucide "chevron-down" class="h-4 w-4 opacity-60" %}
           </div>
+          {# The menu itself sets no display, which would override its hiding while closed #}
           <div tabindex="-1"
-               class="dropdown-content z-10 mt-2 w-56 p-2 bg-base-100 rounded-box shadow-xl flex flex-col gap-1">
-            {% for value, label in sort_options %}
-              <input type="radio"
-                     name="sort"
-                     value="{{ value }}"
-                     class="btn btn-sm btn-ghost justify-start"
-                     aria-label="{{ label }}"
-                     {% if value == sort %}checked{% endif %} />
-            {% endfor %}
+               class="dropdown-content z-10 mt-2 w-56 p-2 bg-base-100 rounded-box shadow-xl">
+            <div class="flex flex-col gap-1">
+              {% for value, label in sort_options %}
+                <input type="radio"
+                       name="sort"
+                       value="{{ value }}"
+                       class="btn btn-sm btn-ghost justify-start"
+                       aria-label="{{ label }}"
+                       {% if value == sort %}checked{% endif %} />
+              {% endfor %}
+            </div>
           </div>
         </div>
         <label for="filters-drawer"
