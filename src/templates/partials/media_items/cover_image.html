@@ -6,8 +6,7 @@
   <img src="{{ media.cover.url }}"
        alt="{% blocktranslate with title=media.title %}Cover of {{ title }}{% endblocktranslate %}"
        class="w-full h-full object-contain bg-(--cover-color)/30"
-       {% if media.cover_color %}style="--cover-color: {{ media.cover_color }}"{% endif %}
-       loading="lazy">
+       {% if media.cover_color %}style="--cover-color: {{ media.cover_color }}"{% endif %}>
 {% else %}
   <div class="w-full h-full flex items-center justify-center text-base-content/30">
     {% lucide "image" class=placeholder_class|default:"w-24 h-24" %}

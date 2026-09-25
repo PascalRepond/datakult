@@ -2,7 +2,8 @@
 {# Results of a metadata search of the import page, in the shape of core.import_results.ImportResult #}
 {# Parameters: results, error and notice (optional), query #}
 {% if notice and not error %}
-  <div role="status" class="flex items-start gap-2 text-sm text-base-content/70 mb-3">
+  <div role="status"
+       class="flex items-start gap-2 text-sm text-base-content/70 mb-3">
     {% lucide "info" class="w-4 h-4 shrink-0 mt-0.5" %}
     <span>{{ notice }}</span>
   </div>
@@ -24,7 +25,6 @@
               <img src="{{ result.cover_url }}"
                    alt="{{ result.title }}"
                    class="{{ cover_size }} object-cover rounded shrink-0"
-                   loading="lazy"
                    onerror="this.hidden = true; this.nextElementSibling.hidden = false;">
             {% endif %}
             <div class="{{ cover_size }} bg-base-200 rounded shrink-0 flex items-center justify-center"
