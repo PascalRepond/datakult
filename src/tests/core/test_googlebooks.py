@@ -105,7 +105,7 @@ def test_search_returns_empty_for_short_query(logged_in_client):
     response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "a"})
 
     assert response.status_code == 200
-    assert "partials/book/book_suggestions.html" in [t.name for t in response.templates]
+    assert "partials/import/import_results.html" in [t.name for t in response.templates]
     assert response.context["results"] == []
 
 

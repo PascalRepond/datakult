@@ -11,6 +11,7 @@ from tempfile import TemporaryDirectory
 import pytest
 from django.contrib.messages import get_messages
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.html import escape
@@ -18,7 +19,7 @@ from freezegun import freeze_time
 
 from core.models import Agent, Media, SavedView, Tag
 from core.utils import create_backup
-from core.views import STATS_COVERS_PER_PAGE
+from core.views import IMPORT_SEARCHES, STATS_COVERS_PER_PAGE
 
 
 def test_index_accessible_when_logged_in(logged_in_client):
@@ -1603,20 +1604,14 @@ def test_edit_form_has_the_anchors_of_the_invites(logged_in_client, media):
     assert 'id="review-field"' in content
 
 
-@pytest.mark.parametrize(
-    ("source", "template"),
-    [
-        ("tmdb", "partials/tmdb/tmdb_suggestions.html"),
-        ("igdb", "partials/igdb/igdb_suggestions.html"),
-        ("books", "partials/book/book_suggestions.html"),
-        ("musicbrainz", "partials/musicbrainz/musicbrainz_suggestions.html"),
-    ],
-)
-def test_import_search_uses_the_picked_source(logged_in_client, source, template):
+@pytest.mark.parametrize("source", ["tmdb", "igdb", "books", "musicbrainz"])
+def test_import_search_uses_the_picked_source(logged_in_client, monkeypatch, source):
     """The single search of the import page searches the source picked in its tabs."""
-    response = logged_in_client.get(reverse("import_search_htmx"), {"source": source, "q": "a"})
+    monkeypatch.setitem(IMPORT_SEARCHES, source, lambda _request: HttpResponse(f"searched {source}"))
 
-    assert template in [t.name for t in response.templates]
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": source, "q": "dune"})
+
+    assert response.content.decode() == f"searched {source}"
 
 
 @pytest.mark.parametrize("params", [{"q": "dune"}, {"source": "unknown", "q": "dune"}])

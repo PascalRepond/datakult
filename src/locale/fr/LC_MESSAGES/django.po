@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 12:34+0200\n"
+"POT-Creation-Date: 2026-09-25 12:39+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,6 +61,22 @@ msgstr "AAAA"
 #: src/core/forms.py:65
 msgid "YYYY, YYYY-MM, or YYYY-MM-DD"
 msgstr "AAAA, AAAA-MM ou AAAA-MM-JJ"
+
+#: src/core/import_results.py:38 src/core/models.py:169
+msgid "Film"
+msgstr "Film"
+
+#: src/core/import_results.py:38
+msgid "TV"
+msgstr "Série"
+
+#: src/core/import_results.py:52 src/core/models.py:166
+msgid "Video game"
+msgstr "Jeu vidéo"
+
+#: src/core/import_results.py:91
+msgid "Album"
+msgstr "Album"
 
 #: src/core/models.py:44
 #, python-format
@@ -119,21 +135,13 @@ msgstr "Type de média"
 msgid "Book"
 msgstr "Livre"
 
-#: src/core/models.py:166 src/templates/partials/igdb/igdb_suggestions.html:26
-msgid "Video game"
-msgstr "Jeu vidéo"
-
-#: src/core/models.py:167 src/core/views.py:48
+#: src/core/models.py:167 src/core/views.py:49
 msgid "Music"
 msgstr "Musique"
 
 #: src/core/models.py:168
 msgid "Comic"
 msgstr "BD"
-
-#: src/core/models.py:169 src/templates/partials/tmdb/tmdb_suggestions.html:27
-msgid "Film"
-msgstr "Film"
 
 #: src/core/models.py:170
 msgid "TV series"
@@ -293,131 +301,131 @@ msgstr "Remplacer la couverture :"
 msgid "Upload cover:"
 msgstr "Télécharger la couverture :"
 
-#: src/core/views.py:45
+#: src/core/views.py:46
 msgid "Movies & TV"
 msgstr "Films & séries"
 
-#: src/core/views.py:46
+#: src/core/views.py:47
 msgid "Video games"
 msgstr "Jeux vidéo"
 
-#: src/core/views.py:47
+#: src/core/views.py:48
 msgid "Books"
 msgstr "Livres"
 
-#: src/core/views.py:504
+#: src/core/views.py:506
 #, python-format
 msgid "'%(title)s' deleted successfully"
 msgstr "'%(title)s' supprimé avec succès"
 
-#: src/core/views.py:744
+#: src/core/views.py:755
 #, python-format
 msgid "Backup creation failed: %(error)s"
 msgstr "Échec de la création du backup : %(error)s"
 
-#: src/core/views.py:755
+#: src/core/views.py:766
 msgid "No file selected"
 msgstr "Aucun fichier sélectionné"
 
-#: src/core/views.py:759
+#: src/core/views.py:770
 msgid "Invalid file format. Use a .tar.gz file"
 msgstr "Format de fichier invalide. Utilisez un fichier .tar.gz"
 
-#: src/core/views.py:774
+#: src/core/views.py:785
 msgid "Backup imported successfully! All data has been restored."
 msgstr "Backup importé avec succès ! Toutes les données ont été restaurées."
 
-#: src/core/views.py:783
+#: src/core/views.py:794
 #, python-format
 msgid "Backup import failed: %(error)s"
 msgstr "Échec de l'importation du backup : %(error)s"
 
-#: src/core/views.py:811
+#: src/core/views.py:822
 #, python-format
 msgid "Invalid media types: %(types)s"
 msgstr "Types de médias invalides : %(types)s"
 
-#: src/core/views.py:817
+#: src/core/views.py:828
 #, python-format
 msgid "Invalid statuses: %(statuses)s"
 msgstr "Statuts invalides : %(statuses)s"
 
-#: src/core/views.py:823
+#: src/core/views.py:834
 #, python-format
 msgid "Invalid scores: %(scores)s"
 msgstr "Scores invalides : %(scores)s"
 
-#: src/core/views.py:828
+#: src/core/views.py:839
 #, python-format
 msgid "Invalid sort field: %(sort)s"
 msgstr "Champ de tri invalide : %(sort)s"
 
-#: src/core/views.py:832
+#: src/core/views.py:843
 #, python-format
 msgid "Contributor does not exist: ID %(id)s"
 msgstr "Le contributeur n'existe pas : ID %(id)s"
 
-#: src/core/views.py:832
+#: src/core/views.py:843
 #, python-format
 msgid "Invalid contributor ID format: %(id)s"
 msgstr "Format d'ID de contributeur invalide : %(id)s"
 
-#: src/core/views.py:833
+#: src/core/views.py:844
 #, python-format
 msgid "Tag does not exist: ID %(id)s"
 msgstr "Le tag n'existe pas : ID %(id)s"
 
-#: src/core/views.py:833
+#: src/core/views.py:844
 #, python-format
 msgid "Invalid tag ID format: %(id)s"
 msgstr "Format d'ID de tag invalide : %(id)s"
 
-#: src/core/views.py:845
+#: src/core/views.py:856
 msgid "Start date"
 msgstr "Date de début"
 
-#: src/core/views.py:845
+#: src/core/views.py:856
 msgid "End date"
 msgstr "Date de fin"
 
-#: src/core/views.py:851
+#: src/core/views.py:862
 #, python-format
 msgid "Invalid %(label)s: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:854
+#: src/core/views.py:865
 msgid "Review filter"
 msgstr "Filtre de critique"
 
-#: src/core/views.py:854
+#: src/core/views.py:865
 msgid "Cover filter"
 msgstr "Filtre de couverture"
 
-#: src/core/views.py:857
+#: src/core/views.py:868
 #, python-format
 msgid "Invalid %(label)s value: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/views.py:871
+#: src/core/views.py:882
 msgid "View name is required"
 msgstr "Nom de la vue requis"
 
-#: src/core/views.py:902
+#: src/core/views.py:913
 #, python-format
 msgid "View '%(name)s' has been updated"
 msgstr "Vue '%(name)s' a été mise à jour"
 
-#: src/core/views.py:907
+#: src/core/views.py:918
 #, python-format
 msgid "View '%(name)s' saved successfully"
 msgstr "Vue '%(name)s' a été enregistrée avec succès"
 
-#: src/core/views.py:923
+#: src/core/views.py:934
 #, python-format
 msgid "View '%(name)s' deleted successfully"
 msgstr "Vue '%(name)s' supprimée avec succès"
 
-#: src/core/views.py:925
+#: src/core/views.py:936
 msgid "View not found"
 msgstr "Vue non trouvée"
 
@@ -785,13 +793,6 @@ msgstr "Notés par année"
 msgid "No rated media with a review date yet."
 msgstr "Aucun média noté avec une date de critique pour l'instant."
 
-#: src/templates/partials/book/book_suggestions.html:50
-#: src/templates/partials/igdb/igdb_suggestions.html:39
-#: src/templates/partials/musicbrainz/musicbrainz_suggestions.html:53
-#: src/templates/partials/tmdb/tmdb_suggestions.html:46
-msgid "No results found"
-msgstr "Aucun résultat trouvé"
-
 #: src/templates/partials/common/back_button.html:7
 msgid "Back"
 msgstr "Retour"
@@ -823,6 +824,10 @@ msgstr "Avec"
 #: src/templates/partials/filters/presence_filter.html:26
 msgid "Without"
 msgstr "Sans"
+
+#: src/templates/partials/import/import_results.html:48
+msgid "No results found"
+msgstr "Aucun résultat trouvé"
 
 #: src/templates/partials/media_items/cover_image.html:11
 msgid "Cover of"
@@ -862,10 +867,6 @@ msgstr "Note :"
 #: src/templates/partials/stats/covers_page.html:17
 msgid "out of 10"
 msgstr "sur 10"
-
-#: src/templates/partials/musicbrainz/musicbrainz_suggestions.html:30
-msgid "Album"
-msgstr "Album"
 
 #: src/templates/partials/navigation/filters_drawer.html:46
 msgid "From"
@@ -958,10 +959,6 @@ msgstr "Toutes les années"
 #: src/templates/partials/stats/year_picker.html:46
 msgid "Next year"
 msgstr "Année suivante"
-
-#: src/templates/partials/tmdb/tmdb_suggestions.html:29
-msgid "TV"
-msgstr "Série"
 
 #: src/templates/registration/login.html:37
 msgid "Password"

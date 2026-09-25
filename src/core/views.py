@@ -27,6 +27,7 @@ from partial_date import PartialDate
 from . import stats as media_stats
 from .filters import DEFAULT_SORT, SORT_OPTIONS
 from .forms import MediaForm
+from .import_results import from_googlebooks, from_igdb, from_musicbrainz, from_openlibrary, from_tmdb
 from .models import Agent, Media, SavedView, Tag
 from .queries import build_media_context
 from .services.googlebooks import get_googlebooks_client
@@ -59,6 +60,7 @@ TMDB_LANGUAGES = [
 MIN_SEARCH_QUERY_LENGTH = 2
 MAX_SEARCH_RESULTS = 15
 STATS_COVERS_PER_PAGE = 40
+IMPORT_RESULTS_TEMPLATE = "partials/import/import_results.html"
 MAX_YEAR_LENGTH = 4
 
 
@@ -565,28 +567,31 @@ def tmdb_search_htmx(request):
     base_context = {"results": [], "media_id": media_id, "lang": lang, "query": query}
 
     if len(query) < MIN_SEARCH_QUERY_LENGTH:
-        return render(request, "partials/tmdb/tmdb_suggestions.html", base_context)
+        return render(request, IMPORT_RESULTS_TEMPLATE, base_context)
 
     client = get_tmdb_client()
     if not client:
         logger.warning("TMDB search attempted but API key not configured")
         return render(
             request,
-            "partials/tmdb/tmdb_suggestions.html",
+            IMPORT_RESULTS_TEMPLATE,
             {**base_context, "error": "TMDB API key not configured"},
         )
 
     try:
-        results = client.search_multi(query, language=lang)[:MAX_SEARCH_RESULTS]
+        results = [
+            from_tmdb(result, media_id, lang)
+            for result in client.search_multi(query, language=lang)[:MAX_SEARCH_RESULTS]
+        ]
     except requests.RequestException:
         logger.exception("TMDB search failed")
         return render(
             request,
-            "partials/tmdb/tmdb_suggestions.html",
+            IMPORT_RESULTS_TEMPLATE,
             {**base_context, "error": "Search failed"},
         )
 
-    return render(request, "partials/tmdb/tmdb_suggestions.html", {**base_context, "results": results})
+    return render(request, IMPORT_RESULTS_TEMPLATE, {**base_context, "results": results})
 
 
 @login_required
@@ -598,28 +603,28 @@ def igdb_search_htmx(request):
     base_context = {"results": [], "media_id": media_id, "query": query}
 
     if len(query) < MIN_SEARCH_QUERY_LENGTH:
-        return render(request, "partials/igdb/igdb_suggestions.html", base_context)
+        return render(request, IMPORT_RESULTS_TEMPLATE, base_context)
 
     client = get_igdb_client()
     if not client:
         logger.warning("IGDB search attempted but API credentials not configured")
         return render(
             request,
-            "partials/igdb/igdb_suggestions.html",
+            IMPORT_RESULTS_TEMPLATE,
             {**base_context, "error": "IGDB API credentials not configured"},
         )
 
     try:
-        results = client.search_games(query, limit=MAX_SEARCH_RESULTS)
+        results = [from_igdb(result, media_id) for result in client.search_games(query, limit=MAX_SEARCH_RESULTS)]
     except requests.RequestException:
         logger.exception("IGDB search failed")
         return render(
             request,
-            "partials/igdb/igdb_suggestions.html",
+            IMPORT_RESULTS_TEMPLATE,
             {**base_context, "error": "Search failed"},
         )
 
-    return render(request, "partials/igdb/igdb_suggestions.html", {**base_context, "results": results})
+    return render(request, IMPORT_RESULTS_TEMPLATE, {**base_context, "results": results})
 
 
 def _search_books_source(search_fn, query: str, limit: int, source_name: str) -> tuple[list, bool]:
@@ -651,7 +656,7 @@ def book_search_htmx(request):
     base_context = {"results": [], "media_id": media_id, "query": query}
 
     if len(query) < MIN_SEARCH_QUERY_LENGTH:
-        return render(request, "partials/book/book_suggestions.html", base_context)
+        return render(request, IMPORT_RESULTS_TEMPLATE, base_context)
 
     openlibrary = get_openlibrary_client()
     googlebooks = get_googlebooks_client()
@@ -668,12 +673,16 @@ def book_search_htmx(request):
 
     # Google Books typically has richer metadata for modern fiction, so we lead with it
     merged = _interleave(gb_results, ol_results)[:MAX_SEARCH_RESULTS]
+    results = [
+        (from_googlebooks if result.source == "googlebooks" else from_openlibrary)(result, media_id)
+        for result in merged
+    ]
 
-    context = {**base_context, "results": merged}
+    context = {**base_context, "results": results}
     if not ol_ok and not gb_ok:
         context["error"] = "Search failed"
 
-    return render(request, "partials/book/book_suggestions.html", context)
+    return render(request, IMPORT_RESULTS_TEMPLATE, context)
 
 
 @login_required
@@ -685,21 +694,23 @@ def musicbrainz_search_htmx(request):
     base_context = {"results": [], "media_id": media_id, "query": query}
 
     if len(query) < MIN_SEARCH_QUERY_LENGTH:
-        return render(request, "partials/musicbrainz/musicbrainz_suggestions.html", base_context)
+        return render(request, IMPORT_RESULTS_TEMPLATE, base_context)
 
     client = get_musicbrainz_client()
 
     try:
-        results = client.search_releases(query, limit=MAX_SEARCH_RESULTS)
+        results = [
+            from_musicbrainz(result, media_id) for result in client.search_releases(query, limit=MAX_SEARCH_RESULTS)
+        ]
     except requests.RequestException:
         logger.exception("MusicBrainz search failed")
         return render(
             request,
-            "partials/musicbrainz/musicbrainz_suggestions.html",
+            IMPORT_RESULTS_TEMPLATE,
             {**base_context, "error": "Search failed"},
         )
 
-    return render(request, "partials/musicbrainz/musicbrainz_suggestions.html", {**base_context, "results": results})
+    return render(request, IMPORT_RESULTS_TEMPLATE, {**base_context, "results": results})
 
 
 @login_required
