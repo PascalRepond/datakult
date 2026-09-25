@@ -1,9 +1,9 @@
 {% load i18n %}
 {% load media_tags %}
-{# Inner template of media_score_ring.html: a grey track under the score arc, the score in their centre, #}
+{# Inner template of media_score_ring.html: a grey track under the score arc, the score in their neutral centre, #}
 {# and with its verdict, a pill tinted with the colour of the score #}
 <span class="inline-flex items-center gap-2 {% if show_label != False %}{{ score|score_color }} bg-current/10 rounded-full pr-3 w-fit{% endif %} {{ extra_class }}">
-  <span class="inline-grid *:[grid-area:1/1] font-bold text-base-content {{ number_class }}"
+  <span class="inline-grid *:[grid-area:1/1] font-bold text-base-content bg-base-100 rounded-full {{ number_class }}"
         role="meter"
         aria-valuemin="0"
         aria-valuemax="10"

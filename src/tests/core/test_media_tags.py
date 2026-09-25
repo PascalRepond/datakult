@@ -169,3 +169,7 @@ def test_score_verdict_forms_one_pill_with_its_ring():
     assert re.search(r'class="[^"]*text-green-500[^"]*bg-current/10', with_label)
     assert "bg-current/10" not in ring_only
     assert "Loved" not in ring_only
+    # The ring keeps a neutral inside, the same with its verdict and alone
+    for html in (with_label, ring_only):
+        assert re.search(r'role="meter"', html)
+        assert re.search(r'class="[^"]*bg-base-100[^"]*"\s+role="meter"', html)
