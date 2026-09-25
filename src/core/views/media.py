@@ -67,7 +67,8 @@ def _get_or_create_safe(model_class, name):
         if existing := model_class.objects.filter(name=clean_name).first():
             return existing, None
         # Unexpected error
-        return None, f"Failed to create {model_class.__name__}: {clean_name}"
+        verbose_name = model_class._meta.verbose_name  # noqa: SLF001
+        return None, _("Failed to create %(model)s: %(name)s") % {"model": verbose_name, "name": clean_name}
     else:
         return obj, None
 
@@ -124,8 +125,8 @@ def media_edit(request, pk=None):
                 if removed_ids := before_contributor_ids - after_contributor_ids:
                     delete_orphan_agents_by_ids(removed_ids)
 
-                msg_key = "'%(title)s' updated successfully" if media else "'%(title)s' created successfully"
-                messages.success(request, _(msg_key) % {"title": instance.title})
+                message = _("'%(title)s' updated successfully") if media else _("'%(title)s' created successfully")
+                messages.success(request, message % {"title": instance.title})
                 return redirect("media_detail", pk=instance.pk)
     elif import_data := fetch_import_data(request):
         form = MediaForm(initial=import_initial_data(import_data, media), instance=media)
@@ -189,7 +190,7 @@ def agent_search_htmx(request):
 @login_required
 def agent_select_htmx(request):
     """HTMX view: return the chip of the picked contributor."""
-    return _select_by_pk(request, Agent, "partials/contributors/contributor_chip.html", "agent", "Agent not found")
+    return _select_by_pk(request, Agent, "partials/contributors/contributor_chip.html", "agent", _("Agent not found"))
 
 
 @login_required
@@ -201,4 +202,4 @@ def tag_search_htmx(request):
 @login_required
 def tag_select_htmx(request):
     """HTMX view: return the chip of the picked tag."""
-    return _select_by_pk(request, Tag, "partials/tags/tag_chip.html", "tag", "Tag not found")
+    return _select_by_pk(request, Tag, "partials/tags/tag_chip.html", "tag", _("Tag not found"))

@@ -59,9 +59,10 @@
             {% lucide "triangle-alert" class="shrink-0" %}
             <div class="text-sm">
               <strong>{% translate "WARNING:" %}</strong>
-              {% translate "Importing a backup will" %}
-              <strong class="text-error">{% translate "DELETE ALL your current data" %}</strong>
-              {% translate "and replace it with the backup data." %}
+              {% blocktranslate trimmed %}
+                Importing a backup will <strong class="text-error">DELETE ALL your current data</strong>
+                and replace it with the backup data.
+              {% endblocktranslate %}
             </div>
           </div>
           <form id="import-backup-form"

@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
       chip.querySelector('.chip-name').textContent = name;
       chip.querySelector('input[type="hidden"]').value = name;
       const btn = chip.querySelector('[data-action="remove-chip"]');
-      btn.setAttribute('aria-label', `${btn.getAttribute('aria-label').trim()} ${name}`);
+      btn.setAttribute('aria-label', btn.getAttribute('aria-label').replace('{name}', name));
       container.appendChild(chip);
     };
 

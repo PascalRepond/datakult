@@ -4,7 +4,7 @@
 {# Parameters: media, placeholder_class (optional, size of the placeholder icon) #}
 {% if media.cover %}
   <img src="{{ media.cover.url }}"
-       alt="{% translate "Cover of" %} {{ media.title }}"
+       alt="{% blocktranslate with title=media.title %}Cover of {{ title }}{% endblocktranslate %}"
        class="w-full h-full object-contain bg-(--cover-color)/30"
        {% if media.cover_color %}style="--cover-color: {{ media.cover_color }}"{% endif %}
        loading="lazy">

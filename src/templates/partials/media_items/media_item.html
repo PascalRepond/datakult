@@ -14,7 +14,7 @@
       <a href="{% url 'media_edit' media.pk %}"
          class="absolute top-2 right-2 btn btn-sm btn-circle btn-primary shadow-md"
          title="{% translate "Edit" %}"
-         aria-label="{% translate "Edit" %} {{ media.title }}">{% lucide "square-pen" size="16" %}</a>
+         aria-label="{% blocktranslate with title=media.title %}Edit {{ title }}{% endblocktranslate %}">{% lucide "square-pen" size="16" %}</a>
       {% if media.score %}
         {# The tint of the verdict pill lies on an opaque base, to stay readable over any cover; #}
         {# a flex base fits the pill, where a block one would add the height of a line of text #}
