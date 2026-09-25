@@ -14,7 +14,7 @@ from django.urls import reverse
 
 from core.models import Media
 from core.utils import create_backup
-from tests.helpers import messages_of
+from tests.helpers import archive_bytes, messages_of
 
 
 def test_backup_export_downloads_a_backup_left_nowhere_on_the_server(logged_in_client, media, settings, tmp_path):
@@ -57,10 +57,15 @@ def test_backup_import_get_redirects(logged_in_client):
 
 @pytest.mark.parametrize(
     "upload",
-    [None, ("backup.txt", b"not a backup"), ("backup.tar.gz", b"invalid content")],
-    ids=["no file", "not an archive", "invalid archive"],
+    [
+        None,
+        ("backup.txt", b"not a backup"),
+        ("backup.tar.gz", b"invalid content"),
+        ("backup.tar.gz", archive_bytes({"database.json": b"not json"})),
+    ],
+    ids=["no file", "not an archive", "invalid archive", "invalid database"],
 )
-def test_backup_import_rejects_what_is_not_a_backup(logged_in_client, upload):
+def test_backup_import_rejects_what_is_not_a_backup(logged_in_client, media, upload):
     """Importing no file, or a file that is not a valid backup, goes back to the backup page with an error."""
     data = {"backup_file": SimpleUploadedFile(*upload)} if upload else {}
 
@@ -68,6 +73,7 @@ def test_backup_import_rejects_what_is_not_a_backup(logged_in_client, upload):
 
     assert response.url == reverse("backup_manage")
     assert messages_of(response)
+    assert list(Media.objects.values_list("title", flat=True)) == ["Test Media"]
 
 
 def test_backup_import_restores_data(logged_in_client, media_factory, tmp_path):

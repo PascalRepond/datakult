@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
+from django.core.serializers.base import DeserializationError
 from django.db import transaction
 
 
@@ -53,8 +54,12 @@ class Command(BaseCommand):
                 call_command("flush", interactive=False, verbosity=0)
 
             self.stdout.write("Importing database…")
-            # Ignore the fields that older backups still hold but that have since been removed from the models
-            call_command("loaddata", str(database_file), verbosity=1, ignorenonexistent=True)
+            try:
+                # Ignore the fields that older backups still hold but that have since been removed from the models
+                call_command("loaddata", str(database_file), verbosity=1, ignorenonexistent=True)
+            except DeserializationError as e:
+                msg = f"Invalid database.json in backup archive: {e.__cause__ or e}"
+                raise CommandError(msg) from e
 
     def _import_media(self, temp_path: Path) -> None:
         """Import media files from the backup."""

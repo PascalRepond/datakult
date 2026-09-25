@@ -1,5 +1,6 @@
 """Helpers shared by the test modules."""
 
+import tarfile
 from io import BytesIO
 
 from django.contrib.messages import get_messages
@@ -15,6 +16,17 @@ def image_bytes(size=(100, 100), color="#333333", fmt="PNG", mode="RGB"):
     """Return the bytes of an image of a single colour."""
     output = BytesIO()
     Image.new(mode, size, color=color).save(output, format=fmt)
+    return output.getvalue()
+
+
+def archive_bytes(members):
+    """Return the bytes of a .tar.gz archive holding the given files, from their names to their contents."""
+    output = BytesIO()
+    with tarfile.open(fileobj=output, mode="w:gz") as tar:
+        for name, content in members.items():
+            info = tarfile.TarInfo(name=name)
+            info.size = len(content)
+            tar.addfile(info, BytesIO(content))
     return output.getvalue()
 
 
