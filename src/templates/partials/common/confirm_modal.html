@@ -1,16 +1,19 @@
 {% load i18n %}
-{# Reusable confirmation modal #}
-{# Expected parameters: #}
+{# Confirmation dialog, opened by a button with commandfor="{{ modal_id }}" command="show-modal" #}
+{# It holds no form, so that it can be put inside the form it confirms #}
+{# Parameters: #}
 {# - modal_id: Unique modal ID #}
 {# - title: Modal title #}
 {# - message: Confirmation message #}
+{# - form_id: ID of the form that the confirm button submits #}
 {# - confirm_text: Confirm button text (optional, default: "Confirm") #}
 {# - is_danger: Boolean for danger style (optional, default: False) #}
-{# - form_id: Form ID to submit (optional) #}
-<input type="checkbox" id="{{ modal_id }}" class="modal-toggle" />
-<div class="modal">
+<dialog id="{{ modal_id }}"
+        class="modal"
+        aria-labelledby="{{ modal_id }}-title">
   <div class="modal-box">
-    <h3 class="font-bold text-lg flex items-center gap-2 {% if is_danger %}text-error{% endif %}">
+    <h3 id="{{ modal_id }}-title"
+        class="font-bold text-lg flex items-center gap-2 {% if is_danger %}text-error{% endif %}">
       {% if is_danger %}{% lucide "triangle-alert" %}{% endif %}
       {{ title }}
     </h3>
@@ -18,17 +21,16 @@
       {{ message }}
     </div>
     <div class="modal-action">
-      <label for="{{ modal_id }}" class="btn">{% translate "Cancel" %}</label>
-      {% if form_id %}
-        <button type="submit" form="{{ form_id }}" class="btn {% if is_danger %}btn-error{% else %}btn-primary{% endif %}">
-          {{ confirm_text|default:_("Confirm") }}
-        </button>
-      {% else %}
-        <button id="{{ modal_id }}-confirm" class="btn {% if is_danger %}btn-error{% else %}btn-primary{% endif %}">
-          {{ confirm_text|default:_("Confirm") }}
-        </button>
-      {% endif %}
+      <button type="button" class="btn" commandfor="{{ modal_id }}" command="close">{% translate "Cancel" %}</button>
+      <button type="submit"
+              form="{{ form_id }}"
+              class="btn {% if is_danger %}btn-error{% else %}btn-primary{% endif %}">
+        {{ confirm_text|default:_("Confirm") }}
+      </button>
     </div>
   </div>
-  <label class="modal-backdrop" for="{{ modal_id }}">{% translate "Close" %}</label>
-</div>
+  <button type="button"
+          class="modal-backdrop"
+          commandfor="{{ modal_id }}"
+          command="close">{% translate "Close" %}</button>
+</dialog>
