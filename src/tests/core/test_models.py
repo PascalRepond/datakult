@@ -151,10 +151,11 @@ def test_get_filter_url_holds_every_set_filter(saved_view_factory):
         filter_review_to="2024-12",
         filter_has_review="filled",
         filter_has_cover="empty",
+        search="dune",
         sort="-score",
     )
 
     assert saved_view.get_filter_url() == (
         "/?type=BOOK&type=FILM&status=COMPLETED&score=9&score=10&contributor=42&tag=7"
-        "&review_from=2024-01&review_to=2024-12&has_review=filled&has_cover=empty&sort=-score"
+        "&review_from=2024-01&review_to=2024-12&has_review=filled&has_cover=empty&search=dune&sort=-score"
     )

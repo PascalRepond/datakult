@@ -58,6 +58,7 @@ FILTER_PARAMS = {
     "review_to",
     "has_review",
     "has_cover",
+    "search",
 }
 
 

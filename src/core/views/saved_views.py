@@ -37,6 +37,7 @@ def saved_view_save(request):
             "filter_review_to": request.POST.get("review_to", ""),
             "filter_has_review": request.POST.get("has_review", ""),
             "filter_has_cover": request.POST.get("has_cover", ""),
+            "search": request.POST.get("search", "").strip(),
             "sort": request.POST.get("sort", DEFAULT_SORT),
         },
     )

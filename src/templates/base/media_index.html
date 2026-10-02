@@ -123,8 +123,8 @@
     {% if tag %}
       {% include "partials/filters/filter_badge.html" with label=tag.name filter_name="tag" icon="tag" %}
     {% endif %}
-    {# Save view button - only shown when filters are active #}
-    {% if filters.has_any or contributor or tag %}
+    {# Save view button - only shown when filters or a search are active #}
+    {% if filters.has_any or contributor or tag or request.GET.search %}
       <button type="button"
               commandfor="save-view-modal"
               command="show-modal"

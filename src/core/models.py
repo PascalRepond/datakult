@@ -294,6 +294,7 @@ class SavedView(TimestampedModel):
     filter_review_to = models.CharField(max_length=20, blank=True, default="")
     filter_has_review = models.CharField(max_length=10, blank=True, default="")
     filter_has_cover = models.CharField(max_length=10, blank=True, default="")
+    search = models.CharField(max_length=200, blank=True, default="")
 
     # View preferences
     sort = models.CharField(max_length=50, default="-review_date")
@@ -321,6 +322,7 @@ class SavedView(TimestampedModel):
             ("review_to", self.filter_review_to),
             ("has_review", self.filter_has_review),
             ("has_cover", self.filter_has_cover),
+            ("search", self.search),
         ]
         params.extend((key, value) for key, value in optional_filters if value)
         params.append(("sort", self.sort))

@@ -101,9 +101,10 @@ def test_add_media_is_reachable_from_every_page(logged_in_client, media):
     assert 'class="fab' not in edit
 
 
-def test_sidebar_marks_the_current_saved_view(logged_in_client, saved_view_factory):
-    """The saved view matching the current list is highlighted in the sidebar."""
-    view = saved_view_factory(name="Games and books", filter_types=["GAME", "BOOK"])
+@pytest.mark.parametrize("criteria", [{"filter_types": ["GAME", "BOOK"]}, {"search": "dune"}])
+def test_sidebar_marks_the_current_saved_view(logged_in_client, saved_view_factory, criteria):
+    """The saved view matching the current list is highlighted in the sidebar, alone."""
+    view = saved_view_factory(name="Current", **criteria)
     saved_view_factory(name="Books", filter_types=["BOOK"])
 
     content = logged_in_client.get(view.get_filter_url()).content.decode()
@@ -159,8 +160,9 @@ def test_sidebar_stats_link_opens_the_current_year(logged_in_client):
     [
         (lambda media: reverse("media_edit", args=[media.pk]), "confirm-delete-modal"),
         (lambda media: reverse("home") + "?type=BOOK", "save-view-modal"),
+        (lambda media: reverse("home") + "?search=dune", "save-view-modal"),
     ],
-    ids=["delete media", "save view"],
+    ids=["delete media", "save view", "save searched view"],
 )
 def test_modals_are_dialogs_opened_by_their_button(logged_in_client, media, url, modal_id):
     """A modal is a dialog, which a button of the page opens."""

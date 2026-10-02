@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 
 from core.models import SavedView, Tag
-from tests.helpers import messages_of
+from tests.helpers import messages_of, titles
 
 
 def test_saved_view_save_stores_every_filter_and_applies_them(logged_in_client, user, agent):
@@ -26,6 +26,7 @@ def test_saved_view_save_stores_every_filter_and_applies_them(logged_in_client, 
         "review_to": "2024-12-31",
         "has_review": "filled",
         "has_cover": "empty",
+        "search": " dune ",
         "sort": "score",
     }
 
@@ -41,8 +42,20 @@ def test_saved_view_save_stores_every_filter_and_applies_them(logged_in_client, 
     assert saved_view.filter_review_to == "2024-12-31"
     assert saved_view.filter_has_review == "filled"
     assert saved_view.filter_has_cover == "empty"
+    assert saved_view.search == "dune"
     assert saved_view.sort == "score"
     assert response.url == saved_view.get_filter_url()
+
+
+def test_saved_view_restores_its_search(logged_in_client, media_factory, saved_view_factory):
+    """Opening a saved view searches the list with its search text, shown in the search field."""
+    media_factory(title="Dune")
+    media_factory(title="Foundation")
+
+    response = logged_in_client.get(saved_view_factory(search="dune").get_filter_url())
+
+    assert titles(response) == ["Dune"]
+    assert re.search(r'name="search"\s+value="dune"', response.content.decode())
 
 
 def test_saved_view_save_updates_existing_view(logged_in_client, user, saved_view_factory):
