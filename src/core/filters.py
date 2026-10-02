@@ -8,7 +8,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from partial_date import PartialDate
 
-from .models import Agent, MediaType, Score, Status, Tag
+from .models import MAX_YEAR, MIN_YEAR, Agent, MediaType, Score, Status, Tag
 
 # Sort values, with a descending sign, and how they order the list
 SORT_OPTIONS = [
@@ -16,6 +16,9 @@ SORT_OPTIONS = [
     ("review_date", gettext_lazy("Oldest rated")),
     ("-score", gettext_lazy("Best scores")),
     ("score", gettext_lazy("Lowest scores")),
+    ("title", gettext_lazy("Title (A-Z)")),
+    ("-pub_year", gettext_lazy("Newest releases")),
+    ("pub_year", gettext_lazy("Oldest releases")),
 ]
 
 
@@ -36,6 +39,8 @@ def extract_filters(request):
         "type": request.GET.getlist("type"),
         "status": request.GET.getlist("status"),
         "score": request.GET.getlist("score"),
+        "release_from": request.GET.get("release_from", ""),
+        "release_to": request.GET.get("release_to", ""),
         "review_from": request.GET.get("review_from", ""),
         "review_to": request.GET.get("review_to", ""),
         "has_review": request.GET.get("has_review", ""),
@@ -46,6 +51,8 @@ def extract_filters(request):
             filters["type"],
             filters["status"],
             filters["score"],
+            filters["release_from"],
+            filters["release_to"],
             filters["review_from"],
             filters["review_to"],
             filters["has_review"],
@@ -77,11 +84,13 @@ def extract_filters(request):
 
 
 def get_field_choices():
-    """Return the choices of the filter fields."""
+    """Return the choices and the bounds of the filter fields."""
     return {
         "media_type_choices": MediaType.choices,
         "status_choices": Status.choices,
         "score_choices": Score.choices,
+        "min_year": MIN_YEAR,
+        "max_year": MAX_YEAR,
     }
 
 
@@ -133,6 +142,15 @@ def apply_score_filter(queryset, scores):
     return queryset.filter(score_q)
 
 
+def apply_release_filter(queryset, filters):
+    """Keep the media released between the bounds of the release filter, which leaves out media without a year."""
+    for name, lookup in [("release_from", "pub_year__gte"), ("release_to", "pub_year__lte")]:
+        # Skip empty or malformed years from URL
+        with contextlib.suppress(ValueError):
+            queryset = queryset.filter(**{lookup: int(filters[name])})
+    return queryset
+
+
 def _review_from_bound(value):
     """
     Return the start date `value` with the coarsest precision it allows.
@@ -176,6 +194,7 @@ def apply_filters(queryset, filters):
     queryset = apply_type_filter(queryset, filters["type"])
     queryset = apply_status_filter(queryset, filters["status"])
     queryset = apply_score_filter(queryset, filters["score"])
+    queryset = apply_release_filter(queryset, filters)
     queryset = apply_date_and_content_filters(queryset, filters)
     return queryset, contributor, tag
 
@@ -205,6 +224,18 @@ def _invalid_related_ids(params):
                 yield format_message % {"id": object_id}
 
 
+def _invalid_years(params):
+    """Yield an error for each bound of the release filter that is not a year a media can be released in."""
+    for name in ["release_from", "release_to"]:
+        if year := params.get(name, "").strip():
+            try:
+                valid = MIN_YEAR <= int(year) <= MAX_YEAR
+            except ValueError:
+                valid = False
+            if not valid:
+                yield _("Invalid release year: %(year)s") % {"year": year}
+
+
 def _invalid_dates(params):
     """Yield an error for each bound of the review date filter that is not a partial date."""
     for name, label in [("review_from", _("Start date")), ("review_to", _("End date"))]:
@@ -227,4 +258,10 @@ def filter_errors(params):
     errors = list(_invalid_choices(params))
     if (sort := params.get("sort", DEFAULT_SORT)) not in dict(SORT_OPTIONS):
         errors.append(_("Invalid sort field: %(sort)s") % {"sort": sort})
-    return [*errors, *_invalid_related_ids(params), *_invalid_dates(params), *_invalid_presences(params)]
+    return [
+        *errors,
+        *_invalid_related_ids(params),
+        *_invalid_years(params),
+        *_invalid_dates(params),
+        *_invalid_presences(params),
+    ]

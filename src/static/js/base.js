@@ -62,7 +62,7 @@ document.body.addEventListener('click', (event) => {
     if (!btn || !form) return;
 
     const { filter, value } = btn.dataset;
-    const names = filter === 'review' ? ['review_from', 'review_to'] : [filter];
+    const names = ['review', 'release'].includes(filter) ? [`${filter}_from`, `${filter}_to`] : [filter];
     names.forEach((name) => {
         form.querySelectorAll(`[name="${name}"]`).forEach((field) => {
             if (value && field.value !== value) return;

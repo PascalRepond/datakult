@@ -33,6 +33,8 @@ def saved_view_save(request):
             "filter_scores": request.POST.getlist("score"),
             "filter_contributor_id": request.POST.get("contributor") or None,
             "filter_tag_id": request.POST.get("tag") or None,
+            "filter_release_from": request.POST.get("release_from", ""),
+            "filter_release_to": request.POST.get("release_to", ""),
             "filter_review_from": request.POST.get("review_from", ""),
             "filter_review_to": request.POST.get("review_to", ""),
             "filter_has_review": request.POST.get("has_review", ""),

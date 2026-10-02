@@ -22,6 +22,10 @@ MAX_FILE_SIZE_MB = 10  # Maximum file size in megabytes
 MAX_IMAGE_PIXELS = 89_478_485
 ALLOWED_IMAGE_TYPES = {"JPEG", "PNG", "GIF", "BMP", "WEBP"}
 
+# Range of the release years
+MIN_YEAR = -4000
+MAX_YEAR = 2200
+
 # Error of django-partial-date, which ships no translation: listed for makemessages to extract it with the app strings
 gettext_noop("'%(value)s' is not a valid date string (YYYY, YYYY-MM, YYYY-MM-DD)")
 
@@ -216,8 +220,8 @@ class Media(TimestampedModel):
         null=True,
         blank=True,
         validators=[
-            MinValueValidator(-4000, _("Year must be between -4000 and 2200.")),
-            MaxValueValidator(2200, _("Year must be between -4000 and 2200.")),
+            MinValueValidator(MIN_YEAR, _("Year must be between -4000 and 2200.")),
+            MaxValueValidator(MAX_YEAR, _("Year must be between -4000 and 2200.")),
         ],
     )
     review = MarkdownField(
@@ -290,6 +294,8 @@ class SavedView(TimestampedModel):
     filter_scores = models.JSONField(default=list, blank=True)
     filter_contributor_id = models.IntegerField(null=True, blank=True)
     filter_tag_id = models.IntegerField(null=True, blank=True)
+    filter_release_from = models.CharField(max_length=10, blank=True, default="")
+    filter_release_to = models.CharField(max_length=10, blank=True, default="")
     filter_review_from = models.CharField(max_length=20, blank=True, default="")
     filter_review_to = models.CharField(max_length=20, blank=True, default="")
     filter_has_review = models.CharField(max_length=10, blank=True, default="")
@@ -318,6 +324,8 @@ class SavedView(TimestampedModel):
         optional_filters = [
             ("contributor", self.filter_contributor_id),
             ("tag", self.filter_tag_id),
+            ("release_from", self.filter_release_from),
+            ("release_to", self.filter_release_to),
             ("review_from", self.filter_review_from),
             ("review_to", self.filter_review_to),
             ("has_review", self.filter_has_review),

@@ -51,6 +51,27 @@
           <input type="date" name="review_to" value="{{ filters.review_to }}" />
         </label>
       </fieldset>
+      <fieldset class="flex flex-col gap-2">
+        <legend class="filter-legend">{% translate "Release year" %}</legend>
+        <label class="input input-sm w-full">
+          <span class="label">{% translate "From" %}</span>
+          <input type="number"
+                 name="release_from"
+                 value="{{ filters.release_from }}"
+                 min="{{ min_year }}"
+                 max="{{ max_year }}"
+                 placeholder="{% translate "YYYY" %}" />
+        </label>
+        <label class="input input-sm w-full">
+          <span class="label">{% translate "To" %}</span>
+          <input type="number"
+                 name="release_to"
+                 value="{{ filters.release_to }}"
+                 min="{{ min_year }}"
+                 max="{{ max_year }}"
+                 placeholder="{% translate "YYYY" %}" />
+        </label>
+      </fieldset>
       {% translate "Review" as review_legend %}
       {% include "partials/filters/presence_filter.html" with name="has_review" legend=review_legend icon="message-square" value=filters.has_review %}
       {% translate "Cover" as cover_legend %}

@@ -11,7 +11,7 @@ from django.urls import reverse
 from freezegun import freeze_time
 from PIL import Image
 
-from core.models import Agent, Media, Tag
+from core.models import MAX_YEAR, MIN_YEAR, Agent, Media, Tag
 from tests.helpers import image_bytes, media_form_data, messages_of, titles
 
 
@@ -56,17 +56,29 @@ def test_sort_outside_the_options_uses_default(logged_in_client, params):
         ("score", ["Poor", "Great", "Undated and unrated"]),
         ("-review_date", ["Great", "Poor", "Undated and unrated"]),
         ("review_date", ["Poor", "Great", "Undated and unrated"]),
+        ("-pub_year", ["Poor", "Great", "Undated and unrated"]),
+        ("pub_year", ["Great", "Poor", "Undated and unrated"]),
     ],
 )
 def test_media_without_the_sorted_value_come_last(logged_in_client, media_factory, sort, expected):
     """Unrated or undated media come after the others, whatever the direction of the sort."""
     media_factory(title="Undated and unrated")
-    media_factory(title="Poor", score=3, review_date="2020")
-    media_factory(title="Great", score=9, review_date="2024-05")
+    media_factory(title="Poor", score=3, review_date="2020", pub_year=2010)
+    media_factory(title="Great", score=9, review_date="2024-05", pub_year=1975)
 
     response = logged_in_client.get(reverse("home"), {"sort": sort})
 
     assert titles(response) == expected
+
+
+def test_title_sort_ignores_case(logged_in_client, media_factory):
+    """The title sort is alphabetical, whatever the case of the titles."""
+    for title in ["Banana", "cherry", "apple"]:
+        media_factory(title=title)
+
+    response = logged_in_client.get(reverse("home"), {"sort": "title"})
+
+    assert titles(response) == ["apple", "Banana", "cherry"]
 
 
 def test_media_without_sorted_value_are_sorted_by_last_update(logged_in_client, media_factory):
@@ -136,6 +148,27 @@ def test_filter_review_from_includes_less_precise_dates(logged_in_client, media_
     assert set(titles(from_new_year)) == {"Year", "January", "March", "March 2nd"}
     assert set(titles(from_march)) == {"March", "March 2nd"}
     assert set(titles(from_march_2nd)) == {"March 2nd"}
+
+
+@pytest.mark.parametrize(
+    ("params", "expected"),
+    [
+        ({"release_from": "1975", "release_to": "1985"}, {"Seventies", "Eighties"}),
+        ({"release_from": "1970"}, {"Seventies", "Eighties"}),
+        ({"release_to": "1979"}, {"Sixties", "Seventies"}),
+        ({"release_from": "not-a-year"}, {"Sixties", "Seventies", "Eighties", "Undated"}),
+    ],
+)
+def test_release_filter_keeps_the_media_released_between_its_bounds(logged_in_client, media_factory, params, expected):
+    """The release filter keeps the media released between its included bounds, leaving out media without a year."""
+    media_factory(title="Sixties", pub_year=1965)
+    media_factory(title="Seventies", pub_year=1975)
+    media_factory(title="Eighties", pub_year=1985)
+    media_factory(title="Undated")
+
+    response = logged_in_client.get(reverse("home"), params)
+
+    assert set(titles(response)) == expected
 
 
 def test_media_review_modal_shows_the_full_review(logged_in_client, media_factory):
@@ -276,8 +309,30 @@ def test_filter_form_holds_search_sort_and_filters(logged_in_client, agent):
     """Search, sort and filters belong to one form, so that none of them is lost when another changes."""
     form = _filter_form(logged_in_client.get(reverse("home"), {"contributor": agent.pk}).content.decode())
 
-    for name in ["search", "sort", "type", "status", "score", "review_from", "has_review", "has_cover", "contributor"]:
+    for name in [
+        "search",
+        "sort",
+        "type",
+        "status",
+        "score",
+        "release_from",
+        "release_to",
+        "review_from",
+        "has_review",
+        "has_cover",
+        "contributor",
+    ]:
         assert f'name="{name}"' in form
+
+
+def test_release_fields_accept_the_years_of_a_release_year(logged_in_client):
+    """The release bounds of the filters accept the same years as the release year of a media."""
+    form = _filter_form(logged_in_client.get(reverse("home")).content.decode())
+
+    for name in ["release_from", "release_to"]:
+        field = re.search(rf'<input[^>]*name="{name}"[^>]*>', form)[0]
+        assert f'min="{MIN_YEAR}"' in field
+        assert f'max="{MAX_YEAR}"' in field
 
 
 def test_filter_form_updates_the_page_in_place(logged_in_client):
@@ -305,12 +360,38 @@ def test_filter_toggles_show_the_selected_values(logged_in_client):
 
 def test_filters_button_counts_the_active_filters(logged_in_client, agent):
     """The filters button shows how many filters are active, one per filter badge."""
-    params = {"type": ["BOOK", "FILM"], "status": "PLANNED", "has_cover": "filled", "contributor": agent.pk}
+    params = {
+        "type": ["BOOK", "FILM"],
+        "status": "PLANNED",
+        "release_from": "1970",
+        "release_to": "1979",
+        "has_cover": "filled",
+        "contributor": agent.pk,
+    }
 
     response = logged_in_client.get(reverse("home"), params)
 
-    assert response.context["active_filter_count"] == 5
-    assert re.search(r'id="filters-count"[^>]*>\s*5\s*<', response.content.decode())
+    assert response.context["active_filter_count"] == 6
+    assert re.search(r'id="filters-count"[^>]*>\s*6\s*<', response.content.decode())
+
+
+@pytest.mark.parametrize(
+    ("params", "name", "label"),
+    [
+        ({"release_from": "1970", "release_to": "1979"}, "release", "1970 → 1979"),
+        ({"release_from": "1970"}, "release", "1970 → …"),
+        ({"release_to": "1979"}, "release", "… → 1979"),
+        ({"review_from": "2024-01-01", "review_to": "2024-12-31"}, "review", "2024-01-01 → 2024-12-31"),
+        ({"review_from": "2024-01-01"}, "review", "2024-01-01 → …"),
+        ({"review_to": "2024-12-31"}, "review", "… → 2024-12-31"),
+    ],
+)
+def test_range_bounds_show_as_a_removable_badge(logged_in_client, params, name, label):
+    """The bounds of a range filter show as one badge, which removes them both, and let the view be saved."""
+    content = logged_in_client.get(reverse("home"), params).content.decode()
+
+    assert re.search(rf'data-filter="{name}">.*?<span>{label}</span>.*?data-filter="{name}"', content, re.DOTALL)
+    assert 'commandfor="save-view-modal"' in content
 
 
 def test_invalid_contributor_is_not_counted_as_a_filter(logged_in_client):

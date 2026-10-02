@@ -54,6 +54,8 @@ FILTER_PARAMS = {
     "type",
     "status",
     "score",
+    "release_from",
+    "release_to",
     "review_from",
     "review_to",
     "has_review",

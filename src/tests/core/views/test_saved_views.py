@@ -8,6 +8,7 @@ import pytest
 from django.template.loader import render_to_string
 from django.urls import reverse
 
+from core.filters import SORT_OPTIONS
 from core.models import SavedView, Tag
 from tests.helpers import messages_of, titles
 
@@ -22,6 +23,8 @@ def test_saved_view_save_stores_every_filter_and_applies_them(logged_in_client, 
         "score": ["8", "9", "none"],
         "contributor": str(agent.pk),
         "tag": str(tag.pk),
+        "release_from": "1970",
+        "release_to": "1979",
         "review_from": "2024-01",
         "review_to": "2024-12-31",
         "has_review": "filled",
@@ -38,6 +41,8 @@ def test_saved_view_save_stores_every_filter_and_applies_them(logged_in_client, 
     assert saved_view.filter_scores == ["8", "9", "none"]
     assert saved_view.filter_contributor_id == agent.pk
     assert saved_view.filter_tag_id == tag.pk
+    assert saved_view.filter_release_from == "1970"
+    assert saved_view.filter_release_to == "1979"
     assert saved_view.filter_review_from == "2024-01"
     assert saved_view.filter_review_to == "2024-12-31"
     assert saved_view.filter_has_review == "filled"
@@ -68,6 +73,14 @@ def test_saved_view_save_updates_existing_view(logged_in_client, user, saved_vie
     assert (saved_view.name, saved_view.filter_types, saved_view.sort) == ("My View", ["FILM"], "-score")
 
 
+@pytest.mark.parametrize("sort", [value for value, _label in SORT_OPTIONS])
+def test_saved_view_save_stores_every_sort(logged_in_client, user, sort):
+    """A view can be saved with any sort of the list."""
+    logged_in_client.post(reverse("saved_view_save"), {"view_name": "Sorted", "sort": sort})
+
+    assert SavedView.objects.get(user=user).sort == sort
+
+
 @pytest.mark.parametrize(
     "params",
     [
@@ -80,6 +93,8 @@ def test_saved_view_save_updates_existing_view(logged_in_client, user, saved_vie
         {"contributor": "99999"},
         {"contributor": "not-a-number"},
         {"tag": "99999"},
+        {"release_from": "not-a-year"},
+        {"release_to": "2201"},
         {"review_from": "not-a-date"},
         {"has_review": "invalid"},
         {"has_cover": "invalid"},

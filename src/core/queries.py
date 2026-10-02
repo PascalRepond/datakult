@@ -4,6 +4,7 @@ import contextlib
 
 from django.core.paginator import Paginator
 from django.db.models import F, Q
+from django.db.models.functions import Lower
 
 from .filters import SORT_OPTIONS, apply_filters, extract_filters, get_field_choices, resolve_sorting
 from .models import Media
@@ -45,8 +46,9 @@ def build_media_context(request):
 
     # Apply filters and sorting
     queryset, contributor, tag = apply_filters(queryset, filters)
-    # Media without the sorted value come last, and media that tie on the sort come last updated first
-    field = F(sort.lstrip("-"))
+    # Titles sort ignoring case, media without the sorted value come last, and media that tie come last updated first
+    name = sort.lstrip("-")
+    field = Lower(name) if name == "title" else F(name)
     order = field.desc(nulls_last=True) if sort.startswith("-") else field.asc(nulls_last=True)
     queryset = queryset.order_by(order, "-updated_at")
 
@@ -60,6 +62,7 @@ def build_media_context(request):
         len(filters["type"])
         + len(filters["status"])
         + len(filters["score"])
+        + bool(filters["release_from"] or filters["release_to"])
         + bool(filters["review_from"] or filters["review_to"])
         + bool(filters["has_review"])
         + bool(filters["has_cover"])

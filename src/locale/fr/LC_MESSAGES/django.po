@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-25 22:31+0200\n"
+"POT-Creation-Date: 2026-10-02 19:47+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -48,79 +48,98 @@ msgstr "Meilleures notes"
 msgid "Lowest scores"
 msgstr "Moins bonnes notes"
 
-#: src/core/filters.py:68 src/core/templates/widgets/score_picker.html:8
+#: src/core/filters.py:19
+msgid "Title (A-Z)"
+msgstr "Titre (A-Z)"
+
+#: src/core/filters.py:20
+msgid "Newest releases"
+msgstr "Sortie plus récente"
+
+#: src/core/filters.py:21
+msgid "Oldest releases"
+msgstr "Sortie plus ancienne"
+
+#: src/core/filters.py:75 src/core/templates/widgets/score_picker.html:8
 #: src/core/templates/widgets/score_picker.html:26
 #: src/templates/partials/navigation/filters_drawer.html:39
 msgid "Not rated"
 msgstr "Non noté"
 
-#: src/core/filters.py:186
+#: src/core/filters.py:205
 #, python-format
 msgid "Invalid media types: %(types)s"
 msgstr "Types de médias invalides : %(types)s"
 
-#: src/core/filters.py:187
+#: src/core/filters.py:206
 #, python-format
 msgid "Invalid statuses: %(statuses)s"
 msgstr "Statuts invalides : %(statuses)s"
 
-#: src/core/filters.py:188
+#: src/core/filters.py:207
 #, python-format
 msgid "Invalid scores: %(scores)s"
 msgstr "Scores invalides : %(scores)s"
 
-#: src/core/filters.py:197
+#: src/core/filters.py:216
 #, python-format
 msgid "Contributor does not exist: ID %(id)s"
 msgstr "Le contributeur n'existe pas : ID %(id)s"
 
-#: src/core/filters.py:197
+#: src/core/filters.py:216
 #, python-format
 msgid "Invalid contributor ID format: %(id)s"
 msgstr "Format d'ID de contributeur invalide : %(id)s"
 
-#: src/core/filters.py:198
+#: src/core/filters.py:217
 #, python-format
 msgid "Tag does not exist: ID %(id)s"
 msgstr "Le tag n'existe pas : ID %(id)s"
 
-#: src/core/filters.py:198
+#: src/core/filters.py:217
 #, python-format
 msgid "Invalid tag ID format: %(id)s"
 msgstr "Format d'ID de tag invalide : %(id)s"
 
-#: src/core/filters.py:210
+#: src/core/filters.py:236
+#, python-format
+msgid "Invalid release year: %(year)s"
+msgstr "Année de sortie invalide : %(year)s"
+
+#: src/core/filters.py:241
 msgid "Start date"
 msgstr "Date de début"
 
-#: src/core/filters.py:210
+#: src/core/filters.py:241
 msgid "End date"
 msgstr "Date de fin"
 
-#: src/core/filters.py:215
+#: src/core/filters.py:246
 #, python-format
 msgid "Invalid %(label)s: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/filters.py:220
+#: src/core/filters.py:251
 msgid "Review filter"
 msgstr "Filtre de critique"
 
-#: src/core/filters.py:220
+#: src/core/filters.py:251
 msgid "Cover filter"
 msgstr "Filtre de couverture"
 
-#: src/core/filters.py:222
+#: src/core/filters.py:253
 #, python-format
 msgid "Invalid %(label)s value: %(value)s"
 msgstr "Valeur %(label)s invalide : %(value)s"
 
-#: src/core/filters.py:229
+#: src/core/filters.py:260
 #, python-format
 msgid "Invalid sort field: %(sort)s"
 msgstr "Champ de tri invalide : %(sort)s"
 
 #: src/core/forms.py:99
+#: src/templates/partials/navigation/filters_drawer.html:52
+#: src/templates/partials/navigation/filters_drawer.html:61
 msgid "YYYY"
 msgstr "AAAA"
 
@@ -128,7 +147,7 @@ msgstr "AAAA"
 msgid "YYYY, YYYY-MM, or YYYY-MM-DD"
 msgstr "AAAA, AAAA-MM ou AAAA-MM-JJ"
 
-#: src/core/import_results.py:38 src/core/models.py:95
+#: src/core/import_results.py:38 src/core/models.py:104
 msgid "Film"
 msgstr "Film"
 
@@ -136,7 +155,7 @@ msgstr "Film"
 msgid "TV"
 msgstr "Série"
 
-#: src/core/import_results.py:52 src/core/models.py:92
+#: src/core/import_results.py:52 src/core/models.py:101
 msgid "Video game"
 msgstr "Jeu vidéo"
 
@@ -144,153 +163,153 @@ msgstr "Jeu vidéo"
 msgid "Album"
 msgstr "Album"
 
-#: src/core/models.py:24
+#: src/core/models.py:30
 #, python-format
 msgid "'%(value)s' is not a valid date string (YYYY, YYYY-MM, YYYY-MM-DD)"
 msgstr "'%(value)s' n'est pas une date valide (AAAA, AAAA-MM ou AAAA-MM-JJ)"
 
-#: src/core/models.py:43
+#: src/core/models.py:49
 #, python-format
 msgid "Image file size exceeds %(max_size)sMB limit."
 msgstr "La taille du fichier image dépasse la limite de %(max_size)sMo."
 
-#: src/core/models.py:53
+#: src/core/models.py:59
 #, python-format
 msgid "Unsupported image format: %(format)s. Allowed: %(allowed)s"
 msgstr "Format d'image non pris en charge : %(format)s. Autorisé : %(allowed)s"
 
-#: src/core/models.py:70
+#: src/core/models.py:64 src/core/models.py:79
 msgid "Image is too large (possible decompression bomb attack)."
 msgstr "Image trop grande (attaque par bombe de décompression possible)."
 
-#: src/core/models.py:72
+#: src/core/models.py:81
 msgid "Invalid or corrupted image file."
 msgstr "Fichier image invalide ou corrompu."
 
-#: src/core/models.py:91
+#: src/core/models.py:100
 msgid "Book"
 msgstr "Livre"
 
-#: src/core/models.py:93 src/core/views/imports.py:28
+#: src/core/models.py:102 src/core/views/imports.py:28
 msgid "Music"
 msgstr "Musique"
 
-#: src/core/models.py:94
+#: src/core/models.py:103
 msgid "Comic"
 msgstr "BD"
 
-#: src/core/models.py:96
+#: src/core/models.py:105
 msgid "TV series"
 msgstr "Série TV"
 
-#: src/core/models.py:97
+#: src/core/models.py:106
 msgid "Show/performance"
 msgstr "Spectacle/Performance"
 
-#: src/core/models.py:98
+#: src/core/models.py:107
 msgid "Broadcast"
 msgstr "Émission"
 
-#: src/core/models.py:102
+#: src/core/models.py:111
 msgid "Planned"
 msgstr "Prévu"
 
-#: src/core/models.py:103
+#: src/core/models.py:112
 msgid "In progress"
 msgstr "En cours"
 
-#: src/core/models.py:104
+#: src/core/models.py:113
 msgid "Completed"
 msgstr "Terminé"
 
-#: src/core/models.py:105
+#: src/core/models.py:114
 msgid "Paused"
 msgstr "En pause"
 
-#: src/core/models.py:106
+#: src/core/models.py:115
 msgid "Did not finish"
 msgstr "Pas fini"
 
-#: src/core/models.py:112
+#: src/core/models.py:121
 msgid "Detested"
 msgstr "Haï"
 
-#: src/core/models.py:113
+#: src/core/models.py:122
 msgid "Hated"
 msgstr "Détesté"
 
-#: src/core/models.py:114
+#: src/core/models.py:123
 msgid "Disliked"
 msgstr "Pas aimé"
 
-#: src/core/models.py:115
+#: src/core/models.py:124
 msgid "Not appreciated"
 msgstr "Pas vraiment aimé"
 
-#: src/core/models.py:116
+#: src/core/models.py:125
 msgid "Moderately appreciated"
 msgstr "Moyennement apprécié"
 
-#: src/core/models.py:117
+#: src/core/models.py:126
 msgid "Appreciated"
 msgstr "Apprécié"
 
-#: src/core/models.py:118
+#: src/core/models.py:127
 msgid "Enjoyed"
 msgstr "Aimé"
 
-#: src/core/models.py:119
+#: src/core/models.py:128
 msgid "Really enjoyed"
 msgstr "Beaucoup aimé"
 
-#: src/core/models.py:120
+#: src/core/models.py:129
 msgid "Loved"
 msgstr "Adoré"
 
-#: src/core/models.py:121
+#: src/core/models.py:130
 msgid "Adored"
 msgstr "Coup de cœur"
 
-#: src/core/models.py:138
+#: src/core/models.py:147
 #: src/templates/partials/saved_views/save_view_modal.html:12
 msgid "Name"
 msgstr "Nom"
 
-#: src/core/models.py:155
+#: src/core/models.py:164
 msgid "Agent"
 msgstr "Agent"
 
-#: src/core/models.py:156
+#: src/core/models.py:165
 msgid "Agents"
 msgstr "Agents"
 
-#: src/core/models.py:163
+#: src/core/models.py:172
 msgid "Tag"
 msgstr "Mot-clé"
 
-#: src/core/models.py:164 src/core/models.py:184
+#: src/core/models.py:173 src/core/models.py:193
 #: src/templates/base/media_edit.html:99
 msgid "Tags"
 msgstr "Mots-clés"
 
-#: src/core/models.py:171 src/templates/base/media_edit.html:53
+#: src/core/models.py:180 src/templates/base/media_edit.html:53
 msgid "Title"
 msgstr "Titre"
 
-#: src/core/models.py:178
+#: src/core/models.py:187
 msgid "Contributor"
 msgstr "Contributeur"
 
-#: src/core/models.py:189 src/templates/base/media_edit.html:54
+#: src/core/models.py:198 src/templates/base/media_edit.html:54
 #: src/templates/partials/navigation/filters_drawer.html:18
 msgid "Media type"
 msgstr "Type de média"
 
-#: src/core/models.py:195 src/templates/base/media_edit.html:101
+#: src/core/models.py:204 src/templates/base/media_edit.html:101
 msgid "External URI"
 msgstr "URI externe"
 
-#: src/core/models.py:200
+#: src/core/models.py:209
 msgid ""
 "Link to an external page about this media (e.g., official site, IMDb, "
 "Goodreads, etc.)"
@@ -298,48 +317,49 @@ msgstr ""
 "Lien vers une page externe à propos de ce média (par exemple, site officiel, "
 "IMDb, Goodreads, etc.)"
 
-#: src/core/models.py:203 src/templates/base/media_edit.html:118
+#: src/core/models.py:212 src/templates/base/media_edit.html:118
 #: src/templates/partials/navigation/filters_drawer.html:26
 msgid "Status"
 msgstr "Statut"
 
-#: src/core/models.py:210 src/templates/base/media_edit.html:100
+#: src/core/models.py:219 src/templates/base/media_edit.html:100
+#: src/templates/partials/navigation/filters_drawer.html:44
 msgid "Release year"
 msgstr "Année de sortie"
 
-#: src/core/models.py:214 src/core/models.py:215
+#: src/core/models.py:223 src/core/models.py:224
 msgid "Year must be between -4000 and 2200."
 msgstr "L'année doit être comprise entre -4000 et 2200."
 
-#: src/core/models.py:219 src/templates/base/media_edit.html:141
-#: src/templates/partials/navigation/filters_drawer.html:54
+#: src/core/models.py:228 src/templates/base/media_edit.html:141
+#: src/templates/partials/navigation/filters_drawer.html:75
 msgid "Review"
 msgstr "Critique"
 
-#: src/core/models.py:230
+#: src/core/models.py:239
 msgid "Review score"
 msgstr "Note de critique"
 
-#: src/core/models.py:236 src/templates/base/media_edit.html:122
-#: src/templates/partials/navigation/filters_drawer.html:44
+#: src/core/models.py:245 src/templates/base/media_edit.html:122
+#: src/templates/partials/navigation/filters_drawer.html:65
 msgid "Review date"
 msgstr "Date de critique"
 
-#: src/core/models.py:239
+#: src/core/models.py:248
 msgid "Either a full date or just year and month, or only year."
 msgstr ""
 "Soit une date complète, soit seulement l'année et le mois, ou uniquement "
 "l'année."
 
-#: src/core/models.py:242 src/templates/base/media_edit.html:66
+#: src/core/models.py:251 src/templates/base/media_edit.html:66
 msgid "Cover image"
 msgstr "Image de couverture"
 
-#: src/core/models.py:299
+#: src/core/models.py:311
 msgid "Saved view"
 msgstr "Vue enregistrée"
 
-#: src/core/models.py:300
+#: src/core/models.py:312
 #: src/templates/partials/saved_views/saved_views_list.html:6
 msgid "Saved views"
 msgstr "Vues enregistrées"
@@ -454,11 +474,11 @@ msgstr "'%(title)s' créé avec succès"
 msgid "'%(title)s' deleted successfully"
 msgstr "'%(title)s' supprimé avec succès"
 
-#: src/core/views/media.py:193
+#: src/core/views/media.py:194
 msgid "Agent not found"
 msgstr "Agent non trouvé"
 
-#: src/core/views/media.py:205
+#: src/core/views/media.py:207
 msgid "Tag not found"
 msgstr "Mot-clé non trouvé"
 
@@ -466,21 +486,21 @@ msgstr "Mot-clé non trouvé"
 msgid "View name is required"
 msgstr "Nom de la vue requis"
 
-#: src/core/views/saved_views.py:43
+#: src/core/views/saved_views.py:46
 #, python-format
 msgid "View '%(name)s' saved successfully"
 msgstr "Vue '%(name)s' a été enregistrée avec succès"
 
-#: src/core/views/saved_views.py:43
+#: src/core/views/saved_views.py:46
 #, python-format
 msgid "View '%(name)s' has been updated"
 msgstr "Vue '%(name)s' a été mise à jour"
 
-#: src/core/views/saved_views.py:59
+#: src/core/views/saved_views.py:62
 msgid "View not found"
 msgstr "Vue non trouvée"
 
-#: src/core/views/saved_views.py:62
+#: src/core/views/saved_views.py:65
 #, python-format
 msgid "View '%(name)s' deleted successfully"
 msgstr "Vue '%(name)s' supprimée avec succès"
@@ -780,27 +800,27 @@ msgstr "Trier par"
 msgid "Filters"
 msgstr "Filtres"
 
-#: src/templates/base/media_index.html:106
+#: src/templates/base/media_index.html:111
 msgid "No review"
 msgstr "Pas de critique"
 
-#: src/templates/base/media_index.html:108
+#: src/templates/base/media_index.html:113
 msgid "Has review"
 msgstr "Avec critique"
 
-#: src/templates/base/media_index.html:114
+#: src/templates/base/media_index.html:119
 msgid "No cover"
 msgstr "Pas de couverture"
 
-#: src/templates/base/media_index.html:116
+#: src/templates/base/media_index.html:121
 msgid "Has cover"
 msgstr "Avec couverture"
 
-#: src/templates/base/media_index.html:133
+#: src/templates/base/media_index.html:138
 msgid "Save view"
 msgstr "Enregistrer la vue"
 
-#: src/templates/base/media_index.html:144
+#: src/templates/base/media_index.html:149
 #: src/templates/partials/common/confirm_modal.html:35
 #: src/templates/partials/media_items/media_review_modal.html:15
 #: src/templates/partials/navigation/filters_drawer.html:8
@@ -917,7 +937,7 @@ msgid "No media matches these filters."
 msgstr "Aucun média ne correspond à ces filtres."
 
 #: src/templates/partials/media_items/media_list.html:21
-#: src/templates/partials/navigation/filters_drawer.html:62
+#: src/templates/partials/navigation/filters_drawer.html:83
 msgid "Clear filters"
 msgstr "Vider les filtres"
 
@@ -932,14 +952,16 @@ msgid "Score: %(score)s out of 10"
 msgstr "Note : %(score)s sur 10"
 
 #: src/templates/partials/navigation/filters_drawer.html:46
+#: src/templates/partials/navigation/filters_drawer.html:67
 msgid "From"
 msgstr "De"
 
-#: src/templates/partials/navigation/filters_drawer.html:50
+#: src/templates/partials/navigation/filters_drawer.html:55
+#: src/templates/partials/navigation/filters_drawer.html:71
 msgid "To"
 msgstr "À"
 
-#: src/templates/partials/navigation/filters_drawer.html:56
+#: src/templates/partials/navigation/filters_drawer.html:77
 msgid "Cover"
 msgstr "Couverture"
 

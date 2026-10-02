@@ -96,9 +96,14 @@
         {% include "partials/filters/filter_badge.html" with label=score_label filter_name="score" filter_value=score_val icon="star" %}
       {% endfor %}
     {% endif %}
+    {% if filters.release_from or filters.release_to %}
+      {% with release_from=filters.release_from|default:"…" release_to=filters.release_to|default:"…" %}
+        {% include "partials/filters/filter_badge.html" with label=release_from|add:" → "|add:release_to filter_name="release" icon="history" %}
+      {% endwith %}
+    {% endif %}
     {% if filters.review_from or filters.review_to %}
-      {% with review_label=filters.review_from|default:"…"|add:" → "|add:filters.review_to|default:"…" %}
-        {% include "partials/filters/filter_badge.html" with label=review_label filter_name="review" icon="calendar" %}
+      {% with review_from=filters.review_from|default:"…" review_to=filters.review_to|default:"…" %}
+        {% include "partials/filters/filter_badge.html" with label=review_from|add:" → "|add:review_to filter_name="review" icon="calendar" %}
       {% endwith %}
     {% endif %}
     {% if filters.has_review %}

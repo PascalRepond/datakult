@@ -33,6 +33,7 @@ from core.templatetags.media_tags import (
         ("?tag=3", True),
         ("?contributor=1", True),
         ("?status=PLANNED", True),
+        ("?release_to=1979", True),
         ("?search=dune", True),
     ],
 )

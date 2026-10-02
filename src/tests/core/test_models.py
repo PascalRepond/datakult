@@ -147,6 +147,8 @@ def test_get_filter_url_holds_every_set_filter(saved_view_factory):
         filter_scores=["9", "10"],
         filter_contributor_id=42,
         filter_tag_id=7,
+        filter_release_from="1970",
+        filter_release_to="1979",
         filter_review_from="2024-01",
         filter_review_to="2024-12",
         filter_has_review="filled",
@@ -156,6 +158,6 @@ def test_get_filter_url_holds_every_set_filter(saved_view_factory):
     )
 
     assert saved_view.get_filter_url() == (
-        "/?type=BOOK&type=FILM&status=COMPLETED&score=9&score=10&contributor=42&tag=7"
-        "&review_from=2024-01&review_to=2024-12&has_review=filled&has_cover=empty&search=dune&sort=-score"
+        "/?type=BOOK&type=FILM&status=COMPLETED&score=9&score=10&contributor=42&tag=7&release_from=1970"
+        "&release_to=1979&review_from=2024-01&review_to=2024-12&has_review=filled&has_cover=empty&search=dune&sort=-score"
     )
