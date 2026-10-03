@@ -2,6 +2,45 @@
 
 <!-- version list -->
 
+## v1.11.0 (2026-10-03)
+
+### Bug Fixes
+
+- Keep the search text in saved views
+  ([`e155020`](https://github.com/PascalRepond/datakult/commit/e155020fbe5e0c5b7d8a59dc16f9cca2732615a4))
+
+- **nav**: Lead back to the list with its filters
+  ([`f001e39`](https://github.com/PascalRepond/datakult/commit/f001e39225dbb2a4659841a98c21c5bd16a2f394))
+
+- **nav**: Let modified clicks open back links
+  ([`d6b7d12`](https://github.com/PascalRepond/datakult/commit/d6b7d12fe9e21732e9671a73d9d37484d321279c))
+
+- **ui**: Stop the stats page overflowing on mobile
+  ([`36125d0`](https://github.com/PascalRepond/datakult/commit/36125d0167a72e17d26fad431342b14fbd1777fb))
+
+### Chores
+
+- Update dependencies
+  ([`11b67aa`](https://github.com/PascalRepond/datakult/commit/11b67aaaf54f6556fa223709bc5b8ad5cecf69df))
+
+- **deps**: Update dependencies
+  ([`790ac4e`](https://github.com/PascalRepond/datakult/commit/790ac4e6a7c8b64deedb34edb56cb217aea5ea55))
+
+### Features
+
+- Sort by title and year, filter by year
+  ([`5542224`](https://github.com/PascalRepond/datakult/commit/55422247250a8a41a040145448bb87431be4d69c))
+
+- **stats**: Chart rated media per release decade
+  ([`9ec9d2f`](https://github.com/PascalRepond/datakult/commit/9ec9d2ff69b8723273d07ca64c1faa51c6947a2b))
+
+- **stats**: Rank the contributors of rated media
+  ([`bd69828`](https://github.com/PascalRepond/datakult/commit/bd698285ba1280519ca341358c09394283daf36b))
+
+- **ui**: Refresh icons and lighten pages
+  ([`410c0a5`](https://github.com/PascalRepond/datakult/commit/410c0a5b62e2bde6c4d62d154efc1a11eafc3ee1))
+
+
 ## v1.10.1 (2026-09-25)
 
 ### Bug Fixes
