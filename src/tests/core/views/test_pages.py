@@ -90,15 +90,11 @@ def test_top_level_pages_have_no_back_link(logged_in_client, url_name):
     assert _back_url(logged_in_client.get(reverse(url_name))) is None
 
 
-def test_add_media_is_reachable_from_every_page(logged_in_client, media):
-    """The add action is in the sidebar, and in a floating button on pages other than the forms."""
-    add_url = reverse("media_import")
+def test_add_media_is_only_in_the_sidebar(logged_in_client, media):
+    """The add action is in the sidebar, which the menu opens on mobile, without a floating button."""
     detail = logged_in_client.get(reverse("media_detail", args=[media.pk])).content.decode()
-    edit = logged_in_client.get(reverse("media_edit", args=[media.pk])).content.decode()
 
-    assert detail.count(f'href="{add_url}"') == 2
-    assert 'class="fab' in detail
-    assert 'class="fab' not in edit
+    assert detail.count(f'href="{reverse("media_import")}"') == 1
 
 
 @pytest.mark.parametrize("criteria", [{"filter_types": ["GAME", "BOOK"]}, {"search": "dune"}])
