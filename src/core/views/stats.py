@@ -72,6 +72,9 @@ def stats(request):
         row["url"] = _url_with_filters(
             "home", type=media_type, release_from=row["start"], release_to=row["end"], **year_bounds
         )
+    contributors = media_stats.contributor_rankings(media)
+    for row in [*contributors["most_frequent"], *contributors["best_rated"]]:
+        row["url"] = _url_with_filters("home", type=media_type, contributor=row["id"], **year_bounds)
 
     # The year picker keeps the type filter; without a year, the yearly chart already holds its years
     if year is None:
@@ -87,12 +90,13 @@ def stats(request):
         "media_type": media_type,
         "media_type_label": dict(MediaType.choices).get(media_type),
         "type_counts": type_counts,
-        "overview": media_stats.overview(media),
         "covers": _stats_covers_page(media),
         "per_year": per_year,
         "per_month": per_month,
         "score_distribution": score_distribution,
         "per_decade": per_decade,
+        "contributors": contributors,
+        "best_rated_min_media": media_stats.BEST_RATED_MIN_MEDIA,
     }
     return render(request, "base/stats.html", context)
 

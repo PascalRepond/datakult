@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 09:46+0200\n"
+"POT-Creation-Date: 2026-10-03 10:09+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -364,7 +364,7 @@ msgstr "Vue enregistrée"
 msgid "Saved views"
 msgstr "Vues enregistrées"
 
-#: src/core/stats.py:94
+#: src/core/stats.py:99
 #, python-format
 msgid "Before %(year)s"
 msgstr "Avant %(year)s"
@@ -873,16 +873,24 @@ msgstr "Décennies de sortie"
 msgid "No rated media with a release year yet."
 msgstr "Aucun média noté avec une année de sortie pour l'instant."
 
-#: src/templates/base/stats.html:92
+#: src/templates/base/stats.html:88
+msgid "Most frequent contributors"
+msgstr "Contributeurs les plus fréquents"
+
+#: src/templates/base/stats.html:90
+msgid "Best-rated contributors"
+msgstr "Contributeurs les mieux notés"
+
+#: src/templates/base/stats.html:99
 #, python-format
 msgid "Rated per month in %(year)s"
 msgstr "Notés par mois en %(year)s"
 
-#: src/templates/base/stats.html:105
+#: src/templates/base/stats.html:112
 msgid "Rated per year"
 msgstr "Notés par année"
 
-#: src/templates/base/stats.html:110
+#: src/templates/base/stats.html:117
 msgid "No rated media with a review date yet."
 msgstr "Aucun média noté avec une date de critique pour l'instant."
 
@@ -1050,6 +1058,17 @@ msgstr "Supprimer la vue enregistrée"
 #: src/templates/partials/stats/covers_page.html:32
 msgid "Show more"
 msgstr "Afficher plus"
+
+#: src/templates/partials/stats/ranking.html:13
+#, python-format
+msgid "With at least %(counter)s rated media"
+msgid_plural "With at least %(counter)s rated media"
+msgstr[0] "Avec au moins %(counter)s média noté"
+msgstr[1] "Avec au moins %(counter)s médias notés"
+
+#: src/templates/partials/stats/ranking.html:36
+msgid "Nothing to rank."
+msgstr "Rien à classer."
 
 #: src/templates/partials/stats/year_picker.html:7
 msgid "Year"
