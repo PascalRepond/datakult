@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-02 19:47+0200\n"
+"POT-Creation-Date: 2026-10-03 09:46+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -138,8 +138,8 @@ msgid "Invalid sort field: %(sort)s"
 msgstr "Champ de tri invalide : %(sort)s"
 
 #: src/core/forms.py:99
-#: src/templates/partials/navigation/filters_drawer.html:52
-#: src/templates/partials/navigation/filters_drawer.html:61
+#: src/templates/partials/navigation/filters_drawer.html:63
+#: src/templates/partials/navigation/filters_drawer.html:72
 msgid "YYYY"
 msgstr "AAAA"
 
@@ -323,7 +323,7 @@ msgid "Status"
 msgstr "Statut"
 
 #: src/core/models.py:219 src/templates/base/media_edit.html:100
-#: src/templates/partials/navigation/filters_drawer.html:44
+#: src/templates/partials/navigation/filters_drawer.html:55
 msgid "Release year"
 msgstr "Année de sortie"
 
@@ -341,7 +341,7 @@ msgid "Review score"
 msgstr "Note de critique"
 
 #: src/core/models.py:245 src/templates/base/media_edit.html:122
-#: src/templates/partials/navigation/filters_drawer.html:65
+#: src/templates/partials/navigation/filters_drawer.html:44
 msgid "Review date"
 msgstr "Date de critique"
 
@@ -363,6 +363,11 @@ msgstr "Vue enregistrée"
 #: src/templates/partials/saved_views/saved_views_list.html:6
 msgid "Saved views"
 msgstr "Vues enregistrées"
+
+#: src/core/stats.py:94
+#, python-format
+msgid "Before %(year)s"
+msgstr "Avant %(year)s"
 
 #: src/core/templates/widgets/cover_input.html:12
 msgid "Current cover"
@@ -860,16 +865,24 @@ msgstr "Aucun média noté pour l'instant."
 msgid "Score distribution"
 msgstr "Distribution des notes"
 
-#: src/templates/base/stats.html:78
+#: src/templates/base/stats.html:77
+msgid "Release decades"
+msgstr "Décennies de sortie"
+
+#: src/templates/base/stats.html:82
+msgid "No rated media with a release year yet."
+msgstr "Aucun média noté avec une année de sortie pour l'instant."
+
+#: src/templates/base/stats.html:92
 #, python-format
 msgid "Rated per month in %(year)s"
 msgstr "Notés par mois en %(year)s"
 
-#: src/templates/base/stats.html:91
+#: src/templates/base/stats.html:105
 msgid "Rated per year"
 msgstr "Notés par année"
 
-#: src/templates/base/stats.html:96
+#: src/templates/base/stats.html:110
 msgid "No rated media with a review date yet."
 msgstr "Aucun média noté avec une date de critique pour l'instant."
 
@@ -952,12 +965,12 @@ msgid "Score: %(score)s out of 10"
 msgstr "Note : %(score)s sur 10"
 
 #: src/templates/partials/navigation/filters_drawer.html:46
-#: src/templates/partials/navigation/filters_drawer.html:67
+#: src/templates/partials/navigation/filters_drawer.html:57
 msgid "From"
 msgstr "De"
 
-#: src/templates/partials/navigation/filters_drawer.html:55
-#: src/templates/partials/navigation/filters_drawer.html:71
+#: src/templates/partials/navigation/filters_drawer.html:50
+#: src/templates/partials/navigation/filters_drawer.html:66
 msgid "To"
 msgstr "À"
 

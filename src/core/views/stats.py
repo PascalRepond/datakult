@@ -67,6 +67,11 @@ def stats(request):
     year_bounds = _review_bounds(year) if year else {}
     for row in score_distribution:
         row["url"] = _url_with_filters("home", type=media_type, score=row["label"], **year_bounds)
+    per_decade = media_stats.count_per_decade(media)
+    for row in per_decade:
+        row["url"] = _url_with_filters(
+            "home", type=media_type, release_from=row["start"], release_to=row["end"], **year_bounds
+        )
 
     # The year picker keeps the type filter; without a year, the yearly chart already holds its years
     if year is None:
@@ -87,6 +92,7 @@ def stats(request):
         "per_year": per_year,
         "per_month": per_month,
         "score_distribution": score_distribution,
+        "per_decade": per_decade,
     }
     return render(request, "base/stats.html", context)
 
