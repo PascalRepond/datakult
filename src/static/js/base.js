@@ -77,8 +77,9 @@ document.body.addEventListener('click', (event) => {
 
 // BACK LINKS
 // Go back in history rather than follow the link when the previous page of the tab is one of the paths it names,
-// to find that page as it was left (filters, scroll position)
+// to find that page as it was left (filters, scroll position). Modified clicks keep their default (new tab, window)
 document.addEventListener('click', (event) => {
+    if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     const link = event.target.closest('[data-history-back]');
     if (!link || history.length < 2 || !document.referrer) return;
     const previous = new URL(document.referrer);
