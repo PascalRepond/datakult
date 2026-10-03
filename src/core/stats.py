@@ -5,8 +5,12 @@ from collections import Counter
 from django.db.models import Avg, Count
 from django.utils.dates import MONTHS_3
 from django.utils.text import capfirst
+from django.utils.translation import gettext as _
 
 from .models import Media, MediaType, Score
+
+# Release decades are counted from this one on, earlier works sharing a single bar
+FIRST_DECADE = 1900
 
 
 def _with_pct(rows):
@@ -76,6 +80,33 @@ def count_per_month(media, year):
     """Count media per month of `year`, year-only review dates falling in January as the review date filter does."""
     counts = Counter(date.date.month for date in _review_dates(media) if date.date.year == year)
     return _with_pct([{"label": capfirst(MONTHS_3[month]), "count": counts[month]} for month in range(1, 13)])
+
+
+def count_per_decade(media):
+    """Count media per release decade, zero-filling the decades from 1900 on, after one bar for the earlier works."""
+    counts = Counter()
+    for year, count in _count_by(media.filter(pub_year__isnull=False), "pub_year").items():
+        counts[year // 10 * 10] += count
+    if not counts:
+        return []
+    earlier = {
+        "label": f"<{FIRST_DECADE}",
+        "title": _("Before %(year)s") % {"year": FIRST_DECADE},
+        "count": sum(count for decade, count in counts.items() if decade < FIRST_DECADE),
+        "start": None,
+        "end": FIRST_DECADE - 1,
+    }
+    decades = [
+        {
+            "label": decade,
+            "title": f"{decade} → {decade + 9}",
+            "count": counts[decade],
+            "start": decade,
+            "end": decade + 9,
+        }
+        for decade in range(FIRST_DECADE, max(counts) + 1, 10)
+    ]
+    return _with_pct([earlier, *decades])
 
 
 def score_distribution(media):

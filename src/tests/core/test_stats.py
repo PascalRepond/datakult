@@ -116,6 +116,34 @@ def test_count_per_month_counts_year_only_dates_in_january(media_factory, all_me
     assert sum(counts) == 4
 
 
+def test_count_per_decade_groups_early_works_and_zero_fills(media_factory, all_media):
+    """Works before 1900 share a bar, decades from 1900 to the latest are zero-filled, undated releases are skipped."""
+    for pub_year in (-500, 1899, 1900, 1909, 1925, 2024, None):
+        media_factory(pub_year=pub_year)
+
+    result = stats.count_per_decade(all_media)
+
+    assert [(row["label"], row["count"]) for row in result] == [
+        ("<1900", 2),
+        (1900, 2),
+        (1910, 0),
+        (1920, 1),
+        *[(decade, 0) for decade in range(1930, 2020, 10)],
+        (2020, 1),
+    ]
+    assert [(row["title"], row["start"], row["end"]) for row in result[:2]] == [
+        ("Before 1900", None, 1899),
+        ("1900 → 1909", 1900, 1909),
+    ]
+
+
+def test_count_per_decade_empty(media_factory, all_media):
+    """No media with a release year returns an empty list."""
+    media_factory()
+
+    assert stats.count_per_decade(all_media) == []
+
+
 def test_score_distribution_has_ten_buckets(media_factory, all_media):
     """Scores are bucketed from 1 to 10, including empty buckets."""
     media_factory(score=8)

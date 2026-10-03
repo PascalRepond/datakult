@@ -196,3 +196,19 @@ def test_stats_score_bars_link_to_filtered_home(logged_in_client, media_factory)
     bar = response.context["score_distribution"][3]
     assert bar["label"] == 4
     assert _home_count(logged_in_client, bar["url"]) == bar["count"] == 2
+
+
+@pytest.mark.parametrize(
+    ("index", "inside", "outside"),
+    [pytest.param(0, (-200, 1899), (1900,), id="before-1900"), pytest.param(8, (1970, 1979), (1969, 1980), id="1970s")],
+)
+def test_stats_decade_bars_link_to_filtered_home(logged_in_client, media_factory, index, inside, outside):
+    """Each decade bar links to the media list filtered on its decade, keeping the selected year and type."""
+    for pub_year in (*inside, *outside):
+        media_factory(media_type="FILM", pub_year=pub_year, review_date="2024-05", score=7)
+    media_factory(media_type="FILM", pub_year=inside[0], review_date="2023", score=7)
+    media_factory(media_type="BOOK", pub_year=inside[0], review_date="2024", score=7)
+
+    bar = logged_in_client.get(reverse("stats"), {"year": "2024", "type": "FILM"}).context["per_decade"][index]
+
+    assert _home_count(logged_in_client, bar["url"]) == bar["count"] == 2

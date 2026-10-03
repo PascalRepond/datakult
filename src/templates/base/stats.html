@@ -69,6 +69,20 @@
           {% include "partials/stats/bar_chart.html" with rows=score_distribution stars=True %}
         </div>
       </div>
+      {# Release decades #}
+      <div class="card panel mb-6">
+        <div class="card-body">
+          <h2 class="card-title">
+            {% lucide "history" %}
+            {% translate "Release decades" %}
+          </h2>
+          {% if per_decade %}
+            {% include "partials/stats/bar_chart.html" with rows=per_decade %}
+          {% else %}
+            <p class="opacity-70">{% translate "No rated media with a release year yet." %}</p>
+          {% endif %}
+        </div>
+      </div>
       {% if per_month %}
         {# Rated per month (selected year) #}
         <div class="card panel">
