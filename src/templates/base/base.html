@@ -36,19 +36,11 @@
           </a>
         </div>
       </div>
-      {# Page content #}
-      <div class="p-4 lg:p-8 xl:p-12">
+      {# Page content, clipping what sticks out sideways, such as the tooltips DaisyUI only hides with opacity #}
+      <div class="p-4 lg:p-8 xl:p-12 overflow-x-clip">
         {% block content %}
         {% endblock content %}
       </div>
-      {# Floating add button on mobile, where the sidebar is hidden (left out of the forms) #}
-      {% block fab %}
-        <div class="fab z-30 lg:hidden">
-          <a href="{% url 'media_import' %}"
-             class="btn btn-lg btn-circle btn-primary"
-             aria-label="{% translate "Add media" %}">{% lucide "plus" %}</a>
-        </div>
-      {% endblock fab %}
     </div>
     {# Sidebar drawer #}
     <div class="drawer-side z-40">
