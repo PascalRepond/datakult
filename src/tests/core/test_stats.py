@@ -7,7 +7,7 @@ These tests verify the aggregations used by the statistics dashboard.
 import pytest
 
 from core import stats
-from core.models import Media, MediaType
+from core.models import Agent, Media, MediaType
 
 
 @pytest.fixture
@@ -159,14 +159,37 @@ def test_score_distribution_has_ten_buckets(media_factory, all_media):
     assert result[7]["title"] == "Really enjoyed"
 
 
-def test_overview(media_factory, all_media):
-    """Overview counts media and averages their scores."""
-    media_factory(score=8)
-    media_factory(score=6)
+def test_contributor_rankings_most_frequent(media_factory):
+    """Contributors are ranked by media count, then by name ignoring case, out of the given media only."""
+    alpha, beta, gamma = (Agent.objects.create(name=name) for name in ("alpha", "Beta", "gamma"))
+    for contributors in ([alpha, gamma], [beta, gamma], [gamma]):
+        media_factory(media_type="BOOK", contributors=contributors)
+    for _ in range(2):
+        media_factory(media_type="FILM", contributors=[alpha])
 
-    assert stats.overview(all_media) == {"count": 2, "average_score": 7.0}
+    result = stats.contributor_rankings(Media.objects.filter(media_type="BOOK"))["most_frequent"]
+
+    assert [(row["name"], row["count"]) for row in result] == [("gamma", 3), ("alpha", 1), ("Beta", 1)]
 
 
-def test_overview_empty(all_media):
-    """Overview handles an empty queryset."""
-    assert stats.overview(all_media) == {"count": 0, "average_score": None}
+def test_contributor_rankings_best_rated(media_factory, all_media):
+    """Contributors with enough media are ranked by average score, then by media count."""
+    for name, scores in {"Few": (10, 10), "Good": (6, 7, 8), "Better": (9, 8, 7), "Frequent": (7, 7, 7, 7)}.items():
+        agent = Agent.objects.create(name=name)
+        for score in scores:
+            media_factory(score=score, contributors=[agent])
+
+    result = stats.contributor_rankings(all_media)["best_rated"]
+
+    assert [(row["name"], row["average_score"], row["count"]) for row in result] == [
+        ("Better", 8, 3),
+        ("Frequent", 7, 4),
+        ("Good", 7, 3),
+    ]
+
+
+def test_contributor_rankings_keep_the_top_entries(media_factory, all_media):
+    """Rankings stop at their size."""
+    media_factory(contributors=[Agent.objects.create(name=f"Agent {i}") for i in range(stats.RANKING_SIZE + 1)])
+
+    assert len(stats.contributor_rankings(all_media)["most_frequent"]) == stats.RANKING_SIZE

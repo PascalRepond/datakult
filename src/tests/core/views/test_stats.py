@@ -5,6 +5,7 @@ Tests for core.views.stats: the statistics page.
 import pytest
 from django.urls import reverse
 
+from core.models import Agent
 from core.views.stats import STATS_COVERS_PER_PAGE
 
 
@@ -16,7 +17,7 @@ def test_stats_only_counts_rated_media(logged_in_client, media_factory):
 
     response = logged_in_client.get(reverse("stats"))
 
-    assert response.context["overview"] == {"count": 2, "average_score": 6.0}
+    assert response.context["covers"].paginator.count == 2
     assert response.context["years"] == [2024]
     assert sum(row["count"] for row in response.context["type_counts"]) == 2
 
@@ -40,7 +41,7 @@ def test_stats_year_shows_monthly_chart(logged_in_client, media_factory):
     response = logged_in_client.get(reverse("stats"), {"year": "2024"})
 
     assert response.context["year"] == 2024
-    assert response.context["overview"] == {"count": 1, "average_score": 8.0}
+    assert response.context["covers"].paginator.count == 1
     assert response.context["per_year"] is None
     assert response.context["per_month"][2]["count"] == 1
 
@@ -75,7 +76,7 @@ def test_stats_type_filter(logged_in_client, media_factory):
     response = logged_in_client.get(reverse("stats"), {"type": "FILM"})
 
     assert (response.context["media_type"], response.context["media_type_label"]) == ("FILM", "Film")
-    assert response.context["overview"] == {"count": 1, "average_score": 3.0}
+    assert response.context["covers"].paginator.count == 1
     assert response.context["score_distribution"][2]["count"] == 1
     assert response.context["score_distribution"][8]["count"] == 0
     counts = {row["media_type"]: row["count"] for row in response.context["type_counts"]}
@@ -91,7 +92,7 @@ def test_stats_invalid_filters_are_ignored(logged_in_client, media_factory, year
 
     assert response.context["year"] is None
     assert response.context["media_type"] is None
-    assert response.context["overview"]["count"] == 1
+    assert response.context["covers"].paginator.count == 1
 
 
 def test_stats_covers_first_page(logged_in_client, media_factory):
@@ -167,7 +168,7 @@ def test_stats_year_bars_link_to_stats_of_that_year(logged_in_client, media_fact
 
     assert bar["label"] == 2016
     assert (response.context["year"], response.context["media_type"]) == (2016, "BOOK")
-    assert response.context["overview"]["count"] == bar["count"] == 2
+    assert response.context["covers"].paginator.count == bar["count"] == 2
 
 
 def test_stats_month_bars_link_to_filtered_home(logged_in_client, media_factory):
@@ -212,3 +213,17 @@ def test_stats_decade_bars_link_to_filtered_home(logged_in_client, media_factory
     bar = logged_in_client.get(reverse("stats"), {"year": "2024", "type": "FILM"}).context["per_decade"][index]
 
     assert _home_count(logged_in_client, bar["url"]) == bar["count"] == 2
+
+
+def test_stats_ranked_contributors_link_to_filtered_home(logged_in_client, media_factory):
+    """Each ranked contributor links to the media list filtered on it, keeping the selected year and type."""
+    agent = Agent.objects.create(name="Agent")
+    for review_date in ("2024", "2024-05", "2024-12-31"):
+        media_factory(media_type="FILM", review_date=review_date, score=7, contributors=[agent])
+    media_factory(media_type="FILM", review_date="2023", score=7, contributors=[agent])
+    media_factory(media_type="BOOK", review_date="2024", score=7, contributors=[agent])
+
+    ranking = logged_in_client.get(reverse("stats"), {"year": "2024", "type": "FILM"}).context["contributors"]
+
+    for row in (ranking["most_frequent"][0], ranking["best_rated"][0]):
+        assert _home_count(logged_in_client, row["url"]) == row["count"] == 3

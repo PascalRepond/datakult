@@ -3,14 +3,19 @@
 from collections import Counter
 
 from django.db.models import Avg, Count
+from django.db.models.functions import Lower
 from django.utils.dates import MONTHS_3
 from django.utils.text import capfirst
 from django.utils.translation import gettext as _
 
-from .models import Media, MediaType, Score
+from .models import Agent, Media, MediaType, Score
 
 # Release decades are counted from this one on, earlier works sharing a single bar
 FIRST_DECADE = 1900
+
+# Size of the rankings, and number of media an entry needs to be ranked by its average score
+RANKING_SIZE = 10
+BEST_RATED_MIN_MEDIA = 3
 
 
 def _with_pct(rows):
@@ -117,10 +122,12 @@ def score_distribution(media):
     )
 
 
-def overview(media):
-    """Global figures: media count and average score."""
-    totals = media.aggregate(count=Count("id"), average_score=Avg("score"))
+def contributor_rankings(media):
+    """Rank the contributors of `media`: the most frequent, and the best rated out of those with enough media."""
+    rows = Agent.objects.filter(media__in=media).values("id", "name")
+    rows = rows.annotate(count=Count("media"), average_score=Avg("media__score"))
+    best_rated = rows.filter(count__gte=BEST_RATED_MIN_MEDIA).order_by("-average_score", "-count", Lower("name"))
     return {
-        "count": totals["count"],
-        "average_score": round(totals["average_score"], 1) if totals["average_score"] is not None else None,
+        "most_frequent": list(rows.order_by("-count", Lower("name"))[:RANKING_SIZE]),
+        "best_rated": list(best_rated[:RANKING_SIZE]),
     }
