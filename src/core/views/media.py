@@ -11,7 +11,7 @@ from django.views.decorators.http import require_POST
 from core.forms import MediaForm
 from core.htmx_validation import field_error_response
 from core.models import Agent, Media, Tag
-from core.queries import build_media_context
+from core.queries import LIST_URL_SESSION_KEY, build_media_context, get_list_url
 from core.utils import delete_orphan_agents_by_ids
 
 from .imports import attach_import_cover, fetch_import_data, import_initial_data, import_suggestions
@@ -23,6 +23,8 @@ MAX_SUGGESTIONS = 12
 @login_required
 def index(request):
     """Main view for displaying media list."""
+    # Remember the list as shown, filters included, for the ways back to it
+    request.session[LIST_URL_SESSION_KEY] = request.get_full_path()
     return render(request, "base/media_index.html", build_media_context(request))
 
 
@@ -163,7 +165,7 @@ def media_delete(request, pk):
     media.delete()
     delete_orphan_agents_by_ids(contributor_ids)
     messages.success(request, _("'%(title)s' deleted successfully") % {"title": media.title})
-    return redirect("home")
+    return redirect(get_list_url(request))
 
 
 def _search_by_name(request, model, template, context_name):

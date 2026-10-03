@@ -98,6 +98,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "core.context_processors.version",
                 "core.context_processors.saved_views",
+                "core.context_processors.list_url",
             ],
             "builtins": [
                 "lucide.templatetags.lucide",

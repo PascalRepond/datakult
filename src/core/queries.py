@@ -5,9 +5,18 @@ import contextlib
 from django.core.paginator import Paginator
 from django.db.models import F, Q
 from django.db.models.functions import Lower
+from django.urls import reverse
 
 from .filters import SORT_OPTIONS, apply_filters, extract_filters, get_field_choices, resolve_sorting
 from .models import Media
+
+# Session key of the URL of the media list as last shown, filters included
+LIST_URL_SESSION_KEY = "list_url"
+
+
+def get_list_url(request):
+    """Return the URL of the media list as last shown, to lead back to it with its filters."""
+    return request.session.get(LIST_URL_SESSION_KEY, reverse("home"))
 
 
 def build_search_queryset(query):

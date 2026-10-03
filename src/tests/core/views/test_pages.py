@@ -62,7 +62,7 @@ def _back_url(response):
     match = re.search(
         r'<a href="([^"]*)"\s+class="btn btn-ghost btn-sm btn-circle shrink-0"', response.content.decode()
     )
-    return match and match[1]
+    return match and unescape(match[1])
 
 
 def test_back_links_lead_to_the_parent_page(logged_in_client, media):
@@ -74,6 +74,19 @@ def test_back_links_lead_to_the_parent_page(logged_in_client, media):
     assert _back_url(logged_in_client.get(detail)) == home
     assert _back_url(logged_in_client.get(reverse("media_import"), {"media_id": media.pk})) == edit
     assert _back_url(logged_in_client.get(reverse("media_import"))) == home
+
+
+def test_ways_back_to_the_list_keep_its_last_filters(logged_in_client, media):
+    """Back links, the Cancel of a new media and the deletion of a media lead to the list as last shown."""
+    logged_in_client.get(reverse("home"), {"type": "BOOK", "sort": "title"})
+    logged_in_client.get(reverse("load_more_media"), {"page": "2"})
+    list_url = f"{reverse('home')}?type=BOOK&sort=title"
+
+    add_form = logged_in_client.get(reverse("media_add")).content.decode()
+    assert _back_url(logged_in_client.get(reverse("media_detail", args=[media.pk]))) == list_url
+    assert _back_url(logged_in_client.get(reverse("media_import"))) == list_url
+    assert re.search(rf'href="{re.escape(escape(list_url))}"[^>]*>\s*Cancel', add_form)
+    assert logged_in_client.post(reverse("media_delete", args=[media.pk])).url == list_url
 
 
 @pytest.mark.parametrize("url_name", ["media_edit", "media_add"])

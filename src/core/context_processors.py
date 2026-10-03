@@ -2,7 +2,10 @@
 
 from functools import lru_cache
 
+from django.utils.functional import lazy
+
 from .models import SavedView
+from .queries import get_list_url
 from .utils import get_datakult_version
 
 
@@ -37,3 +40,8 @@ def saved_views(request):
     if request.user.is_authenticated:
         return {"saved_views": request.user.saved_views.all()}
     return {"saved_views": SavedView.objects.none()}
+
+
+def list_url(request):
+    """Add the URL of the media list as last shown, read only by the templates linking back to it."""
+    return {"list_url": lazy(get_list_url, str)(request)}
