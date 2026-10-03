@@ -25,7 +25,7 @@ IMPORT_SOURCES = [
     ("tmdb", gettext_lazy("Movies & TV"), "clapperboard"),
     ("igdb", gettext_lazy("Video games"), "gamepad-2"),
     ("books", gettext_lazy("Books"), "book-open"),
-    ("musicbrainz", gettext_lazy("Music"), "disc-3"),
+    ("musicbrainz", gettext_lazy("Music"), "headphones"),
 ]
 # Source searched first when importing into a media of each type
 DEFAULT_IMPORT_SOURCES = {

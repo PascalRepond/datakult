@@ -21,14 +21,14 @@
     {% has_filters request as filters_active %}
     <a href="{% url 'home' %}"
        class="{% if request.resolver_match.view_name == 'home' and not filters_active %}menu-active{% endif %}">
-      {% lucide "layers" %}
+      {% lucide "library" %}
       {% translate "All" %}
     </a>
   </li>
   <li>
     <a href="{% url 'stats' %}?year={% now "Y" %}"
        class="{% if request.resolver_match.view_name == 'stats' %}menu-active{% endif %}">
-      {% lucide "chart-column" %}
+      {% lucide "chart-line" %}
       {% translate "Statistics" %}
     </a>
   </li>
@@ -69,14 +69,14 @@
     <li>
       <a href="{% url 'accounts:profile_edit' %}"
          class="{% if request.resolver_match.view_name == 'accounts:profile_edit' %}menu-active{% endif %}">
-        {% lucide "circle-user" %}
+        {% lucide "user-cog" %}
         {% translate "Profile" %}
       </a>
     </li>
     <li>
       <a href="{% url 'backup_manage' %}"
          class="{% if request.resolver_match.view_name == 'backup_manage' %}menu-active{% endif %}">
-        {% lucide "archive" %}
+        {% lucide "database" %}
         {% translate "Backups" %}
       </a>
     </li>

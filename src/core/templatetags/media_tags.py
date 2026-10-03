@@ -14,7 +14,7 @@ UNKNOWN_ICON = "circle-question-mark"
 MEDIA_TYPE_ICONS = {
     "BOOK": "book-open",
     "GAME": "gamepad-2",
-    "MUSIC": "disc-3",
+    "MUSIC": "headphones",
     "COMIC": "book-image",
     "FILM": "film",
     "TV": "tv",

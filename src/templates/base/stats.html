@@ -20,7 +20,9 @@
       {# Rated media per type, used as a filter (click the active one again to clear it) #}
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6" hx-boost="true">
         {% for row in type_counts %}
-          <a href="{% url 'stats' %}?{% if row.media_type == media_type %}{% query_string request type=None %}{% else %}{% query_string request type=row.media_type %}{% endif %}" class="card panel hover:bg-base-300 transition-colors {% if row.media_type == media_type %}ring-2 ring-primary{% elif not row.count %}opacity-50{% endif %}" {% if row.media_type == media_type %}aria-current="true"{% endif %}>
+          <a href="{% url 'stats' %}?{% if row.media_type == media_type %}{% query_string request type=None %}{% else %}{% query_string request type=row.media_type %}{% endif %}"
+             class="card panel hover:bg-base-300 transition-colors {% if row.media_type == media_type %}ring-2 ring-primary{% elif not row.count %}opacity-50{% endif %}"
+             {% if row.media_type == media_type %}aria-current="true"{% endif %}>
             <div class="card-body p-4 gap-1">
               <div class="flex items-center gap-2 text-sm">
                 {% media_icon row.media_type size="sm" %}
@@ -39,7 +41,7 @@
         <div class="card-body">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 class="card-title">
-              {% lucide "layout-grid" %}
+              {% lucide "library-big" %}
               {% if year %}
                 {% blocktranslate count counter=covers.paginator.count with year=year|unlocalize %}{{ counter }} media rated in {{ year }}{% plural %}{{ counter }} media rated in {{ year }}{% endblocktranslate %}
               {% else %}
@@ -64,7 +66,7 @@
         <div class="card-body">
           <h2 class="card-title">
             {% lucide "star" %}
-            {% translate "Score distribution" %}
+            {% translate "Scores" %}
           </h2>
           {% include "partials/stats/bar_chart.html" with rows=score_distribution stars=True %}
         </div>
@@ -73,7 +75,7 @@
       <div class="card panel mb-6">
         <div class="card-body">
           <h2 class="card-title">
-            {% lucide "history" %}
+            {% lucide "calendars" %}
             {% translate "Release decades" %}
           </h2>
           {% if per_decade %}
@@ -85,9 +87,9 @@
       </div>
       {# Contributors: most frequent and best rated #}
       <div class="grid md:grid-cols-2 gap-6 mb-6">
-        {% translate "Most frequent contributors" as title %}
+        {% translate "Most frequent" as title %}
         {% include "partials/stats/ranking.html" with title=title rows=contributors.most_frequent %}
-        {% translate "Best-rated contributors" as title %}
+        {% translate "Best rated" as title %}
         {% include "partials/stats/ranking.html" with title=title rows=contributors.best_rated rated=True %}
       </div>
       {% if per_month %}
@@ -95,7 +97,7 @@
         <div class="card panel">
           <div class="card-body">
             <h2 class="card-title">
-              {% lucide "calendar" %}
+              {% lucide "chart-column" %}
               {% blocktranslate with year=year|unlocalize %}Rated per month in {{ year }}{% endblocktranslate %}
             </h2>
             {% include "partials/stats/bar_chart.html" with rows=per_month %}

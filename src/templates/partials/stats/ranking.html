@@ -1,18 +1,17 @@
 {% load i18n %}
 {# Card of ranked contributors, each linking to the media list filtered on it #}
 {# Parameters: title, rows (list of dicts with name, count, average_score and url) #}
-{# rated (optional): rank on the average score of the entries with at least best_rated_min_media media, not on the count #}
+{# rated (optional): show the average score rather than the count #}
 <div class="card panel">
   <div class="card-body">
     <h2 class="card-title">
-      {% lucide "user" %}
+      {% if rated %}
+        {% lucide "trophy" %}
+      {% else %}
+        {% lucide "users" %}
+      {% endif %}
       {{ title }}
     </h2>
-    {% if rated %}
-      <p class="text-sm opacity-70 grow-0">
-        {% blocktranslate count counter=best_rated_min_media %}With at least {{ counter }} rated media{% plural %}With at least {{ counter }} rated media{% endblocktranslate %}
-      </p>
-    {% endif %}
     {% if rows %}
       <ol class="menu w-full p-0">
         {% for row in rows %}

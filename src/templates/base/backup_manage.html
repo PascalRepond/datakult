@@ -17,10 +17,7 @@
       {# Export Backup Card #}
       <div class="card panel">
         <div class="card-body">
-          <h2 class="card-title">
-            {% lucide "download" %}
-            {% translate "Export Backup" %}
-          </h2>
+          <h2 class="card-title">{% translate "Export Backup" %}</h2>
           <p class="text-sm opacity-70">
             {% translate "Create a complete archive of all your data (database + media files)." %}
           </p>
@@ -48,17 +45,13 @@
       {# Import Backup Card #}
       <div class="card bg-base-200 border-2 border-warning">
         <div class="card-body">
-          <h2 class="card-title text-warning">
-            {% lucide "import" %}
-            {% translate "Import Backup" %}
-          </h2>
+          <h2 class="card-title text-warning">{% translate "Import Backup" %}</h2>
           <p class="text-sm opacity-70">{% translate "Restore your data from a backup archive." %}</p>
           <div class="divider"></div>
           {# Warning Alert #}
           <div role="alert" class="alert alert-warning">
             {% lucide "triangle-alert" class="shrink-0" %}
             <div class="text-sm">
-              <strong>{% translate "WARNING:" %}</strong>
               {% blocktranslate trimmed %}
                 Importing a backup will <strong class="text-error">DELETE ALL your current data</strong>
                 and replace it with the backup data.
@@ -85,7 +78,7 @@
                       data-action="confirm-import"
                       data-modal="confirm-import-modal"
                       class="btn btn-warning">
-                {% lucide "import" %}
+                {% lucide "square-arrow-right-enter" %}
                 {% translate "Import Backup" %}
               </button>
             </div>
