@@ -75,6 +75,19 @@ document.body.addEventListener('click', (event) => {
     form.requestSubmit();
 });
 
+// BACK LINKS
+// Go back in history rather than follow the link when the previous page of the tab is one of the paths it names,
+// to find that page as it was left (filters, scroll position)
+document.addEventListener('click', (event) => {
+    const link = event.target.closest('[data-history-back]');
+    if (!link || history.length < 2 || !document.referrer) return;
+    const previous = new URL(document.referrer);
+    if (previous.origin === location.origin && link.dataset.historyBack.split(' ').includes(previous.pathname)) {
+        event.preventDefault();
+        history.back();
+    }
+});
+
 // FORM VALIDATION STYLING
 // Toggle input-error class based on HTMX validation response
 // (complements DaisyUI's validator class for server-side validation)

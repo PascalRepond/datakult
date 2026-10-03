@@ -8,8 +8,7 @@
   <div class="max-w-4xl mx-auto">
     {# Header #}
     <div class="flex justify-between items-center gap-4 mb-6">
-      {% url 'home' as home_url %}
-      {% include "partials/common/page_header.html" with title=media.title title_note=media.pub_year back_url=home_url history_path=home_url %}
+      {% include "partials/common/page_header.html" with title=media.title title_note=media.pub_year back_url=list_url %}
       <a href="{% url 'media_edit' media.pk %}" class="btn btn-primary shrink-0">{% lucide "square-pen" %}{% translate "Edit" %}</a>
     </div>
     {# Main content #}

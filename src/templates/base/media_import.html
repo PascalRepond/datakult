@@ -15,11 +15,9 @@
         {% url 'media_edit' media_id as back_url %}
         {% translate "Import metadata" as page_title %}
       {% else %}
-        {% url 'home' as back_url %}
-        {% url 'home' as history_path %}
         {% translate "Add media" as page_title %}
       {% endif %}
-      {% include "partials/common/page_header.html" with title=page_title back_url=back_url history_path=history_path %}
+      {% include "partials/common/page_header.html" with title=page_title back_url=back_url|default:list_url %}
       <a href="{% if media_id %}{% url 'media_edit' media_id %}{% else %}{% url 'media_add' %}{% endif %}"
          class="btn btn-outline btn-sm shrink-0">
         {% lucide "square-pen" class="w-4 h-4" %}
