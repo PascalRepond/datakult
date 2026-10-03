@@ -96,7 +96,6 @@ def stats(request):
         "score_distribution": score_distribution,
         "per_decade": per_decade,
         "contributors": contributors,
-        "best_rated_min_media": media_stats.BEST_RATED_MIN_MEDIA,
     }
     return render(request, "base/stats.html", context)
 

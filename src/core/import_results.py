@@ -89,7 +89,7 @@ def from_musicbrainz(result, media_id):
         year=result.year,
         badge=_("Album"),
         import_url=_import_url(media_id, musicbrainz_id=result.mbid),
-        placeholder_icon="disc-3",
+        placeholder_icon="headphones",
         cover_url=result.cover_url_small,
         note=result.country or "",
         byline=", ".join(result.artists),

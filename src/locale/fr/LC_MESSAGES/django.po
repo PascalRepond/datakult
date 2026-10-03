@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 10:09+0200\n"
+"POT-Creation-Date: 2026-10-03 11:13+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -288,11 +288,11 @@ msgid "Tag"
 msgstr "Mot-clé"
 
 #: src/core/models.py:173 src/core/models.py:193
-#: src/templates/base/media_edit.html:99
+#: src/templates/base/media_edit.html:96
 msgid "Tags"
 msgstr "Mots-clés"
 
-#: src/core/models.py:180 src/templates/base/media_edit.html:53
+#: src/core/models.py:180 src/templates/base/media_edit.html:50
 msgid "Title"
 msgstr "Titre"
 
@@ -300,12 +300,12 @@ msgstr "Titre"
 msgid "Contributor"
 msgstr "Contributeur"
 
-#: src/core/models.py:198 src/templates/base/media_edit.html:54
+#: src/core/models.py:198 src/templates/base/media_edit.html:51
 #: src/templates/partials/navigation/filters_drawer.html:18
 msgid "Media type"
 msgstr "Type de média"
 
-#: src/core/models.py:204 src/templates/base/media_edit.html:101
+#: src/core/models.py:204 src/templates/base/media_edit.html:98
 msgid "External URI"
 msgstr "URI externe"
 
@@ -317,12 +317,12 @@ msgstr ""
 "Lien vers une page externe à propos de ce média (par exemple, site officiel, "
 "IMDb, Goodreads, etc.)"
 
-#: src/core/models.py:212 src/templates/base/media_edit.html:118
+#: src/core/models.py:212 src/templates/base/media_edit.html:115
 #: src/templates/partials/navigation/filters_drawer.html:26
 msgid "Status"
 msgstr "Statut"
 
-#: src/core/models.py:219 src/templates/base/media_edit.html:100
+#: src/core/models.py:219 src/templates/base/media_edit.html:97
 #: src/templates/partials/navigation/filters_drawer.html:55
 msgid "Release year"
 msgstr "Année de sortie"
@@ -331,7 +331,7 @@ msgstr "Année de sortie"
 msgid "Year must be between -4000 and 2200."
 msgstr "L'année doit être comprise entre -4000 et 2200."
 
-#: src/core/models.py:228 src/templates/base/media_edit.html:141
+#: src/core/models.py:228 src/templates/base/media_edit.html:138
 #: src/templates/partials/navigation/filters_drawer.html:75
 msgid "Review"
 msgstr "Critique"
@@ -340,7 +340,7 @@ msgstr "Critique"
 msgid "Review score"
 msgstr "Note de critique"
 
-#: src/core/models.py:245 src/templates/base/media_edit.html:122
+#: src/core/models.py:245 src/templates/base/media_edit.html:119
 #: src/templates/partials/navigation/filters_drawer.html:44
 msgid "Review date"
 msgstr "Date de critique"
@@ -351,7 +351,7 @@ msgstr ""
 "Soit une date complète, soit seulement l'année et le mois, ou uniquement "
 "l'année."
 
-#: src/core/models.py:251 src/templates/base/media_edit.html:66
+#: src/core/models.py:251 src/templates/base/media_edit.html:63
 msgid "Cover image"
 msgstr "Image de couverture"
 
@@ -459,31 +459,31 @@ msgstr ""
 "%(source)s n'a pas pu être interrogé : les résultats ne viennent que de "
 "l'autre source."
 
-#: src/core/views/media.py:71
+#: src/core/views/media.py:73
 #, python-format
 msgid "Failed to create %(model)s: %(name)s"
 msgstr "Échec de la création de « %(name)s » (%(model)s)"
 
-#: src/core/views/media.py:128
+#: src/core/views/media.py:130
 #, python-format
 msgid "'%(title)s' updated successfully"
 msgstr "'%(title)s' mis à jour avec succès"
 
-#: src/core/views/media.py:128
+#: src/core/views/media.py:130
 #, python-format
 msgid "'%(title)s' created successfully"
 msgstr "'%(title)s' créé avec succès"
 
-#: src/core/views/media.py:165
+#: src/core/views/media.py:167
 #, python-format
 msgid "'%(title)s' deleted successfully"
 msgstr "'%(title)s' supprimé avec succès"
 
-#: src/core/views/media.py:194
+#: src/core/views/media.py:196
 msgid "Agent not found"
 msgstr "Agent non trouvé"
 
-#: src/core/views/media.py:207
+#: src/core/views/media.py:209
 msgid "Tag not found"
 msgstr "Mot-clé non trouvé"
 
@@ -582,50 +582,46 @@ msgstr "Icône du logo par Freepik - Flaticon"
 msgid "Backup Management"
 msgstr "Gestion des sauvegardes"
 
-#: src/templates/base/backup_manage.html:22
+#: src/templates/base/backup_manage.html:20
 msgid "Export Backup"
 msgstr "Exporter la sauvegarde"
 
-#: src/templates/base/backup_manage.html:25
+#: src/templates/base/backup_manage.html:22
 msgid "Create a complete archive of all your data (database + media files)."
 msgstr ""
 "Créer une archive complète de toutes vos données (base de données + fichiers "
 "médias)."
 
-#: src/templates/base/backup_manage.html:30
+#: src/templates/base/backup_manage.html:27
 msgid "Backup contents:"
 msgstr "Contenu de la sauvegarde :"
 
-#: src/templates/base/backup_manage.html:33
+#: src/templates/base/backup_manage.html:30
 msgid "All database data"
 msgstr "Toutes les données de la base de données"
 
-#: src/templates/base/backup_manage.html:34
+#: src/templates/base/backup_manage.html:31
 msgid "All media files (cover images)"
 msgstr "Tous les fichiers médias (images de couverture)"
 
-#: src/templates/base/backup_manage.html:35
+#: src/templates/base/backup_manage.html:32
 msgid "Metadata (version, creation date)"
 msgstr "Métadonnées (version, date de création)"
 
-#: src/templates/base/backup_manage.html:43
+#: src/templates/base/backup_manage.html:40
 msgid "Download Backup"
 msgstr "Télécharger la sauvegarde"
 
-#: src/templates/base/backup_manage.html:53
-#: src/templates/base/backup_manage.html:89
+#: src/templates/base/backup_manage.html:48
+#: src/templates/base/backup_manage.html:82
 msgid "Import Backup"
 msgstr "Importer la sauvegarde"
 
-#: src/templates/base/backup_manage.html:55
+#: src/templates/base/backup_manage.html:49
 msgid "Restore your data from a backup archive."
 msgstr "Restaurer vos données à partir d'une archive de sauvegarde."
 
-#: src/templates/base/backup_manage.html:61
-msgid "WARNING:"
-msgstr "ATTENTION :"
-
-#: src/templates/base/backup_manage.html:62
+#: src/templates/base/backup_manage.html:55
 msgid ""
 "Importing a backup will <strong class=\"text-error\">DELETE ALL your current "
 "data</strong> and replace it with the backup data."
@@ -634,15 +630,15 @@ msgstr ""
 "TOUTES vos données actuelles</strong> et les remplacer par les données de la "
 "sauvegarde."
 
-#: src/templates/base/backup_manage.html:75
+#: src/templates/base/backup_manage.html:68
 msgid "Select a backup file (.tar.gz)"
 msgstr "Sélectionnez un fichier de sauvegarde (.tar.gz)"
 
-#: src/templates/base/backup_manage.html:98
+#: src/templates/base/backup_manage.html:91
 msgid "Warning: destructive action"
 msgstr "Attention : action destructive"
 
-#: src/templates/base/backup_manage.html:98
+#: src/templates/base/backup_manage.html:91
 msgid ""
 "This action will DELETE ALL your current data and replace it with the backup "
 "data. Are you absolutely sure you want to continue?"
@@ -650,7 +646,7 @@ msgstr ""
 "Cette action va SUPPRIMER TOUTES vos données actuelles et les remplacer par "
 "les données de la sauvegarde. Êtes-vous absolument sûr de vouloir continuer ?"
 
-#: src/templates/base/backup_manage.html:98
+#: src/templates/base/backup_manage.html:91
 msgid "Yes, import backup"
 msgstr "Oui, importer la sauvegarde"
 
@@ -658,129 +654,129 @@ msgstr "Oui, importer la sauvegarde"
 msgid "Open sidebar"
 msgstr "Ouvrir la barre latérale"
 
-#: src/templates/base/base.html:49 src/templates/base/media_edit.html:8
-#: src/templates/base/media_edit.html:35 src/templates/base/media_import.html:7
-#: src/templates/base/media_import.html:22
-#: src/templates/partials/navigation/sidebar_nav.html:16
-msgid "Add media"
-msgstr "Ajouter un média"
-
-#: src/templates/base/base.html:56
+#: src/templates/base/base.html:48
 msgid "Close sidebar"
 msgstr "Fermer la barre latérale"
 
-#: src/templates/base/media_detail.html:13
+#: src/templates/base/media_detail.html:12
 #: src/templates/partials/media_items/media_item.html:16
 #: src/templates/partials/media_items/media_review_modal.html:32
 msgid "Edit"
 msgstr "Modifier"
 
-#: src/templates/base/media_detail.html:48
+#: src/templates/base/media_detail.html:47
 msgid "External metadata"
 msgstr "Métadonnées externes"
 
-#: src/templates/base/media_detail.html:67
+#: src/templates/base/media_detail.html:66
 msgid "Rate"
 msgstr "Noter"
 
-#: src/templates/base/media_detail.html:95
+#: src/templates/base/media_detail.html:94
 msgid "Write a review"
 msgstr "Écrire une critique"
 
-#: src/templates/base/media_edit.html:6 src/templates/base/media_edit.html:31
+#: src/templates/base/media_edit.html:6 src/templates/base/media_edit.html:29
 #: src/templates/partials/media_items/media_item.html:17
 #, python-format
 msgid "Edit %(title)s"
 msgstr "Modifier %(title)s"
 
-#: src/templates/base/media_edit.html:41 src/templates/base/media_import.html:5
+#: src/templates/base/media_edit.html:8 src/templates/base/media_edit.html:33
+#: src/templates/base/media_import.html:7
 #: src/templates/base/media_import.html:18
+#: src/templates/partials/navigation/sidebar_nav.html:16
+msgid "Add media"
+msgstr "Ajouter un média"
+
+#: src/templates/base/media_edit.html:38 src/templates/base/media_import.html:5
+#: src/templates/base/media_import.html:16
 msgid "Import metadata"
 msgstr "Importer les métadonnées"
 
-#: src/templates/base/media_edit.html:43
+#: src/templates/base/media_edit.html:40
 msgid "Import"
 msgstr "Importer"
 
-#: src/templates/base/media_edit.html:71
+#: src/templates/base/media_edit.html:68
 msgid "Imported cover"
 msgstr "Couverture importée"
 
-#: src/templates/base/media_edit.html:76
+#: src/templates/base/media_edit.html:73
 msgid "This will replace the current cover"
 msgstr "Cela remplacera la couverture actuelle"
 
-#: src/templates/base/media_edit.html:78
+#: src/templates/base/media_edit.html:75
 msgid "Cover will be imported"
 msgstr "La couverture sera importée"
 
-#: src/templates/base/media_edit.html:82
+#: src/templates/base/media_edit.html:79
 msgid "Upload a different image instead"
 msgstr "Télécharger une autre image à la place"
 
-#: src/templates/base/media_edit.html:97
+#: src/templates/base/media_edit.html:94
 msgid "Contributors"
 msgstr "Contributeurs"
 
-#: src/templates/base/media_edit.html:112
+#: src/templates/base/media_edit.html:109
 #: src/templates/partials/navigation/filters_drawer.html:34
 msgid "Score"
 msgstr "Note"
 
-#: src/templates/base/media_edit.html:127
+#: src/templates/base/media_edit.html:124
 msgid "Set to today"
 msgstr "Définir à aujourd'hui"
 
-#: src/templates/base/media_edit.html:129
+#: src/templates/base/media_edit.html:126
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: src/templates/base/media_edit.html:154
-#: src/templates/base/media_edit.html:156
+#: src/templates/base/media_edit.html:151
+#: src/templates/base/media_edit.html:153
 msgid "Delete"
 msgstr "Supprimer"
 
-#: src/templates/base/media_edit.html:160
+#: src/templates/base/media_edit.html:157
 #: src/templates/partials/common/confirm_modal.html:24
 #: src/templates/partials/saved_views/save_view_modal.html:31
 msgid "Cancel"
 msgstr "Annuler"
 
-#: src/templates/base/media_edit.html:163
+#: src/templates/base/media_edit.html:160
 #: src/templates/partials/saved_views/save_view_modal.html:30
 msgid "Save"
 msgstr "Enregistrer"
 
-#: src/templates/base/media_edit.html:183
+#: src/templates/base/media_edit.html:180
 msgid "Delete Media"
 msgstr "Supprimer le média"
 
-#: src/templates/base/media_edit.html:183
+#: src/templates/base/media_edit.html:180
 msgid ""
 "Are you sure you want to delete this media? This action cannot be undone."
 msgstr ""
 "Êtes-vous sûr de vouloir supprimer ce média ? Cette action est irréversible."
 
-#: src/templates/base/media_edit.html:183
+#: src/templates/base/media_edit.html:180
 #: src/templates/partials/saved_views/saved_views_list.html:33
 msgid "Yes, delete"
 msgstr "Oui, supprimer"
 
-#: src/templates/base/media_import.html:28
+#: src/templates/base/media_import.html:24
 msgid "Add manually"
 msgstr "Ajouter manuellement"
 
-#: src/templates/base/media_import.html:60
+#: src/templates/base/media_import.html:56
 #: src/templates/base/media_index.html:36
 msgid "Search…"
 msgstr "Rechercher…"
 
-#: src/templates/base/media_import.html:61
+#: src/templates/base/media_import.html:57
 #: src/templates/base/media_index.html:37
 msgid "Search"
 msgstr "Recherche"
 
-#: src/templates/base/media_import.html:67
+#: src/templates/base/media_import.html:63
 msgid "Metadata language:"
 msgstr "Langue des métadonnées"
 
@@ -839,58 +835,58 @@ msgstr "Fermer"
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: src/templates/base/stats.html:44
+#: src/templates/base/stats.html:46
 #, python-format
 msgid "%(counter)s media rated in %(year)s"
 msgid_plural "%(counter)s media rated in %(year)s"
 msgstr[0] "%(counter)s média noté en %(year)s"
 msgstr[1] "%(counter)s médias notés en %(year)s"
 
-#: src/templates/base/stats.html:46
+#: src/templates/base/stats.html:48
 #, python-format
 msgid "%(counter)s media rated"
 msgid_plural "%(counter)s media rated"
 msgstr[0] "%(counter)s média noté"
 msgstr[1] "%(counter)s médias notés"
 
-#: src/templates/base/stats.html:56
+#: src/templates/base/stats.html:58
 msgid "No rated media match the selected filters."
 msgstr "Aucun média noté ne correspond aux filtres sélectionnés."
 
-#: src/templates/base/stats.html:58
+#: src/templates/base/stats.html:60
 msgid "No rated media yet."
 msgstr "Aucun média noté pour l'instant."
 
-#: src/templates/base/stats.html:67
-msgid "Score distribution"
-msgstr "Distribution des notes"
+#: src/templates/base/stats.html:69
+msgid "Scores"
+msgstr "Notes"
 
-#: src/templates/base/stats.html:77
+#: src/templates/base/stats.html:79
 msgid "Release decades"
 msgstr "Décennies de sortie"
 
-#: src/templates/base/stats.html:82
+#: src/templates/base/stats.html:84
 msgid "No rated media with a release year yet."
 msgstr "Aucun média noté avec une année de sortie pour l'instant."
 
-#: src/templates/base/stats.html:88
-msgid "Most frequent contributors"
-msgstr "Contributeurs les plus fréquents"
-
 #: src/templates/base/stats.html:90
-msgid "Best-rated contributors"
-msgstr "Contributeurs les mieux notés"
+msgid "Most frequent"
+msgstr "Les plus présents"
 
-#: src/templates/base/stats.html:99
+#: src/templates/base/stats.html:92
+msgid "Best rated"
+msgstr "Les mieux notés"
+
+#: src/templates/base/stats.html:101
 #, python-format
 msgid "Rated per month in %(year)s"
 msgstr "Notés par mois en %(year)s"
 
-#: src/templates/base/stats.html:112
+#: src/templates/base/stats.html:114
 msgid "Rated per year"
 msgstr "Notés par année"
 
-#: src/templates/base/stats.html:117
+#: src/templates/base/stats.html:119
 msgid "No rated media with a review date yet."
 msgstr "Aucun média noté avec une date de critique pour l'instant."
 
@@ -1059,14 +1055,7 @@ msgstr "Supprimer la vue enregistrée"
 msgid "Show more"
 msgstr "Afficher plus"
 
-#: src/templates/partials/stats/ranking.html:13
-#, python-format
-msgid "With at least %(counter)s rated media"
-msgid_plural "With at least %(counter)s rated media"
-msgstr[0] "Avec au moins %(counter)s média noté"
-msgstr[1] "Avec au moins %(counter)s médias notés"
-
-#: src/templates/partials/stats/ranking.html:36
+#: src/templates/partials/stats/ranking.html:35
 msgid "Nothing to rank."
 msgstr "Rien à classer."
 
