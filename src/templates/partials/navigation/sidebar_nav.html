@@ -19,8 +19,8 @@
   {# Main navigation #}
   <li>
     {% has_filters request as filters_active %}
-    <a href="{% url 'home' %}"
-       class="{% if request.resolver_match.view_name == 'home' and not filters_active %}menu-active{% endif %}">
+    <a href="{% url 'media_list' %}"
+       class="{% if request.resolver_match.view_name == 'media_list' and not filters_active %}menu-active{% endif %}">
       {% lucide "library" %}
       {% translate "All" %}
     </a>
@@ -38,7 +38,7 @@
   {% status_shortcuts request as shortcuts %}
   {% for shortcut in shortcuts %}
     <li>
-      <a href="{% url 'home' %}?{{ shortcut.query }}"
+      <a href="{% url 'media_list' %}?{{ shortcut.query }}"
          class="{% if shortcut.active %}menu-active{% endif %}">
         {% lucide shortcut.icon %}
         {{ shortcut.label }}
@@ -52,7 +52,7 @@
   {% for value, label in types %}
     <li>
       {% filter_matches request 'type' value as type_active %}
-      <a href="{% url 'home' %}?type={{ value }}"
+      <a href="{% url 'media_list' %}?type={{ value }}"
          class="{% if type_active %}menu-active{% endif %}">
         {% lucide value|type_icon %}
         {{ label }}

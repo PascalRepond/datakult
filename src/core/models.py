@@ -334,4 +334,4 @@ class SavedView(TimestampedModel):
         ]
         params.extend((key, value) for key, value in optional_filters if value)
         params.append(("sort", self.sort))
-        return f"{reverse('home')}?{urlencode(params)}"
+        return f"{reverse('media_list')}?{urlencode(params)}"

@@ -41,7 +41,7 @@ def _url_with_filters(url_name, **filters):
 
 
 def _review_bounds(year, month=None):
-    """Home review date filters covering a year, or one of its months."""
+    """List review date filters covering a year, or one of its months."""
     if month is None:
         return {"review_from": f"{year:04d}-01-01", "review_to": f"{year:04d}-12-31"}
     last_day = calendar.monthrange(year, month)[1]
@@ -62,19 +62,19 @@ def stats(request):
         row["url"] = _url_with_filters("stats", year=row["label"], type=media_type)
     per_month = media_stats.count_per_month(media, year) if year is not None else None
     for month, row in enumerate(per_month or [], start=1):
-        row["url"] = _url_with_filters("home", type=media_type, **_review_bounds(year, month))
+        row["url"] = _url_with_filters("media_list", type=media_type, **_review_bounds(year, month))
     score_distribution = media_stats.score_distribution(media)
     year_bounds = _review_bounds(year) if year else {}
     for row in score_distribution:
-        row["url"] = _url_with_filters("home", type=media_type, score=row["label"], **year_bounds)
+        row["url"] = _url_with_filters("media_list", type=media_type, score=row["label"], **year_bounds)
     per_decade = media_stats.count_per_decade(media)
     for row in per_decade:
         row["url"] = _url_with_filters(
-            "home", type=media_type, release_from=row["start"], release_to=row["end"], **year_bounds
+            "media_list", type=media_type, release_from=row["start"], release_to=row["end"], **year_bounds
         )
     contributors = media_stats.contributor_rankings(media)
     for row in [*contributors["most_frequent"], *contributors["best_rated"]]:
-        row["url"] = _url_with_filters("home", type=media_type, contributor=row["id"], **year_bounds)
+        row["url"] = _url_with_filters("media_list", type=media_type, contributor=row["id"], **year_bounds)
 
     # The year picker keeps the type filter; without a year, the yearly chart already holds its years
     if year is None:

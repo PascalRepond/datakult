@@ -20,20 +20,7 @@
       {# Rated media per type, used as a filter (click the active one again to clear it) #}
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6" hx-boost="true">
         {% for row in type_counts %}
-          <a href="{% url 'stats' %}?{% if row.media_type == media_type %}{% query_string request type=None %}{% else %}{% query_string request type=row.media_type %}{% endif %}"
-             class="card panel hover:bg-base-300 transition-colors {% if row.media_type == media_type %}ring-2 ring-primary{% elif not row.count %}opacity-50{% endif %}"
-             {% if row.media_type == media_type %}aria-current="true"{% endif %}>
-            <div class="card-body p-4 gap-1">
-              <div class="flex items-center gap-2 text-sm">
-                {% media_icon row.media_type size="sm" %}
-                <span class="truncate" title="{{ row.label }}">{{ row.label }}</span>
-                {% if row.media_type == media_type %}
-                  {% lucide "x" class="h-4 w-4 ml-auto shrink-0" %}
-                {% endif %}
-              </div>
-              <div class="text-3xl font-bold">{{ row.count }}</div>
-            </div>
-          </a>
+          {% include "partials/stats/type_count.html" %}
         {% endfor %}
       </div>
       {# Rated media covers #}

@@ -77,7 +77,7 @@
       {% translate "Cover" as cover_legend %}
       {% include "partials/filters/presence_filter.html" with name="has_cover" legend=cover_legend icon="image" value=filters.has_cover %}
       <div class="divider my-0"></div>
-      <a href="{% url 'home' %}?sort={{ sort }}"
+      <a href="{% url 'media_list' %}?sort={{ sort }}"
          class="btn btn-sm btn-outline">
         {% lucide "funnel-x" %}
         {% translate "Clear filters" %}

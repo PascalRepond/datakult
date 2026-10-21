@@ -1,0 +1,61 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% load l10n %}
+{% block title %}
+  {% translate "Home" %}
+{% endblock title %}
+{% block content %}
+  <div class="my-4">
+    {% translate "Home" as home_label %}
+    {% include "partials/common/page_header.html" with title=home_label %}
+  </div>
+  {% if library_is_empty %}
+    {% include "partials/media_items/empty_library.html" %}
+  {% endif %}
+  {# One section per line, the narrow ones paired on large screens, a section alone taking the whole line #}
+  <div class="flex flex-col gap-4 lg:gap-6">
+    {% if rated_count or in_progress.media %}
+      <div class="flex flex-col xl:flex-row gap-4 lg:gap-6">
+        {% if rated_count %}
+          <section class="card panel min-w-0 {% if in_progress.media %}xl:w-120 xl:shrink-0{% else %}xl:flex-1{% endif %}">
+            <div class="card-body p-4 lg:p-6">
+              <div class="flex flex-wrap items-center gap-x-2">
+                <h2 class="card-title">
+                  {% blocktranslate count counter=rated_count with year=year|unlocalize %}{{ counter }} media rated in {{ year }}{% plural %}{{ counter }} media rated in {{ year }}{% endblocktranslate %}
+                </h2>
+                <a href="{% url 'stats' %}?year={{ year|unlocalize }}" class="btn btn-sm btn-ghost">
+                  {% translate "See statistics" %}
+                  {% lucide "chevron-right" %}
+                </a>
+              </div>
+              {# The counts scroll sideways in one line, then on large screens wrap, three per line in a narrow section, #}
+              {# and stretch to fill their lines and the height the section shares with its neighbour #}
+              <div class="flex gap-3 overflow-x-auto pb-2 *:w-32 *:shrink-0 *:min-w-0 xl:flex-wrap xl:grow xl:pb-0 xl:*:basis-32 xl:*:grow">
+                {% for row in type_counts %}
+                  {% include "partials/stats/type_count.html" %}
+                {% endfor %}
+              </div>
+            </div>
+          </section>
+        {% endif %}
+        {% if in_progress.media %}
+          {% include "partials/home/media_row.html" with row=in_progress compact=True extra_class="xl:flex-1" %}
+        {% endif %}
+      </div>
+    {% endif %}
+    {% if recently_rated.media %}
+      {% include "partials/home/media_row.html" with row=recently_rated %}
+    {% endif %}
+    {% if planned.media or empty_review.media %}
+      <div class="flex flex-col xl:flex-row gap-4 lg:gap-6">
+        {% if planned.media %}
+          {% include "partials/home/media_row.html" with row=planned compact=True extra_class="xl:flex-1" %}
+        {% endif %}
+        {% if empty_review.media %}
+          {% include "partials/home/media_row.html" with row=empty_review compact=True extra_class="xl:flex-1" %}
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+  {% include "partials/media_items/review_modal.html" %}
+{% endblock content %}

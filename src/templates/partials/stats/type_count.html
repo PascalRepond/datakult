@@ -1,0 +1,22 @@
+{% load media_tags %}
+{# Count of the rated media of a type, narrowing the stats of the year down to that type, or clearing the selected one #}
+{# Parameters: row (from count_per_type), year (or none for every year), media_type (the selected type, optional) #}
+{% if row.media_type == media_type %}
+  {% query_string request year=year type=None as query %}
+{% else %}
+  {% query_string request year=year type=row.media_type as query %}
+{% endif %}
+<a href="{% url 'stats' %}?{{ query }}"
+   class="card panel hover:bg-base-300 transition-colors {% if row.media_type == media_type %}ring-2 ring-primary{% elif not row.count %}opacity-50{% endif %}"
+   {% if row.media_type == media_type %}aria-current="true"{% endif %}>
+  <div class="card-body p-4 gap-1">
+    <div class="flex items-center gap-2 text-sm">
+      {% media_icon row.media_type size="sm" %}
+      <span class="truncate" title="{{ row.label }}">{{ row.label }}</span>
+      {% if row.media_type == media_type %}
+        {% lucide "x" class="h-4 w-4 ml-auto shrink-0" %}
+      {% endif %}
+    </div>
+    <div class="text-3xl font-bold">{{ row.count }}</div>
+  </div>
+</a>

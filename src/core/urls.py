@@ -1,9 +1,10 @@
 from django.urls import path
 
-from .views import backup, imports, media, saved_views, stats
+from .views import backup, home, imports, media, saved_views, stats
 
 urlpatterns = [
-    path("", media.index, name="home"),
+    path("", home.home, name="home"),
+    path("media/", media.index, name="media_list"),
     path("media/add/", media.media_edit, name="media_add"),
     path("media/import/", imports.media_import, name="media_import"),
     path("media/<int:pk>/", media.media_detail, name="media_detail"),

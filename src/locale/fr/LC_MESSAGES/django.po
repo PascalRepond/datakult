@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-03 11:13+0200\n"
+"POT-Creation-Date: 2026-10-21 11:01+0200\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,7 +32,7 @@ msgstr "Mot de passe modifié."
 msgid "Language preference updated."
 msgstr "Préférence de langue mise à jour."
 
-#: src/core/filters.py:15
+#: src/core/filters.py:15 src/core/views/home.py:41
 msgid "Recently rated"
 msgstr "Derniers notés"
 
@@ -418,6 +418,10 @@ msgstr "Échec de l'importation du backup : %(error)s"
 msgid "Backup imported successfully! All data has been restored."
 msgstr "Backup importé avec succès ! Toutes les données ont été restaurées."
 
+#: src/core/views/home.py:43
+msgid "Empty review"
+msgstr "Sans critique"
+
 #: src/core/views/imports.py:25
 msgid "Movies & TV"
 msgstr "Films & séries"
@@ -658,8 +662,23 @@ msgstr "Ouvrir la barre latérale"
 msgid "Close sidebar"
 msgstr "Fermer la barre latérale"
 
+#: src/templates/base/home.html:5 src/templates/base/home.html:9
+msgid "Home"
+msgstr "Accueil"
+
+#: src/templates/base/home.html:24 src/templates/base/stats.html:33
+#, python-format
+msgid "%(counter)s media rated in %(year)s"
+msgid_plural "%(counter)s media rated in %(year)s"
+msgstr[0] "%(counter)s média noté en %(year)s"
+msgstr[1] "%(counter)s médias notés en %(year)s"
+
+#: src/templates/base/home.html:27
+msgid "See statistics"
+msgstr "Voir les statistiques"
+
 #: src/templates/base/media_detail.html:12
-#: src/templates/partials/media_items/media_item.html:16
+#: src/templates/partials/media_items/media_item.html:17
 #: src/templates/partials/media_items/media_review_modal.html:32
 msgid "Edit"
 msgstr "Modifier"
@@ -677,7 +696,7 @@ msgid "Write a review"
 msgstr "Écrire une critique"
 
 #: src/templates/base/media_edit.html:6 src/templates/base/media_edit.html:29
-#: src/templates/partials/media_items/media_item.html:17
+#: src/templates/partials/media_items/media_item.html:18
 #, python-format
 msgid "Edit %(title)s"
 msgstr "Modifier %(title)s"
@@ -821,72 +840,56 @@ msgstr "Avec couverture"
 msgid "Save view"
 msgstr "Enregistrer la vue"
 
-#: src/templates/base/media_index.html:149
-#: src/templates/partials/common/confirm_modal.html:35
-#: src/templates/partials/media_items/media_review_modal.html:15
-#: src/templates/partials/navigation/filters_drawer.html:8
-#: src/templates/partials/navigation/filters_drawer.html:15
-#: src/templates/partials/saved_views/save_view_modal.html:38
-msgid "Close"
-msgstr "Fermer"
-
 #: src/templates/base/stats.html:6 src/templates/base/stats.html:16
 #: src/templates/partials/navigation/sidebar_nav.html:32
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: src/templates/base/stats.html:46
-#, python-format
-msgid "%(counter)s media rated in %(year)s"
-msgid_plural "%(counter)s media rated in %(year)s"
-msgstr[0] "%(counter)s média noté en %(year)s"
-msgstr[1] "%(counter)s médias notés en %(year)s"
-
-#: src/templates/base/stats.html:48
+#: src/templates/base/stats.html:35
 #, python-format
 msgid "%(counter)s media rated"
 msgid_plural "%(counter)s media rated"
 msgstr[0] "%(counter)s média noté"
 msgstr[1] "%(counter)s médias notés"
 
-#: src/templates/base/stats.html:58
+#: src/templates/base/stats.html:45
 msgid "No rated media match the selected filters."
 msgstr "Aucun média noté ne correspond aux filtres sélectionnés."
 
-#: src/templates/base/stats.html:60
+#: src/templates/base/stats.html:47
 msgid "No rated media yet."
 msgstr "Aucun média noté pour l'instant."
 
-#: src/templates/base/stats.html:69
+#: src/templates/base/stats.html:56
 msgid "Scores"
 msgstr "Notes"
 
-#: src/templates/base/stats.html:79
+#: src/templates/base/stats.html:66
 msgid "Release decades"
 msgstr "Décennies de sortie"
 
-#: src/templates/base/stats.html:84
+#: src/templates/base/stats.html:71
 msgid "No rated media with a release year yet."
 msgstr "Aucun média noté avec une année de sortie pour l'instant."
 
-#: src/templates/base/stats.html:90
+#: src/templates/base/stats.html:77
 msgid "Most frequent"
 msgstr "Les plus présents"
 
-#: src/templates/base/stats.html:92
+#: src/templates/base/stats.html:79
 msgid "Best rated"
 msgstr "Les mieux notés"
 
-#: src/templates/base/stats.html:101
+#: src/templates/base/stats.html:88
 #, python-format
 msgid "Rated per month in %(year)s"
 msgstr "Notés par mois en %(year)s"
 
-#: src/templates/base/stats.html:114
+#: src/templates/base/stats.html:101
 msgid "Rated per year"
 msgstr "Notés par année"
 
-#: src/templates/base/stats.html:119
+#: src/templates/base/stats.html:106
 msgid "No rated media with a review date yet."
 msgstr "Aucun média noté avec une date de critique pour l'instant."
 
@@ -906,6 +909,15 @@ msgstr "Rechercher ou ajouter…"
 #: src/templates/partials/common/confirm_modal.html:28
 msgid "Confirm"
 msgstr "Confirmer"
+
+#: src/templates/partials/common/confirm_modal.html:35
+#: src/templates/partials/media_items/media_review_modal.html:15
+#: src/templates/partials/media_items/review_modal.html:6
+#: src/templates/partials/navigation/filters_drawer.html:8
+#: src/templates/partials/navigation/filters_drawer.html:15
+#: src/templates/partials/saved_views/save_view_modal.html:38
+msgid "Close"
+msgstr "Fermer"
 
 #: src/templates/partials/common/spinner.html:12
 msgid "Loading…"
@@ -928,6 +940,10 @@ msgstr "Avec"
 msgid "Without"
 msgstr "Sans"
 
+#: src/templates/partials/home/media_row.html:9
+msgid "See all"
+msgstr "Voir tout"
+
 #: src/templates/partials/import/import_results.html:54
 msgid "No results found"
 msgstr "Aucun résultat trouvé"
@@ -937,23 +953,23 @@ msgstr "Aucun résultat trouvé"
 msgid "Cover of %(title)s"
 msgstr "Couverture de %(title)s"
 
-#: src/templates/partials/media_items/media_item.html:48
-msgid "Read more"
-msgstr "Lire la suite"
-
-#: src/templates/partials/media_items/media_list.html:9
+#: src/templates/partials/media_items/empty_library.html:4
 msgid "Your library is empty."
 msgstr "Votre bibliothèque est vide."
 
-#: src/templates/partials/media_items/media_list.html:12
+#: src/templates/partials/media_items/empty_library.html:7
 msgid "Add your first media"
 msgstr "Ajouter votre premier média"
 
-#: src/templates/partials/media_items/media_list.html:18
+#: src/templates/partials/media_items/media_item.html:49
+msgid "Read more"
+msgstr "Lire la suite"
+
+#: src/templates/partials/media_items/media_list.html:11
 msgid "No media matches these filters."
 msgstr "Aucun média ne correspond à ces filtres."
 
-#: src/templates/partials/media_items/media_list.html:21
+#: src/templates/partials/media_items/media_list.html:14
 #: src/templates/partials/navigation/filters_drawer.html:83
 msgid "Clear filters"
 msgstr "Vider les filtres"

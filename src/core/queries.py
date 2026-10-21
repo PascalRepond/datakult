@@ -10,13 +10,13 @@ from django.urls import reverse
 from .filters import SORT_OPTIONS, apply_filters, extract_filters, get_field_choices, resolve_sorting
 from .models import Media
 
-# Session key of the URL of the media list as last shown, filters included
+# Session key of the URL of the page listing media last shown: the home page, or the list with its filters
 LIST_URL_SESSION_KEY = "list_url"
 
 
 def get_list_url(request):
-    """Return the URL of the media list as last shown, to lead back to it with its filters."""
-    return request.session.get(LIST_URL_SESSION_KEY, reverse("home"))
+    """Return the URL of the home page or of the list, whichever was last shown, to lead back to it."""
+    return request.session.get(LIST_URL_SESSION_KEY, reverse("media_list"))
 
 
 def build_search_queryset(query):

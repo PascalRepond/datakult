@@ -136,7 +136,7 @@ def test_saved_view_str_representation(user, saved_view_factory):
 
 def test_get_filter_url_with_defaults(saved_view_factory):
     """A saved view without filters leads to the list with the default sort."""
-    assert saved_view_factory().get_filter_url() == "/?sort=-review_date"
+    assert saved_view_factory().get_filter_url() == "/media/?sort=-review_date"
 
 
 def test_get_filter_url_holds_every_set_filter(saved_view_factory):
@@ -158,6 +158,6 @@ def test_get_filter_url_holds_every_set_filter(saved_view_factory):
     )
 
     assert saved_view.get_filter_url() == (
-        "/?type=BOOK&type=FILM&status=COMPLETED&score=9&score=10&contributor=42&tag=7&release_from=1970"
+        "/media/?type=BOOK&type=FILM&status=COMPLETED&score=9&score=10&contributor=42&tag=7&release_from=1970"
         "&release_to=1979&review_from=2024-01&review_to=2024-12&has_review=filled&has_cover=empty&search=dune&sort=-score"
     )

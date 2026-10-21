@@ -5,6 +5,7 @@ Tests that the texts users read are translated in French, including the sentence
 import pytest
 from django.urls import reverse
 from django.utils import translation
+from freezegun import freeze_time
 
 from core.forms import MediaForm
 from tests.helpers import media_form_data, messages_of
@@ -41,6 +42,17 @@ def test_list_page_is_translated(french_client, dune, saved_view_factory):
         'alt="Couverture de Dune"',
         'aria-label="Note : 7 sur 10"',
     ]
+
+    response = french_client.get(reverse("media_list"))
+
+    assert _missing(response, labels) == []
+
+
+@freeze_time("2026-10-21")
+def test_home_page_is_translated(french_client, media_factory):
+    """The header of the home page, the summary of the year, the titles of its rows and their links are translated."""
+    media_factory(status="COMPLETED", score=7, review_date="2026")
+    labels = [">Accueil</h1>", "1 média noté en 2026", "Voir les statistiques", ">Sans critique</h2>", "Voir tout"]
 
     response = french_client.get(reverse("home"))
 
