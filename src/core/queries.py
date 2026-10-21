@@ -35,16 +35,15 @@ def build_search_queryset(query):
     return Media.objects.filter(q_objects).prefetch_related("tags", "contributors").distinct()
 
 
-def build_media_context(request):
+def filter_media(params):
     """
-    Build and filter media queryset from request parameters.
+    Return the media matching the search and the filters of query parameters, in their sort order.
 
-    Returns a context_dict ready for rendering.
-    This consolidates the common logic used by index and load_more_media views.
+    Returns (queryset, sort, filters, contributor, tag), the last two being the contributor and tag filtered on.
     """
-    sort = resolve_sorting(request)
-    filters = extract_filters(request)
-    search_query = request.GET.get("search", "").strip()
+    sort = resolve_sorting(params)
+    filters = extract_filters(params)
+    search_query = params.get("search", "").strip()
 
     # Build queryset based on whether it's a search or not
     queryset = (
@@ -59,7 +58,17 @@ def build_media_context(request):
     name = sort.lstrip("-")
     field = Lower(name) if name == "title" else F(name)
     order = field.desc(nulls_last=True) if sort.startswith("-") else field.asc(nulls_last=True)
-    queryset = queryset.order_by(order, "-updated_at")
+    return queryset.order_by(order, "-updated_at"), sort, filters, contributor, tag
+
+
+def build_media_context(request):
+    """
+    Build and filter media queryset from request parameters.
+
+    Returns a context_dict ready for rendering.
+    This consolidates the common logic used by index and load_more_media views.
+    """
+    queryset, sort, filters, contributor, tag = filter_media(request.GET)
 
     # Pagination: 20 items per page
     page_number = request.GET.get("page", 1)
