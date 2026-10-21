@@ -2,6 +2,27 @@
 
 <!-- version list -->
 
+## v1.12.0 (2026-10-21)
+
+### Chores
+
+- Bump the github-actions group with 2 updates
+  ([`e27b057`](https://github.com/PascalRepond/datakult/commit/e27b057b1c5f20f14120eb889859615dcba0bd8c))
+
+- **deps**: Update dependencies
+  ([`f32b14b`](https://github.com/PascalRepond/datakult/commit/f32b14b882707a131223684f8d60b21f1cc3e48e))
+
+### Features
+
+- **home**: Turn the home page into a dashboard
+  ([`665b705`](https://github.com/PascalRepond/datakult/commit/665b70594b2878834defb3f2602dc40e965bf3e7))
+
+### Refactoring
+
+- **queries**: Filter media from query params
+  ([`1cada16`](https://github.com/PascalRepond/datakult/commit/1cada163d68fc86c3b1beed709e288928bc0f9d5))
+
+
 ## v1.11.0 (2026-10-03)
 
 ### Bug Fixes
