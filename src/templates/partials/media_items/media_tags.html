@@ -3,7 +3,7 @@
 {% load media_tags %}
 {% if media.tags.all %}
   {% for tag in media.tags.all %}
-    <a href="{% url 'home' %}?{% query_string request tag=tag.id %}"
+    <a href="{% url 'media_list' %}?{% query_string request tag=tag.id %}"
        class="badge badge-outline badge-sm gap-1 hover:bg-base-300">{% lucide "tag" size="12" %}{{ tag.name }}</a>
   {% endfor %}
 {% endif %}

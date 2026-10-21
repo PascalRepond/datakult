@@ -5,8 +5,9 @@ Tests for core.views.stats: the statistics page.
 import pytest
 from django.urls import reverse
 
-from core.models import Agent
+from core.models import Agent, MediaType
 from core.views.stats import STATS_COVERS_PER_PAGE
+from tests.helpers import type_counter_urls
 
 
 def test_stats_only_counts_rated_media(logged_in_client, media_factory):
@@ -83,6 +84,21 @@ def test_stats_type_filter(logged_in_client, media_factory):
     assert (counts["BOOK"], counts["FILM"]) == (1, 1)
 
 
+@pytest.mark.parametrize(
+    ("params", "film_query", "book_query"),
+    [
+        ({}, "type=FILM", "type=BOOK"),
+        ({"year": "2024"}, "year=2024&type=FILM", "year=2024&type=BOOK"),
+        ({"year": "2024", "type": "FILM"}, "year=2024", "year=2024&type=BOOK"),
+    ],
+)
+def test_stats_type_counters_select_or_clear_their_type(logged_in_client, params, film_query, book_query):
+    """A type counter narrows the stats down to its type, keeping the year, and the selected one clears the type."""
+    urls = dict(zip(MediaType.values, type_counter_urls(logged_in_client.get(reverse("stats"), params)), strict=True))
+
+    assert (urls["FILM"], urls["BOOK"]) == (f"{reverse('stats')}?{film_query}", f"{reverse('stats')}?{book_query}")
+
+
 @pytest.mark.parametrize("year", ["abc", "0", "9999", pytest.param("1" * 5000, id="oversized")])
 def test_stats_invalid_filters_are_ignored(logged_in_client, media_factory, year):
     """Invalid type and year parameters, years out of the review date range included, fall back to everything."""
@@ -151,8 +167,8 @@ def test_stats_without_covers_message_depends_on_filters(logged_in_client, param
     assert message in response.content.decode("utf-8")
 
 
-def _home_count(client, url):
-    """Number of media listed on the home page at `url`."""
+def _list_count(client, url):
+    """Number of media listed at `url`."""
     return client.get(url).context["page_obj"].paginator.count
 
 
@@ -171,7 +187,7 @@ def test_stats_year_bars_link_to_stats_of_that_year(logged_in_client, media_fact
     assert response.context["covers"].paginator.count == bar["count"] == 2
 
 
-def test_stats_month_bars_link_to_filtered_home(logged_in_client, media_factory):
+def test_stats_month_bars_link_to_filtered_list(logged_in_client, media_factory):
     """Each monthly bar links to the media list filtered on that month."""
     media_factory(review_date="2024-02", score=7)
     media_factory(review_date="2024-02-29", score=7)
@@ -182,10 +198,10 @@ def test_stats_month_bars_link_to_filtered_home(logged_in_client, media_factory)
     february = response.context["per_month"][1]
     assert "review_from=2024-02-01" in february["url"]
     assert "review_to=2024-02-29" in february["url"]
-    assert _home_count(logged_in_client, february["url"]) == february["count"] == 2
+    assert _list_count(logged_in_client, february["url"]) == february["count"] == 2
 
 
-def test_stats_score_bars_link_to_filtered_home(logged_in_client, media_factory):
+def test_stats_score_bars_link_to_filtered_list(logged_in_client, media_factory):
     """Each score bar links to the media list filtered on that score, keeping the selected year and type."""
     media_factory(media_type="GAME", review_date="2026-03", score=4)
     media_factory(media_type="GAME", review_date="2026", score=4)
@@ -196,14 +212,14 @@ def test_stats_score_bars_link_to_filtered_home(logged_in_client, media_factory)
 
     bar = response.context["score_distribution"][3]
     assert bar["label"] == 4
-    assert _home_count(logged_in_client, bar["url"]) == bar["count"] == 2
+    assert _list_count(logged_in_client, bar["url"]) == bar["count"] == 2
 
 
 @pytest.mark.parametrize(
     ("index", "inside", "outside"),
     [pytest.param(0, (-200, 1899), (1900,), id="before-1900"), pytest.param(8, (1970, 1979), (1969, 1980), id="1970s")],
 )
-def test_stats_decade_bars_link_to_filtered_home(logged_in_client, media_factory, index, inside, outside):
+def test_stats_decade_bars_link_to_filtered_list(logged_in_client, media_factory, index, inside, outside):
     """Each decade bar links to the media list filtered on its decade, keeping the selected year and type."""
     for pub_year in (*inside, *outside):
         media_factory(media_type="FILM", pub_year=pub_year, review_date="2024-05", score=7)
@@ -212,10 +228,10 @@ def test_stats_decade_bars_link_to_filtered_home(logged_in_client, media_factory
 
     bar = logged_in_client.get(reverse("stats"), {"year": "2024", "type": "FILM"}).context["per_decade"][index]
 
-    assert _home_count(logged_in_client, bar["url"]) == bar["count"] == 2
+    assert _list_count(logged_in_client, bar["url"]) == bar["count"] == 2
 
 
-def test_stats_ranked_contributors_link_to_filtered_home(logged_in_client, media_factory):
+def test_stats_ranked_contributors_link_to_filtered_list(logged_in_client, media_factory):
     """Each ranked contributor links to the media list filtered on it, keeping the selected year and type."""
     agent = Agent.objects.create(name="Agent")
     for review_date in ("2024", "2024-05", "2024-12-31"):
@@ -226,4 +242,4 @@ def test_stats_ranked_contributors_link_to_filtered_home(logged_in_client, media
     ranking = logged_in_client.get(reverse("stats"), {"year": "2024", "type": "FILM"}).context["contributors"]
 
     for row in (ranking["most_frequent"][0], ranking["best_rated"][0]):
-        assert _home_count(logged_in_client, row["url"]) == row["count"] == 3
+        assert _list_count(logged_in_client, row["url"]) == row["count"] == 3

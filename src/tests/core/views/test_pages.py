@@ -33,7 +33,10 @@ def test_every_page_requires_login(client, db, url_name, kwargs):
     assert response.url.startswith(reverse("login"))
 
 
-@pytest.mark.parametrize(("url_name", "title"), [("home", "My media"), ("stats", "Statistics"), ("login", "Log in")])
+@pytest.mark.parametrize(
+    ("url_name", "title"),
+    [("home", "Home"), ("media_list", "My media"), ("stats", "Statistics"), ("login", "Log in")],
+)
 def test_page_titles_end_with_the_name_of_the_app(logged_in_client, url_name, title):
     """The title of a page names the page, then the app."""
     content = logged_in_client.get(reverse(url_name)).content.decode()
@@ -67,20 +70,39 @@ def _back_url(response):
 
 def test_back_links_lead_to_the_parent_page(logged_in_client, media):
     """Back links go up the hierarchy: detail to list, import to edit or list."""
-    home = reverse("home")
+    media_list = reverse("media_list")
     detail = reverse("media_detail", args=[media.pk])
     edit = reverse("media_edit", args=[media.pk])
 
-    assert _back_url(logged_in_client.get(detail)) == home
+    assert _back_url(logged_in_client.get(detail)) == media_list
     assert _back_url(logged_in_client.get(reverse("media_import"), {"media_id": media.pk})) == edit
-    assert _back_url(logged_in_client.get(reverse("media_import"))) == home
+    assert _back_url(logged_in_client.get(reverse("media_import"))) == media_list
 
 
-def test_ways_back_to_the_list_keep_its_last_filters(logged_in_client, media):
-    """Back links, the Cancel of a new media and the deletion of a media lead to the list as last shown."""
-    logged_in_client.get(reverse("home"), {"type": "BOOK", "sort": "title"})
-    logged_in_client.get(reverse("load_more_media"), {"page": "2"})
-    list_url = f"{reverse('home')}?type=BOOK&sort=title"
+def test_back_links_to_the_list_go_back_to_the_home_page_list_or_stats(logged_in_client, media):
+    """A back link to the list goes back in history instead when the previous page is the home page, list or stats."""
+    content = logged_in_client.get(reverse("media_detail", args=[media.pk])).content.decode()
+
+    paths = re.search(r'data-history-back="([^"]*)"', content)[1].split()
+    assert set(paths) == {reverse("home"), reverse("media_list"), reverse("stats")}
+
+
+@pytest.mark.parametrize(
+    ("visits", "back"),
+    [
+        (
+            [("media_list", {"type": "BOOK", "sort": "title"}), ("load_more_media", {"page": "2"})],
+            "type=BOOK&sort=title",
+        ),
+        ([("media_list", {"type": "BOOK"}), ("home", {}), ("stats", {})], None),
+    ],
+    ids=["list", "home"],
+)
+def test_ways_back_lead_to_the_last_page_listing_media(logged_in_client, media, visits, back):
+    """Back links, the Cancel of a new media and its deletion lead to the home page or the list, whichever came last."""
+    for url_name, params in visits:
+        logged_in_client.get(reverse(url_name), params)
+    list_url = f"{reverse('media_list')}?{back}" if back else reverse("home")
 
     add_form = logged_in_client.get(reverse("media_add")).content.decode()
     assert _back_url(logged_in_client.get(reverse("media_detail", args=[media.pk]))) == list_url
@@ -124,9 +146,9 @@ def test_sidebar_marks_the_current_saved_view(logged_in_client, saved_view_facto
 
 def test_sidebar_marks_the_current_status(logged_in_client):
     """Each status has its shortcut in the sidebar, the one of completed media showing the unfinished ones too."""
-    content = logged_in_client.get(reverse("home"), {"status": ["COMPLETED", "DNF"]}).content.decode()
+    content = logged_in_client.get(reverse("media_list"), {"status": ["COMPLETED", "DNF"]}).content.decode()
 
-    shortcuts = re.findall(r'<a href="/\?(status=[^"]+)"\s+class="([^"]*)"', content)
+    shortcuts = re.findall(rf'<a href="{reverse("media_list")}\?(status=[^"]+)"\s+class="([^"]*)"', content)
     assert [(unescape(query), classes) for query, classes in shortcuts] == [
         ("status=PLANNED", ""),
         ("status=IN_PROGRESS", ""),
@@ -137,16 +159,28 @@ def test_sidebar_marks_the_current_status(logged_in_client):
 
 def test_sidebar_marks_the_current_media_type(logged_in_client):
     """Each media type has its shortcut in the sidebar, highlighted when the list is filtered on it alone."""
-    content = logged_in_client.get(reverse("home"), {"type": "FILM"}).content.decode()
+    content = logged_in_client.get(reverse("media_list"), {"type": "FILM"}).content.decode()
 
-    shortcuts = re.findall(r'<a href="/\?type=(\w+)"\s+class="([^"]*)"', content)
+    shortcuts = re.findall(rf'<a href="{reverse("media_list")}\?type=(\w+)"\s+class="([^"]*)"', content)
     assert shortcuts == [(value, "menu-active" if value == "FILM" else "") for value in MediaType.values]
+
+
+@pytest.mark.parametrize(
+    ("url_name", "params", "active"),
+    [("media_list", {}, True), ("media_list", {"type": "FILM"}, False), ("home", {}, False)],
+)
+def test_sidebar_all_link_opens_the_whole_list(logged_in_client, url_name, params, active):
+    """The All entry of the sidebar opens the list without filters, and is highlighted there only."""
+    content = logged_in_client.get(reverse(url_name), params).content.decode()
+
+    classes = re.search(rf'<a href="{reverse("media_list")}"\s+class="([^"]*)"', content)[1]
+    assert ("menu-active" in classes) is active
 
 
 DISPLAY_UTILITIES = {"block", "inline-block", "inline", "flex", "inline-flex", "grid", "inline-grid", "contents"}
 
 
-@pytest.mark.parametrize("url_name", ["home", "media_add", "stats"])
+@pytest.mark.parametrize("url_name", ["media_list", "media_add", "stats"])
 def test_closed_dropdown_menus_leave_the_page(logged_in_client, url_name):
     """A dropdown menu sets no display, which would keep it on the page while closed, invisible but clickable."""
     content = logged_in_client.get(reverse(url_name)).content.decode()
@@ -168,8 +202,8 @@ def test_sidebar_stats_link_opens_the_current_year(logged_in_client):
     ("url", "modal_id"),
     [
         (lambda media: reverse("media_edit", args=[media.pk]), "confirm-delete-modal"),
-        (lambda media: reverse("home") + "?type=BOOK", "save-view-modal"),
-        (lambda media: reverse("home") + "?search=dune", "save-view-modal"),
+        (lambda media: reverse("media_list") + "?type=BOOK", "save-view-modal"),
+        (lambda media: reverse("media_list") + "?search=dune", "save-view-modal"),
     ],
     ids=["delete media", "save view", "save searched view"],
 )
@@ -195,7 +229,7 @@ def test_confirm_modal_submits_the_form_it_confirms():
 @pytest.mark.parametrize(
     ("url_name", "triggers"),
     [
-        ("home", {"input changed delay:300ms from:#search-input"}),
+        ("media_list", {"input changed delay:300ms from:#search-input"}),
         ("media_import", {"input changed delay:300ms from:#import-query"}),
         ("media_add", {"input changed delay:300ms", "input changed delay:500ms"}),
         ("accounts:profile_edit", {"input changed delay:500ms"}),

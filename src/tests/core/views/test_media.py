@@ -19,7 +19,7 @@ def test_index_fills_cover_frames_with_their_colour(logged_in_client, media_fact
     """The colour of a cover fills the space left around it in its card."""
     media_factory(media_type="MUSIC", cover="covers/cover.jpg", cover_color="#333333")
 
-    response = logged_in_client.get(reverse("home"))
+    response = logged_in_client.get(reverse("media_list"))
 
     assert 'style="--cover-color: #333333"' in response.content.decode()
 
@@ -36,7 +36,7 @@ def test_search_matches_titles_contributors_reviews_tags_and_years(logged_in_cli
     )
     media_factory(title="Other Book")
 
-    response = logged_in_client.get(reverse("home"), {"search": query})
+    response = logged_in_client.get(reverse("media_list"), {"search": query})
 
     assert titles(response) == ["Unique Title"]
 
@@ -44,7 +44,7 @@ def test_search_matches_titles_contributors_reviews_tags_and_years(logged_in_cli
 @pytest.mark.parametrize("params", [{}, {"sort": "invalid_field"}, {"sort": "-updated_at"}, {"sort": "created_at"}])
 def test_sort_outside_the_options_uses_default(logged_in_client, params):
     """Without a sort, or with one that is not a sort option, such as a removed one, the list sorts by review date."""
-    response = logged_in_client.get(reverse("home"), params)
+    response = logged_in_client.get(reverse("media_list"), params)
 
     assert response.context["sort"] == "-review_date"
 
@@ -66,7 +66,7 @@ def test_media_without_the_sorted_value_come_last(logged_in_client, media_factor
     media_factory(title="Poor", score=3, review_date="2020", pub_year=2010)
     media_factory(title="Great", score=9, review_date="2024-05", pub_year=1975)
 
-    response = logged_in_client.get(reverse("home"), {"sort": sort})
+    response = logged_in_client.get(reverse("media_list"), {"sort": sort})
 
     assert titles(response) == expected
 
@@ -76,7 +76,7 @@ def test_title_sort_ignores_case(logged_in_client, media_factory):
     for title in ["Banana", "cherry", "apple"]:
         media_factory(title=title)
 
-    response = logged_in_client.get(reverse("home"), {"sort": "title"})
+    response = logged_in_client.get(reverse("media_list"), {"sort": "title"})
 
     assert titles(response) == ["apple", "Banana", "cherry"]
 
@@ -88,12 +88,12 @@ def test_media_without_sorted_value_are_sorted_by_last_update(logged_in_client, 
     with freeze_time("2026-02-01"):
         newer = media_factory(title="Newer")
 
-    response = logged_in_client.get(reverse("home"))
+    response = logged_in_client.get(reverse("media_list"))
 
     assert list(response.context["media_list"]) == [newer, older]
     with freeze_time("2026-03-01"):
         older.save()
-    assert list(logged_in_client.get(reverse("home")).context["media_list"]) == [older, newer]
+    assert list(logged_in_client.get(reverse("media_list")).context["media_list"]) == [older, newer]
 
 
 @pytest.mark.parametrize(
@@ -109,7 +109,7 @@ def test_filters_keep_the_matching_media(logged_in_client, media_factory, params
     media_factory(title="Planned book", media_type="BOOK", status="PLANNED")
     media_factory(title="Rated film", media_type="FILM", status="COMPLETED", score=8)
 
-    response = logged_in_client.get(reverse("home"), params)
+    response = logged_in_client.get(reverse("media_list"), params)
 
     assert titles(response) == expected
 
@@ -118,7 +118,7 @@ def test_filter_by_contributor(logged_in_client, media, media_factory, agent):
     """The contributor filter keeps the media of that contributor."""
     media_factory(title="No Author")
 
-    response = logged_in_client.get(reverse("home"), {"contributor": agent.pk})
+    response = logged_in_client.get(reverse("media_list"), {"contributor": agent.pk})
 
     assert titles(response) == [media.title]
 
@@ -128,7 +128,7 @@ def test_filter_with_invalid_date_ignores_filter(logged_in_client, media_factory
     media_factory(title="Recent", review_date="2025-01-01")
     media_factory(title="Old", review_date="2020-01-01")
 
-    response = logged_in_client.get(reverse("home"), {"review_from": "not-a-date"})
+    response = logged_in_client.get(reverse("media_list"), {"review_from": "not-a-date"})
 
     assert titles(response) == ["Recent", "Old"]
 
@@ -141,9 +141,9 @@ def test_filter_review_from_includes_less_precise_dates(logged_in_client, media_
     media_factory(title="March 2nd", review_date="2016-03-02")
     media_factory(title="Before", review_date="2015-12-31")
 
-    from_new_year = logged_in_client.get(reverse("home"), {"review_from": "2016-01-01"})
-    from_march = logged_in_client.get(reverse("home"), {"review_from": "2016-03-01"})
-    from_march_2nd = logged_in_client.get(reverse("home"), {"review_from": "2016-03-02"})
+    from_new_year = logged_in_client.get(reverse("media_list"), {"review_from": "2016-01-01"})
+    from_march = logged_in_client.get(reverse("media_list"), {"review_from": "2016-03-01"})
+    from_march_2nd = logged_in_client.get(reverse("media_list"), {"review_from": "2016-03-02"})
 
     assert set(titles(from_new_year)) == {"Year", "January", "March", "March 2nd"}
     assert set(titles(from_march)) == {"March", "March 2nd"}
@@ -166,7 +166,7 @@ def test_release_filter_keeps_the_media_released_between_its_bounds(logged_in_cl
     media_factory(title="Eighties", pub_year=1985)
     media_factory(title="Undated")
 
-    response = logged_in_client.get(reverse("home"), params)
+    response = logged_in_client.get(reverse("media_list"), params)
 
     assert set(titles(response)) == expected
 
@@ -191,14 +191,16 @@ def test_media_review_modal_of_missing_media_returns_404(logged_in_client):
     assert response.status_code == 404
 
 
-def test_media_card_offers_to_read_more_of_a_long_review(logged_in_client, media_factory):
+@pytest.mark.parametrize("url_name", ["home", "media_list"])
+def test_media_card_offers_to_read_more_of_a_long_review(logged_in_client, media_factory, url_name):
     """A card shows a plain text excerpt of the review, cut when long and then opening the whole review in the modal."""
-    long_review = media_factory(review="**Bold text** " + "word " * 40)
-    short_review = media_factory(review="Short and cosy.")
+    long_review = media_factory(review="**Bold text** " + "word " * 40, score=7)
+    short_review = media_factory(review="Short and cosy.", score=7)
 
-    content = logged_in_client.get(reverse("home")).content.decode()
+    content = logged_in_client.get(reverse(url_name)).content.decode()
 
     assert f'hx-get="{reverse("media_review_htmx", args=[long_review.pk])}"' in content
+    assert 'id="review-modal-content"' in content
     assert f'hx-get="{reverse("media_review_htmx", args=[short_review.pk])}"' not in content
     assert "Bold text word" in content
     assert "word " * 20 not in content
@@ -206,9 +208,10 @@ def test_media_card_offers_to_read_more_of_a_long_review(logged_in_client, media
     assert "Short and cosy." in content
 
 
-def test_empty_library_invites_to_add_a_first_media(logged_in_client):
-    """With no media at all, the list invites to add one."""
-    content = logged_in_client.get(reverse("home")).content.decode()
+@pytest.mark.parametrize("url_name", ["home", "media_list"])
+def test_empty_library_invites_to_add_a_first_media(logged_in_client, url_name):
+    """With no media at all, the home page and the list invite to add one."""
+    content = logged_in_client.get(reverse(url_name)).content.decode()
 
     assert "Add your first media" in content
     assert "Clear filters</a>" not in content
@@ -218,10 +221,10 @@ def test_empty_results_offer_to_clear_the_filters(logged_in_client, media_factor
     """When filters or a search match nothing, the list offers to clear them."""
     media_factory(title="Dune")
 
-    content = logged_in_client.get(reverse("home"), {"search": "nothing matches"}).content.decode()
+    content = logged_in_client.get(reverse("media_list"), {"search": "nothing matches"}).content.decode()
 
     assert "Add your first media" not in content
-    assert re.search(r'href="/"[^>]*>\s*(<svg[\s\S]*?</svg>)?\s*Clear filters', content)
+    assert re.search(r'href="/media/"[^>]*>\s*(<svg[\s\S]*?</svg>)?\s*Clear filters', content)
 
 
 def test_index_paginates_results_across_pages(logged_in_client, media_factory):
@@ -229,8 +232,8 @@ def test_index_paginates_results_across_pages(logged_in_client, media_factory):
     for i in range(25):
         media_factory(title=f"Media {i}")
 
-    page1 = logged_in_client.get(reverse("home"))
-    page2 = logged_in_client.get(reverse("home"), {"page": 2})
+    page1 = logged_in_client.get(reverse("media_list"))
+    page2 = logged_in_client.get(reverse("media_list"), {"page": 2})
 
     assert len(page1.context["media_list"]) == 20
     assert page1.context["page_obj"].has_next()
@@ -275,14 +278,14 @@ def test_index_media_count_is_pluralized(logged_in_client, media_factory, count,
     for _ in range(count):
         media_factory()
 
-    response = logged_in_client.get(reverse("home"))
+    response = logged_in_client.get(reverse("media_list"))
 
     assert re.search(rf"\b{label}\b(?!s)", response.content.decode())
 
 
 def test_index_always_shows_the_grid(logged_in_client, media):
     """The list view is gone: an old URL asking for it shows the grid."""
-    content = logged_in_client.get(reverse("home"), {"view_mode": "list"}).content.decode()
+    content = logged_in_client.get(reverse("media_list"), {"view_mode": "list"}).content.decode()
 
     assert 'id="media-container"' in content
     assert "<table" not in content
@@ -296,18 +299,18 @@ def _filter_form(content):
 
 def test_sort_options_are_explicit_and_valid(logged_in_client):
     """The sort is chosen in one list of explicit options, each of which sorts the list as it says."""
-    response = logged_in_client.get(reverse("home"), {"sort": "-score"})
+    response = logged_in_client.get(reverse("media_list"), {"sort": "-score"})
 
     content = response.content.decode()
     assert re.search(r'name="sort"\s+value="-score"[^>]*\schecked', content)
     assert re.search(r'id="sort-label"[^>]*>\s*Best scores\s*<', content)
     for value, _label in response.context["sort_options"]:
-        assert logged_in_client.get(reverse("home"), {"sort": value}).context["sort"] == value
+        assert logged_in_client.get(reverse("media_list"), {"sort": value}).context["sort"] == value
 
 
 def test_filter_form_holds_search_sort_and_filters(logged_in_client, agent):
     """Search, sort and filters belong to one form, so that none of them is lost when another changes."""
-    form = _filter_form(logged_in_client.get(reverse("home"), {"contributor": agent.pk}).content.decode())
+    form = _filter_form(logged_in_client.get(reverse("media_list"), {"contributor": agent.pk}).content.decode())
 
     for name in [
         "search",
@@ -327,7 +330,7 @@ def test_filter_form_holds_search_sort_and_filters(logged_in_client, agent):
 
 def test_release_fields_accept_the_years_of_a_release_year(logged_in_client):
     """The release bounds of the filters accept the same years as the release year of a media."""
-    form = _filter_form(logged_in_client.get(reverse("home")).content.decode())
+    form = _filter_form(logged_in_client.get(reverse("media_list")).content.decode())
 
     for name in ["release_from", "release_to"]:
         field = re.search(rf'<input[^>]*name="{name}"[^>]*>', form)[0]
@@ -337,7 +340,7 @@ def test_release_fields_accept_the_years_of_a_release_year(logged_in_client):
 
 def test_filter_form_updates_the_page_in_place(logged_in_client):
     """The filter form updates the list and the parts of the page that depend on the filters, and the URL."""
-    content = logged_in_client.get(reverse("home")).content.decode()
+    content = logged_in_client.get(reverse("media_list")).content.decode()
     form = _filter_form(content)
 
     assert 'hx-push-url="true"' in form
@@ -347,10 +350,22 @@ def test_filter_form_updates_the_page_in_place(logged_in_client):
         assert f'id="{element_id}"' in content
 
 
+def test_list_filters_lead_to_the_list(logged_in_client, media_factory, agent):
+    """The filter form and the links filtering the list lead to the list, not to the home page."""
+    media_factory(contributors=[agent])
+
+    content = logged_in_client.get(reverse("media_list")).content.decode()
+
+    form = _filter_form(content)
+    assert f'action="{reverse("media_list")}"' in form
+    assert f'hx-get="{reverse("media_list")}"' in form
+    assert not re.findall(r'(?:href|hx-get)="/\?', content)
+
+
 def test_filter_toggles_show_the_selected_values(logged_in_client):
     """Selected filter values are shown as checked toggles."""
     content = logged_in_client.get(
-        reverse("home"), {"type": "FILM", "status": "PAUSED", "score": "6", "has_review": "filled"}
+        reverse("media_list"), {"type": "FILM", "status": "PAUSED", "score": "6", "has_review": "filled"}
     ).content.decode()
 
     for name, value in [("type", "FILM"), ("status", "PAUSED"), ("score", "6"), ("has_review", "filled")]:
@@ -369,7 +384,7 @@ def test_filters_button_counts_the_active_filters(logged_in_client, agent):
         "contributor": agent.pk,
     }
 
-    response = logged_in_client.get(reverse("home"), params)
+    response = logged_in_client.get(reverse("media_list"), params)
 
     assert response.context["active_filter_count"] == 6
     assert re.search(r'id="filters-count"[^>]*>\s*6\s*<', response.content.decode())
@@ -388,7 +403,7 @@ def test_filters_button_counts_the_active_filters(logged_in_client, agent):
 )
 def test_range_bounds_show_as_a_removable_badge(logged_in_client, params, name, label):
     """The bounds of a range filter show as one badge, which removes them both, and let the view be saved."""
-    content = logged_in_client.get(reverse("home"), params).content.decode()
+    content = logged_in_client.get(reverse("media_list"), params).content.decode()
 
     assert re.search(rf'data-filter="{name}">.*?<span>{label}</span>.*?data-filter="{name}"', content, re.DOTALL)
     assert 'commandfor="save-view-modal"' in content
@@ -396,14 +411,14 @@ def test_range_bounds_show_as_a_removable_badge(logged_in_client, params, name, 
 
 def test_invalid_contributor_is_not_counted_as_a_filter(logged_in_client):
     """A contributor that does not exist filters nothing, and is not counted."""
-    response = logged_in_client.get(reverse("home"), {"contributor": "99999"})
+    response = logged_in_client.get(reverse("media_list"), {"contributor": "99999"})
 
     assert response.context["active_filter_count"] == 0
 
 
 def test_media_card_links_to_its_edit_form(logged_in_client, media):
     """Each card of the list links straight to the edit form of its media."""
-    content = logged_in_client.get(reverse("home")).content.decode()
+    content = logged_in_client.get(reverse("media_list")).content.decode()
 
     assert f'href="{reverse("media_edit", args=[media.pk])}"' in content
 
@@ -508,7 +523,7 @@ def test_media_delete_deletes_media_and_confirms_it(logged_in_client, media):
     response = logged_in_client.post(reverse("media_delete", kwargs={"pk": media.pk}))
 
     assert not Media.objects.filter(pk=media.pk).exists()
-    assert response.url == reverse("home")
+    assert response.url == reverse("media_list")
     assert messages_of(response) == ["'Test Media' deleted successfully"]
 
 
@@ -549,7 +564,7 @@ def test_edit_form_actions_lead_back_to_where_it_came_from(logged_in_client, med
     """The action bar saves the form, or cancels back to the media page, or to the list for a new media."""
     url = reverse("media_edit", args=[media.pk]) if editing else reverse("media_add")
     content = logged_in_client.get(url).content.decode()
-    back = reverse("media_detail", args=[media.pk]) if editing else reverse("home")
+    back = reverse("media_detail", args=[media.pk]) if editing else reverse("media_list")
 
     bar = content[content.index('id="form-actions"') :]
     assert re.search(rf'href="{back}"[^>]*>\s*Cancel', bar)
@@ -674,13 +689,17 @@ def test_media_detail_shows_all_fields(logged_in_client, media_factory, agent):
     assert "https://example.com" in content
 
 
-def test_media_detail_contributor_links_to_filtered_list(logged_in_client, media, agent):
-    """Contributor links of the detail view lead to the list filtered on that contributor, as plain links."""
+def test_media_detail_links_to_the_list_filtered_on_a_contributor_or_tag(logged_in_client, media_factory, agent):
+    """Contributor and tag links of the detail view lead to the list filtered on them, contributors as plain links."""
+    tag = Tag.objects.create(name="Space")
+    media = media_factory(contributors=[agent], tags=[tag])
+
     content = logged_in_client.get(reverse("media_detail", kwargs={"pk": media.pk})).content.decode()
 
     link = re.search(r"<a [^>]*contributor-link[^>]*>", content)[0]
-    assert f"contributor={agent.id}" in link
+    assert f'href="{reverse("media_list")}?contributor={agent.id}"' in link
     assert "hx-" not in link
+    assert f'href="{reverse("media_list")}?tag={tag.id}"' in content
 
 
 @pytest.mark.parametrize(("fields", "invited"), [({}, True), ({"score": 7, "review": "Fine."}, False)])

@@ -13,16 +13,16 @@ from core.models import SavedView
 def saved_view_save(request):
     """Save the filters of the list as a view, replacing the view of the same name if there is one."""
     if request.method != "POST":
-        return redirect("home")
+        return redirect("media_list")
 
     view_name = request.POST.get("view_name", "").strip()
     if not view_name:
         messages.error(request, _("View name is required"))
-        return redirect("home")
+        return redirect("media_list")
     if errors := filter_errors(request.POST):
         for error in errors:
             messages.error(request, error)
-        return redirect("home")
+        return redirect("media_list")
 
     saved_view, created = SavedView.objects.update_or_create(
         user=request.user,

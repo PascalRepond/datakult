@@ -104,17 +104,24 @@ def test_saved_view_save_rejects_invalid_filters(logged_in_client, user, params)
     """A view without a name, or with a filter that is not valid, is not saved, and the error is shown."""
     response = logged_in_client.post(reverse("saved_view_save"), {"view_name": "Invalid", **params})
 
-    assert response.url == reverse("home")
+    assert response.url == reverse("media_list")
     assert not SavedView.objects.filter(user=user).exists()
     assert messages_of(response)
 
 
-def test_saved_view_actions_ignore_get_requests(logged_in_client, saved_view_factory):
-    """GET requests to save or delete a view change nothing and lead back to the list."""
+@pytest.mark.parametrize(
+    ("url", "redirect_name"),
+    [
+        (lambda view: reverse("saved_view_save"), "media_list"),
+        (lambda view: reverse("saved_view_delete", kwargs={"pk": view.pk}), "home"),
+    ],
+    ids=["save", "delete"],
+)
+def test_saved_view_actions_ignore_get_requests(logged_in_client, saved_view_factory, url, redirect_name):
+    """GET requests to save or delete a view change nothing: saving leads back to the list, deleting to home."""
     saved_view = saved_view_factory(name="To Keep")
 
-    for url in [reverse("saved_view_save"), reverse("saved_view_delete", kwargs={"pk": saved_view.pk})]:
-        assert logged_in_client.get(url).url == reverse("home")
+    assert logged_in_client.get(url(saved_view)).url == reverse(redirect_name)
     assert list(SavedView.objects.values_list("name", flat=True)) == ["To Keep"]
 
 

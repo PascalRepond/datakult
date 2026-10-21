@@ -1,0 +1,18 @@
+{% load i18n %}
+{# Section of the home page showing the first media of a list, with a link to that whole list #}
+{# Parameters: row (title, url and media), compact (optional, smaller cards), extra_class (optional) #}
+<section class="card panel min-w-0 {{ extra_class }}">
+  <div class="card-body p-4 lg:p-6">
+    <div class="flex items-center gap-2">
+      <h2 class="card-title">{{ row.title }}</h2>
+      <a href="{{ row.url }}" class="btn btn-sm btn-ghost">
+        {% translate "See all" %}
+        {% lucide "chevron-right" %}
+      </a>
+    </div>
+    {# The cards of the list, scrolling sideways with a visible scrollbar for mouse users #}
+    <div class="flex gap-4 overflow-x-auto pb-2 *:shrink-0 {% if compact %}*:w-32{% else %}*:w-64{% endif %}">
+      {% include "partials/media_items/media_item.html" with media_list=row.media %}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,9 @@
+{% load i18n %}
+<div class="flex flex-col items-center gap-4 py-16 text-center">
+  {% lucide "library" size="48" class="opacity-40" %}
+  <p class="text-base-content/70">{% translate "Your library is empty." %}</p>
+  <a href="{% url 'media_import' %}" class="btn btn-primary">
+    {% lucide "plus" %}
+    {% translate "Add your first media" %}
+  </a>
+</div>

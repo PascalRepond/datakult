@@ -1,6 +1,8 @@
 """Helpers shared by the test modules."""
 
+import re
 import tarfile
+from html import unescape
 from io import BytesIO
 
 from django.contrib.messages import get_messages
@@ -38,3 +40,9 @@ def titles(response):
 def messages_of(response):
     """Return the texts of the messages that a request queued."""
     return [str(message) for message in get_messages(response.wsgi_request)]
+
+
+def type_counter_urls(response):
+    """Return the URLs the counters of rated media per type of a page link to, in their order."""
+    urls = re.findall(r'<a href="([^"]*)"\s+class="card panel hover:bg-base-300', response.content.decode())
+    return [unescape(url) for url in urls]
