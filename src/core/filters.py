@@ -25,26 +25,26 @@ SORT_OPTIONS = [
 DEFAULT_SORT = "-review_date"
 
 
-def resolve_sorting(request):
-    """Return the sort of the request when it is one of the sort options, else the default sort."""
-    sort = request.GET.get("sort") or request.GET.get("order_by")
+def resolve_sorting(params):
+    """Return the sort of the query parameters when it is one of the sort options, else the default sort."""
+    sort = params.get("sort") or params.get("order_by")
     return sort if sort in dict(SORT_OPTIONS) else DEFAULT_SORT
 
 
-def extract_filters(request):
-    """Extract filter parameters from request and return filters dict."""
+def extract_filters(params):
+    """Extract the filters of query parameters and return filters dict."""
     filters = {
-        "contributor": request.GET.get("contributor", ""),
-        "tag": request.GET.get("tag", ""),
-        "type": request.GET.getlist("type"),
-        "status": request.GET.getlist("status"),
-        "score": request.GET.getlist("score"),
-        "release_from": request.GET.get("release_from", ""),
-        "release_to": request.GET.get("release_to", ""),
-        "review_from": request.GET.get("review_from", ""),
-        "review_to": request.GET.get("review_to", ""),
-        "has_review": request.GET.get("has_review", ""),
-        "has_cover": request.GET.get("has_cover", ""),
+        "contributor": params.get("contributor", ""),
+        "tag": params.get("tag", ""),
+        "type": params.getlist("type"),
+        "status": params.getlist("status"),
+        "score": params.getlist("score"),
+        "release_from": params.get("release_from", ""),
+        "release_to": params.get("release_to", ""),
+        "review_from": params.get("review_from", ""),
+        "review_to": params.get("review_to", ""),
+        "has_review": params.get("has_review", ""),
+        "has_cover": params.get("has_cover", ""),
     }
     filters["has_any"] = any(
         [
