@@ -9,7 +9,7 @@ To use this API, you need to:
 2. Set TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET in your environment
 """
 
-import datetime
+import datetime as dt
 import logging
 import re
 import time
@@ -64,7 +64,7 @@ def _cover_image_id(game: dict) -> str | None:
 def _release_year(game: dict) -> int | None:
     """Return the year of the first release of a game, given as a Unix timestamp."""
     timestamp = game.get("first_release_date")
-    return datetime.datetime.fromtimestamp(timestamp, tz=datetime.UTC).year if timestamp else None
+    return dt.datetime.fromtimestamp(timestamp, tz=dt.UTC).year if timestamp else None
 
 
 def _company_name(company_info: dict) -> str | None:
