@@ -1,0 +1,64 @@
+{% load i18n %}
+{# Media of a list in their order, with their rank and the buttons moving or removing them, swapped whole once one #}
+{# changes #}
+{# Parameters: entries #}
+<div id="list-entries">
+  {% if entries %}
+    {# Rows of the list component of daisyUI, whose columns keep a fixed width to stay aligned from row to row #}
+    <ol class="list panel rounded-box">
+      {% for entry in entries %}
+        {% with media=entry.media %}
+          <li class="list-row items-center gap-2 sm:gap-4 p-3 sm:p-4">
+            <span class="w-7 sm:w-10 text-right text-xl sm:text-3xl font-thin tabular-nums opacity-50">{{ forloop.counter|stringformat:"02d" }}</span>
+            <div class="w-10 h-14 sm:w-12 sm:h-16 bg-base-300 rounded overflow-hidden">
+              {% include "partials/media_items/cover_image.html" with placeholder_class="w-6 h-6" %}
+            </div>
+            <a href="{% url 'media_detail' media.pk %}"
+               class="list-col-grow min-w-0 hover:opacity-80 transition-opacity">
+              <p class="font-semibold truncate">{{ media.title }}</p>
+              <p class="text-xs uppercase font-semibold opacity-60 truncate">
+                {{ media.get_media_type_display }}
+                {% if media.pub_year %}· {{ media.pub_year }}{% endif %}
+              </p>
+            </a>
+            <div class="w-9">
+              {% include "partials/media_items/score/media_score_ring.html" with score=media.score show_label=False %}
+            </div>
+            <div class="join join-vertical">
+              <button type="button"
+                      class="btn btn-ghost btn-sm btn-square join-item"
+                      hx-post="{% url 'list_entry_move' entry.pk %}"
+                      hx-vals='{"direction": "up"}'
+                      hx-target="#list-entries"
+                      hx-swap="outerHTML"
+                      aria-label="{% blocktranslate with title=media.title %}Move {{ title }} up{% endblocktranslate %}"
+                      {% if forloop.first %}disabled{% endif %}>
+                {% lucide "chevron-up" %}
+              </button>
+              <button type="button"
+                      class="btn btn-ghost btn-sm btn-square join-item"
+                      hx-post="{% url 'list_entry_move' entry.pk %}"
+                      hx-vals='{"direction": "down"}'
+                      hx-target="#list-entries"
+                      hx-swap="outerHTML"
+                      aria-label="{% blocktranslate with title=media.title %}Move {{ title }} down{% endblocktranslate %}"
+                      {% if forloop.last %}disabled{% endif %}>
+                {% lucide "chevron-down" %}
+              </button>
+            </div>
+            <button type="button"
+                    class="btn btn-ghost btn-sm btn-square text-error"
+                    hx-post="{% url 'list_entry_remove' entry.pk %}"
+                    hx-target="#list-entries"
+                    hx-swap="outerHTML"
+                    aria-label="{% blocktranslate with title=media.title %}Remove {{ title }} from the list{% endblocktranslate %}">
+              {% lucide "x" %}
+            </button>
+          </li>
+        {% endwith %}
+      {% endfor %}
+    </ol>
+  {% else %}
+    <p class="opacity-70">{% translate "No media in this list yet." %}</p>
+  {% endif %}
+</div>

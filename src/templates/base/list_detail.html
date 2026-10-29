@@ -1,0 +1,41 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% block title %}
+  {{ custom_list.name }}
+{% endblock title %}
+{% block content %}
+  <div class="max-w-4xl mx-auto">
+    {# Header #}
+    <div class="flex justify-between items-center gap-4 mb-6">
+      {% url 'list_index' as lists_url %}
+      {% include "partials/common/page_header.html" with title=custom_list.name subtitle=custom_list.description back_url=lists_url %}
+      <div class="flex gap-2 shrink-0">
+        <button type="button"
+                commandfor="edit-list-modal"
+                command="show-modal"
+                class="btn btn-primary">
+          {% lucide "square-pen" %}
+          {% translate "Edit" %}
+        </button>
+        <form id="delete-list-form"
+              method="post"
+              action="{% url 'list_delete' custom_list.pk %}">
+          {% csrf_token %}
+          <button type="button"
+                  commandfor="delete-list-modal"
+                  command="show-modal"
+                  class="btn btn-ghost text-error"
+                  aria-label="{% translate "Delete" %}">
+            {% lucide "trash-2" %}
+          </button>
+        </form>
+      </div>
+    </div>
+    {% include "partials/lists/list_media_search.html" %}
+    {% include "partials/lists/list_entries.html" %}
+  </div>
+  {% url 'list_edit' custom_list.pk as edit_url %}
+  {% include "partials/lists/list_form_modal.html" with modal_id="edit-list-modal" title=_("Edit list") action=edit_url submit_text=_("Save") %}
+  {% blocktranslate asvar confirm_message with name=custom_list.name %}Delete the list “{{ name }}”? Its media are kept.{% endblocktranslate %}
+  {% include "partials/common/confirm_modal.html" with modal_id="delete-list-modal" form_id="delete-list-form" title=_("Delete list") message=confirm_message confirm_text=_("Yes, delete") is_danger=True %}
+{% endblock content %}

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import backup, home, imports, media, saved_views, stats
+from .views import backup, home, imports, lists, media, saved_views, stats
 
 urlpatterns = [
     path("", home.home, name="home"),
@@ -27,4 +27,17 @@ urlpatterns = [
     # Saved views
     path("saved-views/save/", saved_views.saved_view_save, name="saved_view_save"),
     path("saved-views/<int:pk>/delete/", saved_views.saved_view_delete, name="saved_view_delete"),
+    # Lists
+    path("lists/", lists.list_index, name="list_index"),
+    path("lists/load-more/", lists.load_more_lists, name="load_more_lists"),
+    path("lists/add/", lists.list_edit, name="list_add"),
+    path("lists/<int:pk>/", lists.list_detail, name="list_detail"),
+    path("lists/<int:pk>/edit/", lists.list_edit, name="list_edit"),
+    path("lists/<int:pk>/delete/", lists.list_delete, name="list_delete"),
+    path("lists/<int:pk>/search/", lists.list_media_search, name="list_media_search"),
+    path("lists/<int:pk>/add-media/", lists.list_entry_add, name="list_entry_add"),
+    path("list-entries/<int:pk>/remove/", lists.list_entry_remove, name="list_entry_remove"),
+    path("list-entries/<int:pk>/move/", lists.list_entry_move, name="list_entry_move"),
+    path("media/<int:pk>/lists/", lists.media_lists_htmx, name="media_lists_htmx"),
+    path("media/<int:pk>/lists/search/", lists.media_lists_search_htmx, name="media_lists_search_htmx"),
 ]
