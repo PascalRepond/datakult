@@ -40,31 +40,7 @@
                id="search-input" />
       </label>
       <div class="flex gap-2">
-        {# Sort dropdown, like the year picker of the statistics: its options are radios of the form #}
-        <div class="dropdown dropdown-end flex-1 sm:flex-none">
-          <div tabindex="0" role="button" class="btn btn-sm sm:btn-md w-full sm:min-w-52 justify-between">
-            <span class="flex items-center gap-2">
-              {% lucide "arrow-down-wide-narrow" %}
-              <span class="sr-only">{% translate "Sort by" %}</span>
-              <span id="sort-label">{% for value, label in sort_options %}{% if value == sort %}{{ label }}{% endif %}{% endfor %}</span>
-            </span>
-            {% lucide "chevron-down" class="h-4 w-4 opacity-60" %}
-          </div>
-          {# The menu itself sets no display, which would override its hiding while closed #}
-          <div tabindex="-1"
-               class="dropdown-content z-10 mt-2 w-56 p-2 bg-base-100 rounded-box shadow-xl">
-            <div class="flex flex-col gap-1">
-              {% for value, label in sort_options %}
-                <input type="radio"
-                       name="sort"
-                       value="{{ value }}"
-                       class="btn btn-sm btn-ghost justify-start"
-                       aria-label="{{ label }}"
-                       {% if value == sort %}checked{% endif %} />
-              {% endfor %}
-            </div>
-          </div>
-        </div>
+        {% include "partials/common/sort_dropdown.html" %}
         <label for="filters-drawer"
                class="btn btn-sm sm:btn-md"
                aria-label="{% translate "Filters" %}">
