@@ -6,7 +6,9 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, transaction
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -284,9 +286,10 @@ class SavedView(TimestampedModel):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        verbose_name=_("User"),
         related_name="saved_views",
     )
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, verbose_name=_("Name"))
 
     # Filter parameters
     filter_types = models.JSONField(default=list, blank=True)
@@ -335,3 +338,66 @@ class SavedView(TimestampedModel):
         params.extend((key, value) for key, value in optional_filters if value)
         params.append(("sort", self.sort))
         return f"{reverse('media_list')}?{urlencode(params)}"
+
+
+class CustomList(TimestampedModel):
+    """Model for saving custom lists of media."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name=_("User"),
+        related_name="lists",
+    )
+    name = models.CharField(max_length=100, verbose_name=_("Name"))
+    description = models.TextField(blank=True, verbose_name=_("Description"))
+    media = models.ManyToManyField(
+        Media,
+        verbose_name=_("Media"),
+        through="ListEntry",
+        blank=True,
+        related_name="lists",
+    )
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = _("List")
+        verbose_name_plural = _("Lists")
+
+    def __str__(self):
+        return self.name
+
+    def append(self, media):
+        """Add a media at the end of the list, unless it is already in it."""
+        # The transaction holds the write lock (see the database settings), so concurrent additions get their own place
+        with transaction.atomic():
+            if self.entries.filter(media=media).exists():
+                return
+            last_position = self.entries.aggregate(last=models.Max("position"))["last"] or 0
+            self.entries.create(media=media, position=last_position + 1)
+            self.touch()
+
+    def touch(self):
+        """Mark the list as updated, as its media changed: the lists page sorts them by this date."""
+        self.save(update_fields=["updated_at"])
+
+
+class ListEntry(models.Model):
+    """Place of a media in a list: the entries follow their position, which may leave gaps."""
+
+    custom_list = models.ForeignKey(CustomList, on_delete=models.CASCADE, related_name="entries")
+    media = models.ForeignKey(Media, on_delete=models.CASCADE)
+    position = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ["position"]
+        constraints = [models.UniqueConstraint(fields=["custom_list", "media"], name="unique_media_per_list")]
+
+    def __str__(self):
+        return f"{self.custom_list} - {self.media}"
+
+
+@receiver(post_delete, sender=ListEntry)
+def touch_list_of_deleted_entry(instance, **_kwargs):
+    """Mark a list as updated once a media leaves it, however it does: taken out, or deleted along with the media."""
+    CustomList.objects.filter(pk=instance.custom_list_id).update(updated_at=timezone.now())

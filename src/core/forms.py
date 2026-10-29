@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from markdownfield.widgets import MDEWidget
 
-from .models import Media, Score
+from .models import CustomList, Media, Score
 
 # Fields are validated once their typing pauses
 VALIDATION_TRIGGER = "input changed delay:500ms"
@@ -106,4 +106,16 @@ class MediaForm(HtmxValidationMixin, forms.ModelForm):
                 }
             ),
             "cover": CoverImageWidget(attrs={"class": "file-input file-input-ghost w-full max-w-xs"}),
+        }
+
+
+class CustomListForm(forms.ModelForm):
+    """Form for creating a list of media."""
+
+    class Meta:
+        model = CustomList
+        fields = ("name", "description")
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "input validator w-full"}),
+            "description": forms.Textarea(attrs={"class": "textarea w-full", "rows": 3}),
         }

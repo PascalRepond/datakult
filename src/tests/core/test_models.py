@@ -5,14 +5,16 @@ These tests verify custom behavior of the Agent and Media models.
 Only application-specific logic is tested here, not Django ORM basics.
 """
 
+from datetime import UTC, datetime
 from io import BytesIO
 
 import pytest
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import IntegrityError
 from PIL import Image
 
-from core.models import MAX_FILE_SIZE_MB, Media, compress_image, dominant_color
+from core.models import MAX_FILE_SIZE_MB, CustomList, ListEntry, Media, compress_image, dominant_color
 from tests.helpers import image_bytes
 
 
@@ -161,3 +163,34 @@ def test_get_filter_url_holds_every_set_filter(saved_view_factory):
         "/media/?type=BOOK&type=FILM&status=COMPLETED&score=9&score=10&contributor=42&tag=7&release_from=1970"
         "&release_to=1979&review_from=2024-01&review_to=2024-12&has_review=filled&has_cover=empty&search=dune&sort=-score"
     )
+
+
+def test_list_entries_follow_their_position(custom_list, media_factory):
+    """The media of a list follow their position, gaps included, rather than the order they were added in."""
+    second = media_factory(title="Second")
+    first = media_factory(title="First")
+    custom_list.media.add(second, through_defaults={"position": 5})
+    custom_list.media.add(first, through_defaults={"position": 2})
+
+    assert [entry.media for entry in custom_list.entries.all()] == [first, second]
+
+
+def test_a_media_is_only_once_in_a_list(custom_list, media):
+    """A media cannot hold two places in the same list."""
+    custom_list.media.add(media, through_defaults={"position": 1})
+
+    with pytest.raises(IntegrityError):
+        ListEntry.objects.create(custom_list=custom_list, media=media, position=2)
+
+
+def test_deleting_a_media_removes_it_from_its_lists(custom_list, media):
+    """A deleted media leaves the lists it was in, which count as updated."""
+    custom_list.media.add(media, through_defaults={"position": 1})
+    long_ago = datetime(2020, 1, 1, tzinfo=UTC)
+    CustomList.objects.update(updated_at=long_ago)
+
+    media.delete()
+
+    custom_list.refresh_from_db()
+    assert not custom_list.entries.exists()
+    assert custom_list.updated_at > long_ago

@@ -3,19 +3,19 @@
 import contextlib
 
 from django.core.paginator import Paginator
-from django.db.models import F, Q
+from django.db.models import Exists, F, OuterRef, Q
 from django.db.models.functions import Lower
 from django.urls import reverse
 
 from .filters import SORT_OPTIONS, apply_filters, extract_filters, get_field_choices, resolve_sorting
-from .models import Media
+from .models import ListEntry, Media
 
-# Session key of the URL of the page listing media last shown: the home page, or the list with its filters
+# Session key of the URL of the page listing media last shown: home page, list with its filters, or ranked list
 LIST_URL_SESSION_KEY = "list_url"
 
 
 def get_list_url(request):
-    """Return the URL of the home page or of the list, whichever was last shown, to lead back to it."""
+    """Return the URL of the home page, the list or a ranked list, whichever was last shown, to lead back to it."""
     return request.session.get(LIST_URL_SESSION_KEY, reverse("media_list"))
 
 
@@ -101,3 +101,15 @@ def build_media_context(request):
         "filters": filters,
         **get_field_choices(),
     }
+
+
+def lists_for_media(user, media, search=""):
+    """
+    Return the lists of a user whose name holds the search, each knowing whether it holds the media.
+
+    Those holding it come first, then the last updated ones.
+    """
+    lists = user.lists.annotate(has_media=Exists(ListEntry.objects.filter(custom_list=OuterRef("pk"), media=media)))
+    if search:
+        lists = lists.filter(name__icontains=search)
+    return lists.order_by("-has_media", "-updated_at")

@@ -35,7 +35,13 @@ def test_every_page_requires_login(client, db, url_name, kwargs):
 
 @pytest.mark.parametrize(
     ("url_name", "title"),
-    [("home", "Home"), ("media_list", "My media"), ("stats", "Statistics"), ("login", "Log in")],
+    [
+        ("home", "Home"),
+        ("media_list", "My media"),
+        ("stats", "Statistics"),
+        ("list_index", "Lists"),
+        ("login", "Log in"),
+    ],
 )
 def test_page_titles_end_with_the_name_of_the_app(logged_in_client, url_name, title):
     """The title of a page names the page, then the app."""
@@ -68,8 +74,8 @@ def _back_url(response):
     return match and unescape(match[1])
 
 
-def test_back_links_lead_to_the_parent_page(logged_in_client, media):
-    """Back links go up the hierarchy: detail to list, import to edit or list."""
+def test_back_links_lead_to_the_parent_page(logged_in_client, media, custom_list):
+    """Back links go up the hierarchy: detail to list, import to edit or list, a list to the lists."""
     media_list = reverse("media_list")
     detail = reverse("media_detail", args=[media.pk])
     edit = reverse("media_edit", args=[media.pk])
@@ -77,6 +83,7 @@ def test_back_links_lead_to_the_parent_page(logged_in_client, media):
     assert _back_url(logged_in_client.get(detail)) == media_list
     assert _back_url(logged_in_client.get(reverse("media_import"), {"media_id": media.pk})) == edit
     assert _back_url(logged_in_client.get(reverse("media_import"))) == media_list
+    assert _back_url(logged_in_client.get(reverse("list_detail", args=[custom_list.pk]))) == reverse("list_index")
 
 
 def test_back_links_to_the_list_go_back_to_the_home_page_list_or_stats(logged_in_client, media):
@@ -111,6 +118,17 @@ def test_ways_back_lead_to_the_last_page_listing_media(logged_in_client, media, 
     assert logged_in_client.post(reverse("media_delete", args=[media.pk])).url == list_url
 
 
+def test_ways_back_lead_to_the_ranked_list_last_shown(logged_in_client, media, custom_list):
+    """A media opened from a ranked list leads back to it, and to the list of media once the ranked list is deleted."""
+    list_detail = reverse("list_detail", args=[custom_list.pk])
+    media_detail = reverse("media_detail", args=[media.pk])
+    logged_in_client.get(list_detail)
+
+    assert _back_url(logged_in_client.get(media_detail)) == list_detail
+    logged_in_client.post(reverse("list_delete", args=[custom_list.pk]))
+    assert _back_url(logged_in_client.get(media_detail)) == reverse("media_list")
+
+
 @pytest.mark.parametrize("url_name", ["media_edit", "media_add"])
 def test_forms_leave_through_cancel_rather_than_a_back_link(logged_in_client, media, url_name):
     """The edit and add forms have no back link, which would double their Cancel button."""
@@ -119,7 +137,7 @@ def test_forms_leave_through_cancel_rather_than_a_back_link(logged_in_client, me
     assert _back_url(logged_in_client.get(reverse(url_name, args=args))) is None
 
 
-@pytest.mark.parametrize("url_name", ["stats", "backup_manage", "accounts:profile_edit"])
+@pytest.mark.parametrize("url_name", ["stats", "list_index", "backup_manage", "accounts:profile_edit"])
 def test_top_level_pages_have_no_back_link(logged_in_client, url_name):
     """Pages reached from the sidebar have no back link."""
     assert _back_url(logged_in_client.get(reverse(url_name))) is None
@@ -177,13 +195,24 @@ def test_sidebar_all_link_opens_the_whole_list(logged_in_client, url_name, param
     assert ("menu-active" in classes) is active
 
 
+@pytest.mark.parametrize(("url_name", "active"), [("list_index", True), ("home", False)])
+def test_sidebar_lists_link_opens_the_lists_page(logged_in_client, url_name, active):
+    """The Lists entry of the sidebar opens the lists page, and is highlighted there only."""
+    content = logged_in_client.get(reverse(url_name)).content.decode()
+
+    classes = re.search(rf'<a href="{reverse("list_index")}"\s+class="([^"]*)"', content)[1]
+    assert ("menu-active" in classes) is active
+
+
 DISPLAY_UTILITIES = {"block", "inline-block", "inline", "flex", "inline-flex", "grid", "inline-grid", "contents"}
 
 
-@pytest.mark.parametrize("url_name", ["media_list", "media_add", "stats"])
-def test_closed_dropdown_menus_leave_the_page(logged_in_client, url_name):
+@pytest.mark.parametrize("url_name", ["media_list", "media_add", "media_detail", "stats", "list_index"])
+def test_closed_dropdown_menus_leave_the_page(logged_in_client, media, url_name):
     """A dropdown menu sets no display, which would keep it on the page while closed, invisible but clickable."""
-    content = logged_in_client.get(reverse(url_name)).content.decode()
+    args = [media.pk] if url_name == "media_detail" else []
+
+    content = logged_in_client.get(reverse(url_name, args=args)).content.decode()
 
     menus = [classes.split() for classes in re.findall(r'class="(dropdown-content[^"]*)"', content)]
     assert menus
@@ -204,8 +233,9 @@ def test_sidebar_stats_link_opens_the_current_year(logged_in_client):
         (lambda media: reverse("media_edit", args=[media.pk]), "confirm-delete-modal"),
         (lambda media: reverse("media_list") + "?type=BOOK", "save-view-modal"),
         (lambda media: reverse("media_list") + "?search=dune", "save-view-modal"),
+        (lambda media: reverse("list_index"), "new-list-modal"),
     ],
-    ids=["delete media", "save view", "save searched view"],
+    ids=["delete media", "save view", "save searched view", "new list"],
 )
 def test_modals_are_dialogs_opened_by_their_button(logged_in_client, media, url, modal_id):
     """A modal is a dialog, which a button of the page opens."""
@@ -230,6 +260,7 @@ def test_confirm_modal_submits_the_form_it_confirms():
     ("url_name", "triggers"),
     [
         ("media_list", {"input changed delay:300ms from:#search-input"}),
+        ("list_index", {"input changed delay:300ms from:#search-input"}),
         ("media_import", {"input changed delay:300ms from:#import-query"}),
         ("media_add", {"input changed delay:300ms", "input changed delay:500ms"}),
         ("accounts:profile_edit", {"input changed delay:500ms"}),

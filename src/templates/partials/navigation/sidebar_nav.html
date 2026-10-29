@@ -32,6 +32,13 @@
       {% translate "Statistics" %}
     </a>
   </li>
+  <li>
+    <a href="{% url 'list_index' %}"
+       class="{% if request.resolver_match.view_name == 'list_index' %}menu-active{% endif %}">
+      {% lucide "list-ordered" %}
+      {% translate "Lists" %}
+    </a>
+  </li>
   <li class="menu-title mt-4">
     <span>{% translate "By status" %}</span>
   </li>

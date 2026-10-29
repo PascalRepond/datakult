@@ -1,0 +1,23 @@
+{% load i18n %}
+{# Dialog of the form creating or updating a list, opened by a button with commandfor="{{ modal_id }}" command="show-modal" #}
+{# Parameters: modal_id, title, form, action (URL the form is sent to), submit_text #}
+<dialog id="{{ modal_id }}"
+        class="modal"
+        aria-labelledby="{{ modal_id }}-title">
+  <div class="modal-box">
+    <h3 id="{{ modal_id }}-title" class="text-lg font-bold">{{ title }}</h3>
+    <form method="post" action="{{ action }}" class="py-4">
+      {% csrf_token %}
+      {% include "partials/common/form_field.html" with field=form.name label=_("Name") %}
+      {% include "partials/common/form_field.html" with field=form.description label=_("Description") %}
+      <div class="modal-action">
+        <button type="submit" class="btn btn-primary">{{ submit_text }}</button>
+        <button type="button" class="btn" commandfor="{{ modal_id }}" command="close">{% translate "Cancel" %}</button>
+      </div>
+    </form>
+  </div>
+  <button type="button"
+          class="modal-backdrop"
+          commandfor="{{ modal_id }}"
+          command="close">{% translate "Close" %}</button>
+</dialog>

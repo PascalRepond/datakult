@@ -1,0 +1,28 @@
+{% load i18n %}
+{# Boxes of the lists of the user in the menu of a media page, each putting the media in its list when checked, or #}
+{# taking it out, replaced by those found as the user searches. A box goes back to its state unless its change is #}
+{# saved (204), as when its list was deleted or the session expired #}
+{# Parameters: media, lists (of the user, each with has_media) #}
+<ul id="media-lists-options"
+    class="menu flex-nowrap w-full p-0 max-h-72 overflow-y-auto">
+  {% for custom_list in lists %}
+    <li>
+      <label>
+        <input type="checkbox"
+               name="checked"
+               value="1"
+               class="checkbox checkbox-sm"
+               hx-post="{% url 'media_lists_htmx' media.pk %}"
+               hx-vals='{"list": "{{ custom_list.pk }}"}'
+               hx-swap="none"
+               hx-on::after-request="if (event.detail.xhr.status !== 204) this.checked = !this.checked"
+               {% if custom_list.has_media %}checked{% endif %} />
+        <span class="truncate">{{ custom_list.name }}</span>
+      </label>
+    </li>
+  {% empty %}
+    <li class="menu-disabled">
+      <span>{% translate "No results found" %}</span>
+    </li>
+  {% endfor %}
+</ul>
