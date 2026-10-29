@@ -1,0 +1,21 @@
+{% load i18n %}
+{# Search of the media to add to a list, with the suggestions found while typing #}
+{# Parameters: custom_list, oob (optional: swapped out of band once a media is added, emptied and focused) #}
+<div id="list-media-search"
+     class="relative mb-6"
+     {% if oob %}hx-swap-oob="true"{% endif %}>
+  <label class="input w-full">
+    {% lucide "search" class="opacity-50" %}
+    <input type="search"
+           name="q"
+           placeholder="{% translate "Add a media…" %}"
+           aria-label="{% translate "Search a media to add to the list" %}"
+           autocomplete="off"
+           hx-get="{% url 'list_media_search' custom_list.pk %}"
+           hx-trigger="input changed delay:300ms"
+           hx-target="#list-media-suggestions"
+           {% if oob %}autofocus{% endif %} />
+  </label>
+  <div id="list-media-suggestions"
+       class="absolute top-full left-0 right-0 z-50"></div>
+</div>

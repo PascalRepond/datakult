@@ -11,7 +11,7 @@ from django.views.decorators.http import require_POST
 from core.forms import MediaForm
 from core.htmx_validation import field_error_response
 from core.models import Agent, Media, Tag
-from core.queries import LIST_URL_SESSION_KEY, build_media_context, get_list_url
+from core.queries import LIST_URL_SESSION_KEY, build_media_context, get_list_url, lists_for_media
 from core.utils import delete_orphan_agents_by_ids
 
 from .imports import attach_import_cover, fetch_import_data, import_initial_data, import_suggestions
@@ -36,8 +36,9 @@ def load_more_media(request):
 
 @login_required
 def media_detail(request, pk):
-    """Display detailed view of a single media item."""
-    return render(request, "base/media_detail.html", {"media": get_object_or_404(Media, pk=pk)})
+    """Display detailed view of a single media item, with the lists of the user to put it in."""
+    media = get_object_or_404(Media, pk=pk)
+    return render(request, "base/media_detail.html", {"media": media, "lists": lists_for_media(request.user, media)})
 
 
 @login_required

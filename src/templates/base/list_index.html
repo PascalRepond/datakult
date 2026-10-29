@@ -1,0 +1,70 @@
+{% extends "base/base.html" %}
+{% load i18n %}
+{% block title %}
+  {% translate "Lists" %}
+{% endblock title %}
+{% block content %}
+  <div class="my-4 flex items-center justify-between gap-4">
+    <div id="lists-header">
+      {% blocktranslate trimmed count counter=page_obj.paginator.count asvar count_label %}
+        {{ counter }} list
+      {% plural %}
+        {{ counter }} lists
+      {% endblocktranslate %}
+      {% translate "Lists" as lists_label %}
+      {% include "partials/common/page_header.html" with title=lists_label subtitle=count_label %}
+    </div>
+    <button type="button"
+            commandfor="new-list-modal"
+            command="show-modal"
+            class="btn btn-primary">
+      {% lucide "plus" %}
+      {% translate "New list" %}
+    </button>
+  </div>
+  {# Search and sort form one form, which updates the lists and their count #}
+  <form id="lists-filters"
+        method="get"
+        action="{% url 'list_index' %}"
+        hx-get="{% url 'list_index' %}"
+        hx-trigger="submit, change[target.name && target.type !== 'search'], input changed delay:300ms from:#search-input, search from:#search-input"
+        hx-sync="this:replace"
+        hx-target="#lists-results"
+        hx-select="#lists-results"
+        hx-swap="outerHTML"
+        hx-select-oob="#lists-header,#sort-label"
+        hx-push-url="true">
+    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-center">
+      <label class="input w-full sm:flex-1 flex items-center gap-2">
+        {% lucide "search" size="16" class="opacity-60" %}
+        <input type="search"
+               class="grow"
+               placeholder="{% translate "Search…" %}"
+               aria-label="{% translate "Search" %}"
+               name="search"
+               value="{{ request.GET.search|default:'' }}"
+               id="search-input" />
+      </label>
+      {% include "partials/common/sort_dropdown.html" %}
+    </div>
+  </form>
+  <div id="lists-results">
+    {% if page_obj %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4 mt-4">
+        {% include "partials/lists/list_cards_page.html" %}
+      </div>
+    {% elif has_lists %}
+      <div class="flex flex-col items-center gap-4 py-16 text-center">
+        {% lucide "search-x" size="48" class="opacity-40" %}
+        <p class="text-base-content/70">{% translate "No list matches this search." %}</p>
+      </div>
+    {% else %}
+      <div class="flex flex-col items-center gap-4 py-16 text-center">
+        {% lucide "list-ordered" size="48" class="opacity-40" %}
+        <p class="text-base-content/70">{% translate "No lists yet." %}</p>
+      </div>
+    {% endif %}
+  </div>
+  {% url 'list_add' as add_url %}
+  {% include "partials/lists/list_form_modal.html" with modal_id="new-list-modal" title=_("New list") action=add_url submit_text=_("Create") %}
+{% endblock content %}

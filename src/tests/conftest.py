@@ -135,6 +135,14 @@ def saved_view_factory(user):
 
 
 @pytest.fixture
+def custom_list(user):
+    """Create and return a list of the test user."""
+    from core.models import CustomList
+
+    return CustomList.objects.create(user=user, name="Top films")
+
+
+@pytest.fixture
 def cover_png():
     """Return the bytes of a dark grey (#333333) PNG cover."""
     return image_bytes((400, 600))
