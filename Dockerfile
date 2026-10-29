@@ -70,4 +70,5 @@ EXPOSE 8000
 WORKDIR /app/src
 
 ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["uv", "run", "gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--access-logfile", "-", "--error-logfile", "-"]
+# Threads keep the server responsive while a request waits on an external metadata API
+CMD ["uv", "run", "gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--threads", "4", "--access-logfile", "-", "--error-logfile", "-"]
