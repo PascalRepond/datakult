@@ -1,0 +1,41 @@
+{% load i18n %}
+{# Menu of the lists of the user on a media page, searched by name, each box putting the media in its list when #}
+{# checked, or taking it out #}
+{# Parameters: media, lists (of the user, each with has_media) #}
+<div class="dropdown dropdown-end">
+  <div tabindex="0"
+       role="button"
+       class="btn"
+       aria-label="{% translate "Add to a list" %}">
+    {% lucide "list-plus" %}
+    <span class="hidden sm:inline">{% translate "Lists" %}</span>
+  </div>
+  {# The menu itself sets no display, which would override its hiding while closed #}
+  <div tabindex="-1"
+       class="dropdown-content z-10 mt-2 w-72 p-2 bg-base-100 rounded-box shadow-xl">
+    {% if lists %}
+      <label class="input input-sm w-full mb-2">
+        {% lucide "search" size="14" class="opacity-50" %}
+        <input type="search"
+               name="q"
+               placeholder="{% translate "Search…" %}"
+               aria-label="{% translate "Search a list" %}"
+               autocomplete="off"
+               hx-get="{% url 'media_lists_search_htmx' media.pk %}"
+               hx-trigger="input changed delay:300ms"
+               hx-target="#media-lists-options"
+               hx-swap="outerHTML" />
+      </label>
+      {% include "partials/lists/media_lists_options.html" %}
+    {% else %}
+      <ul class="menu w-full p-0">
+        <li>
+          <a href="{% url 'list_index' %}">
+            {% lucide "plus" %}
+            {% translate "Create a list" %}
+          </a>
+        </li>
+      </ul>
+    {% endif %}
+  </div>
+</div>

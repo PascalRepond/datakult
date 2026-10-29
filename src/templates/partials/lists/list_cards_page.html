@@ -1,0 +1,31 @@
+{% load i18n %}
+{# Cards of a page of lists, each with the covers of its first media, and the trigger loading the next page #}
+{# Parameters: page_obj (of lists, each with media_count and first_entries) #}
+{% for custom_list in page_obj %}
+  <a href="{% url 'list_detail' custom_list.pk %}"
+     class="card panel overflow-hidden hover:bg-base-300 transition-colors">
+    <figure class="grid grid-cols-4 gap-px aspect-8/3 bg-base-300">
+      {% for entry in custom_list.first_entries %}
+        <div class="h-full min-w-0">
+          {% include "partials/media_items/cover_image.html" with media=entry.media placeholder_class="w-6 h-6" %}
+        </div>
+      {% empty %}
+        <div class="col-span-4 flex items-center justify-center text-base-content/30">
+          {% lucide "list-ordered" class="w-12 h-12" %}
+        </div>
+      {% endfor %}
+    </figure>
+    <div class="card-body p-4 gap-1">
+      <h2 class="card-title">{{ custom_list.name }}</h2>
+      {% if custom_list.description %}<p class="text-sm opacity-70 line-clamp-2">{{ custom_list.description }}</p>{% endif %}
+      <p class="text-xs opacity-60">
+        {% blocktranslate trimmed count counter=custom_list.media_count %}
+          {{ counter }} media
+        {% plural %}
+          {{ counter }} media
+        {% endblocktranslate %}
+      </p>
+    </div>
+  </a>
+{% endfor %}
+{% include "partials/common/load_more_trigger.html" with url_name="load_more_lists" %}

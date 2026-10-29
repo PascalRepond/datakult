@@ -1,0 +1,26 @@
+{% load i18n %}
+{# Media found by the search of a list page, each added at the end of the list when picked #}
+{# Parameters: custom_list, query (nothing is shown when it is empty), found #}
+{% if found %}
+  <ul class="menu flex-nowrap w-full mt-1 bg-base-100 shadow-xl rounded-box border border-base-300 max-h-80 overflow-y-auto">
+    {% for media in found %}
+      <li>
+        <button type="button"
+                hx-post="{% url 'list_entry_add' custom_list.pk %}"
+                hx-vals='{"media": "{{ media.pk }}"}'
+                hx-target="#list-entries"
+                hx-swap="outerHTML">
+          <span class="w-8 h-10 shrink-0 bg-base-300 rounded overflow-hidden">
+            {% include "partials/media_items/cover_image.html" with placeholder_class="w-4 h-4" %}
+          </span>
+          <span class="truncate">{{ media.title }}</span>
+          {% if media.pub_year %}<span class="opacity-70">{{ media.pub_year }}</span>{% endif %}
+        </button>
+      </li>
+    {% endfor %}
+  </ul>
+{% elif query %}
+  <div class="mt-1 bg-base-100 shadow-xl rounded-box border border-base-300 px-4 py-2 text-sm opacity-70">
+    {% translate "No results found" %}
+  </div>
+{% endif %}

@@ -119,6 +119,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": Path(os.environ.get("DATABASE_PATH", BASE_DIR / "db.sqlite3")),
+        # Transactions take the write lock as they begin, so that concurrent requests reading then writing in one
+        # (such as appending a media to a list) run one after the other instead of failing or clashing
+        "OPTIONS": {"transaction_mode": "IMMEDIATE"},
     },
 }
 
