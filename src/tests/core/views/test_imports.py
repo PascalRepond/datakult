@@ -264,6 +264,21 @@ def test_import_into_a_media_keeps_its_review_and_contributors(logged_in_client,
     assert response.context["import_contributors"] == ["Dan Erickson"]
 
 
+@pytest.mark.parametrize(("pages", "page_count"), [("412", 412), ("", 320)])
+def test_import_into_a_book_keeps_its_page_count_unless_the_source_has_one(
+    logged_in_client, api_responses, media, pages, page_count
+):
+    """Importing into a book takes the page count of the source, or keeps the one of the book if the source has none."""
+    params, responses, _expected = IMPORTS["openlibrary"]
+    api_responses.update(responses)
+    media.page_count = 320
+    media.save()
+
+    response = logged_in_client.get(reverse("media_edit", args=[media.pk]), params | {"pages": pages})
+
+    assert response.context["form"].initial["page_count"] == page_count
+
+
 def test_import_that_fails_shows_an_empty_form(logged_in_client, api_responses):
     """When the source cannot be reached, the form is shown empty rather than failing."""
     response = logged_in_client.get(reverse("media_add"), {"musicbrainz_id": "unknown"})

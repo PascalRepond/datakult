@@ -254,12 +254,13 @@ def import_initial_data(import_data: dict, media=None) -> dict:
         "external_uri": import_data.get("source_url", ""),
     }
     if media:
-        # Keep existing values for fields user may have customized
+        # Keep existing values for fields user may have customized, and the page count that the source may lack
         initial_data |= {
             "status": media.status,
             "score": media.score,
             "review": media.review,
             "review_date": media.review_date,
+            "page_count": initial_data["page_count"] or media.page_count,
         }
     return initial_data
 

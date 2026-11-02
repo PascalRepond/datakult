@@ -246,6 +246,7 @@ class Media(TimestampedModel):
         verbose_name=_("Number of pages"),
         null=True,
         blank=True,
+        validators=[MinValueValidator(1)],
     )
     review = MarkdownField(
         verbose_name=_("Review"),
