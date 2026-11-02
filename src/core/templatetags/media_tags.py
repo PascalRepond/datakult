@@ -120,6 +120,19 @@ def score_color(score):
 
 
 @register.filter
+def difference(value, other):
+    """
+    Return the difference between two counts with its sign and localized thousands, ±0 when they are equal.
+
+    Example usage:
+        {{ 2900|difference:1900 }}  ->  "+1,000"
+    """
+    if value == other:
+        return "±0"
+    return f"{'+' if value > other else '-'}{formats.number_format(abs(value - other), force_grouping=True)}"
+
+
+@register.filter
 def domain(url):
     """
     Return the domain of a URL, without its www prefix, or the value itself when it has none.

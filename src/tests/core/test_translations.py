@@ -69,7 +69,7 @@ def test_edit_page_is_translated(french_client, dune):
 
 
 def test_other_pages_are_translated(french_client, dune):
-    """The covers of the statistics and the warning of the backup page are translated as whole sentences."""
+    """The covers and type counters of the statistics and the warning of the backup page are translated."""
     warning = (
         "L'importation d'une sauvegarde va <strong class=\"text-error\">SUPPRIMER TOUTES vos données actuelles</strong>"
         " et les remplacer par les données de la sauvegarde."
@@ -78,7 +78,8 @@ def test_other_pages_are_translated(french_client, dune):
     stats = french_client.get(reverse("stats"), {"year": 2024})
     backup = french_client.get(reverse("backup_manage"))
 
-    assert _missing(stats, ['aria-label="Dune, Note : 7 sur 10"']) == []
+    labels = ['aria-label="Dune, Note : 7 sur 10"', ">Séries TV</span>", 'title="0 en 2023"', "+1 par rapport à 2023"]
+    assert _missing(stats, labels) == []
     assert _missing(backup, [warning]) == []
 
 

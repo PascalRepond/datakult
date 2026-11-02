@@ -1,4 +1,5 @@
 {% extends "base/base.html" %}
+{% load humanize %}
 {% load i18n %}
 {% load l10n %}
 {% load media_tags %}
@@ -27,15 +28,18 @@
       <div class="card panel mb-6">
         <div class="card-body">
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <h2 class="card-title">
+            <h2 class="card-title flex-wrap">
               {% lucide "library-big" %}
               {% if year %}
-                {% blocktranslate count counter=covers.paginator.count with year=year|unlocalize %}{{ counter }} media rated in {{ year }}{% plural %}{{ counter }} media rated in {{ year }}{% endblocktranslate %}
+                {% blocktranslate count counter=covers.paginator.count with total=covers.paginator.count|intcomma year=year|unlocalize %}{{ total }} media rated in {{ year }}{% plural %}{{ total }} media rated in {{ year }}{% endblocktranslate %}
               {% else %}
-                {% blocktranslate count counter=covers.paginator.count %}{{ counter }} media rated{% plural %}{{ counter }} media rated{% endblocktranslate %}
+                {% blocktranslate count counter=covers.paginator.count with total=covers.paginator.count|intcomma %}{{ total }} media rated{% plural %}{{ total }} media rated{% endblocktranslate %}
               {% endif %}
               {% if media_type %}
                 <span class="flex items-center gap-2 font-normal opacity-70">· {% media_icon media_type size="md" %}{{ media_type_label }}</span>
+              {% endif %}
+              {% if previous_count is not None %}
+                {% include "partials/stats/comparison.html" with count=covers.paginator.count previous=previous_count year=year|add:-1 named=True %}
               {% endif %}
             </h2>
           </div>
@@ -100,8 +104,11 @@
               {% lucide "chart-column" %}
               {% translate "Rated per year" %}
             </h2>
-            {% if per_year %}
+            {# Without a type filter, the bars split into media types #}
+            {% if per_year and media_type %}
               {% include "partials/stats/bar_chart.html" with rows=per_year %}
+            {% elif per_year %}
+              {% include "partials/stats/bar_chart.html" with rows=per_year legend=type_counts %}
             {% else %}
               <p class="opacity-70">{% translate "No rated media with a review date yet." %}</p>
             {% endif %}

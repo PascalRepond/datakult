@@ -67,7 +67,7 @@ def test_adjacent_years():
 
 
 def test_count_per_type_lists_every_type(media_factory, all_media):
-    """Every media type is listed in the model choices order, with zero for types without media."""
+    """Every media type is listed in the model choices order, with its plural label and zero for types without media."""
     media_factory(media_type="FILM")
     media_factory(media_type="FILM")
     media_factory(media_type="BOOK")
@@ -77,7 +77,7 @@ def test_count_per_type_lists_every_type(media_factory, all_media):
     assert [row["media_type"] for row in result] == MediaType.values
     counts = {row["media_type"]: row["count"] for row in result}
     assert (counts["BOOK"], counts["FILM"], counts["GAME"]) == (1, 2, 0)
-    assert result[0]["label"] == "Book"
+    assert result[0]["label"] == "Books"
 
 
 def test_count_per_type_sums_the_known_pages(media_factory, all_media):
@@ -104,6 +104,17 @@ def test_count_per_year_zero_fills_gaps(media_factory, all_media):
 
     assert [(row["label"], row["count"]) for row in result] == [(2022, 1), (2023, 0), (2024, 2)]
     assert [row["pct"] for row in result] == [50, 0, 100]
+
+
+def test_count_per_year_splits_media_types(media_factory, all_media):
+    """Each year is split into the media types it counts, in the model choices order, with their plural labels."""
+    media_factory(media_type="FILM", review_date="2024")
+    media_factory(media_type="BOOK", review_date="2024-03")
+    media_factory(media_type="FILM", review_date="2024-05-01")
+
+    (row,) = stats.count_per_year(all_media)
+
+    assert [(segment["label"], segment["count"]) for segment in row["segments"]] == [("Books", 1), ("Films", 2)]
 
 
 def test_count_per_year_empty(all_media):

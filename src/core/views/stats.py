@@ -54,6 +54,13 @@ def stats(request):
     year, media_type, media = _stats_filters(request)
     # Type counters ignore the type filter, since they are used to pick it
     type_counts = media_stats.count_per_type(media)
+    # A selected year is compared with the calendar year before it, whether or not it has rated media
+    previous_count = None
+    if year is not None:
+        previous_media = media_stats.filter_by_year(media_stats.rated_media(), year - 1)
+        for row, previous in zip(type_counts, media_stats.count_per_type(previous_media), strict=True):
+            row["previous"], row["previous_pages"] = previous["count"], previous["pages"]
+        previous_count = media_stats.filter_by_type(previous_media, media_type).count()
     media = media_stats.filter_by_type(media, media_type)
 
     # Yearly bars narrow the stats down to their year; the other bars link to the media list they count
@@ -90,6 +97,7 @@ def stats(request):
         "media_type": media_type,
         "media_type_label": dict(MediaType.choices).get(media_type),
         "type_counts": type_counts,
+        "previous_count": previous_count,
         "covers": _stats_covers_page(media),
         "per_year": per_year,
         "per_month": per_month,

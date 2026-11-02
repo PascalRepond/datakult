@@ -8,7 +8,7 @@ from django.utils.dates import MONTHS_3
 from django.utils.text import capfirst
 from django.utils.translation import gettext as _
 
-from .models import Agent, Media, MediaType, Score
+from .models import MEDIA_TYPE_PLURALS, Agent, Media, MediaType, Score
 
 # Release decades are counted from this one on, earlier works sharing a single bar
 FIRST_DECADE = 1900
@@ -70,16 +70,32 @@ def count_per_type(media):
     counts = _count_by(media, "media_type")
     pages = dict(media.values_list("media_type").annotate(pages=Sum("page_count")).order_by())
     return [
-        {"media_type": media_type, "label": label, "count": counts.get(media_type, 0), "pages": pages.get(media_type)}
-        for media_type, label in MediaType.choices
+        {
+            "media_type": media_type,
+            "label": MEDIA_TYPE_PLURALS[media_type],
+            "count": counts.get(media_type, 0),
+            "pages": pages.get(media_type),
+        }
+        for media_type in MediaType.values
     ]
 
 
 def count_per_year(media):
-    """Count media per review year, zero-filling years without any."""
-    if counts := Counter(date.date.year for date in _review_dates(media)):
-        return _with_pct([{"label": year, "count": counts[year]} for year in range(min(counts), max(counts) + 1)])
-    return []
+    """Count media per review year, zero-filling years without any, split into segments per media type."""
+    dated = media.filter(review_date__isnull=False).values_list("review_date", "media_type")
+    counts = Counter((date.date.year, media_type) for date, media_type in dated)
+    if not counts:
+        return []
+    # Keys are (year, media type) pairs, so the smallest and largest ones hold the first and last years
+    rows = []
+    for year in range(min(counts)[0], max(counts)[0] + 1):
+        segments = [
+            {"media_type": media_type, "label": MEDIA_TYPE_PLURALS[media_type], "count": counts[year, media_type]}
+            for media_type in MediaType.values
+            if counts[year, media_type]
+        ]
+        rows.append({"label": year, "count": sum(segment["count"] for segment in segments), "segments": segments})
+    return _with_pct(rows)
 
 
 def count_per_month(media, year):
