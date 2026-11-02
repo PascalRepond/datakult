@@ -12,7 +12,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import gettext_noop
+from django.utils.translation import gettext_noop, pgettext_lazy
 from markdownfield.models import MarkdownField, RenderedMarkdownField
 from markdownfield.validators import VALIDATOR_STANDARD
 from partial_date import PartialDateField
@@ -108,6 +108,18 @@ class MediaType(models.TextChoices):
     PERF = "PERF", _("Show/performance")
     BROADCAST = "BROADCAST", _("Broadcast")
 
+
+# Plural labels of the media types, naming what their counts add up
+MEDIA_TYPE_PLURALS = {
+    MediaType.BOOK: _("Books"),
+    MediaType.GAME: _("Video games"),
+    MediaType.MUSIC: _("Music"),
+    MediaType.COMIC: _("Comics"),
+    MediaType.FILM: _("Films"),
+    MediaType.TV: pgettext_lazy("plural", "TV series"),
+    MediaType.PERF: _("Shows/performances"),
+    MediaType.BROADCAST: _("Broadcasts"),
+}
 
 # Media types whose length is counted in pages
 PAGED_TYPES = (MediaType.BOOK, MediaType.COMIC)

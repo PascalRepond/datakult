@@ -1,4 +1,5 @@
 {% extends "base/base.html" %}
+{% load humanize %}
 {% load i18n %}
 {% load media_tags %}
 {% block title %}
@@ -45,7 +46,7 @@
             {% if media.page_count %}
               <div class="flex items-center gap-2 text-sm">
                 {% lucide "files" size="16" class="shrink-0" %}
-                <span>{% blocktranslate count counter=media.page_count %}{{ counter }} page{% plural %}{{ counter }} pages{% endblocktranslate %}</span>
+                <span>{% blocktranslate count counter=media.page_count with pages=media.page_count|intcomma %}{{ pages }} page{% plural %}{{ pages }} pages{% endblocktranslate %}</span>
               </div>
             {% endif %}
             {# External link #}

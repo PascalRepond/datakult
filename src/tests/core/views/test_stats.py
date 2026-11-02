@@ -3,6 +3,7 @@ Tests for core.views.stats: the statistics page.
 """
 
 import pytest
+from django.template.loader import render_to_string
 from django.urls import reverse
 
 from core.models import Agent, MediaType
@@ -34,6 +35,19 @@ def test_stats_all_years_shows_yearly_chart(logged_in_client, media_factory):
     assert response.context["per_month"] is None
 
 
+def test_stats_yearly_bars_split_media_types_without_type_filter(logged_in_client, media_factory):
+    """Without a type filter, the yearly bars split into media types, under a legend of the types with rated media."""
+    media_factory(media_type="BOOK", review_date="2024", score=7)
+
+    all_types = logged_in_client.get(reverse("stats")).content.decode()
+    books = logged_in_client.get(reverse("stats"), {"type": "BOOK"}).content.decode()
+
+    assert 'title="Books: 1"' in all_types
+    assert "--color-type-book" in all_types
+    assert "--color-type-film" not in all_types
+    assert "--color-type-" not in books
+
+
 def test_stats_year_shows_monthly_chart(logged_in_client, media_factory):
     """Selecting a year restricts the page to that year and shows the monthly chart instead of the yearly one."""
     media_factory(review_date="2023-06", score=2)
@@ -45,6 +59,64 @@ def test_stats_year_shows_monthly_chart(logged_in_client, media_factory):
     assert response.context["covers"].paginator.count == 1
     assert response.context["per_year"] is None
     assert response.context["per_month"][2]["count"] == 1
+
+
+def test_stats_year_compares_with_year_before(logged_in_client, media_factory):
+    """Type counters compare with the counts and pages of the year before, and the covers with its total of the type."""
+    media_factory(media_type="BOOK", review_date="2023-05", page_count=300, score=7)
+    media_factory(media_type="FILM", review_date="2023", score=7)
+    media_factory(media_type="BOOK", review_date="2024", score=7)
+
+    response = logged_in_client.get(reverse("stats"), {"year": 2024, "type": "BOOK"})
+
+    rows = {row["media_type"]: row for row in response.context["type_counts"]}
+    assert (rows["BOOK"]["previous"], rows["BOOK"]["previous_pages"], rows["FILM"]["previous"]) == (1, 300, 1)
+    assert response.context["previous_count"] == 1
+
+
+def test_stats_year_compares_with_calendar_year_before_only(logged_in_client, media_factory):
+    """The year before is the calendar one, even without rated media; every year is compared with nothing."""
+    media_factory(review_date="2022", score=7)
+    media_factory(review_date="2024", score=7)
+
+    year = logged_in_client.get(reverse("stats"), {"year": 2024})
+    every_year = logged_in_client.get(reverse("stats"))
+
+    assert year.context["previous_count"] == 0
+    assert every_year.context["previous_count"] is None
+    assert all("previous" not in row for row in every_year.context["type_counts"])
+
+
+@pytest.mark.parametrize(
+    ("count", "color", "difference"),
+    [(3, "text-green-500", "+1"), (2, "text-base-content/60", "±0"), (1, "text-red-500", "-1")],
+)
+def test_stats_comparison_shows_signed_difference(count, color, difference):
+    """A comparison shows its signed difference, tinted by its trend, and the previous count on hover."""
+    context = {"count": count, "previous": 2, "year": 2023, "named": True}
+
+    html = render_to_string("partials/stats/comparison.html", context)
+
+    assert color in html
+    assert f"{difference} compared with 2023" in html
+    assert 'title="2 in 2023"' in html
+
+
+def test_stats_comparison_without_year_hides_no_change():
+    """Without the year, an unchanged count only shows its icon, while a fall to zero shows its difference."""
+    unchanged = render_to_string("partials/stats/comparison.html", {"count": 2, "previous": 2, "year": 2023})
+    fall = render_to_string("partials/stats/comparison.html", {"count": 0, "previous": 2, "year": 2023})
+
+    assert "±0" not in unchanged
+    assert "-2" in fall
+
+
+def test_stats_comparison_localizes_thousands():
+    """A comparison groups the thousands of its difference and of the previous count."""
+    html = render_to_string("partials/stats/comparison.html", {"count": 2500, "previous": 1000, "year": 2023})
+
+    assert "+1,500" in html
+    assert 'title="1,000 in 2023"' in html
 
 
 def test_stats_year_navigation(logged_in_client, media_factory):
@@ -101,11 +173,11 @@ def test_stats_type_counters_select_or_clear_their_type(logged_in_client, params
 
 def test_stats_type_counters_show_their_pages(logged_in_client, media_factory):
     """The counter of a type with known page counts shows the pages of its rated media below their number."""
-    media_factory(media_type="BOOK", page_count=320, score=8)
+    media_factory(media_type="BOOK", page_count=1320, score=8)
 
     content = logged_in_client.get(reverse("stats")).content.decode()
 
-    assert "320 pages" in content
+    assert "1,320 pages" in content
 
 
 @pytest.mark.parametrize("year", ["abc", "0", "9999", pytest.param("1" * 5000, id="oversized")])

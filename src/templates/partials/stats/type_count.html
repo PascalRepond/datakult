@@ -1,7 +1,9 @@
+{% load humanize %}
 {% load i18n %}
 {% load media_tags %}
 {# Count of the rated media of a type, narrowing the stats of the year down to that type, or clearing the selected one #}
 {# Parameters: row (from count_per_type), year (or none for every year), media_type (the selected type, optional) #}
+{# A row with previous counts (previous and previous_pages) compares its counts with the year before #}
 {% if row.media_type == media_type %}
   {% query_string request year=year type=None as query %}
 {% else %}
@@ -18,10 +20,18 @@
         {% lucide "x" class="h-4 w-4 ml-auto shrink-0" %}
       {% endif %}
     </div>
-    <div class="text-3xl font-bold">{{ row.count }}</div>
+    <div class="flex flex-wrap items-center gap-x-2">
+      <span class="text-3xl font-bold">{{ row.count|intcomma }}</span>
+      {% if row.previous is not None %}
+        {% include "partials/stats/comparison.html" with count=row.count previous=row.previous year=year|add:-1 %}
+      {% endif %}
+    </div>
     {% if row.pages %}
-      <div class="text-sm opacity-70">
-        {% blocktranslate count counter=row.pages %}{{ counter }} page{% plural %}{{ counter }} pages{% endblocktranslate %}
+      <div class="flex flex-wrap items-center gap-x-2 text-sm">
+        {% blocktranslate count counter=row.pages with pages=row.pages|intcomma %}{{ pages }} page{% plural %}{{ pages }} pages{% endblocktranslate %}
+        {% if row.previous is not None %}
+          {% include "partials/stats/comparison.html" with count=row.pages previous=row.previous_pages|default:0 year=year|add:-1 %}
+        {% endif %}
       </div>
     {% endif %}
   </div>

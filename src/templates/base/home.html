@@ -1,4 +1,5 @@
 {% extends "base/base.html" %}
+{% load humanize %}
 {% load i18n %}
 {% load l10n %}
 {% block title %}
@@ -21,7 +22,7 @@
             <div class="card-body p-4 lg:p-6">
               <div class="flex flex-wrap items-center gap-x-2">
                 <h2 class="card-title">
-                  {% blocktranslate count counter=rated_count with year=year|unlocalize %}{{ counter }} media rated in {{ year }}{% plural %}{{ counter }} media rated in {{ year }}{% endblocktranslate %}
+                  {% blocktranslate count counter=rated_count with total=rated_count|intcomma year=year|unlocalize %}{{ total }} media rated in {{ year }}{% plural %}{{ total }} media rated in {{ year }}{% endblocktranslate %}
                 </h2>
                 <a href="{% url 'stats' %}?year={{ year|unlocalize }}" class="btn btn-sm btn-ghost">
                   {% translate "See statistics" %}

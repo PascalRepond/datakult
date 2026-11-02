@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-02 11:55+0100\n"
+"POT-Creation-Date: 2026-11-02 16:55+0100\n"
 "PO-Revision-Date: 2026-01-04 10:45+0100\n"
 "Last-Translator: Pascal Repond <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -190,7 +190,7 @@ msgstr "Fichier image invalide ou corrompu."
 msgid "Book"
 msgstr "Livre"
 
-#: src/core/models.py:104 src/core/views/imports.py:28
+#: src/core/models.py:104 src/core/models.py:116 src/core/views/imports.py:28
 msgid "Music"
 msgstr "Musique"
 
@@ -210,107 +210,136 @@ msgstr "Spectacle/Performance"
 msgid "Broadcast"
 msgstr "Émission"
 
+#: src/core/models.py:114 src/core/views/imports.py:27
+msgid "Books"
+msgstr "Livres"
+
+#: src/core/models.py:115 src/core/views/imports.py:26
+msgid "Video games"
+msgstr "Jeux vidéo"
+
 #: src/core/models.py:117
+msgid "Comics"
+msgstr "BD"
+
+#: src/core/models.py:118
+msgid "Films"
+msgstr "Films"
+
+#: src/core/models.py:119
+msgctxt "plural"
+msgid "TV series"
+msgstr "Séries TV"
+
+#: src/core/models.py:120
+msgid "Shows/performances"
+msgstr "Spectacles/Performances"
+
+#: src/core/models.py:121
+msgid "Broadcasts"
+msgstr "Émissions"
+
+#: src/core/models.py:129
 msgid "Planned"
 msgstr "Prévu"
 
-#: src/core/models.py:118
+#: src/core/models.py:130
 msgid "In progress"
 msgstr "En cours"
 
-#: src/core/models.py:119
+#: src/core/models.py:131
 msgid "Completed"
 msgstr "Terminé"
 
-#: src/core/models.py:120
+#: src/core/models.py:132
 msgid "Paused"
 msgstr "En pause"
 
-#: src/core/models.py:121
+#: src/core/models.py:133
 msgid "Did not finish"
 msgstr "Pas fini"
 
-#: src/core/models.py:127
+#: src/core/models.py:139
 msgid "Detested"
 msgstr "Haï"
 
-#: src/core/models.py:128
+#: src/core/models.py:140
 msgid "Hated"
 msgstr "Détesté"
 
-#: src/core/models.py:129
+#: src/core/models.py:141
 msgid "Disliked"
 msgstr "Pas aimé"
 
-#: src/core/models.py:130
+#: src/core/models.py:142
 msgid "Not appreciated"
 msgstr "Pas vraiment aimé"
 
-#: src/core/models.py:131
+#: src/core/models.py:143
 msgid "Moderately appreciated"
 msgstr "Moyennement apprécié"
 
-#: src/core/models.py:132
+#: src/core/models.py:144
 msgid "Appreciated"
 msgstr "Apprécié"
 
-#: src/core/models.py:133
+#: src/core/models.py:145
 msgid "Enjoyed"
 msgstr "Aimé"
 
-#: src/core/models.py:134
+#: src/core/models.py:146
 msgid "Really enjoyed"
 msgstr "Beaucoup aimé"
 
-#: src/core/models.py:135
+#: src/core/models.py:147
 msgid "Loved"
 msgstr "Adoré"
 
-#: src/core/models.py:136
+#: src/core/models.py:148
 msgid "Adored"
 msgstr "Coup de cœur"
 
-#: src/core/models.py:153 src/core/models.py:307 src/core/models.py:367
+#: src/core/models.py:165 src/core/models.py:319 src/core/models.py:379
 #: src/templates/partials/lists/list_form_modal.html:11
 #: src/templates/partials/saved_views/save_view_modal.html:12
 msgid "Name"
 msgstr "Nom"
 
-#: src/core/models.py:170
+#: src/core/models.py:182
 msgid "Agent"
 msgstr "Agent"
 
-#: src/core/models.py:171
+#: src/core/models.py:183
 msgid "Agents"
 msgstr "Agents"
 
-#: src/core/models.py:178
+#: src/core/models.py:190
 msgid "Tag"
 msgstr "Mot-clé"
 
-#: src/core/models.py:179 src/core/models.py:199
+#: src/core/models.py:191 src/core/models.py:211
 #: src/templates/base/media_edit.html:96
 msgid "Tags"
 msgstr "Mots-clés"
 
-#: src/core/models.py:186 src/templates/base/media_edit.html:50
+#: src/core/models.py:198 src/templates/base/media_edit.html:50
 msgid "Title"
 msgstr "Titre"
 
-#: src/core/models.py:193
+#: src/core/models.py:205
 msgid "Contributor"
 msgstr "Contributeur"
 
-#: src/core/models.py:204 src/templates/base/media_edit.html:51
+#: src/core/models.py:216 src/templates/base/media_edit.html:51
 #: src/templates/partials/navigation/filters_drawer.html:18
 msgid "Media type"
 msgstr "Type de média"
 
-#: src/core/models.py:210 src/templates/base/media_edit.html:100
+#: src/core/models.py:222 src/templates/base/media_edit.html:100
 msgid "External URI"
 msgstr "URI externe"
 
-#: src/core/models.py:215
+#: src/core/models.py:227
 msgid ""
 "Link to an external page about this media (e.g., official site, IMDb, "
 "Goodreads, etc.)"
@@ -318,81 +347,81 @@ msgstr ""
 "Lien vers une page externe à propos de ce média (par exemple, site officiel, "
 "IMDb, Goodreads, etc.)"
 
-#: src/core/models.py:218 src/templates/base/media_edit.html:117
+#: src/core/models.py:230 src/templates/base/media_edit.html:117
 #: src/templates/partials/navigation/filters_drawer.html:26
 msgid "Status"
 msgstr "Statut"
 
-#: src/core/models.py:225 src/templates/base/media_edit.html:97
+#: src/core/models.py:237 src/templates/base/media_edit.html:97
 #: src/templates/partials/navigation/filters_drawer.html:55
 msgid "Release year"
 msgstr "Année de sortie"
 
-#: src/core/models.py:229 src/core/models.py:230
+#: src/core/models.py:241 src/core/models.py:242
 msgid "Year must be between -4000 and 2200."
 msgstr "L'année doit être comprise entre -4000 et 2200."
 
-#: src/core/models.py:234 src/templates/base/media_edit.html:99
+#: src/core/models.py:246 src/templates/base/media_edit.html:99
 msgid "Number of pages"
 msgstr "Nombre de pages"
 
-#: src/core/models.py:239 src/templates/base/media_edit.html:140
+#: src/core/models.py:251 src/templates/base/media_edit.html:140
 #: src/templates/partials/navigation/filters_drawer.html:75
 msgid "Review"
 msgstr "Critique"
 
-#: src/core/models.py:250
+#: src/core/models.py:262
 msgid "Review score"
 msgstr "Note de critique"
 
-#: src/core/models.py:256 src/templates/base/media_edit.html:121
+#: src/core/models.py:268 src/templates/base/media_edit.html:121
 #: src/templates/partials/navigation/filters_drawer.html:44
 msgid "Review date"
 msgstr "Date de critique"
 
-#: src/core/models.py:259
+#: src/core/models.py:271
 msgid "Either a full date or just year and month, or only year."
 msgstr ""
 "Soit une date complète, soit seulement l'année et le mois, ou uniquement "
 "l'année."
 
-#: src/core/models.py:262 src/templates/base/media_edit.html:63
+#: src/core/models.py:274 src/templates/base/media_edit.html:63
 msgid "Cover image"
 msgstr "Image de couverture"
 
-#: src/core/models.py:304 src/core/models.py:364
+#: src/core/models.py:316 src/core/models.py:376
 msgid "User"
 msgstr "Utilisateur"
 
-#: src/core/models.py:329
+#: src/core/models.py:341
 msgid "Saved view"
 msgstr "Vue enregistrée"
 
-#: src/core/models.py:330
+#: src/core/models.py:342
 #: src/templates/partials/saved_views/saved_views_list.html:6
 msgid "Saved views"
 msgstr "Vues enregistrées"
 
-#: src/core/models.py:368 src/templates/partials/lists/list_form_modal.html:12
+#: src/core/models.py:380 src/templates/partials/lists/list_form_modal.html:12
 msgid "Description"
 msgstr "Description"
 
-#: src/core/models.py:371
+#: src/core/models.py:383
 msgid "Media"
 msgstr "Médias"
 
-#: src/core/models.py:379
+#: src/core/models.py:391
 msgid "List"
 msgstr "Liste"
 
-#: src/core/models.py:380 src/templates/base/list_index.html:4
+#: src/core/models.py:392 src/templates/base/list_index.html:4
 #: src/templates/base/list_index.html:14
 #: src/templates/partials/lists/media_lists_dropdown.html:11
 #: src/templates/partials/navigation/sidebar_nav.html:39
 msgid "Lists"
 msgstr "Listes"
 
-#: src/core/stats.py:100
+#: src/core/stats.py:116
 #, python-format
 msgid "Before %(year)s"
 msgstr "Avant %(year)s"
@@ -453,14 +482,6 @@ msgstr "Sans critique"
 #: src/core/views/imports.py:25
 msgid "Movies & TV"
 msgstr "Films & séries"
-
-#: src/core/views/imports.py:26
-msgid "Video games"
-msgstr "Jeux vidéo"
-
-#: src/core/views/imports.py:27
-msgid "Books"
-msgstr "Livres"
 
 #: src/core/views/imports.py:101 src/core/views/imports.py:182
 msgid "Search failed"
@@ -718,23 +739,23 @@ msgstr "Ouvrir la barre latérale"
 msgid "Close sidebar"
 msgstr "Fermer la barre latérale"
 
-#: src/templates/base/home.html:5 src/templates/base/home.html:9
+#: src/templates/base/home.html:6 src/templates/base/home.html:10
 msgid "Home"
 msgstr "Accueil"
 
-#: src/templates/base/home.html:24 src/templates/base/stats.html:33
+#: src/templates/base/home.html:25 src/templates/base/stats.html:34
 #, python-format
-msgid "%(counter)s media rated in %(year)s"
-msgid_plural "%(counter)s media rated in %(year)s"
-msgstr[0] "%(counter)s média noté en %(year)s"
-msgstr[1] "%(counter)s médias notés en %(year)s"
+msgid "%(total)s media rated in %(year)s"
+msgid_plural "%(total)s media rated in %(year)s"
+msgstr[0] "%(total)s média noté en %(year)s"
+msgstr[1] "%(total)s médias notés en %(year)s"
 
-#: src/templates/base/home.html:27
+#: src/templates/base/home.html:28
 msgid "See statistics"
 msgstr "Voir les statistiques"
 
 #: src/templates/base/list_detail.html:18
-#: src/templates/base/media_detail.html:14
+#: src/templates/base/media_detail.html:15
 #: src/templates/partials/media_items/media_item.html:17
 #: src/templates/partials/media_items/media_review_modal.html:32
 msgid "Edit"
@@ -807,23 +828,23 @@ msgstr "Aucune liste pour l'instant."
 msgid "Create"
 msgstr "Créer"
 
-#: src/templates/base/media_detail.html:48
-#: src/templates/partials/stats/type_count.html:24
+#: src/templates/base/media_detail.html:49
+#: src/templates/partials/stats/type_count.html:31
 #, python-format
-msgid "%(counter)s page"
-msgid_plural "%(counter)s pages"
-msgstr[0] "%(counter)s page"
-msgstr[1] "%(counter)s pages"
+msgid "%(pages)s page"
+msgid_plural "%(pages)s pages"
+msgstr[0] "%(pages)s page"
+msgstr[1] "%(pages)s pages"
 
-#: src/templates/base/media_detail.html:57
+#: src/templates/base/media_detail.html:58
 msgid "External metadata"
 msgstr "Métadonnées externes"
 
-#: src/templates/base/media_detail.html:76
+#: src/templates/base/media_detail.html:77
 msgid "Rate"
 msgstr "Noter"
 
-#: src/templates/base/media_detail.html:104
+#: src/templates/base/media_detail.html:105
 msgid "Write a review"
 msgstr "Écrire une critique"
 
@@ -944,56 +965,56 @@ msgstr "Avec couverture"
 msgid "Save view"
 msgstr "Enregistrer la vue"
 
-#: src/templates/base/stats.html:6 src/templates/base/stats.html:16
+#: src/templates/base/stats.html:7 src/templates/base/stats.html:17
 #: src/templates/partials/navigation/sidebar_nav.html:32
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: src/templates/base/stats.html:35
+#: src/templates/base/stats.html:36
 #, python-format
-msgid "%(counter)s media rated"
-msgid_plural "%(counter)s media rated"
-msgstr[0] "%(counter)s média noté"
-msgstr[1] "%(counter)s médias notés"
+msgid "%(total)s media rated"
+msgid_plural "%(total)s media rated"
+msgstr[0] "%(total)s média noté"
+msgstr[1] "%(total)s médias notés"
 
-#: src/templates/base/stats.html:45
+#: src/templates/base/stats.html:49
 msgid "No rated media match the selected filters."
 msgstr "Aucun média noté ne correspond aux filtres sélectionnés."
 
-#: src/templates/base/stats.html:47
+#: src/templates/base/stats.html:51
 msgid "No rated media yet."
 msgstr "Aucun média noté pour l'instant."
 
-#: src/templates/base/stats.html:56
+#: src/templates/base/stats.html:60
 msgid "Scores"
 msgstr "Notes"
 
-#: src/templates/base/stats.html:66
+#: src/templates/base/stats.html:70
 msgid "Release decades"
 msgstr "Décennies de sortie"
 
-#: src/templates/base/stats.html:71
+#: src/templates/base/stats.html:75
 msgid "No rated media with a release year yet."
 msgstr "Aucun média noté avec une année de sortie pour l'instant."
 
-#: src/templates/base/stats.html:77
+#: src/templates/base/stats.html:81
 msgid "Most frequent"
 msgstr "Les plus présents"
 
-#: src/templates/base/stats.html:79
+#: src/templates/base/stats.html:83
 msgid "Best rated"
 msgstr "Les mieux notés"
 
-#: src/templates/base/stats.html:88
+#: src/templates/base/stats.html:92
 #, python-format
 msgid "Rated per month in %(year)s"
 msgstr "Notés par mois en %(year)s"
 
-#: src/templates/base/stats.html:101
+#: src/templates/base/stats.html:105
 msgid "Rated per year"
 msgstr "Notés par année"
 
-#: src/templates/base/stats.html:106
+#: src/templates/base/stats.html:113
 msgid "No rated media with a review date yet."
 msgstr "Aucun média noté avec une date de critique pour l'instant."
 
@@ -1223,6 +1244,16 @@ msgstr "Supprimer la vue « %(name)s » ?"
 #: src/templates/partials/saved_views/saved_views_list.html:33
 msgid "Delete saved view"
 msgstr "Supprimer la vue enregistrée"
+
+#: src/templates/partials/stats/comparison.html:9
+#, python-format
+msgid "%(previous)s in %(year)s"
+msgstr "%(previous)s en %(year)s"
+
+#: src/templates/partials/stats/comparison.html:20
+#, python-format
+msgid "%(difference)s compared with %(year)s"
+msgstr "%(difference)s par rapport à %(year)s"
 
 #: src/templates/partials/stats/covers_page.html:32
 msgid "Show more"

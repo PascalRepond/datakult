@@ -1,18 +1,41 @@
 {% load l10n %}
 {# Vertical bar chart, scrollable when bars don't fit #}
-{# Parameters: rows (list of dicts with label, count, pct and optional title and url), stars (optional, adds a star after each label) #}
+{# Parameters: rows (list of dicts with label, count, pct and optional title, url and segments), stars (optional, adds a star after each label), legend (optional, see below) #}
 {# Non-empty bars link to their url, when one is given #}
+{# With a legend (type_counts), the chart is taller and bars stack their segments (dicts with media_type, label and count) per media type #}
 {# Bars are rendered in reverse inside a row-reverse container so that an overflowing chart starts scrolled to the latest bar #}
-<div class="flex flex-row-reverse gap-1 h-56 overflow-x-auto pb-2">
+{% if legend %}
+  <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+    {% for entry in legend %}
+      {% if entry.count %}
+        <span class="flex items-center gap-1.5">
+          <span class="w-3 h-3 rounded-sm"
+                style="background-color: var(--color-type-{{ entry.media_type|lower }})"></span>
+          {{ entry.label }}
+        </span>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endif %}
+<div class="flex flex-row-reverse gap-1 {% if legend %}h-80{% else %}h-56{% endif %} overflow-x-auto pb-2">
   {% for row in rows reversed %}
     <a {% if row.url and row.count %}href="{{ row.url }}"{% endif %}
        class="group flex-1 min-w-8 flex flex-col items-center gap-1"
        title="{{ row.title|default:row.label|unlocalize }}: {{ row.count }}">
       {# Top padding keeps room for the count above the tallest bar #}
       <div class="flex-1 w-full flex items-end pt-5">
-        <div class="relative w-full rounded-t bg-primary transition-opacity {% if row.count %}min-h-1{% endif %} {% if row.url and row.count %}group-hover:opacity-75{% endif %}"
+        <div class="relative w-full transition-opacity {% if legend %}flex flex-col-reverse gap-0.5{% else %}rounded-t bg-primary{% endif %} {% if row.count %}min-h-1{% endif %} {% if row.url and row.count %}group-hover:opacity-75{% endif %}"
              style="height: {{ row.pct }}%">
           <span class="absolute bottom-full inset-x-0 mb-1 text-center text-xs">{{ row.count }}</span>
+          {% if legend %}
+            {# Segments stack from the bottom, the last one rounding the top of the bar #}
+            {% for segment in row.segments %}
+              <div class="last:rounded-t"
+                   title="{{ segment.label }}: {{ segment.count }}"
+                   style="flex: {{ segment.count }}; background-color: var(--color-type-{{ segment.media_type|lower }})">
+              </div>
+            {% endfor %}
+          {% endif %}
         </div>
       </div>
       <span class="w-full flex items-center justify-center gap-0.5 text-xs whitespace-nowrap border-t border-base-300 pt-1">

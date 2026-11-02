@@ -27,6 +27,15 @@
   --color-warning-content: #0f172a;
   --color-error: #b92929;
   --color-error-content: #ffffff;
+  /* Media types in charts, a categorical palette checked for colour blindness in the order of the choices */
+  --color-type-book: #2a78d6;
+  --color-type-game: #eb6834;
+  --color-type-music: #1baf7a;
+  --color-type-comic: #eda100;
+  --color-type-film: #e87ba4;
+  --color-type-tv: #008300;
+  --color-type-perf: #6250d6;
+  --color-type-broadcast: #e34948;
   --radius-box: 0.75rem;
   --radius-field: 0.5rem;
   --radius-selector: 0.5rem;
@@ -58,6 +67,14 @@
   --color-warning-content: #0f172a;
   --color-error: #b92929;
   --color-error-content: #ffffff;
+  --color-type-book: #3987e5;
+  --color-type-game: #d95926;
+  --color-type-music: #199e70;
+  --color-type-comic: #c98500;
+  --color-type-film: #d55181;
+  --color-type-tv: #008300;
+  --color-type-perf: #9085e9;
+  --color-type-broadcast: #e66767;
   --radius-box: 0.75rem;
   --radius-field: 0.5rem;
   --radius-selector: 0.5rem;

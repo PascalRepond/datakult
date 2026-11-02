@@ -1,0 +1,24 @@
+{% load humanize %}
+{% load i18n %}
+{% load l10n %}
+{% load media_tags %}
+{# Badge of the signed difference of a count with the one of the previous year, tinted like the score verdicts: #}
+{# a rise in green, no change in grey, a fall in red #}
+{# Parameters: count, previous (the count of the previous year), year (the previous year), named (optional, names the year next to the difference) #}
+{# The count of the previous year shows on hover; without the year, no change only shows its icon #}
+{% blocktranslate with previous=previous|intcomma year=year|unlocalize asvar previous_label %}{{ previous }} in {{ year }}{% endblocktranslate %}
+<span class="badge badge-sm gap-0.5 border-0 bg-current/10 font-normal whitespace-nowrap {% if count > previous %}text-green-500{% elif count < previous %}text-red-500{% else %}text-base-content/60{% endif %}"
+      title="{{ previous_label }}">
+  {% if count > previous %}
+    {% lucide "chevron-up" class="h-3.5 w-3.5" %}
+  {% elif count < previous %}
+    {% lucide "chevron-down" class="h-3.5 w-3.5" %}
+  {% else %}
+    {% lucide "equal" class="h-3.5 w-3.5" %}
+  {% endif %}
+  {% if named %}
+    <span class="text-base-content">{% blocktranslate with difference=count|difference:previous year=year|unlocalize %}{{ difference }} compared with {{ year }}{% endblocktranslate %}</span>
+  {% elif count != previous %}
+    <span class="text-base-content">{{ count|difference:previous }}</span>
+  {% endif %}
+</span>
