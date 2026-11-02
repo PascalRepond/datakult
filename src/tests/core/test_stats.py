@@ -80,6 +80,19 @@ def test_count_per_type_lists_every_type(media_factory, all_media):
     assert result[0]["label"] == "Book"
 
 
+def test_count_per_type_sums_the_known_pages(media_factory, all_media):
+    """The pages of every type are summed, skipping media without page count, and None for types without any."""
+    media_factory(media_type="BOOK", page_count=300)
+    media_factory(media_type="BOOK", page_count=150)
+    media_factory(media_type="BOOK")
+    media_factory(media_type="COMIC", page_count=48)
+    media_factory(media_type="FILM")
+
+    pages = {row["media_type"]: row["pages"] for row in stats.count_per_type(all_media)}
+
+    assert (pages["BOOK"], pages["COMIC"], pages["FILM"], pages["GAME"]) == (450, 48, None, None)
+
+
 def test_count_per_year_zero_fills_gaps(media_factory, all_media):
     """Dated media are counted per review year, with empty years in between."""
     media_factory(review_date="2022-05-01")

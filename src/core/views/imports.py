@@ -228,11 +228,13 @@ def fetch_import_data(request) -> dict | None:
     if igdb_id := params.get("igdb_id"):
         return _fetch_details(get_igdb_client, lambda client: client.get_game_details(int(igdb_id)))
     if openlibrary_key := params.get("openlibrary_key"):
-        year = params.get("year", "")
+        year, pages = params.get("year", ""), params.get("pages", "")
         return _fetch_details(
             get_openlibrary_client,
             lambda client: client.get_work_details(
-                openlibrary_key, first_publish_year=int(year) if year.isdigit() else None
+                openlibrary_key,
+                first_publish_year=int(year) if year.isdigit() else None,
+                page_count=int(pages) if pages.isdigit() else None,
             ),
         )
     if googlebooks_id := params.get("googlebooks_id"):
@@ -247,6 +249,7 @@ def import_initial_data(import_data: dict, media=None) -> dict:
     initial_data = {
         "title": import_data.get("title", ""),
         "pub_year": import_data.get("year"),
+        "page_count": import_data.get("page_count"),
         "media_type": IMPORT_MEDIA_TYPES.get(import_data.get("media_type"), ""),
         "external_uri": import_data.get("source_url", ""),
     }

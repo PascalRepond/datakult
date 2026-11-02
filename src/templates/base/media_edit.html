@@ -20,7 +20,7 @@
 {% endblock extra_js %}
 {% block content %}
   <div class="max-w-4xl mx-auto">
-    <form method="post" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data" class="group">
       {% csrf_token %}
       {# Header #}
       <div class="flex justify-between items-center gap-4 mb-6">
@@ -95,6 +95,8 @@
               {% url 'tag_search_htmx' as tag_search_url %}
               {% include "partials/common/chips_field.html" with field=form.tags label=_("Tags") objects=media.tags.all imported=import_tags icon="tag" kind="tag" search_url=tag_search_url %}
               {% include "partials/common/form_field.html" with field=form.pub_year label=_("Release year") %}
+              {# Only shown while the picked type is counted in pages (PAGED_TYPES) #}
+              {% include "partials/common/form_field.html" with field=form.page_count label=_("Number of pages") class="hidden group-has-[option[value=BOOK]:checked]:block group-has-[option[value=COMIC]:checked]:block" %}
               {% include "partials/common/form_field.html" with field=form.external_uri label=_("External URI") %}
             </div>
           </div>

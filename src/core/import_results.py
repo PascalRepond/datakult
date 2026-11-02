@@ -78,7 +78,9 @@ def from_googlebooks(result, media_id):
 def from_openlibrary(result, media_id):
     """Return an OpenLibrary result, as the import page shows it."""
     return _from_book_source(
-        result, "OpenLibrary", _import_url(media_id, openlibrary_key=result.olid, year=result.year)
+        result,
+        "OpenLibrary",
+        _import_url(media_id, openlibrary_key=result.olid, year=result.year, pages=result.page_count),
     )
 
 

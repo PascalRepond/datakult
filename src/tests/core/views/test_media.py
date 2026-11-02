@@ -677,6 +677,7 @@ def test_media_detail_shows_all_fields(logged_in_client, media_factory, agent):
         score=8,
         review="This is a detailed review.",
         pub_year=2023,
+        page_count=320,
         external_uri="https://example.com",
         contributors=[agent],
     )
@@ -685,6 +686,7 @@ def test_media_detail_shows_all_fields(logged_in_client, media_factory, agent):
 
     assert media.title in content
     assert "2023" in content
+    assert "320 pages" in content
     assert agent.name in content
     assert "https://example.com" in content
 

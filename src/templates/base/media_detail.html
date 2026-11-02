@@ -41,6 +41,13 @@
             {% if media.tags.all %}
               <div class="flex flex-wrap gap-1">{% include "partials/media_items/media_tags.html" %}</div>
             {% endif %}
+            {# Page count #}
+            {% if media.page_count %}
+              <div class="flex items-center gap-2 text-sm">
+                {% lucide "files" size="16" class="shrink-0" %}
+                <span>{% blocktranslate count counter=media.page_count %}{{ counter }} page{% plural %}{{ counter }} pages{% endblocktranslate %}</span>
+              </div>
+            {% endif %}
             {# External link #}
             {% if media.external_uri %}
               <a href="{{ media.external_uri }}"

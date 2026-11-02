@@ -43,6 +43,7 @@ class OpenLibraryResult:
     authors: list[str]
     year: int | None
     cover_id: int | None
+    page_count: int | None = None  # Median of the editions, as the work itself has none
 
     @property
     def olid(self) -> str:
@@ -91,7 +92,7 @@ class OpenLibraryClient(APIClient):
             {
                 "q": query,
                 "limit": limit,
-                "fields": "key,title,author_name,first_publish_year,cover_i",
+                "fields": "key,title,author_name,first_publish_year,cover_i,number_of_pages_median",
             },
         )
 
@@ -102,20 +103,24 @@ class OpenLibraryClient(APIClient):
                 authors=_author_names(doc),
                 year=doc.get("first_publish_year"),
                 cover_id=doc.get("cover_i"),
+                page_count=doc.get("number_of_pages_median"),
             )
             for doc in data.get("docs", [])
         ]
 
-    def get_work_details(self, work_key: str, first_publish_year: int | None = None) -> dict:
+    def get_work_details(
+        self, work_key: str, first_publish_year: int | None = None, page_count: int | None = None
+    ) -> dict:
         """
         Get detailed information about a work (book).
 
         Args:
             work_key: The work key (e.g., "/works/OL45883W" or just "OL45883W")
             first_publish_year: Optional year from search results
+            page_count: Optional page count from search results
 
         Returns a dict with:
-            - title, year
+            - title, year, page_count
             - contributors: list of author names
             - cover_url: full URL for cover image
             - source_url: URL to OpenLibrary page
@@ -146,6 +151,7 @@ class OpenLibraryClient(APIClient):
         return {
             "title": work_data.get("title", ""),
             "year": first_publish_year,
+            "page_count": page_count,
             "contributors": authors,
             "cover_url": _cover_url(cover_ids[0] if cover_ids else None, "L"),
             "source_url": f"https://openlibrary.org{work_key}",

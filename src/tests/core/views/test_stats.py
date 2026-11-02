@@ -99,6 +99,15 @@ def test_stats_type_counters_select_or_clear_their_type(logged_in_client, params
     assert (urls["FILM"], urls["BOOK"]) == (f"{reverse('stats')}?{film_query}", f"{reverse('stats')}?{book_query}")
 
 
+def test_stats_type_counters_show_their_pages(logged_in_client, media_factory):
+    """The counter of a type with known page counts shows the pages of its rated media below their number."""
+    media_factory(media_type="BOOK", page_count=320, score=8)
+
+    content = logged_in_client.get(reverse("stats")).content.decode()
+
+    assert "320 pages" in content
+
+
 @pytest.mark.parametrize("year", ["abc", "0", "9999", pytest.param("1" * 5000, id="oversized")])
 def test_stats_invalid_filters_are_ignored(logged_in_client, media_factory, year):
     """Invalid type and year parameters, years out of the review date range included, fall back to everything."""
