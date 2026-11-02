@@ -3,7 +3,7 @@
 {% load media_tags %}
 {# Count of the rated media of a type, narrowing the stats of the year down to that type, or clearing the selected one #}
 {# Parameters: row (from count_per_type), year (or none for every year), media_type (the selected type, optional) #}
-{# A row with previous counts (previous and previous_pages) compares its counts with the year before #}
+{# A row with previous counts (previous and previous_pages) compares its counts with the year before, its pages only when known #}
 {% if row.media_type == media_type %}
   {% query_string request year=year type=None as query %}
 {% else %}
@@ -29,7 +29,7 @@
     {% if row.pages %}
       <div class="flex flex-wrap items-center gap-x-2 text-sm">
         {% blocktranslate count counter=row.pages with pages=row.pages|intcomma %}{{ pages }} page{% plural %}{{ pages }} pages{% endblocktranslate %}
-        {% if row.previous is not None %}
+        {% if row.previous_pages is not None or row.previous == 0 %}
           {% include "partials/stats/comparison.html" with count=row.pages previous=row.previous_pages|default:0 year=year|add:-1 %}
         {% endif %}
       </div>

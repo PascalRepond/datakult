@@ -20,8 +20,9 @@ MAX_YEAR_LENGTH = 4
 def _stats_filters(request):
     """Read the stats page filters: return the year, the media type and the rated media reviewed that year."""
     value = request.GET.get("year", "")
+    # The year before and after the picked one, which bound and compare its stats, must be valid years too
     year = (
-        int(value) if len(value) <= MAX_YEAR_LENGTH and value.isdecimal() and MINYEAR <= int(value) < MAXYEAR else None
+        int(value) if len(value) <= MAX_YEAR_LENGTH and value.isdecimal() and MINYEAR < int(value) < MAXYEAR else None
     )
     media_type = request.GET.get("type")
     if media_type not in MediaType.values:
