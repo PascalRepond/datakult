@@ -180,9 +180,24 @@ def test_stats_type_counters_show_their_pages(logged_in_client, media_factory):
     assert "1,320 pages" in content
 
 
-@pytest.mark.parametrize("year", ["abc", "0", "9999", pytest.param("1" * 5000, id="oversized")])
+@pytest.mark.parametrize(
+    ("previous_page_counts", "compared"), [([], True), ([None], False)], ids=["no media", "unknown pages"]
+)
+def test_stats_type_counters_only_compare_known_pages(logged_in_client, media_factory, previous_page_counts, compared):
+    """The pages of a type are compared with the year before if it had none of its media, not if they are unknown."""
+    media_factory(media_type="BOOK", review_date="2024", page_count=300, score=7)
+    for page_count in previous_page_counts:
+        media_factory(media_type="BOOK", review_date="2023", page_count=page_count, score=7)
+
+    content = logged_in_client.get(reverse("stats"), {"year": 2024}).content.decode()
+
+    assert ("+300" in content) == compared
+
+
+@pytest.mark.parametrize("year", ["abc", "0", "1", "9999", pytest.param("1" * 5000, id="oversized")])
 def test_stats_invalid_filters_are_ignored(logged_in_client, media_factory, year):
-    """Invalid type and year parameters, years out of the review date range included, fall back to everything."""
+    """Invalid type and year parameters fall back to everything, years out of the review date range included, as well
+    as years whose year before or after is out of it."""
     media_factory(score=5)
 
     response = logged_in_client.get(reverse("stats"), {"year": year, "type": "NOPE"})
