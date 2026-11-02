@@ -87,6 +87,7 @@ IMPORTS = {
             "initial": {
                 "title": "Dune",
                 "pub_year": 2021,
+                "page_count": None,
                 "media_type": "FILM",
                 "external_uri": "https://www.themoviedb.org/movie/438631",
             },
@@ -109,6 +110,7 @@ IMPORTS = {
             "initial": {
                 "title": "Severance",
                 "pub_year": 2022,
+                "page_count": None,
                 "media_type": "TV",
                 "external_uri": "https://www.themoviedb.org/tv/95396",
             },
@@ -139,6 +141,7 @@ IMPORTS = {
             "initial": {
                 "title": "Hades",
                 "pub_year": 2020,
+                "page_count": None,
                 "media_type": "GAME",
                 "external_uri": "https://www.igdb.com/games/hades",
             },
@@ -156,6 +159,7 @@ IMPORTS = {
                     "subtitle": "Deluxe Edition",
                     "authors": ["Frank Herbert"],
                     "publishedDate": "1965-08",
+                    "pageCount": 412,
                     "categories": ["Fiction"],
                     "imageLinks": {"thumbnail": "http://books.google.com/books/content?id=vol1&zoom=1"},
                     "canonicalVolumeLink": "https://books.google.com/books/about/Dune.html",
@@ -166,6 +170,7 @@ IMPORTS = {
             "initial": {
                 "title": "Dune: Deluxe Edition",
                 "pub_year": 1965,
+                "page_count": 412,
                 "media_type": "BOOK",
                 "external_uri": "https://books.google.com/books/about/Dune.html",
             },
@@ -175,7 +180,7 @@ IMPORTS = {
         },
     ),
     "openlibrary": (
-        {"openlibrary_key": "OL1W", "year": "1965"},
+        {"openlibrary_key": "OL1W", "year": "1965", "pages": "412"},
         {
             "https://openlibrary.org/works/OL1W.json": {
                 "title": "Dune",
@@ -188,6 +193,7 @@ IMPORTS = {
             "initial": {
                 "title": "Dune",
                 "pub_year": 1965,
+                "page_count": 412,
                 "media_type": "BOOK",
                 "external_uri": "https://openlibrary.org/works/OL1W",
             },
@@ -211,6 +217,7 @@ IMPORTS = {
             "initial": {
                 "title": "Abbey Road",
                 "pub_year": 1969,
+                "page_count": None,
                 "media_type": "MUSIC",
                 "external_uri": "https://musicbrainz.org/release/abc-123",
             },
@@ -288,7 +295,13 @@ SEARCHES = {
     "books": {
         "https://openlibrary.org/search.json": {
             "docs": [
-                {"key": "/works/OL1W", "title": "Dune", "author_name": "Frank Herbert", "first_publish_year": 1965}
+                {
+                    "key": "/works/OL1W",
+                    "title": "Dune",
+                    "author_name": "Frank Herbert",
+                    "first_publish_year": 1965,
+                    "number_of_pages_median": 412,
+                }
             ]
         },
         "https://www.googleapis.com/books/v1/volumes": {
@@ -326,6 +339,16 @@ def test_import_search_shows_the_results_of_the_source(logged_in_client, api_res
     response = logged_in_client.get(reverse("import_search_htmx"), {"source": source, "q": "dune"})
 
     assert [(result.title, result.year, result.byline) for result in response.context["results"]] == expected
+
+
+def test_openlibrary_result_imports_its_page_count(logged_in_client, api_responses):
+    """An OpenLibrary result passes the median page count of its editions on to its import, as the work has none."""
+    api_responses.update(SEARCHES["books"])
+
+    response = logged_in_client.get(reverse("import_search_htmx"), {"source": "books", "q": "dune"})
+
+    result = next(result for result in response.context["results"] if result.badge == "OpenLibrary")
+    assert "pages=412" in result.import_url
 
 
 @pytest.mark.parametrize(

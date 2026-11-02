@@ -140,7 +140,7 @@ class GoogleBooksClient(APIClient):
         Get detailed information about a volume (book).
 
         Returns a dict shaped like the other services for the import flow:
-            - title, year
+            - title, year, page_count
             - contributors: list of author names
             - genres: list of categories (for tag pre-fill)
             - cover_url: full URL for cover image
@@ -157,6 +157,7 @@ class GoogleBooksClient(APIClient):
         return {
             "title": title,
             "year": extract_year(volume_info.get("publishedDate")),
+            "page_count": volume_info.get("pageCount"),
             "contributors": volume_info.get("authors", []),
             "genres": volume_info.get("categories", []),
             "cover_url": _resize_cover_url(thumbnail, "w800-h1200") if thumbnail else None,

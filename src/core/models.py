@@ -109,6 +109,10 @@ class MediaType(models.TextChoices):
     BROADCAST = "BROADCAST", _("Broadcast")
 
 
+# Media types whose length is counted in pages
+PAGED_TYPES = (MediaType.BOOK, MediaType.COMIC)
+
+
 class Status(models.TextChoices):
     PLANNED = "PLANNED", _("Planned")
     IN_PROGRESS = "IN_PROGRESS", _("In progress")
@@ -226,6 +230,11 @@ class Media(TimestampedModel):
             MaxValueValidator(MAX_YEAR, _("Year must be between -4000 and 2200.")),
         ],
     )
+    page_count = models.PositiveIntegerField(
+        verbose_name=_("Number of pages"),
+        null=True,
+        blank=True,
+    )
     review = MarkdownField(
         verbose_name=_("Review"),
         null=False,
@@ -278,6 +287,12 @@ class Media(TimestampedModel):
             self.cover_color = ""
 
         super().save(*args, **kwargs)
+
+    def clean(self):
+        """Drop the page count of a media whose type is not counted in pages, such as a book turned into a film."""
+        super().clean()
+        if self.media_type not in PAGED_TYPES:
+            self.page_count = None
 
 
 class SavedView(TimestampedModel):

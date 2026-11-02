@@ -70,11 +70,11 @@ class MediaForm(HtmxValidationMixin, forms.ModelForm):
     Form for creating and editing Media objects with dynamic HTMX validation.
 
     Only the free-text fields, whose input can actually be invalid, are validated while typed: title (required),
-    external_uri (URL format), pub_year (min/max range), and review_date (date format).
+    external_uri (URL format), pub_year (min/max range), page_count (positive), and review_date (date format).
     """
 
     validation_url_name = "media_validate_field"
-    validated_fields = ("title", "external_uri", "pub_year", "review_date")
+    validated_fields = ("title", "external_uri", "pub_year", "page_count", "review_date")
 
     class Meta:
         model = Media
@@ -86,6 +86,7 @@ class MediaForm(HtmxValidationMixin, forms.ModelForm):
             "external_uri",
             "status",
             "pub_year",
+            "page_count",
             "score",
             "review",
             "review_date",
@@ -97,6 +98,7 @@ class MediaForm(HtmxValidationMixin, forms.ModelForm):
             "external_uri": forms.URLInput(attrs={"class": "input validator w-full"}),
             "status": forms.Select(attrs={"class": "select validator w-full"}),
             "pub_year": forms.NumberInput(attrs={"class": "input validator w-full", "placeholder": _("YYYY")}),
+            "page_count": forms.NumberInput(attrs={"class": "input validator w-full"}),
             "score": ScorePickerWidget(),
             "review": MDEWidget(options={"nativeSpellcheck": True, "inputStyle": "contenteditable"}),
             "review_date": forms.TextInput(

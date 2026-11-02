@@ -2,7 +2,7 @@
 
 from collections import Counter
 
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Sum
 from django.db.models.functions import Lower
 from django.utils.dates import MONTHS_3
 from django.utils.text import capfirst
@@ -66,10 +66,11 @@ def adjacent_years(years, year):
 
 
 def count_per_type(media):
-    """Count media for every media type, in the order of the model choices."""
+    """Count media for every media type, in the order of the model choices, with their pages, None when unknown."""
     counts = _count_by(media, "media_type")
+    pages = dict(media.values_list("media_type").annotate(pages=Sum("page_count")).order_by())
     return [
-        {"media_type": media_type, "label": label, "count": counts.get(media_type, 0)}
+        {"media_type": media_type, "label": label, "count": counts.get(media_type, 0), "pages": pages.get(media_type)}
         for media_type, label in MediaType.choices
     ]
 

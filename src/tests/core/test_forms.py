@@ -42,7 +42,7 @@ def test_only_free_text_fields_are_validated_as_they_are_typed(db):
 
     validated = {name for name, field in form.fields.items() if "hx-post" in field.widget.attrs}
 
-    assert validated == {"title", "external_uri", "pub_year", "review_date"}
+    assert validated == {"title", "external_uri", "pub_year", "page_count", "review_date"}
     for field_name in validated:
         attrs = form.fields[field_name].widget.attrs
         assert attrs["hx-post"] == reverse("media_validate_field")
@@ -66,6 +66,14 @@ def test_form_saves_the_picked_score(db):
     """The score of the checked radio is saved, and the unrated radio clears it."""
     assert MediaForm(data=media_form_data(score="8")).save().score == 8
     assert MediaForm(data=media_form_data(score="")).save().score is None
+
+
+@pytest.mark.parametrize(("media_type", "saved"), [("BOOK", 320), ("COMIC", 320), ("FILM", None)])
+def test_form_only_saves_the_page_count_of_books_and_comics(db, media_type, saved):
+    """The page count is saved for books and comics, and dropped for other types, such as a book turned into a film."""
+    form = MediaForm(data=media_form_data(media_type=media_type, page_count="320"))
+
+    assert form.save().page_count == saved
 
 
 def test_cover_widget_brings_its_script_as_form_media(db):
