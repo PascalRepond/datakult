@@ -9,7 +9,7 @@
   "scripts": {
     "start": "npm run dev",
     "build": "npm run build:clean && npm run build:tailwind",
-    "build:clean": "rimraf ../static/css/dist",
+    "build:clean": "node -e \"require('node:fs').rmSync('../static/css/dist', { recursive: true, force: true })\"",
     "build:tailwind": "cross-env NODE_ENV=production postcss ./src/styles.css -o ../static/css/dist/styles.css --minify",
     "dev": "cross-env NODE_ENV=development postcss ./src/styles.css -o ../static/css/dist/styles.css --watch"
   },
@@ -24,7 +24,6 @@
     "postcss-cli": "^12.0.0",
     "postcss-nested": "^7.0.2",
     "postcss-simple-vars": "^7.0.1",
-    "rimraf": "^6.0.1",
     "tailwindcss": "^4.1.11"
   }
 }
