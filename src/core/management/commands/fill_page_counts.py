@@ -14,6 +14,8 @@ from core.services.openlibrary import get_openlibrary_client
 # OpenLibrary asks for about one request per second
 REQUEST_DELAY = 1  # seconds
 OPENLIBRARY_WORK_PATTERN = re.compile(r"openlibrary\.org/works/(OL\d+W)")
+# Hosts of the Google Books links, whose id query names their volume
+GOOGLEBOOKS_HOSTS = {"books.google.com", "play.google.com"}
 # Series and subtitles, which the sources tend to name differently, are left out of the searched title
 TITLE_SUFFIX_PATTERN = re.compile(r"\s*[(:].*")
 # OpenLibrary results looked through for a page count, which the first editions or variants of a work may lack
@@ -74,7 +76,7 @@ class Command(BaseCommand):
         found = None
         if work := OPENLIBRARY_WORK_PATTERN.search(media.external_uri):
             found = self._search_openlibrary(f"key:/works/{work[1]}")
-        elif url.netloc.endswith("google.com") and (volume_id := parse_qs(url.query).get("id")):
+        elif url.hostname in GOOGLEBOOKS_HOSTS and (volume_id := parse_qs(url.query).get("id")):
             found = self._googlebooks_volume(volume_id[0])
         return (
             found

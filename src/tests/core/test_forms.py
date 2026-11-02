@@ -76,6 +76,11 @@ def test_form_only_saves_the_page_count_of_books_and_comics(db, media_type, save
     assert form.save().page_count == saved
 
 
+def test_form_rejects_a_page_count_of_zero(db):
+    """A page count is positive, as a media of no pages would be left out of the search for missing page counts."""
+    assert list(MediaForm(data=media_form_data(page_count="0")).errors) == ["page_count"]
+
+
 def test_cover_widget_brings_its_script_as_form_media(db):
     """The cover widget declares its script as form media, rather than inlining scripts and handlers."""
     form = MediaForm()

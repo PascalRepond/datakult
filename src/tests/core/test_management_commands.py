@@ -208,6 +208,16 @@ def test_fill_page_counts_lists_what_it_found_or_not(media_factory, page_count_s
     assert "No page count found for 1 media, to fill in by hand:\n  Unknown" in out.getvalue()
 
 
+def test_fill_page_counts_only_asks_google_books_for_the_volume_of_its_own_links(media_factory, page_count_sources):
+    """A link to another host whose query names an id, such as a lookalike of Google, is not taken for a volume."""
+    _openlibrary, googlebooks = page_count_sources
+    media_factory(title="Lookalike", external_uri="https://notgoogle.com/books?id=vol1")
+
+    call_command("fill_page_counts", stdout=StringIO())
+
+    googlebooks.get_volume_details.assert_not_called()
+
+
 def test_fill_page_counts_only_looks_for_the_missing_page_counts(media_factory, page_count_sources):
     """Media of other types, and books whose page count is known, are left as they are."""
     openlibrary, googlebooks = page_count_sources
