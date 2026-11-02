@@ -2,6 +2,51 @@
 
 <!-- version list -->
 
+## v1.13.0 (2026-11-02)
+
+### Bug Fixes
+
+- **media**: Harden page count input and lookup
+  ([`af91c7d`](https://github.com/PascalRepond/datakult/commit/af91c7d5b6822ffae654e87b44beed24955413ba))
+
+- **stats**: Guard the yearly comparison
+  ([`81c16e1`](https://github.com/PascalRepond/datakult/commit/81c16e197398b24806fea76b0c040172725292e4))
+
+### Build System
+
+- Update dependencies
+  ([`02b8ae1`](https://github.com/PascalRepond/datakult/commit/02b8ae10b38137b3f8bf5a34b65a2ac20fcc72a4))
+
+### Chores
+
+- Bump the github-actions group with 2 updates
+  ([`ff38997`](https://github.com/PascalRepond/datakult/commit/ff38997f24dfaac901ab59d53a482c2e179cec41))
+
+- Update dependencies
+  ([`d1d50c3`](https://github.com/PascalRepond/datakult/commit/d1d50c3d3e848a287e2242513fca603956549aa4))
+
+### Features
+
+- **lists**: Add ranked lists of media
+  ([`fcb3346`](https://github.com/PascalRepond/datakult/commit/fcb3346317ef663312ec102823ea81def2fe98c3))
+
+- **media**: Add page count of books and comics
+  ([`49b4c2c`](https://github.com/PascalRepond/datakult/commit/49b4c2c5b27df6e282485d4d36a559fe178c4f40))
+
+- **stats**: Break down and compare yearly stats
+  ([`8568cd1`](https://github.com/PascalRepond/datakult/commit/8568cd1dfefb2bf4bad6f6019453b504f7b34562))
+
+### Performance Improvements
+
+- **docker**: Run gunicorn with four threads
+  ([`9c9b275`](https://github.com/PascalRepond/datakult/commit/9c9b275d99da65f5efee78a14989a024722d7e7e))
+
+### Refactoring
+
+- **templates**: Share sorting and paging
+  ([`3c9b934`](https://github.com/PascalRepond/datakult/commit/3c9b9342488632d0de9d4e2655bc4d8e5e49b5f1))
+
+
 ## v1.12.0 (2026-10-21)
 
 ### Chores
